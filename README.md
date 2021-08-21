@@ -455,6 +455,8 @@ getUUID() {
   blkid "$1" | cut -d\" -f2
 }
 
+echo "" >> /etc/fstab
+
 cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r I; do
   echo "UUID=$(getUUID "$I")   "${I/devE/e}"                   vfat  noatime,noauto             0 0"
@@ -464,7 +466,7 @@ UUID=$(getUUID "/dev/md1")               none                    swap  sw       
 UUID=$(getUUID /mapperRoot)   /                       btrfs noatime,subvol=@root       0 0
 UUID=$(getUUID /mapperRoot)   /home                   btrfs noatime,subvol=@home       0 0
 UUID=$(getUUID /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles  0 0
-UUID=$(getUUID /mapperRoot)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage    0 0"
+UUID=$(getUUID /mapperRoot)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage    0 0
 EOF
 
 echo "" >> /etc/fstab
