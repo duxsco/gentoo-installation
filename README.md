@@ -520,10 +520,13 @@ Build kernel and initramfs:
 
 ```bash
 # I usually make following changes:
-#  - Support for extended (non-PC) x86 platforms
-#  - Processor family (Core 2/newer Xeon)  --->
-#  - Disable sysrq
-#  - Remote debugging over FireWire early on boot
+#     Processor type and features  --->
+#         [ ] Support for extended (non-PC) x86 platforms
+#             Processor family (Core 2/newer Xeon)  --->
+#     Kernel hacking  --->
+#         Generic Kernel Debugging Instruments  --->
+#             [ ] Magic SysRq key
+#         [ ] Remote debugging over FireWire early on boot
 genkernel all
 ```
 
