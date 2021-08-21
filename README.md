@@ -503,7 +503,7 @@ curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.github
 
 # And, verify as already done above for genkernel user patches
 gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
-sed 's|  |  /usr/local/sbin/|' sha256.txt | sha256sum -c -
+sed 's|  |  /usr/local/sbin/|' gkb2gs.sh.sha256 | sha256sum -c -
 ```
 
 Make script executable and create kernel config:
