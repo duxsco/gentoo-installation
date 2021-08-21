@@ -469,8 +469,6 @@ UUID=$(getUUID /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@dist
 UUID=$(getUUID /mapperRoot)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage    0 0
 EOF
 
-echo "" >> /etc/fstab
-
 find /devEfi* -maxdepth 0 | while read -r I; do
   mkdir "${I/devE/e}"
   mount "${I/devE/e}"
