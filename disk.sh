@@ -40,7 +40,17 @@ do
 done
 
 # shellcheck disable=SC2068
-if [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ] || [ -z ${SWAP_SIZE+x} ] || [ ${#DISKS[@]} -lt 2 ] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
+if [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ] || [ -z ${SWAP_SIZE+x} ] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
+    help
+fi
+
+if [ ${#DISKS[@]} -eq 2 ]; then
+    BTRFS_RAID=raid1
+elif [ ${#DISKS[@]} -eq 3 ]; then
+    BTRFS_RAID=raid1c3
+elif [ ${#DISKS[@]} -eq 4 ]; then
+    BTRFS_RAID=raid1c4
+else
     help
 fi
 
@@ -69,7 +79,7 @@ done
 
 # boot partition
 # shellcheck disable=SC2046
-mdadm --create /dev/md0 --level=1 --raid-devices=3 --metadata=default $(getPartitions 2)
+mdadm --create /dev/md0 --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getPartitions 2)
 
 # encrypting boot, swap and root partitions
 unset NON_BOOT
@@ -94,13 +104,13 @@ mkfs.btrfs --checksum blake2 /dev/mapper/md0
 
 # swap partition
 # shellcheck disable=SC2046
-mdadm --create /dev/md1 --level=1 --raid-devices=3 --metadata=default $(getMapperPartitions 3)
+mdadm --create /dev/md1 --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getMapperPartitions 3)
 mkswap /dev/md1
 swapon /dev/md1
 
 # root partition
 # shellcheck disable=SC2046
-mkfs.btrfs --data raid1c3 --metadata raid1c3 --checksum blake2 $(getMapperPartitions 4)
+mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 $(getMapperPartitions 4)
 
 mkdir /mnt/gentoo
 # shellcheck disable=SC2046
@@ -113,7 +123,8 @@ umount /mnt/gentoo
 # shellcheck disable=SC2046
 mount -o noatime,subvol=@root $(getMapperPartitions 4 | awk '{print $1}') /mnt/gentoo
 mkdir -p /mnt/gentoo/key/mnt/key
-cp -av "${KEYFILE}" /mnt/gentoo/key/mnt/key/key
+rsync -a "${KEYFILE}" /mnt/gentoo/key/mnt/key/key
+sync
 cmp "${KEYFILE}" /mnt/gentoo/key/mnt/key/key
 rm -f "${KEYFILE}"
 

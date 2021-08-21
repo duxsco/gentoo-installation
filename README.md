@@ -12,7 +12,7 @@ On LUKS encrypted disks, LUKS passphrase slot are set as follows:
   - 2: Boot password
     - shorter than "master", but still secure
     - keyboard layout independent (QWERTY vs QWERTZ)
-    - used during boot to unlock boot partition via Grub's password prompt
+    - used during boot to unlock boot partition via GRUB's password prompt
 
 The following steps are basically those in [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation) with some customisations added.
 
