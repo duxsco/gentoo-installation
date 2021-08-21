@@ -509,6 +509,9 @@ sed 's|  |  /usr/local/sbin/|' gkb2gs.sh.sha256 | sha256sum -c -
 Make script executable and create kernel config:
 
 ```bash
+# Create directory to store kernel configs
+mkdir /etc/kernels
+
 chmod u+x /usr/local/sbin/gkb2gs.sh
 gkb2gs.sh
 ```
@@ -516,9 +519,6 @@ gkb2gs.sh
 Build kernel and initramfs:
 
 ```bash
-# Create directory to store kernel configs
-mkdir /etc/kernels
-
 # I usually make following changes:
 #  - Support for extended (non-PC) x86 platforms
 #  - Processor family (Core 2/newer Xeon)  --->
