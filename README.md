@@ -499,10 +499,10 @@ su - david
 cd "$(mktemp -d)"
 
 # Download files
-curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.githubusercontent.com/duxco/gkb2gs/main/sha256.txt{,.asc}"
+curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.githubusercontent.com/duxco/gkb2gs/main/gkb2gs.sh.sha256{,.asc}"
 
 # And, verify as already done above for genkernel user patches
-gpg --homedir /tmp/gpgHomeDir --verify sha256.txt.asc sha256.txt
+gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
 sed 's|  |  /usr/local/sbin/|' sha256.txt | sha256sum -c -
 ```
 
