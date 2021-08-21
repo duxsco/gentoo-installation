@@ -779,7 +779,7 @@ emerge -av app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel
   - stage3 and dev* files:
 
 ```bash
-rm -fv /stage3-amd64-hardened-openrc-* /devEfi* /devRoot* /devSwap* /mapperRoot
+rm -fv /stage3-amd64-hardened-openrc-* /portage-latest.tar.xz* /devEfi* /devRoot* /devSwap* /mapperRoot
 ```
 
   - exit and reboot:
