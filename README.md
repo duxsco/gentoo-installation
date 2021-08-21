@@ -757,8 +757,8 @@ PubkeyAcceptedAlgorithms -ecdsa-sha2-nistp256,ecdsa-sha2-nistp256-cert-v01@opens
 AllowUsers david
 EOF
 diff /etc/ssh/sshd_config{,.old}
-sshd -t
 ssh-keygen -A
+sshd -t
 ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
 ```
 
