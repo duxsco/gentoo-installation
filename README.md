@@ -271,7 +271,7 @@ EOF
 
 I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-pages`. Makes using Stackoverflow easier 😉.
 
-```
+```bash
 echo "sys-apps/man-pages -l10n_de" >> /mnt/gentoo/etc/portage/package.use/main
 ```
 
@@ -392,7 +392,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 
 Install [LTS kernel](https://www.kernel.org/category/releases.html):
 
-```
+```bash
 mkdir /etc/portage/package.accept_keywords /etc/portage/package.mask && (
 cat <<EOF >> /etc/portage/package.accept_keywords/main
 sys-kernel/gentoo-kernel-bin ~amd64
@@ -831,6 +831,3 @@ umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
 reboot
 ```
-
-
-
