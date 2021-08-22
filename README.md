@@ -36,12 +36,12 @@ PC∕Laptop
 ```
 
 On LUKS encrypted disks, LUKS passphrase slot are set as follows:
-  - 0: Keyfile (stored in initramfs to unlock root and swap partitions without interaction)
+  - 0: Keyfile (stored in initramfs to unlock `root` and `swap` partitions without interaction)
   - 1: Master password (fallback password for emergency)
   - 2: Boot password
     - shorter than "master", but still secure
     - keyboard layout independent (QWERTY vs QWERTZ)
-    - used during boot to unlock boot partition via GRUB's password prompt
+    - used during boot to unlock `boot` partition via GRUB's password prompt
 
 The following steps are basically those in [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation) with some customisations added.
 
@@ -292,7 +292,8 @@ Enable delta webrsync. Thereafter, portage uses https only.
 emerge app-portage/emerge-delta-webrsync app-arch/tarsync && \
 mkdir /etc/portage/repos.conf && \
 sed 's/sync-type = rsync/sync-type = webrsync/' /usr/share/portage/config/repos.conf > /etc/portage/repos.conf/gentoo.conf && \
-echo "sync-webrsync-delta = yes" >> /etc/portage/repos.conf/gentoo.conf; echo $?
+echo "sync-webrsync-delta = yes" >> /etc/portage/repos.conf/gentoo.conf && \
+grep -q "sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/gentoo.conf; echo $?
 ```
 
 Update portage and check news:
@@ -366,9 +367,16 @@ passwd david
 
 Setup sudo:
 
-```
+```bash
 echo "app-admin/sudo -sendmail" >> /etc/portage/package.use/main && \
-emerge app-editors/vim app-admin/sudo && \
+emerge app-admin/sudo && \
+echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?
+```
+
+Setup vim:
+
+```bash
+emerge app-editors/vim && \
 echo "filetype plugin on
 filetype indent on
 set number
@@ -377,8 +385,7 @@ syntax on" | tee -a /root/.vimrc >> /home/david/.vimrc  && \
 chown david: /home/david/.vimrc && \
 eselect editor set vi && \
 eselect vi set vim && \
-env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
-echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?
+env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
 ## Kernel
