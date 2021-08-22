@@ -10,7 +10,7 @@ ${0##*\/} -b BootPassword -m MasterPassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/n
 
 "-d" specifies the disks you want to use for installation.
 They should be of the same type and size. Don't mix HDDs with SSDs!
-At least two disks must be given!
+Number of disks must be >=2 and <=4!
 EOF
     return 1
 }
