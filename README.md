@@ -300,7 +300,7 @@ Update portage and check news:
 ```bash
 emerge app-portage/eix && \
 eix-sync && \
-eselect news list; echo $?
+eselect news list
 # eselect news read 1
 # eselect news read 2
 # etc.
@@ -378,7 +378,7 @@ chown david: /home/david/.vimrc && \
 eselect editor set vi && \
 eselect vi set vim && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
-visudo # uncomment "%wheel ALL=(ALL) ALL"
+echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?
 ```
 
 ## Kernel
