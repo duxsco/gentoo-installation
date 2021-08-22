@@ -1,10 +1,39 @@
 # Gentoo Linux installation
 
-In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/), **not** the official Gentoo Linux installation CD.
-If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH.
+In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/), **not** the official Gentoo Linux installation CD. If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole code block, but understand the commands first and make sure that no adjustments (e.g. IP address, disk names) need to be made.
 
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted.
 You need to boot using EFI (not BIOS), because the boot partition will be encrypted, and decryption of said partition with the help of GRUB won't work otherwise.
+
+The number of disks, where Gentoo Linux will be installed, needs to be >=2 and <=4. Depending on the number of disks, BTRFS raid1, raid1c3 or raid1c4 is used for the `root` partition. Furthermore, MDADM RAID 1 is used for `boot` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
+
+```
+PC∕Laptop
+├── ∕dev∕sda
+│   ├── 1. EFI System Partition
+│   ├── 2. MDADM RAID 1 (boot)
+│   │   └── LUKS
+│   │       └── btrfs
+│   │           └── boot
+│   ├── 3. LUKS (swap)
+│   │   └── MDADM RAID 1
+│   │       └── swap
+│   └── 4. LUKS (root)
+│       └── BTRFS RAID 1
+│           └── root
+└── ∕dev∕sdb
+    ├── 1. EFI System Partition
+    ├── 2. MDADM RAID 1 (boot)
+    │   └── LUKS
+    │       └── btrfs
+    │           └── boot
+    ├── 3. LUKS (swap)
+    │   └── MDADM RAID 1
+    │       └── swap
+    └── 4. LUKS (root)
+        └── BTRFS RAID 1
+            └── root
+```
 
 On LUKS encrypted disks, LUKS passphrase slot are set as follows:
   - 0: Keyfile (stored in initramfs to unlock root and swap partitions without interaction)
