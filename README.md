@@ -30,7 +30,7 @@ Make sure you have booted with EFI:
 [ -d /sys/firmware/efi ] && echo UEFI || echo BIOS
 ```
 
-Do initial setup:
+Do initial setup (copy&paste one after the other):
 
 ```bash
 screen -S install
@@ -56,7 +56,7 @@ passwd root
 systemctl start sshd
 ```
 
-Execute following SCP/SSH commands **on your local machine**:
+Execute following SCP/SSH commands **on your local machine** (copy&paste one after the other):
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
@@ -179,14 +179,14 @@ C.UTF-8 UTF-8
 de_DE.UTF-8 UTF-8
 en_US.UTF-8 UTF-8
 EOF
-) && \
+) && (
 cat <<EOF > /mnt/gentoo/etc/env.d/02locale
 LANG="de_DE.UTF-8"
 LC_COLLATE="C.UTF-8"
 LC_MESSAGES="en_US.UTF-8"
 EOF
-
-chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen"
+) && \
+chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen"; echo $?
 ```
 
 Set timezone:
@@ -248,7 +248,7 @@ echo "sys-apps/man-pages -l10n_de" >> /mnt/gentoo/etc/portage/package.use/main
 
 ## Chroot
 
-Chroot. Copy&paste following commands one after the other:
+Chroot (copy&paste one after the other):
 
 ```bash
 chroot /mnt/gentoo /bin/bash
@@ -260,27 +260,27 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 Enable delta webrsync. Thereafter, portage uses https only.
 
 ```bash
-emerge -av app-portage/emerge-delta-webrsync app-arch/tarsync
+emerge app-portage/emerge-delta-webrsync app-arch/tarsync && \
 mkdir /etc/portage/repos.conf && \
 sed 's/sync-type = rsync/sync-type = webrsync/' /usr/share/portage/config/repos.conf > /etc/portage/repos.conf/gentoo.conf && \
-echo "sync-webrsync-delta = yes" >> /etc/portage/repos.conf/gentoo.conf
+echo "sync-webrsync-delta = yes" >> /etc/portage/repos.conf/gentoo.conf; echo $?
 ```
 
 Update portage and check news:
 
 ```bash
-emerge -av app-portage/eix
-eix-sync
-eselect news list
-eselect news read 1
-eselect news read 2
-etc.
+emerge app-portage/eix && \
+eix-sync && \
+eselect news list; echo $?
+# eselect news read 1
+# eselect news read 2
+# etc.
 ```
 
 (Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf`:
 
 ```bash
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq
+ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq && \
 
 # Create mirror list and sort according to your liking.
 # I use following list of German mirrors:
@@ -298,7 +298,7 @@ done
 Set USE flags in `/etc/portage/make.conf`:
 
 ```bash
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags
+ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags && \
 cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/make.conf && \
 cat <<EOF >> /etc/portage/make.conf; echo $?
 USE_HARDENED="pie -sslv3 -suid"
@@ -324,30 +324,31 @@ emerge --depclean -a
 Create user:
 
 ```bash
-useradd -m -G wheel -s /bin/bash david
-chmod og= /home/david
-passwd david
+useradd -m -G wheel -s /bin/bash david && \
+chmod og= /home/david && (
 cat <<EOF >> /home/david/.bashrc
 alias cp="cp -i"
 alias mv="mv -i"
 alias rm="rm -i"
 EOF
+) && \
+passwd david
 ```
 
 Setup sudo:
 
 ```
-echo "app-admin/sudo -sendmail" >> /etc/portage/package.use/main
-emerge -av app-editors/vim app-admin/sudo
+echo "app-admin/sudo -sendmail" >> /etc/portage/package.use/main && \
+emerge app-editors/vim app-admin/sudo && \
 echo "filetype plugin on
 filetype indent on
 set number
 set paste
-syntax on" | tee -a /root/.vimrc >> /home/david/.vimrc
-chown david: /home/david/.vimrc
-eselect editor set vi
-eselect vi set vim
-env-update && source /etc/profile && export PS1="(chroot) $PS1"
+syntax on" | tee -a /root/.vimrc >> /home/david/.vimrc  && \
+chown david: /home/david/.vimrc && \
+eselect editor set vi && \
+eselect vi set vim && \
+env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 visudo # uncomment "%wheel ALL=(ALL) ALL"
 ```
 
@@ -371,11 +372,10 @@ cat <<EOF >> /etc/portage/package.use/main
 sys-fs/btrfs-progs -convert
 sys-kernel/gentoo-kernel-bin -initramfs
 EOF
-); echo $?
-
-emerge -av sys-kernel/gentoo-sources
-eselect kernel list
-eselect kernel set 1
+) && \
+emerge sys-kernel/gentoo-sources && \
+eselect kernel list && \
+eselect kernel set 1; echo $?
 ```
 
 Add [genkernel user patches](https://github.com/duxco/genkernel-patches):
@@ -389,7 +389,7 @@ su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' \"https://raw.githubuserco
 ); echo $?
 ```
 
-Verify the patches:
+Verify the patches (copy&paste one after the other):
 
 ```bash
 # Switch to non-root user. All following commands are executed by non-root.
@@ -427,8 +427,8 @@ sed 's|  |  /etc/portage/patches/sys-kernel/genkernel/|' sha256.txt | sha256sum 
 Install genkernel, filesystem and device mapper tools:
 
 ```bash
-echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license
-emerge -av sys-fs/btrfs-progs sys-fs/cryptsetup sys-fs/mdadm sys-kernel/genkernel
+echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
+emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-fs/mdadm sys-kernel/genkernel
 ```
 
 Configure genkernel:
@@ -487,7 +487,7 @@ tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,
 EOF
 ```
 
-Download and verify [gkb2gs](https://github.com/duxco/gkb2gs):
+Download and verify [gkb2gs](https://github.com/duxco/gkb2gs) (copy&paste one after the other):
 
 ```bash
 su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' https://raw.githubusercontent.com/duxco/gkb2gs/main/gkb2gs.sh" > /usr/local/sbin/gkb2gs.sh
@@ -535,21 +535,22 @@ genkernel all
 If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to use the AMD microcode.
 
 ```bash
-echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use/main
-echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license
-emerge -av intel-microcode
+echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use/main && \
+echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
+emerge sys-firmware/intel-microcode; echo $?
 ```
 
 Setup grub:
 
 ```bash
-echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main
-emerge -av sys-boot/grub
+echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
+emerge sys-boot/grub; echo $?
 ```
 
 Configure grub:
 
 ```bash
+(
 cat <<EOF >> /etc/default/grub
 
 MY_CRYPT_ROOT="$(blkid /devRoot* | awk -F'"' '{print $2}' | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
@@ -561,8 +562,10 @@ GRUB_CMDLINE_LINUX_DEFAULT="\${MY_CRYPT_ROOT} \${MY_CRYPT_SWAP} \${MY_FS} \${MY_
 GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
 EOF
+) && \
 
-NUMBER_EFI="$(find /efi* -maxdepth 0 -type d | wc -l)"
+NUMBER_EFI="$(find /efi* -maxdepth 0 -type d | wc -l)" && \
+(
 find /efi* -maxdepth 0 -type d | while read -r I; do
   grub-install --target=x86_64-efi --efi-directory="$I" --bootloader-id="gentoo${I#/efi}"; echo $?; sync
   (( NUMBER_EFI-- ))
@@ -570,6 +573,7 @@ find /efi* -maxdepth 0 -type d | while read -r I; do
     rm -rf /boot/grub
   fi
 done
+) && \
 grub-mkconfig -o /boot/grub/grub.cfg; echo $?
 ```
 
@@ -586,9 +590,9 @@ sed -i 's/^hostname="localhost"/hostname="micro"/' /etc/conf.d/hostname
 ```bash
 # Change interface name and settings according to your requirements
 echo 'config_enp0s3="10.0.2.15 netmask 255.255.255.0 brd 10.0.2.255"
-routes_enp0s3="default via 10.0.2.2"' >> /etc/conf.d/net
-( cd /etc/init.d && ln -s net.lo net.enp0s3 )
-rc-update add net.enp0s3 default
+routes_enp0s3="default via 10.0.2.2"' >> /etc/conf.d/net && \
+( cd /etc/init.d && ln -s net.lo net.enp0s3 ) && \
+rc-update add net.enp0s3 default; echo $?
 ```
 
 Set `/etc/hosts`:
@@ -616,16 +620,16 @@ sed -i 's/keymap="us"/keymap="de-latin1-nodeadkeys"/' /etc/conf.d/keymaps
 Setup system logger:
 
 ```bash
-echo "app-admin/sysklogd logrotate" >> /etc/portage/package.use/main
-emerge -av app-admin/sysklogd
-rc-update add sysklogd default
+echo "app-admin/sysklogd logrotate" >> /etc/portage/package.use/main && \
+emerge app-admin/sysklogd && \
+rc-update add sysklogd default; echo $?
 ```
 
 Setup cronie:
 
 ```bash
-emerge --noreplace sys-process/cronie
-rc-update add cronie default
+emerge --noreplace sys-process/cronie && \
+rc-update add cronie default; echo $?
 ```
 
 (Optional) Enable ssh service:
@@ -637,7 +641,7 @@ rc-update add sshd default
 Install DHCP client (you never know...):
 
 ```bash
-emerge -av net-misc/dhcpcd
+emerge net-misc/dhcpcd
 ```
 
 ## Further customisations
@@ -645,17 +649,17 @@ emerge -av net-misc/dhcpcd
   - acpid:
 
 ```bash
-emerge -av sys-power/acpid
-rc-update add acpid default
+emerge sys-power/acpid && \
+rc-update add acpid default; echo $?
 ```
 
   - chrony:
 
 ```bash
-emerge -av net-misc/chrony
-rc-update add chronyd default
-sed -i 's/^server/#server/' /etc/chrony/chrony.conf
-cat <<EOF >> /etc/chrony/chrony.conf
+emerge net-misc/chrony && \
+rc-update add chronyd default && \
+sed -i 's/^server/#server/' /etc/chrony/chrony.conf && \
+cat <<EOF >> /etc/chrony/chrony.conf; echo $?
 
 # https://blog.cloudflare.com/nts-is-now-rfc/
 server time.cloudflare.com iburst nts
@@ -682,72 +686,71 @@ EOF
   - consolefont:
 
 ```bash
-sed -i 's/^consolefont="\(.*\)"$/consolefont="lat9w-16"/' /etc/conf.d/consolefont
-rc-update add consolefont boot
+sed -i 's/^consolefont="\(.*\)"$/consolefont="lat9w-16"/' /etc/conf.d/consolefont && \
+rc-update add consolefont boot; echo $?
 ```
 
   - dmcrypt:
 
 ```bash
-LAST_LINE="$(cat /etc/conf.d/dmcrypt | tail -n 1)"
-sed -i '$ d' /etc/conf.d/dmcrypt
+LAST_LINE="$(cat /etc/conf.d/dmcrypt | tail -n 1)" && \
+sed -i '$ d' /etc/conf.d/dmcrypt && \
 echo "target='boot'
 source=UUID='$(blkid /dev/md0 | cut -d\" -f2)'
 key='/key/mnt/key/key'
 
-${LAST_LINE}" >> /etc/conf.d/dmcrypt
-rc-update add dmcrypt boot
+${LAST_LINE}" >> /etc/conf.d/dmcrypt && \
+rc-update add dmcrypt boot; echo $?
 ```
 
   - fish shell:
 
 ```bash
-emerge -av app-shells/fish
+emerge app-shells/fish && (
 cat <<EOF | tee -a /root/.bashrc >> /home/david/.bashrc
 
 # Use fish in place of bash
 # keep this line at the bottom of ~/.bashrc
 [ -x /bin/fish ] && SHELL=/bin/fish exec /bin/fish
-EOF
-/bin/fish -c 'alias cp="cp -i"; alias mv="mv -i"; alias rm="rm -i"; funcsave cp; funcsave mv; funcsave rm'
-su -l david -c "/bin/fish -c 'alias cp=\"cp -i\"; alias mv=\"mv -i\"; alias rm=\"rm -i\"; funcsave cp; funcsave mv; funcsave rm'"
+EOF ) && \
+/bin/fish -c 'alias cp="cp -i"; alias mv="mv -i"; alias rm="rm -i"; funcsave cp; funcsave mv; funcsave rm' && \
+su -l david -c "/bin/fish -c 'alias cp=\"cp -i\"; alias mv=\"mv -i\"; alias rm=\"rm -i\"; funcsave cp; funcsave mv; funcsave rm'"; echo $?
 ```
 
   - mcelog:
 
 ```bash
-echo "app-admin/mcelog ~amd64" >> /etc/portage/package.accept_keywords/main
-emerge -av app-admin/mcelog
-rc-update add mcelog default
+echo "app-admin/mcelog ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge app-admin/mcelog && \
+rc-update add mcelog default; echo $?
 ```
 
   - mdadm:
 
 ```bash
-echo "" > /etc/mdadm.conf
 mdadm --detail --scan >> /etc/mdadm.conf
 ```
 
   - rng-tools:
 
 ```bash
-echo "sys-apps/rng-tools jitterentropy" >> /etc/portage/package.use/main
-emerge -av sys-apps/rng-tools
-rc-update add rngd default
+echo "sys-apps/rng-tools jitterentropy" >> /etc/portage/package.use/main && \
+emerge sys-apps/rng-tools && \
+rc-update add rngd default; echo $?
 ```
 
-  - ssh (optional):
+  - ssh (optional). Don't forget to fill `~/.ssh/authorized_keys`:
 
 ```bash
-( umask 0177 && touch /home/david/.ssh/authorized_keys )
-chown david: /home/david/.ssh/authorized_keys
-echo ... > /home/david/.ssh/authorized_keys
-cp -av /etc/ssh/sshd_config{,.old}
+( umask 0177 && touch /home/david/.ssh/authorized_keys ) && \
+chown david: /home/david/.ssh/authorized_keys && \
+cp -av /etc/ssh/sshd_config{,.old} && \
 sed -i \
 -e 's/^#Port 22$/Port 50022/' \
 -e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
 -e 's/^#ChallengeResponseAuthentication yes$/ChallengeResponseAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config && \
+(
 cat <<EOF >> /etc/ssh/sshd_config
 
 HostbasedAcceptedAlgorithms -ecdsa-sha2-nistp256,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com
@@ -756,10 +759,11 @@ PubkeyAcceptedAlgorithms -ecdsa-sha2-nistp256,ecdsa-sha2-nistp256-cert-v01@opens
 
 AllowUsers david
 EOF
-diff /etc/ssh/sshd_config{,.old}
-ssh-keygen -A
-sshd -t
-ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+) && \
+diff /etc/ssh/sshd_config{,.old} && \
+ssh-keygen -A && \
+sshd -t && \
+ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub; echo $?
 ```
 
   - sysrq (if you don't want to disable in kernel):
@@ -771,7 +775,7 @@ sed -i 's/#kernel.sysrq = 0/kernel.sysrq = 0/' /etc/sysctl.conf
   - misc tools:
 
 ```bash
-emerge -av app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel
+emerge app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel; echo $?
 ```
 
 ## Cleanup and reboot
@@ -779,10 +783,10 @@ emerge -av app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel
   - stage3 and dev* files:
 
 ```bash
-rm -fv /stage3-amd64-hardened-openrc-* /portage-latest.tar.xz* /devEfi* /devRoot* /devSwap* /mapperRoot
+rm -fv /stage3-amd64-hardened-openrc-* /portage-latest.tar.xz* /devEfi* /devRoot* /devSwap* /mapperRoot; echo $?
 ```
 
-  - exit and reboot:
+  - exit and reboot (copy&paste one after the other):
 
 ```bash
 exit
