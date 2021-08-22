@@ -748,7 +748,8 @@ cat <<EOF | tee -a /root/.bashrc >> /home/david/.bashrc
 # Use fish in place of bash
 # keep this line at the bottom of ~/.bashrc
 [ -x /bin/fish ] && SHELL=/bin/fish exec /bin/fish
-EOF ) && \
+EOF
+) && \
 /bin/fish -c 'alias cp="cp -i"; alias mv="mv -i"; alias rm="rm -i"; funcsave cp; funcsave mv; funcsave rm' && \
 su -l david -c "/bin/fish -c 'alias cp=\"cp -i\"; alias mv=\"mv -i\"; alias rm=\"rm -i\"; funcsave cp; funcsave mv; funcsave rm'"; echo $?
 ```
