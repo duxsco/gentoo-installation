@@ -766,6 +766,7 @@ rc-update add mcelog default; echo $?
   - mdadm:
 
 ```bash
+echo "" >> /etc/mdadm.conf && \
 mdadm --detail --scan >> /etc/mdadm.conf
 ```
 
@@ -798,10 +799,10 @@ PubkeyAcceptedAlgorithms -ecdsa-sha2-nistp256,ecdsa-sha2-nistp256-cert-v01@opens
 AllowUsers david
 EOF
 ) && \
-diff /etc/ssh/sshd_config{,.old} && \
 ssh-keygen -A && \
 sshd -t && \
 ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub; echo $?
+diff /etc/ssh/sshd_config{,.old}
 ```
 
   - sysrq (if you don't want to disable in kernel):
