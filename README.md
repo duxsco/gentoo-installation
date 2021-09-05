@@ -743,6 +743,7 @@ rc-update add dmcrypt boot; echo $?
 
 ```bash
 echo "=dev-libs/libpcre2-$(emerge --search '%^dev-libs/libpcre2$' | grep -i 'latest version available' | awk '{print $NF}') pcre32" >> /etc/portage/package.use/main && \
+echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/fish && (
 cat <<EOF | tee -a /root/.bashrc >> /home/david/.bashrc
 
