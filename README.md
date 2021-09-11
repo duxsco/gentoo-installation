@@ -434,7 +434,7 @@ su - david
 # Create gpg homedir
 ( umask 0077 && mkdir /tmp/gpgHomeDir )
 
-# Fetch the public key
+# Fetch the public key (further info: https://github.com/duxco/my-gpg-pub-key)
 gpg --homedir /tmp/gpgHomeDir --keyserver hkps://keys.openpgp.org --recv-keys 0x3AAE5FC903BB199165D4C02711BE5F68440E0758
 
 # Update ownertrust
