@@ -28,8 +28,7 @@ getMapperPartitions() {
 }
 
 # shellcheck disable=SC2207
-while getopts b:d:m:s:h opt
-do
+while getopts b:d:m:s:h opt; do
     case $opt in
         b) BOOT_PASSWORD="$OPTARG";;
         d) DISKS=( $(xargs <<<"$OPTARG" | tr ' ' '\n' | sort | xargs) );;
