@@ -43,15 +43,12 @@ if [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ]
     help
 fi
 
-if [ ${#DISKS[@]} -eq 2 ]; then
-    BTRFS_RAID=raid1
-elif [ ${#DISKS[@]} -eq 3 ]; then
-    BTRFS_RAID=raid1c3
-elif [ ${#DISKS[@]} -eq 4 ]; then
-    BTRFS_RAID=raid1c4
-else
-    help
-fi
+case ${#DISKS[@]} in
+    2) BTRFS_RAID="raid1";;
+    3) BTRFS_RAID="raid1c3";;
+    4) BTRFS_RAID="raid1c4";;
+    *) help;;
+esac
 
 # create keyfile
 KEYFILE="$(umask 0377 && mktemp)"
