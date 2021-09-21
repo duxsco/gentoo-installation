@@ -823,7 +823,7 @@ cat <<EOF | tee -a /root/.bashrc >> /home/david/.bashrc
 # keep this line at the bottom of ~/.bashrc
 [ -x /bin/fish ] && SHELL=/bin/fish exec /bin/fish
 EOF
-)
+); echo $?
 /bin/fish -c 'alias cp="cp -i"; alias mv="mv -i"; alias rm="rm -i"; funcsave cp; funcsave mv; funcsave rm; fish_config prompt choose terlar; fish_config prompt save'
 su -l david -c "/bin/fish -c 'alias cp=\"cp -i\"; alias mv=\"mv -i\"; alias rm=\"rm -i\"; funcsave cp; funcsave mv; funcsave rm; fish_config prompt choose terlar; fish_config prompt save'"
 ```
