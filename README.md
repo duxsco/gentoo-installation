@@ -5,34 +5,92 @@ In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted.
 You need to boot using EFI (not BIOS), because the boot partition will be encrypted, and decryption of said partition with the help of GRUB won't work otherwise.
 
-The number of disks, where Gentoo Linux will be installed, needs to be >=2 and <=4. Depending on the number of disks, BTRFS raid1, raid1c3 or raid1c4 is used for the `root` partition. Furthermore, MDADM RAID 1 is used for `boot` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
+The number of disks, where Gentoo Linux will be installed, must be less than 5. Depending on the number of disks, BTRFS "single", "raid1", "raid1c3" or "raid1c4" is used for the `root` partition. Furthermore, MDADM RAID 1 may be used for `boot` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
+
+- Single disk:
 
 ```
 PC∕Laptop
-├── ∕dev∕sda
-│   ├── 1. EFI System Partition
-│   ├── 2. MDADM RAID 1 (boot)
-│   │   └── LUKS
-│   │       └── btrfs
-│   │           └── boot
-│   ├── 3. LUKS (swap)
-│   │   └── MDADM RAID 1
-│   │       └── swap
-│   └── 4. LUKS (root)
-│       └── BTRFS RAID 1
-│           └── root
-└── ∕dev∕sdb
+└── ∕dev∕sda
     ├── 1. EFI System Partition
-    ├── 2. MDADM RAID 1 (boot)
-    │   └── LUKS
-    │       └── btrfs
-    │           └── boot
-    ├── 3. LUKS (swap)
-    │   └── MDADM RAID 1
-    │       └── swap
-    └── 4. LUKS (root)
-        └── BTRFS RAID 1
-            └── root
+    ├── 2. LUKS
+    │   └── Btrfs (single)
+    │       └── boot
+    ├── 3. LUKS
+    │   └── SWAP
+    └── 4. LUKS
+        └── Btrfs (single)
+            └── subvolumes
+                ├── @distfiles
+                ├── @home
+                ├── @portage
+                └── @root
+```
+
+- Two disks:
+
+```
+PC∕Laptop
+└── ∕dev∕sda                       └── ∕dev∕sdb
+    ├── 1. EFI System Partition        ├── 1. EFI System Partition
+    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
+    │   └── LUKS                       │   └── LUKS
+    │       └── Btrfs                  │       └── Btrfs
+    │           └── boot               │           └── boot
+    ├── 3. LUKS                        ├── 3. LUKS
+    │   └── MDADM RAID 1               │   └── MDADM RAID 1
+    │       └── SWAP                   │       └── SWAP
+    └── 4. LUKS                        └── 4. LUKS
+        └── BTRFS (raid1)                  └── BTRFS (raid1)
+            └── subvolume                      └── subvolume
+                ├── @distfiles                     ├── @distfiles
+                ├── @home                          ├── @home
+                ├── @portage                       ├── @portage
+                └── @root                          └── @root
+```
+
+- Three disks:
+
+```
+PC∕Laptop──────────────────────────┬──────────────────────────────────┐
+└── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc
+    ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
+    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
+    │   └── LUKS                       │   └── LUKS                       │   └── LUKS
+    │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
+    │           └── boot               │           └── boot               │           └── boot
+    ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
+    │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1
+    │       └── SWAP                   │       └── SWAP                   │       └── SWAP
+    └── 4. LUKS                        └── 4. LUKS                        └── 4. LUKS
+        └── BTRFS (raid1c3)                └── BTRFS (raid1c3)                └── BTRFS (raid1c3)
+            └── subvolume                      └── subvolume                      └── subvolume
+                ├── @distfiles                     ├── @distfiles                     ├── @distfiles
+                ├── @home                          ├── @home                          ├── @home
+                ├── @portage                       ├── @portage                       ├── @portage
+                └── @root                          └── @root                          └── @root
+```
+
+- Four disks:
+
+```
+PC∕Laptop──────────────────────────┬──────────────────────────────────┬──────────────────────────────────┐
+└── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc                       └── ∕dev∕sdd
+    ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
+    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
+    │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
+    │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
+    │           └── boot               │           └── boot               │           └── boot               │           └── boot
+    ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
+    │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1
+    │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
+    └── 4. LUKS                        └── 4. LUKS                        └── 4. LUKS                        └── 4. LUKS
+        └── BTRFS (raid1c4)                └── BTRFS (raid1c4)                └── BTRFS (raid1c4)                └── BTRFS (raid1c4)
+            └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
+                ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
+                ├── @home                          ├── @home                          ├── @home                          ├── @home
+                ├── @portage                       ├── @portage                       ├── @portage                       ├── @portage
+                └── @root                          └── @root                          └── @root                          └── @root
 ```
 
 On LUKS encrypted disks, LUKS passphrase slot are set as follows:
@@ -163,7 +221,7 @@ mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
 mount -o noatime,subvol=@portage /mnt/gentoo/mapperRoot /mnt/gentoo/var/db/repos/gentoo && \
 
-mount -o noatime /dev/mapper/md0 /mnt/gentoo/boot; echo $?
+mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot; echo $?
 ```
 
 (Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things., but requires sufficient amount of RAM.
@@ -464,19 +522,29 @@ Install genkernel, filesystem and device mapper tools:
 
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-fs/mdadm sys-kernel/genkernel
+emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel
+```
+
+If you use more than one disk, install `sys-fs/mdadm`:
+
+```bash
+emerge -av sys-fs/mdadm
 ```
 
 Configure genkernel:
 
 ```bash
 cp -av /etc/genkernel.conf{,.old} && \
+(
+    eix -I -e sys-fs/mdadm && \
+    sed -i 's/^#MDADM="no"$/MDADM="yes"/' /etc/genkernel.conf || \
+    true
+) && \
 sed -i \
 -e 's/^#MENUCONFIG="no"$/MENUCONFIG="yes"/' \
 -e 's/^#MOUNTBOOT="yes"$/MOUNTBOOT="yes"/' \
 -e 's/^#SAVE_CONFIG="yes"$/SAVE_CONFIG="yes"/' \
 -e 's/^#LUKS="no"$/LUKS="yes"/' \
--e 's/^#MDADM="no"$/MDADM="yes"/' \
 -e 's/^#BTRFS="no"$/BTRFS="yes"/' \
 -e 's/^#MODULEREBUILD="yes"$/MODULEREBUILD="yes"/' \
 -e 's/^#INITRAMFS_OVERLAY=""$/INITRAMFS_OVERLAY="\/key"/' /etc/genkernel.conf && \
@@ -497,8 +565,8 @@ cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r I; do
   echo "UUID=$(getUUID "$I")   "${I/devE/e}"                   vfat  noatime,noauto             0 0"
 done)
-UUID=$(getUUID "/dev/mapper/md0")        /boot                   btrfs noatime,noauto             0 0
-UUID=$(getUUID "/dev/md1")               none                    swap  sw                         0 0
+UUID=$(getUUID "/mapperBoot")        /boot                   btrfs noatime,noauto             0 0
+UUID=$(getUUID "/mapperSwap")               none                    swap  sw                         0 0
 UUID=$(getUUID /mapperRoot)   /                       btrfs noatime,subvol=@root       0 0
 UUID=$(getUUID /mapperRoot)   /home                   btrfs noatime,subvol=@home       0 0
 UUID=$(getUUID /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles  0 0
@@ -732,7 +800,7 @@ rc-update add consolefont boot; echo $?
 LAST_LINE="$(cat /etc/conf.d/dmcrypt | tail -n 1)" && \
 sed -i '$ d' /etc/conf.d/dmcrypt && \
 echo "target='boot'
-source=UUID='$(blkid /dev/md0 | cut -d\" -f2)'
+source=UUID='$(blkid /devBoot | cut -d\" -f2)'
 key='/key/mnt/key/key'
 
 ${LAST_LINE}" >> /etc/conf.d/dmcrypt && \
@@ -764,7 +832,7 @@ emerge app-admin/mcelog && \
 rc-update add mcelog default; echo $?
 ```
 
-  - mdadm:
+  - If you have `sys-fs/mdadm` installed:
 
 ```bash
 echo "" >> /etc/mdadm.conf && \
@@ -824,7 +892,7 @@ emerge app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel; echo $?
   - stage3 and dev* files:
 
 ```bash
-rm -fv /stage3-amd64-hardened-openrc-* /portage-latest.tar.xz* /devEfi* /devRoot* /devSwap* /mapperRoot; echo $?
+rm -fv /stage3-amd64-hardened-openrc-* /portage-latest.tar.xz* /devBoot /devEfi* /devRoot* /devSwap* /mapperBoot /mapperSwap /mapperRoot; echo $?
 ```
 
   - exit and reboot (copy&paste one after the other):

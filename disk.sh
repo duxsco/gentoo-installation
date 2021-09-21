@@ -17,13 +17,13 @@ EOF
 
 getPartitions() {
     for i in "${DISKS[@]}"; do
-        ls "${i}"[a-z0-9]*"$1"
+        ls "${i}"*"$1"
     done | xargs
 }
 
 getMapperPartitions() {
     for i in "${DISKS[@]}"; do
-        ls "${i/\/dev\//\/dev\/mapper\/}"[a-z0-9]*"$1"
+        ls "${i/\/dev\//\/dev\/mapper\/}"*"$1"
     done | xargs
 }
 
@@ -44,6 +44,7 @@ if [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ]
 fi
 
 case ${#DISKS[@]} in
+    1) BTRFS_RAID="single";;
     2) BTRFS_RAID="raid1";;
     3) BTRFS_RAID="raid1c3";;
     4) BTRFS_RAID="raid1c4";;
@@ -75,12 +76,17 @@ done
 
 # boot partition
 # shellcheck disable=SC2046
-mdadm --create /dev/md0 --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getPartitions 2)
+if [ ${#DISKS[@]} -eq 1 ]; then
+    BOOT_PARTITION="$(getPartitions 2)"
+else
+    BOOT_PARTITION="/dev/md0"
+    mdadm --create "${BOOT_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getPartitions 2)
+fi
 
 # encrypting boot, swap and root partitions
 unset NON_BOOT
 # shellcheck disable=SC2046
-find /dev/md0 $(getPartitions 3) $(getPartitions 4) | while read -r I; do
+find "${BOOT_PARTITION}" $(getPartitions 3) $(getPartitions 4) | while read -r I; do
     # shellcheck disable=SC2086
     cryptsetup --batch-mode luksFormat ${NON_BOOT---type luks1} --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${NON_BOOT+--pbkdf argon2id} "$I"
     echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
@@ -96,13 +102,18 @@ find $(getPartitions 1) | while read -r I; do
 done
 
 # boot partition
-mkfs.btrfs --checksum blake2 /dev/mapper/md0
+mkfs.btrfs --checksum blake2 "/dev/mapper/${BOOT_PARTITION##*\/}"
 
 # swap partition
 # shellcheck disable=SC2046
-mdadm --create /dev/md1 --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getMapperPartitions 3)
-mkswap /dev/md1
-swapon /dev/md1
+if [ ${#DISKS[@]} -eq 1 ]; then
+    SWAP_PARTITION="$(getMapperPartitions 3)"
+else
+    SWAP_PARTITION="/dev/md1"
+    mdadm --create "${SWAP_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getMapperPartitions 3)
+fi
+mkswap "${SWAP_PARTITION}"
+swapon "${SWAP_PARTITION}"
 
 # root partition
 # shellcheck disable=SC2046
@@ -131,12 +142,15 @@ su -l meh -c /tmp/fetch_files.sh
 chown -R root: /mnt/gentoo
 
 ALPHABET=({a..z})
+ln -s "/dev/mapper/${BOOT_PARTITION##*\/}" /mnt/gentoo/mapperBoot
+ln -s "${SWAP_PARTITION}" /mnt/gentoo/mapperSwap
 ln -s "$(getMapperPartitions 4 | awk '{print $1}')" /mnt/gentoo/mapperRoot
 tmpCount=0
 # shellcheck disable=SC2046
 find $(getPartitions 1) | while read -r I; do
     ln -s "$I" "/mnt/gentoo/devEfi${ALPHABET[tmpCount++]}"
 done
+ln -s "$(awk '{print $1}' <<<"${BOOT_PARTITION}")" "/mnt/gentoo/devBoot"
 tmpCount=0
 # shellcheck disable=SC2046
 find $(getPartitions 3) | while read -r I; do
