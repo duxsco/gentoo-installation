@@ -148,7 +148,7 @@ Execute following SCP/SSH commands **on your local machine** (copy&paste one aft
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
 scp -P XXX {disk.sh,fetch_files.sh} root@XXX:/tmp/
-sha256sum disk.sh fetch_files.sh | ssh -p XXX root@... dd of=/tmp/sha256.txt
+sha256sum disk.sh fetch_files.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
 
 # From local machine, login into the remote machine
 ssh -p XXX root@...
@@ -163,7 +163,7 @@ screen -d -r install
 Check file hashes:
 
 ```bash
-( cd /tmp && sha256sum -c sha256.txt )
+sha256sum -c /tmp/sha256.txt
 ```
 
 Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
