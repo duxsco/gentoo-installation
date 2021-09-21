@@ -344,13 +344,11 @@ su -
 env-update && source /etc/profile && export PS1="(chroot) $PS1"
 ```
 
-Enable delta webrsync. Thereafter, portage uses https only.
+Enable webrsync. Thereafter, portage uses https only.
 
 ```bash
-emerge app-portage/emerge-delta-webrsync app-arch/tarsync && \
 mkdir /etc/portage/repos.conf && \
 sed 's/sync-type = rsync/sync-type = webrsync/' /usr/share/portage/config/repos.conf > /etc/portage/repos.conf/gentoo.conf && \
-echo "sync-webrsync-delta = yes" >> /etc/portage/repos.conf/gentoo.conf && \
 grep -q "sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/gentoo.conf; echo $?
 ```
 
