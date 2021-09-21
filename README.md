@@ -514,6 +514,9 @@ gpg: Good signature from "David Sardari <d@XXXXX.de>" [ultimate]
 sed 's|  |  /etc/portage/patches/sys-kernel/genkernel/|' sha256.txt | sha256sum -c -
 /etc/portage/patches/sys-kernel/genkernel/defaults_initrd.scripts.patch: OK
 /etc/portage/patches/sys-kernel/genkernel/defaults_linuxrc.patch: OK
+
+# Switch back to root
+exit
 ```
 
 Install genkernel, filesystem and device mapper tools:
@@ -606,6 +609,9 @@ curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.github
 # And, verify as already done above for genkernel user patches
 gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
 sed 's|  |  /usr/local/sbin/|' gkb2gs.sh.sha256 | sha256sum -c -
+
+# Switch back to root
+exit
 ```
 
 Make script executable and create kernel config:
