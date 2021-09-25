@@ -470,14 +470,14 @@ eselect kernel list && \
 eselect kernel set 1; echo $?
 ```
 
-Add [genkernel user patches](https://github.com/duxco/genkernel-patches):
+Add [genkernel user patches](https://github.com/duxco/gentoo-genkernel-patches):
 
 ```bash
 mkdir -p /etc/portage/patches/sys-kernel/genkernel && \
 GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')" && (
-su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' \"https://raw.githubusercontent.com/duxco/genkernel-patches/${GENKERNEL_VERSION}/defaults_initrd.scripts.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_initrd.scripts.patch
+su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' \"https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/defaults_initrd.scripts.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_initrd.scripts.patch
 ) && (
-su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' \"https://raw.githubusercontent.com/duxco/genkernel-patches/${GENKERNEL_VERSION}/defaults_linuxrc.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_linuxrc.patch
+su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' \"https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/defaults_linuxrc.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_linuxrc.patch
 ); echo $?
 ```
 
@@ -490,7 +490,7 @@ su - david
 # Create gpg homedir
 ( umask 0077 && mkdir /tmp/gpgHomeDir )
 
-# Fetch the public key (further info: https://github.com/duxco/my-gpg-pub-key)
+# Fetch the public key (further info: https://github.com/duxco/gpg-my-pub-key)
 gpg --homedir /tmp/gpgHomeDir --keyserver hkps://keys.openpgp.org --recv-keys 0x3AAE5FC903BB199165D4C02711BE5F68440E0758
 
 # Update ownertrust
@@ -501,10 +501,10 @@ cd "$(mktemp -d)"
 
 # Download files
 GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')"
-curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.githubusercontent.com/duxco/genkernel-patches/${GENKERNEL_VERSION}/sha256.txt{,.asc}"
+curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/sha256.txt{,.asc}"
 
 # Verify GPG signature. Btw, the GPG key is the same one I use to sign my commits:
-# https://github.com/duxco/genkernel-patches/commits/main
+# https://github.com/duxco/gentoo-genkernel-patches/commits/main
 gpg --homedir /tmp/gpgHomeDir --verify sha256.txt.asc sha256.txt
 gpg: Signature made Mi 18 Aug 2021 23:11:32 CEST
 gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
@@ -592,10 +592,10 @@ tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,
 EOF
 ```
 
-Download and verify [gkb2gs](https://github.com/duxco/gkb2gs) (copy&paste one after the other):
+Download and verify [gkb2gs](https://github.com/duxco/gentoo-gkb2gs) (copy&paste one after the other):
 
 ```bash
-su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' https://raw.githubusercontent.com/duxco/gkb2gs/main/gkb2gs.sh" > /usr/local/sbin/gkb2gs.sh
+su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' https://raw.githubusercontent.com/duxco/gentoo-gkb2gs/main/gkb2gs.sh" > /usr/local/sbin/gkb2gs.sh
 
 # Switch to non-root
 su - david
@@ -604,7 +604,7 @@ su - david
 cd "$(mktemp -d)"
 
 # Download files
-curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.githubusercontent.com/duxco/gkb2gs/main/gkb2gs.sh.sha256{,.asc}"
+curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.githubusercontent.com/duxco/gentoo-gkb2gs/main/gkb2gs.sh.sha256{,.asc}"
 
 # And, verify as already done above for genkernel user patches
 gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
