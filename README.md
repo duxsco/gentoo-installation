@@ -547,6 +547,7 @@ sed -i \
 -e 's/^#SAVE_CONFIG="yes"$/SAVE_CONFIG="yes"/' \
 -e 's/^#LUKS="no"$/LUKS="yes"/' \
 -e 's/^#BTRFS="no"$/BTRFS="yes"/' \
+-e 's/^#BOOTLOADER="no"$/BOOTLOADER="grub2"/' \
 -e 's/^#MODULEREBUILD="yes"$/MODULEREBUILD="yes"/' \
 -e 's/^#INITRAMFS_OVERLAY=""$/INITRAMFS_OVERLAY="\/key"/' /etc/genkernel.conf && \
 diff -y --suppress-common-lines /etc/genkernel.conf /etc/genkernel.conf.old
