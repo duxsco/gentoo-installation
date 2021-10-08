@@ -403,7 +403,7 @@ emerge -avuDN --with-bdeps=y --noconfmem --complete-graph=y @world
 Make sure that `app-editors/nano` won't be removed and remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
 ```bash
-emerge --noreplace app-editors/nano && \
+emerge --select --noreplace app-editors/nano && \
 emerge --depclean -a
 ```
 
@@ -737,7 +737,7 @@ rc-update add sysklogd default; echo $?
 Setup cronie:
 
 ```bash
-emerge --noreplace sys-process/cronie && \
+emerge --select --noreplace sys-process/cronie && \
 rc-update add cronie default; echo $?
 ```
 
