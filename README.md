@@ -321,8 +321,8 @@ L10N="de"
 LINGUAS="\${L10N}"
 
 GENTOO_MIRRORS="https://ftp.fau.de/gentoo/ https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/ https://mirror.leaseweb.com/gentoo/"
-FETCHCOMMAND="curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --tls13-ciphers '${TLSv13_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
-RESUMECOMMAND="curl --continue-at - --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --tls13-ciphers '${TLSv13_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
+FETCHCOMMAND="curl --fail --silent --show-error --location --cert-status --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --tls13-ciphers '${TLSv13_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
+RESUMECOMMAND="curl --continue-at - --fail --silent --show-error --location --cert-status --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --tls13-ciphers '${TLSv13_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
 
 EOF
 ```
@@ -374,8 +374,8 @@ ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq && \
 #   https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/
 #   https://ftp.tu-ilmenau.de/mirror/gentoo/
 #   https://mirror.leaseweb.com/gentoo/
-curl -fsSL --tlsv1.3 --proto '=https' https://api.gentoo.org/mirrors/distfiles.xml | xq | jq -r '.mirrors.mirrorgroup[] | select(."@country" == "DE") | .mirror[].uri[] | select(."@protocol" == "http" and ."@ipv4" == "y" and ."@ipv6" == "y") | select(."#text" | startswith("https://")) | ."#text"' | while read -r I; do
-  if curl -fsL --tlsv1.3 -I "$I" >/dev/null; then
+curl -fsSL --cert-status --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq | jq -r '.mirrors.mirrorgroup[] | select(."@country" == "DE") | .mirror[].uri[] | select(."@protocol" == "http" and ."@ipv4" == "y" and ."@ipv6" == "y") | select(."#text" | startswith("https://")) | ."#text"' | while read -r I; do
+  if curl -fsL --cert-status --proto '=https' --tlsv1.3 -I "$I" >/dev/null; then
     echo "$I"
   fi
 done
@@ -475,9 +475,9 @@ Add [genkernel user patches](https://github.com/duxco/gentoo-genkernel-patches):
 ```bash
 mkdir -p /etc/portage/patches/sys-kernel/genkernel && \
 GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')" && (
-su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' \"https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/defaults_initrd.scripts.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_initrd.scripts.patch
+su -l david -c "curl -fsSL --cert-status --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/defaults_initrd.scripts.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_initrd.scripts.patch
 ) && (
-su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' \"https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/defaults_linuxrc.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_linuxrc.patch
+su -l david -c "curl -fsSL --cert-status --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/defaults_linuxrc.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_linuxrc.patch
 ); echo $?
 ```
 
@@ -501,7 +501,7 @@ cd "$(mktemp -d)"
 
 # Download files
 GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')"
-curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/sha256.txt{,.asc}"
+curl --location --cert-status --proto '=https' --tlsv1.3 --remote-name-all "https://raw.githubusercontent.com/duxco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/sha256.txt{,.asc}"
 
 # Verify GPG signature. Btw, the GPG key is the same one I use to sign my commits:
 # https://github.com/duxco/gentoo-genkernel-patches/commits/main
@@ -596,7 +596,7 @@ EOF
 Download and verify [gkb2gs](https://github.com/duxco/gentoo-gkb2gs) (copy&paste one after the other):
 
 ```bash
-su -l david -c "curl -fsSL --tlsv1.3 --proto '=https' https://raw.githubusercontent.com/duxco/gentoo-gkb2gs/main/gkb2gs.sh" > /usr/local/sbin/gkb2gs.sh
+su -l david -c "curl -fsSL --cert-status --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxco/gentoo-gkb2gs/main/gkb2gs.sh" > /usr/local/sbin/gkb2gs.sh
 
 # Switch to non-root
 su - david
@@ -605,7 +605,7 @@ su - david
 cd "$(mktemp -d)"
 
 # Download files
-curl --location --proto '=https' --remote-name-all --tlsv1.3 "https://raw.githubusercontent.com/duxco/gentoo-gkb2gs/main/gkb2gs.sh.sha256{,.asc}"
+curl --location --cert-status --proto '=https' --tlsv1.3 --remote-name-all "https://raw.githubusercontent.com/duxco/gentoo-gkb2gs/main/gkb2gs.sh.sha256{,.asc}"
 
 # And, verify as already done above for genkernel user patches
 gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
