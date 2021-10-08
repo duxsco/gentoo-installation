@@ -304,13 +304,7 @@ sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /mnt
 #   DHE-RSA-AES256-GCM-SHA384
 #   DHE-RSA-CHACHA20-POLY1305
 #
-# TLSv1.3:
-#   TLS_AES_128_GCM_SHA256
-#   TLS_AES_256_GCM_SHA384
-#   TLS_CHACHA20_POLY1305_SHA256
-#
 TLSv12_CIPHERS="$(openssl ciphers -s -v | grep -i aead | grep -i dhe | sort | sort -k1.1,1.1 -s -r | awk '{print $1}' | paste -d: -s -)"
-TLSv13_CIPHERS="$(openssl ciphers -tls1_3 -s -v | sort | awk '{print $1}' | paste -d: -s -)"
 
 cat <<EOF >> /mnt/gentoo/etc/portage/make.conf
 
@@ -321,8 +315,8 @@ L10N="de"
 LINGUAS="\${L10N}"
 
 GENTOO_MIRRORS="https://ftp.fau.de/gentoo/ https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/ https://mirror.leaseweb.com/gentoo/"
-FETCHCOMMAND="curl --fail --silent --show-error --location --cert-status --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --tls13-ciphers '${TLSv13_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
-RESUMECOMMAND="curl --continue-at - --fail --silent --show-error --location --cert-status --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --tls13-ciphers '${TLSv13_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
+FETCHCOMMAND="curl --fail --silent --show-error --location --cert-status --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
+RESUMECOMMAND="curl --continue-at - --fail --silent --show-error --location --cert-status --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
 
 EOF
 ```
