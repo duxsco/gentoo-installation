@@ -903,3 +903,7 @@ umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
 reboot
 ```
+
+## Other Gentoo Linux repos
+
+https://github.com/duxsco?tab=repositories&q=gentoo-
