@@ -626,6 +626,10 @@ Build kernel and initramfs:
 #     Processor type and features  --->
 #         [ ] Support for extended (non-PC) x86 platforms
 #             Processor family (Core 2/newer Xeon)  --->
+#     Device Drivers  --->
+#         Generic Driver Options --->
+#             Firmware Loader --->
+#                 [ ] Enable the firmware sysfs fallback mechanism
 #     Kernel hacking  --->
 #         Generic Kernel Debugging Instruments  --->
 #             [ ] Magic SysRq key
