@@ -642,7 +642,6 @@ genkernel all
 If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to use the AMD microcode.
 
 ```bash
-echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use/main && \
 echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
 emerge sys-firmware/intel-microcode; echo $?
 ```
