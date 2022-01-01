@@ -619,6 +619,22 @@ chmod u+x /usr/local/sbin/gkb2gs.sh
 gkb2gs.sh
 ```
 
+If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to use the AMD microcode.
+
+```bash
+echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
+echo "MICROCODE_SIGNATURES=\"-s $(iucode_tool -S 2>&1 | grep -Po "with signature \K.*")\"" >> /etc/portage/make.conf && \
+emerge sys-firmware/intel-microcode; echo $?
+```
+
+CPU microcode:
+
+```bash
+equery f sys-firmware/intel-microcode | grep "/lib/firmware/intel-ucode/" | grep -v "keep"
+```
+
+... outputs `/lib/firmware/intel-ucode/06-a5-02` in my case. Adjust below kernel config accordingly.
+
 Build kernel and initramfs:
 
 ```bash
@@ -626,9 +642,14 @@ Build kernel and initramfs:
 #     Processor type and features  --->
 #         [ ] Support for extended (non-PC) x86 platforms
 #             Processor family (Core 2/newer Xeon)  --->
+#         <*> CPU microcode loading support
+#         [*]   Intel microcode loading support
 #     Device Drivers  --->
 #         Generic Driver Options --->
 #             Firmware Loader --->
+#                 -*-   Firmware loading facility
+#                 (intel-ucode/06-a5-02) Build named firmware blobs into the kernel binary
+#                 (/lib/firmware) Firmware blobs root directory (NEW)
 #                 [ ] Enable the firmware sysfs fallback mechanism
 #     Kernel hacking  --->
 #         Generic Kernel Debugging Instruments  --->
@@ -638,13 +659,6 @@ genkernel all
 ```
 
 ## GRUB
-
-If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to use the AMD microcode.
-
-```bash
-echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
-emerge sys-firmware/intel-microcode; echo $?
-```
 
 Setup grub:
 
