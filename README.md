@@ -438,12 +438,13 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 Install [LTS kernel](https://www.kernel.org/category/releases.html):
 
 ```bash
-mkdir /etc/portage/package.accept_keywords /etc/portage/package.mask && (
+INSTALL_LTS_KERNEL="true" && (
 cat <<EOF >> /etc/portage/package.accept_keywords/main
 sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/gentoo-sources ~amd64
 EOF
 ) && (
+[ "${INSTALL_LTS_KERNEL}" == "true" ] && \
 cat <<EOF >> /etc/portage/package.mask/main
 >=sys-kernel/gentoo-kernel-bin-5.11
 >=sys-kernel/gentoo-sources-5.11
@@ -476,10 +477,10 @@ Verify the patches (copy&paste one after the other):
 # Switch to non-root user. All following commands are executed by non-root.
 su - david
 
-# Create gpg homedir
+# Create GnuPG homedir
 ( umask 0077 && mkdir /tmp/gpgHomeDir )
 
-# Fetch the public key
+# Fetch the public key; ADJUST THE MAIL ADDRESS!
 gpg --homedir /tmp/gpgHomeDir --auto-key-locate clear,dane --locate-external-key d at "my github username" dot de
 
 # Update ownertrust
@@ -618,6 +619,7 @@ If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, foll
 
 ```bash
 echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
+emerge sys-firmware/intel-microcode && \
 echo "MICROCODE_SIGNATURES=\"-s $(iucode_tool -S 2>&1 | grep -Po "with signature \K.*")\"" >> /etc/portage/make.conf && \
 emerge sys-firmware/intel-microcode; echo $?
 ```
@@ -625,10 +627,10 @@ emerge sys-firmware/intel-microcode; echo $?
 CPU microcode:
 
 ```bash
-equery f sys-firmware/intel-microcode | grep "/lib/firmware/intel-ucode/" | grep -v "keep"
+ls -1 /lib/firmware/intel-ucode/* | sed 's#/lib/firmware/##'
 ```
 
-... outputs `/lib/firmware/intel-ucode/06-a5-02` in my case. Adjust below kernel config accordingly.
+... outputs `intel-ucode/06-a5-02` in my case. Adjust below kernel config accordingly.
 
 Build kernel and initramfs:
 
@@ -902,6 +904,7 @@ rm -fv /stage3-amd64-hardened-openrc-* /portage-latest.tar.xz* /devBoot /devEfi*
   - exit and reboot (copy&paste one after the other):
 
 ```bash
+exit
 exit
 cd
 umount -l /mnt/gentoo/dev{/shm,/pts,}
