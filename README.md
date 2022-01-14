@@ -442,12 +442,14 @@ INSTALL_LTS_KERNEL="true" && (
 cat <<EOF >> /etc/portage/package.accept_keywords/main
 sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/gentoo-sources ~amd64
+sys-kernel/linux-headers ~amd64
 EOF
 ) && (
 [ "${INSTALL_LTS_KERNEL}" == "true" ] && \
 cat <<EOF >> /etc/portage/package.mask/main
 >=sys-kernel/gentoo-kernel-bin-5.11
 >=sys-kernel/gentoo-sources-5.11
+>=sys-kernel/linux-headers-5.11
 EOF
 ) && (
 cat <<EOF >> /etc/portage/package.use/main
