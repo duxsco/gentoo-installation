@@ -4,13 +4,15 @@ set -euo pipefail
 
 help() {
 cat <<EOF
-${0##*\/} -b BootPassword -m MasterPassword -d "/dev/sda /dev/sdb /dev/sdc" -s SwapSizeInGibibyte
+${0##*\/} -b BootPassword -m MasterPassword -d "/dev/sda /dev/sdb /dev/sdc" -r -s SwapSizeInGibibyte
 OR
 ${0##*\/} -b BootPassword -m MasterPassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/nvme2n1" -s SwapSizeInGibibyte
 
 "-d" specifies the disks you want to use for installation.
 They should be of the same type and size. Don't mix HDDs with SSDs!
 Number of disks must be >=2 and <=4!
+
+"-r" adds some space to the EFI System Partition to be used to store the files of the rescue system.
 EOF
     return 1
 }
@@ -27,12 +29,15 @@ getMapperPartitions() {
     done | xargs
 }
 
+EFI_SYSTEM_PARTITION_SIZE="512"
+
 # shellcheck disable=SC2207
-while getopts b:d:m:s:h opt; do
+while getopts b:d:m:rs:h opt; do
     case $opt in
         b) BOOT_PASSWORD="$OPTARG";;
         d) DISKS=( $(xargs <<<"$OPTARG" | tr ' ' '\n' | sort | xargs) );;
         m) MASTER_PASSWORD="$OPTARG";;
+        r) EFI_SYSTEM_PARTITION_SIZE="5120";;
         s) SWAP_SIZE="$((OPTARG * 1024))";;
         h|?) help;;
     esac
@@ -67,10 +72,10 @@ for i in "${DISKS[@]}"; do
     parted --align optimal --script "$i" \
         mklabel gpt \
         unit MiB \
-        "mkpart 'efi system partition' 1 513" \
-        mkpart boot 513 1537 \
-        mkpart swap 1537 $((SWAP_SIZE + 1537)) \
-        "mkpart root $((SWAP_SIZE + 1537)) ${ROOT_SIZE}" \
+        "mkpart 'efi system partition' 1 $((EFI_SYSTEM_PARTITION_SIZE + 1))" \
+        mkpart boot $((EFI_SYSTEM_PARTITION_SIZE + 1)) $((EFI_SYSTEM_PARTITION_SIZE + 1 + 1024)) \
+        mkpart swap $((EFI_SYSTEM_PARTITION_SIZE + 1 + 1024)) $((EFI_SYSTEM_PARTITION_SIZE + 1 + 1024 + SWAP_SIZE)) \
+        "mkpart root $((EFI_SYSTEM_PARTITION_SIZE + 1 + 1024 + SWAP_SIZE)) ${ROOT_SIZE}" \
         set 1 esp on
 done
 
@@ -119,7 +124,10 @@ swapon "${SWAP_PARTITION}"
 # shellcheck disable=SC2046
 mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 $(getMapperPartitions 4)
 
-mkdir /mnt/gentoo
+if [ ! -d /mnt/gentoo ]; then
+    mkdir /mnt/gentoo
+fi
+
 # shellcheck disable=SC2046
 mount -o noatime $(getMapperPartitions 4 | awk '{print $1}') /mnt/gentoo
 btrfs subvolume create /mnt/gentoo/@distfiles; sync

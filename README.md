@@ -2,7 +2,7 @@
 
 In the following, I am using the [Arch Linux Live CD](https://archlinux.org/download/), **not** the official Gentoo Linux installation CD. If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole code block, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
 
-The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted.
+The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binary among others is GnuPG signed.
 You need to boot using EFI (not BIOS), because the boot partition will be encrypted, and decryption of said partition with the help of GRUB won't work otherwise.
 
 The number of disks, where Gentoo Linux will be installed, must be less than 5. Depending on the number of disks, BTRFS "single", "raid1", "raid1c3" or "raid1c4" is used for the `root` partition. Furthermore, MDADM RAID 1 may be used for `boot` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
@@ -655,9 +655,65 @@ Build kernel and initramfs:
 genkernel all
 ```
 
-## GRUB
+## Secure Boot and Grub
 
-Setup grub:
+Credits:
+- https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
+- https://www.funtoo.org/Secure_Boot
+- https://www.rodsbooks.com/efi-bootloaders/secureboot.html
+- https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot&mobileaction=toggle_view_mobile
+- https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot
+
+### Secure Boot preparation
+
+In order to add your custom keys enable `Setup Mode` in your UEFI firmware. Beware that this deletes all existing keys. Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
+
+```bash
+(
+cat <<EOF >> /etc/portage/packages.accept_keywords
+app-crypt/efitools ~amd64
+app-crypt/sbsigntools ~amd64
+EOF
+) && \
+emerge -av app-crypt/efitools app-crypt/sbsigntools; echo $?
+```
+
+Create Secure Boot keys and certificates:
+
+```bash
+mkdir /etc/secureboot && \
+pushd /etc/secureboot && \
+
+# Create the keys
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
+
+# Prepare installation in EFI
+UUID="$(uuidgen --random)"
+cert-to-efi-sig-list -g "${UUID}" PK.crt PK.esl && \
+cert-to-efi-sig-list -g "${UUID}" KEK.crt KEK.esl && \
+cert-to-efi-sig-list -g "${UUID}" db.crt db.esl && \
+sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
+sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
+
+# Make them mutable
+chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+
+# Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
+efi-updatevar -f db.auth db && \
+efi-updatevar -f KEK.auth KEK && \
+efi-updatevar -f PK.auth PK && \
+
+# Make them immutable
+chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+popd; echo $?
+```
+
+## Grub preparation
+
+Install `sys-boot/grub`:
 
 ```bash
 echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
@@ -672,8 +728,7 @@ Configure grub:
     MDADM_MOD=" domdadm" || \
     MDADM_MOD=""
 ) && \
-(
-cat <<EOF >> /etc/default/grub
+cat <<EOF >> /etc/default/grub; echo $?
 
 MY_CRYPT_ROOT="$(blkid -s UUID -o value /devRoot* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
 MY_CRYPT_SWAP="$(blkid -s UUID -o value /devSwap* | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
@@ -684,19 +739,160 @@ GRUB_CMDLINE_LINUX_DEFAULT="\${MY_CRYPT_ROOT} \${MY_CRYPT_SWAP} \${MY_FS} \${MY_
 GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
 EOF
-) && \
+```
 
-NUMBER_EFI="$(find /efi* -maxdepth 0 -type d | wc -l)" && \
-(
-find /efi* -maxdepth 0 -type d | while read -r I; do
-  grub-install --target=x86_64-efi --efi-directory="$I" --bootloader-id="gentoo${I#/efi}"; echo $?; sync
-  (( NUMBER_EFI-- ))
-  if [[ $NUMBER_EFI -ne 0 ]]; then
-    rm -rf /boot/grub
-  fi
+In the following, a minimal Grub config for each EFI system partition is created. Take care of the line marked with `TODO`.
+
+```bash
+ls -1d /efi* | while read -r I; do
+UUID="$(blkid -s UUID -o value "/devEfi${I#/efi}")"
+
+cat <<EOF > "/etc/secureboot/grub-initial_${I#/}.cfg"
+# Enforce that all loaded files must have a valid signature.
+set check_signatures=enforce
+export check_signatures
+
+set superusers="root"
+export superusers
+# Replace the first TODO with the result of grub-mkpasswd-pbkdf2 with your custom passphrase.
+password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO
+
+# NOTE: We export check_signatures/superusers so they are available in all
+# further contexts to ensure the password check is always enforced.
+
+search --no-floppy --fs-uuid --set=root ${UUID}
+
+configfile /grub.cfg
+
+# Without this we provide the attacker with a rescue shell if he just presses
+# <return> twice.
+echo /EFI/grub/grub.cfg did not boot the system but returned to initial.cfg.
+echo Rebooting the system in 10 seconds.
+sleep 10
+reboot
+EOF
 done
-) && \
-grub-mkconfig -o /boot/grub/grub.cfg; echo $?
+echo $?
+```
+
+Sign "grub-initial_efi*.cfg" and save your GnuPG public key:
+
+```bash
+# Change Key ID
+KEY_ID="0xasdfasdf"
+gpg --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
+
+ls -1d /efi* | while read -r I; do
+    gpg --default-key "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
+done
+```
+
+
+Set the encrypted password you want to login with in the rescue system (change "MyPassWord123" beforehand 😉):
+
+```bash
+CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
+```
+
+Create the Grub config to boot into the rescue system:
+
+Credits:
+- https://www.system-rescue.org/manual/Installing_SystemRescue_on_the_disk/
+- https://www.system-rescue.org/manual/Booting_SystemRescue/
+
+```bash
+ls -1d /efi* | while read -r I; do
+UUID="$(blkid -s UUID -o value "/devEfi${I#/efi}")"
+cat <<EOF >> /etc/grub.d/40_custom; echo $?
+
+menuentry 'SystemRescue (${I#/})' {
+  load_video
+  insmod gzio
+  insmod part_gpt
+  insmod part_msdos
+  insmod ext2
+  search --no-floppy --fs-uuid --set=root ${UUID}
+  echo   'Loading Linux kernel ...'
+  linux  /sysresccd/boot/x86_64/vmlinuz archisobasedir=sysresccd archisolabel=${I#/} copytoram setkmap=de checksum rootcryptpass=${CRYPT_PASS} noautologin nofirewall
+  echo   'Loading initramfs ...'
+  initrd /sysresccd/boot/x86_64/sysresccd.img
+}
+EOF
+done
+```
+
+### EFI binary
+
+```bash
+# GRUB doesn't allow loading new modules from disk when secure boot is in
+# effect, therefore pre-load the required modules.
+MODULES=
+MODULES="${MODULES} part_gpt fat ext2"           # partition and file systems for EFI
+MODULES="${MODULES} configfile"                  # source command
+MODULES="${MODULES} verify gcry_sha512 gcry_rsa" # signature verification
+MODULES="${MODULES} password_pbkdf2"             # hashed password
+MODULES="${MODULES} echo normal linux linuxefi"  # boot linux
+MODULES="${MODULES} all_video"                   # video output
+MODULES="${MODULES} search search_fs_uuid"       # search --fs-uuid
+MODULES="${MODULES} reboot sleep"                # sleep, reboot
+MODULES="${MODULES} $(grub-mkconfig | grep insmod | awk '{print $NF}' | sort -u | paste -d ' ' -s -)"
+
+ls -1d /efi* | while read -r I; do
+    mkdir -p "${I}/EFI/boot" && \
+
+    grub-mkstandalone \
+        --directory /usr/lib/grub/x86_64-efi \
+        --disable-shim-lock \
+        --format x86_64-efi \
+        --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${MODULES}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -))" \
+        --pubkey /etc/secureboot/gpg.pub \
+        --output "${I}/EFI/boot/bootx64.efi" \
+        "boot/grub/grub.cfg=/etc/secureboot/grub-initial.cfg" \
+        "boot/grub/grub.cfg.sig=/etc/secureboot/grub-initial.cfg.sig" && \
+
+    sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
+
+    ( grub-mkconfig | sed -n '/^### BEGIN \/etc\/grub.d\/10_linux ###$/,/^### END \/etc\/grub.d\/10_linux ###$/p'; grub-mkconfig | sed -n '/^### BEGIN \/etc\/grub.d\/40_custom ###$/,/^### END \/etc\/grub.d\/40_custom ###$/p' ) | sed -e 's/$menuentry_id_option/--unrestricted --id/' | sed '/^[[:space:]]*else/,/^[[:space:]]*fi/d' | grep -v -e "^[[:space:]]*if" -e "^[[:space:]]*fi" -e "^[[:space:]]*load_video" -e "^[[:space:]]*insmod" > "${I}/grub.cfg"; echo $?
+done
+```
+
+Check whether an EFI boot entry has been created:
+
+```bash
+efibootmgr -v
+```
+
+Sign your files with GnuPG:
+
+```bash
+find /efia/grub.cfg /boot -type f -exec gpg --detach-sign {} \;
+```
+
+### Result
+
+```
+# tree /boot /efia /efib
+/boot
+├── System.map-5.10.90-gentoo-x86_64
+├── System.map-5.10.90-gentoo-x86_64.sig
+├── initramfs-5.10.90-gentoo-x86_64.img
+├── initramfs-5.10.90-gentoo-x86_64.img.sig
+├── vmlinuz-5.10.90-gentoo-x86_64
+└── vmlinuz-5.10.90-gentoo-x86_64.sig
+/efia
+├── EFI
+│   └── boot
+│       └── bootx64.efi
+├── grub.cfg
+└── grub.cfg.sig
+/efib
+├── EFI
+│   └── boot
+│       └── bootx64.efi
+├── grub.cfg
+└── grub.cfg.sig
+
+7 directories, 12 files
 ```
 
 ## Configuration
