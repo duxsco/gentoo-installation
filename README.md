@@ -825,7 +825,7 @@ ${LAST_LINE}" >> /etc/conf.d/dmcrypt && \
 rc-update add dmcrypt boot; echo $?
 ```
 
-  - fish shell:
+  - fish shell (copy&paste one after the other):
 
 ```bash
 echo "=dev-libs/libpcre2-$(emerge --search '%^dev-libs/libpcre2$' | grep -i 'latest version available' | awk '{print $NF}') pcre32" >> /etc/portage/package.use/main && \
@@ -838,7 +838,9 @@ cat <<EOF | tee -a /root/.bashrc >> /home/david/.bashrc
 [ -x /bin/fish ] && SHELL=/bin/fish exec /bin/fish
 EOF
 ); echo $?
+
 /bin/fish -c 'alias cp="cp -i"; alias mv="mv -i"; alias rm="rm -i"; funcsave cp; funcsave mv; funcsave rm; fish_config prompt choose terlar; fish_config prompt save'
+
 su -l david -c "/bin/fish -c 'alias cp=\"cp -i\"; alias mv=\"mv -i\"; alias rm=\"rm -i\"; funcsave cp; funcsave mv; funcsave rm; fish_config prompt choose terlar; fish_config prompt save'"
 ```
 
@@ -889,6 +891,7 @@ diff /etc/ssh/sshd_config{,.old}
 Setup client SSH config:
 
 ```
+(
 cat <<EOF > /home/david/.ssh/config
 AddKeysToAgent no
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
@@ -898,7 +901,8 @@ MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,h
 HashKnownHosts no
 StrictHostKeyChecking ask
 EOF
-chown david: /home/david/.ssh/config
+) && \
+chown david: /home/david/.ssh/config; echo $?
 ```
 
   - sysrq (if you don't want to disable in kernel):
