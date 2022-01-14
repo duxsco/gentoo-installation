@@ -547,28 +547,26 @@ rm /etc/genkernel.conf.old
 Set /etc/fstab. `/boot` entry is required by `sys-kernel/genkernel`:
 
 ```bash
-getUUID() {
-  blkid "$1" | cut -d\" -f2
-}
+echo "" >> /etc/fstab && \
 
-echo "" >> /etc/fstab
-
+(
 cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r I; do
-  echo "UUID=$(getUUID "$I")   "${I/devE/e}"                   vfat  noatime,noauto             0 0"
+  echo "UUID=$(blkid -s UUID -o value "$I")   "${I/devE/e}"                   vfat  noatime,noauto             0 0"
 done)
-UUID=$(getUUID "/mapperBoot")        /boot                   btrfs noatime,noauto             0 0
-UUID=$(getUUID "/mapperSwap")               none                    swap  sw                         0 0
-UUID=$(getUUID /mapperRoot)   /                       btrfs noatime,subvol=@root       0 0
-UUID=$(getUUID /mapperRoot)   /home                   btrfs noatime,subvol=@home       0 0
-UUID=$(getUUID /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles  0 0
-UUID=$(getUUID /mapperRoot)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage    0 0
+UUID=$(blkid -s UUID -o value "/mapperBoot")        /boot                   btrfs noatime,noauto             0 0
+UUID=$(blkid -s UUID -o value "/mapperSwap")               none                    swap  sw                         0 0
+UUID=$(blkid -s UUID -o value /mapperRoot)   /                       btrfs noatime,subvol=@root       0 0
+UUID=$(blkid -s UUID -o value /mapperRoot)   /home                   btrfs noatime,subvol=@home       0 0
+UUID=$(blkid -s UUID -o value /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles  0 0
+UUID=$(blkid -s UUID -o value /mapperRoot)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage    0 0
 EOF
-
+) && \
 find /devEfi* -maxdepth 0 | while read -r I; do
   mkdir "${I/devE/e}"
   mount "${I/devE/e}"
 done
+echo $?
 ```
 
 (Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things.
@@ -670,8 +668,8 @@ Configure grub:
 (
 cat <<EOF >> /etc/default/grub
 
-MY_CRYPT_ROOT="$(blkid /devRoot* | awk -F'"' '{print $2}' | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
-MY_CRYPT_SWAP="$(blkid /devSwap* | awk -F'"' '{print $2}' | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
+MY_CRYPT_ROOT="$(blkid -s UUID -o value /devRoot* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
+MY_CRYPT_SWAP="$(blkid -s UUID -o value /devSwap* | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
 MY_FS="rootfstype=btrfs rootflags=subvol=@root"
 MY_CPU="mitigations=auto,nosmt"
 MY_MOD="dobtrfs domdadm"
@@ -813,7 +811,7 @@ rc-update add consolefont boot; echo $?
 LAST_LINE="$(cat /etc/conf.d/dmcrypt | tail -n 1)" && \
 sed -i '$ d' /etc/conf.d/dmcrypt && \
 echo "target='boot'
-source=UUID='$(blkid /devBoot | cut -d\" -f2)'
+source=UUID='$(blkid -s UUID -o value /devBoot)'
 key='/key/mnt/key/key'
 
 ${LAST_LINE}" >> /etc/conf.d/dmcrypt && \
