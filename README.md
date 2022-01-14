@@ -668,13 +668,18 @@ Configure grub:
 
 ```bash
 (
+    eix -I -e sys-fs/mdadm && \
+    MDADM_MOD=" domdadm" || \
+    MDADM_MOD=""
+) && \
+(
 cat <<EOF >> /etc/default/grub
 
 MY_CRYPT_ROOT="$(blkid -s UUID -o value /devRoot* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
 MY_CRYPT_SWAP="$(blkid -s UUID -o value /devSwap* | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
 MY_FS="rootfstype=btrfs rootflags=subvol=@root"
 MY_CPU="mitigations=auto,nosmt"
-MY_MOD="dobtrfs domdadm"
+MY_MOD="dobtrfs${MDADM_MOD}"
 GRUB_CMDLINE_LINUX_DEFAULT="\${MY_CRYPT_ROOT} \${MY_CRYPT_SWAP} \${MY_FS} \${MY_CPU} \${MY_MOD} keymap=de"
 GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
