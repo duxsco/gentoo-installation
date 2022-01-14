@@ -619,7 +619,7 @@ If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, foll
 
 ```bash
 echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
-emerge sys-firmware/intel-microcode && \
+emerge -1 sys-apps/iucode_tool && \
 echo "MICROCODE_SIGNATURES=\"-s $(iucode_tool -S 2>&1 | grep -Po "with signature \K.*")\"" >> /etc/portage/make.conf && \
 emerge sys-firmware/intel-microcode; echo $?
 ```
