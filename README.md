@@ -515,7 +515,7 @@ Install genkernel, filesystem and device mapper tools:
 
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel
+emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel; echo $?
 ```
 
 If you use more than one disk, install `sys-fs/mdadm`:
@@ -554,10 +554,10 @@ echo "" >> /etc/fstab && \
 (
 cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r I; do
-  echo "UUID=$(blkid -s UUID -o value "$I")   "${I/devE/e}"                   vfat  noatime,noauto             0 0"
+  echo "UUID=$(blkid -s UUID -o value "$I")   ${I/devE/e}                   vfat  noatime,noauto             0 0"
 done)
-UUID=$(blkid -s UUID -o value "/mapperBoot")        /boot                   btrfs noatime,noauto             0 0
-UUID=$(blkid -s UUID -o value "/mapperSwap")               none                    swap  sw                         0 0
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime,noauto             0 0
+UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                         0 0
 UUID=$(blkid -s UUID -o value /mapperRoot)   /                       btrfs noatime,subvol=@root       0 0
 UUID=$(blkid -s UUID -o value /mapperRoot)   /home                   btrfs noatime,subvol=@home       0 0
 UUID=$(blkid -s UUID -o value /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles  0 0
