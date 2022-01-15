@@ -4,7 +4,7 @@ set -euo pipefail
 
 help() {
 cat <<EOF
-${0##*\/} -b BootPassword -m MasterPassword -d "/dev/sda /dev/sdb /dev/sdc" -r -s SwapSizeInGibibyte
+${0##*\/} -b BootPassword -m MasterPassword -d "/dev/sda /dev/sdb /dev/sdc" -s SwapSizeInGibibyte
 OR
 ${0##*\/} -b BootPassword -m MasterPassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/nvme2n1" -s SwapSizeInGibibyte
 
@@ -12,7 +12,8 @@ ${0##*\/} -b BootPassword -m MasterPassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/n
 They should be of the same type and size. Don't mix HDDs with SSDs!
 Number of disks must be >=2 and <=4!
 
-"-r" adds some space to the EFI System Partition to be used to store the files of the rescue system.
+"-e" (optional) specifies EFI System Partition size in MiB (default: 512 MiB).
+"-f" (optional) specifies /boot partition size in MiB (default: 1024 MiB).
 EOF
     return 1
 }
@@ -30,14 +31,16 @@ getMapperPartitions() {
 }
 
 EFI_SYSTEM_PARTITION_SIZE="512"
+BOOT_PARTITION_SIZE="1024"
 
 # shellcheck disable=SC2207
-while getopts b:d:m:rs:h opt; do
+while getopts b:d:e:f:m:s:h opt; do
     case $opt in
         b) BOOT_PASSWORD="$OPTARG";;
         d) DISKS=( $(xargs <<<"$OPTARG" | tr ' ' '\n' | sort | xargs) );;
+        e) EFI_SYSTEM_PARTITION_SIZE="$OPTARG";;
+        f) BOOT_PARTITION_SIZE="$OPTARG";;
         m) MASTER_PASSWORD="$OPTARG";;
-        r) EFI_SYSTEM_PARTITION_SIZE="5120";;
         s) SWAP_SIZE="$((OPTARG * 1024))";;
         h|?) help;;
     esac
@@ -72,10 +75,10 @@ for i in "${DISKS[@]}"; do
     parted --align optimal --script "$i" \
         mklabel gpt \
         unit MiB \
-        "mkpart 'efi system partition' 1 $((EFI_SYSTEM_PARTITION_SIZE + 1))" \
-        mkpart boot $((EFI_SYSTEM_PARTITION_SIZE + 1)) $((EFI_SYSTEM_PARTITION_SIZE + 1 + 1024)) \
-        mkpart swap $((EFI_SYSTEM_PARTITION_SIZE + 1 + 1024)) $((EFI_SYSTEM_PARTITION_SIZE + 1 + 1024 + SWAP_SIZE)) \
-        "mkpart root $((EFI_SYSTEM_PARTITION_SIZE + 1 + 1024 + SWAP_SIZE)) ${ROOT_SIZE}" \
+        "mkpart 'efi system partition' 1 $((1 + EFI_SYSTEM_PARTITION_SIZE))" \
+        mkpart boot $((1 + EFI_SYSTEM_PARTITION_SIZE)) $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE)) \
+        mkpart swap $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE)) $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + SWAP_SIZE)) \
+        "mkpart root $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + SWAP_SIZE)) ${ROOT_SIZE}" \
         set 1 esp on
 done
 
