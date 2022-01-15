@@ -447,9 +447,9 @@ EOF
 ) && (
 [ "${INSTALL_LTS_KERNEL}" == "true" ] && \
 cat <<EOF >> /etc/portage/package.mask/main
->=sys-kernel/gentoo-kernel-bin-5.11
->=sys-kernel/gentoo-sources-5.11
->=sys-kernel/linux-headers-5.11
+>=sys-kernel/gentoo-kernel-bin-5.16
+>=sys-kernel/gentoo-sources-5.16
+>=sys-kernel/linux-headers-5.16
 EOF
 ) && (
 cat <<EOF >> /etc/portage/package.use/main
