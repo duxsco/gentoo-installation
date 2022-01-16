@@ -1070,6 +1070,8 @@ sed -i \
 (
 cat <<EOF >> /etc/ssh/sshd_config
 
+AuthenticationMethods publickey
+
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519
 Ciphers chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com
