@@ -844,7 +844,7 @@ ls -1d /efi* | while read -r I; do
         --directory /usr/lib/grub/x86_64-efi \
         --disable-shim-lock \
         --format x86_64-efi \
-        --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${MODULES}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -))" \
+        --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${MODULES}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)" \
         --pubkey /etc/secureboot/gpg.pub \
         --output "${I}/EFI/boot/bootx64.efi" \
         "boot/grub/grub.cfg=/etc/secureboot/grub-initial_${I#/}.cfg" \
