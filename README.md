@@ -692,7 +692,7 @@ openssl req -new -x509 -newkey rsa:2048 -subj "/CN=KEK/" -keyout KEK.key -out KE
 openssl req -new -x509 -newkey rsa:2048 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
 
 # Prepare installation in EFI
-UUID="$(uuidgen --random)"
+UUID="$(uuidgen --random)" && \
 cert-to-efi-sig-list -g "${UUID}" PK.crt PK.esl && \
 cert-to-efi-sig-list -g "${UUID}" KEK.crt KEK.esl && \
 cert-to-efi-sig-list -g "${UUID}" db.crt db.esl && \
@@ -725,11 +725,9 @@ emerge sys-boot/grub; echo $?
 Configure grub:
 
 ```bash
-(
-    eix -I -e sys-fs/mdadm && \
-    MDADM_MOD=" domdadm" || \
-    MDADM_MOD=""
-) && \
+eix -I -e sys-fs/mdadm && \
+MDADM_MOD=" domdadm" || \
+MDADM_MOD=""
 cat <<EOF >> /etc/default/grub; echo $?
 
 MY_CRYPT_ROOT="$(blkid -s UUID -o value /devRoot* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
