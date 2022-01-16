@@ -782,9 +782,15 @@ Sign "grub-initial_efi*.cfg" and save your GnuPG public key:
 KEY_ID="0xasdfasdf"
 gpg --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
 
+# If signature creation fails...
+GPG_TTY="$(tty)"
+export GPG_TTY
+
 ls -1d /efi* | while read -r I; do
     gpg --default-key "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
 done
+
+gpgconf --kill all
 ```
 
 
