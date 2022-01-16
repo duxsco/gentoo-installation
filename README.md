@@ -683,7 +683,7 @@ emerge -av app-crypt/efitools app-crypt/sbsigntools; echo $?
 Create Secure Boot keys and certificates:
 
 ```bash
-mkdir /etc/secureboot && \
+mkdir --mode=0700 /etc/secureboot && \
 pushd /etc/secureboot && \
 
 # Create the keys
