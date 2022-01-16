@@ -819,7 +819,7 @@ menuentry 'SystemRescue (${I#/})' {
   insmod ext2
   search --no-floppy --fs-uuid --set=root ${UUID}
   echo   'Loading Linux kernel ...'
-  linux  /sysresccd/boot/x86_64/vmlinuz archisobasedir=sysresccd archisolabel=${I#/} copytoram setkmap=de checksum rootcryptpass=${CRYPT_PASS} noautologin nofirewall
+  linux  /sysresccd/boot/x86_64/vmlinuz archisobasedir=sysresccd archisolabel=$(tr '[:lower:]' '[:upper:]' <<<"${I#/}") copytoram setkmap=de checksum rootcryptpass=${CRYPT_PASS} noautologin nofirewall
   echo   'Loading initramfs ...'
   initrd /sysresccd/boot/x86_64/sysresccd.img
 }
