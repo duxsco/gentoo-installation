@@ -797,7 +797,7 @@ gpgconf --kill all
 Set the encrypted password you want to login with in the rescue system (change "MyPassWord123" beforehand 😉):
 
 ```bash
-CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
+    CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
 ```
 
 Create the Grub config to boot into the rescue system:
