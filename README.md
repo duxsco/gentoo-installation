@@ -4,7 +4,7 @@
 
 In the following, I am using the [Arch Linux Live CD](https://archlinux.org/download/), **not** the official Gentoo Linux installation CD. If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole code block, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
 
-The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binary among others is GnuPG signed.
+The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
 You need to boot using EFI (not BIOS), because the boot partition will be encrypted, and decryption of said partition with the help of GRUB won't work otherwise.
 
 The number of disks, where Gentoo Linux will be installed, must be less than 5. Depending on the number of disks, BTRFS "single", "raid1", "raid1c3" or "raid1c4" is used for the `root` partition. Furthermore, MDADM RAID 1 may be used for `boot` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
@@ -95,7 +95,7 @@ PC∕Laptop───────────────────────
                 └── @root                          └── @root                          └── @root                          └── @root
 ```
 
-On LUKS encrypted disks, LUKS passphrase slot are set as follows:
+On LUKS encrypted disks, LUKS passphrase slots are set as follows:
   - 0: Keyfile (stored in initramfs to unlock `root` and `swap` partitions without interaction)
   - 1: Master password (fallback password for emergency)
   - 2: Boot password
@@ -856,12 +856,6 @@ ls -1d /efi* | while read -r I; do
 done
 ```
 
-Check whether an EFI boot entry has been created:
-
-```bash
-efibootmgr -v
-```
-
 Sign your files with GnuPG:
 
 ```bash
@@ -873,26 +867,24 @@ find /efi*/grub.cfg /boot -type f -exec gpg --detach-sign {} \;
 ```
 # tree /boot /efia /efib
 /boot
-├── System.map-5.10.90-gentoo-x86_64
-├── System.map-5.10.90-gentoo-x86_64.sig
-├── initramfs-5.10.90-gentoo-x86_64.img
-├── initramfs-5.10.90-gentoo-x86_64.img.sig
-├── vmlinuz-5.10.90-gentoo-x86_64
-└── vmlinuz-5.10.90-gentoo-x86_64.sig
+├── System.map-5.15.14-gentoo-x86_64
+├── System.map-5.15.14-gentoo-x86_64.sig
+├── initramfs-5.15.14-gentoo-x86_64.img
+├── initramfs-5.15.14-gentoo-x86_64.img.sig
+├── vmlinuz-5.15.14-gentoo-x86_64
+└── vmlinuz-5.15.14-gentoo-x86_64.sig
 /efia
 ├── EFI
 │   └── boot
-│       └── bootx64.efi
+│       ├── bootx64.efi
+│       └── bootx64.efi.sig
 ├── grub.cfg
-└── grub.cfg.sig
-/efib
-├── EFI
-│   └── boot
-│       └── bootx64.efi
-├── grub.cfg
-└── grub.cfg.sig
+├── grub.cfg.sig
+└── sysresccd
+    ├── etc.
+    etc.
 
-7 directories, 12 files
+8 directories, 174 files
 ```
 
 ## Configuration
