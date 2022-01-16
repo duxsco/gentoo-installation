@@ -827,6 +827,40 @@ EOF
 done
 ```
 
+Download the System Rescue CD .iso file (copy&paste one after the other):
+
+```bash
+RESCUE_SYSTEM_VERSION="$(curl -fsSL --proto '=https' --tlsv1.3 "https://gitlab.com/systemrescue/systemrescue-sources/-/raw/master/VERSION")"
+
+curl --location --proto '=https' --tlsv1.2 --ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384" --output systemrescue.iso "https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download"
+
+curl --location --proto '=https' --tlsv1.2 --ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384" --output systemrescue.iso.asc "https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc"
+
+gpg --homedir /tmp/gpgHomeDir --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x0E20017DC0497EB8C6569DF1638630933C31018B
+
+echo "0E20017DC0497EB8C6569DF1638630933C31018B:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
+
+gpg --homedir /tmp/gpgHomeDir --verify systemrescue.iso.asc systemrescue.iso
+
+exit
+```
+
+Copy system rescue files to the EFI System Partitions (copy&paste one after the other):
+
+```bash
+mkdir /mnt/iso
+
+mount -o loop,ro /home/david/systemrescue.iso /mnt/iso
+
+ls -1d /efi* | while read -r I; do
+    rsync -HAXacv --delete /mnt/iso/sysresccd "${I}/"
+done
+
+umount /mnt/iso
+
+rm -fv /home/david/systemrescue.iso /home/david/systemrescue.iso.asc
+```
+
 ### EFI binary
 
 ```bash
