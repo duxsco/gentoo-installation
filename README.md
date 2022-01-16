@@ -865,7 +865,8 @@ done
 Sign your files with GnuPG:
 
 ```bash
-find /efi*/grub.cfg /boot -type f -exec gpg --detach-sign {} \;
+find /efi* /boot -type f -exec gpg --detach-sign {} \;
+echo $?
 ```
 
 ### Result
