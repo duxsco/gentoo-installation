@@ -847,8 +847,8 @@ ls -1d /efi* | while read -r I; do
         --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${MODULES}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -))" \
         --pubkey /etc/secureboot/gpg.pub \
         --output "${I}/EFI/boot/bootx64.efi" \
-        "boot/grub/grub.cfg=/etc/secureboot/grub-initial.cfg" \
-        "boot/grub/grub.cfg.sig=/etc/secureboot/grub-initial.cfg.sig" && \
+        "boot/grub/grub.cfg=/etc/secureboot/grub-initial_${I#/}.cfg" \
+        "boot/grub/grub.cfg.sig=/etc/secureboot/grub-initial_${I#/}.cfg.sig" && \
 
     sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
 
@@ -865,7 +865,7 @@ efibootmgr -v
 Sign your files with GnuPG:
 
 ```bash
-find /efia/grub.cfg /boot -type f -exec gpg --detach-sign {} \;
+find /efi*/grub.cfg /boot -type f -exec gpg --detach-sign {} \;
 ```
 
 ### Result
