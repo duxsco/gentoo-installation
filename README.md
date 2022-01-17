@@ -904,6 +904,8 @@ Sign your files with GnuPG:
 ```bash
 find /efi* /boot -type f -exec gpg --detach-sign {} \;
 echo $?
+gpgconf --kill all
+echo $?
 ```
 
 ### Result
