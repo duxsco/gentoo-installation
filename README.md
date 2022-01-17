@@ -144,8 +144,8 @@ Execute following SCP/SSH commands **on your local machine** (copy&paste one aft
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-scp -P XXX {disk.sh,fetch_files.sh} root@XXX:/tmp/
-sha256sum disk.sh fetch_files.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
+scp -P XXX {disk.sh,fetch_files.sh,update_grub_cfg.sh} root@XXX:/tmp/
+sha256sum disk.sh fetch_files.sh update_grub_cfg.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
 
 # From local machine, login into the remote machine
 ssh -p XXX root@...
@@ -194,10 +194,13 @@ Set date:
 date MMDDhhmmYYYY
 ```
 
-Extract stage3 tarball:
+Extract stage3 tarball and copy `update_grub_cfg.sh`:
 
 ```bash
-tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner; echo $?
+tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
+rsync -av /tmp/update_grub_cfg.sh /mnt/gentoo/usr/local/sbin/ && \
+chown 0:0 /mnt/gentoo/usr/local/sbin/update_grub_cfg.sh && \
+chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/update_grub_cfg.sh; echo $?
 ```
 
 Mount:
@@ -1166,6 +1169,10 @@ umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
 reboot
 ```
+
+## Grub config update after kernel updates
+
+Execute `update_grub_cfg.sh` as root after every kernel update to create up-to-date `grub.cfg` files.
 
 ## Other Gentoo Linux repos
 
