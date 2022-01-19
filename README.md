@@ -2,7 +2,7 @@
 
 > ⚠ The installation guide builds heavily on `Secure Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom keys. ⚠
 
-In the following, I am using the [Arch Linux Live CD](https://archlinux.org/download/), **not** the official Gentoo Linux installation CD. If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole code block, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
+In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/), **not** the official Gentoo Linux installation CD. If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole code block, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
 
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
 You need to boot using EFI (not BIOS), because the boot partition will be encrypted, and decryption of said partition with the help of GRUB won't work otherwise.
@@ -136,8 +136,13 @@ echo nameserver ... > /etc/resolv.conf
 pacman -Sy rng-tools
 systemctl start rngd
 
+# Insert iptables rules at correct place for SystemRescueCD to accept SSH clients.
+# Verify with "iptables -L -v -n"
+iptables -I INPUT 4 -p tcp --dport 22 -j ACCEPT -m conntrack --ctstate NEW
+
 # Alternatively, setup /root/.ssh/authorized_keys
 passwd root
+systemctl start sshd
 ```
 
 Execute following SCP/SSH commands **on your local machine** (copy&paste one after the other):
