@@ -32,7 +32,7 @@ PC∕Laptop
 - Two disks:
 
 ```
-PC∕Laptop
+PC∕Laptop──────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb
     ├── 1. EFI System Partition        ├── 1. EFI System Partition
     ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
