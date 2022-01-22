@@ -840,15 +840,20 @@ done
 Download the System Rescue CD .iso file (copy&paste one after the other):
 
 ```bash
+# Switch to non-root
+su - david
+
 RESCUE_SYSTEM_VERSION="$(curl -fsSL --proto '=https' --tlsv1.3 "https://gitlab.com/systemrescue/systemrescue-sources/-/raw/master/VERSION")"
 
 curl --location --proto '=https' --tlsv1.2 --ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384" --output systemrescue.iso "https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download"
 
-curl --location --proto '=https' --tlsv1.2 --ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384" --output systemrescue.iso.asc "https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc"
+curl --location --proto '=https' --tlsv1.3 --output systemrescue.iso.asc "https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc"
 
-gpg --homedir /tmp/gpgHomeDir --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x0E20017DC0497EB8C6569DF1638630933C31018B
+curl --location --proto '=https' --tlsv1.3 --output pubkey.pem "https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem"
 
-echo "0E20017DC0497EB8C6569DF1638630933C31018B:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
+gpg --homedir /tmp/gpgHomeDir --import pubkey.pem
+
+echo "62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
 
 gpg --homedir /tmp/gpgHomeDir --verify systemrescue.iso.asc systemrescue.iso
 
@@ -868,7 +873,7 @@ done
 
 umount /mnt/iso
 
-rm -fv /home/david/systemrescue.iso /home/david/systemrescue.iso.asc
+rm -fv /home/david/systemrescue.iso /home/david/systemrescue.iso.asc /home/david/pubkey.pem
 ```
 
 ### EFI binary
