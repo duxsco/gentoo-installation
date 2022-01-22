@@ -519,6 +519,9 @@ sed 's|  |  /etc/portage/patches/sys-kernel/genkernel/|' sha256.txt | sha256sum 
 /etc/portage/patches/sys-kernel/genkernel/defaults_initrd.scripts.patch: OK
 /etc/portage/patches/sys-kernel/genkernel/defaults_linuxrc.patch: OK
 
+# Stop the gpg-agent
+gpgconf --homedir /tmp/gpgHomeDir --kill all
+
 # Switch back to root
 exit
 ```
@@ -612,6 +615,9 @@ curl --location --proto '=https' --tlsv1.3 --remote-name-all "https://raw.github
 # And, verify as already done above for genkernel user patches
 gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
 sed 's|  |  /usr/local/sbin/|' gkb2gs.sh.sha256 | sha256sum -c -
+
+# Stop the gpg-agent
+gpgconf --homedir /tmp/gpgHomeDir --kill all
 
 # Switch back to root
 exit
@@ -800,6 +806,7 @@ ls -1d /efi* | while read -r I; do
     gpg --default-key "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
 done
 
+# Stop the gpg-agent
 gpgconf --kill all
 ```
 
@@ -856,6 +863,9 @@ gpg --homedir /tmp/gpgHomeDir --import pubkey.pem
 echo "62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
 
 gpg --homedir /tmp/gpgHomeDir --verify systemrescue.iso.asc systemrescue.iso
+
+# Stop the gpg-agent
+gpgconf --homedir /tmp/gpgHomeDir --kill all
 
 exit
 ```
