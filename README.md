@@ -921,7 +921,7 @@ ls -1d /efi* | while read -r I; do
 done
 ```
 
-Sign your files with GnuPG:
+Sign your files with GnuPG. You can use either RSA or some NIST-P based ECC. Unfortunately, ed25519/cv25519 as well as ed448/cv448 are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for ed25519/cv25519 has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with ed448/cv448 support.
 
 ```bash
 find /efi* /boot -type f -exec gpg --detach-sign {} \;
