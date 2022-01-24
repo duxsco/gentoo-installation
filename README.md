@@ -549,14 +549,16 @@ cp -av /etc/genkernel.conf{,.old} && \
     true
 ) && \
 sed -i \
--e 's/^#MENUCONFIG="no"$/MENUCONFIG="yes"/' \
 -e 's/^#MOUNTBOOT="yes"$/MOUNTBOOT="yes"/' \
 -e 's/^#SAVE_CONFIG="yes"$/SAVE_CONFIG="yes"/' \
 -e 's/^#LUKS="no"$/LUKS="yes"/' \
 -e 's/^#BTRFS="no"$/BTRFS="yes"/' \
 -e 's/^#BOOTLOADER="no"$/BOOTLOADER="grub2"/' \
 -e 's/^#MODULEREBUILD="yes"$/MODULEREBUILD="yes"/' \
--e 's/^#INITRAMFS_OVERLAY=""$/INITRAMFS_OVERLAY="\/key"/' /etc/genkernel.conf && \
+-e 's|^#KERNEL_CC="gcc"$|KERNEL_CC="/usr/lib/ccache/bin/gcc"|' \
+-e 's|^#UTILS_CC="gcc"$|UTILS_CC="/usr/lib/ccache/bin/gcc"|' \
+-e 's|^#UTILS_CXX="g++"$|UTILS_CXX="/usr/lib/ccache/bin/g++"|' \
+/etc/genkernel.conf && \
 diff -y --suppress-common-lines /etc/genkernel.conf /etc/genkernel.conf.old
 rm /etc/genkernel.conf.old
 ```
@@ -650,7 +652,28 @@ ls -1 /lib/firmware/intel-ucode/* | sed 's#/lib/firmware/##'
 
 ... outputs `intel-ucode/06-a5-02` in my case. Adjust below kernel config accordingly.
 
-Build kernel and initramfs:
+Setup `dev-util/ccache` to speed up genkernel:
+
+```bash
+mkdir -p /root/.cache/ccache && \
+emerge dev-util/ccache && \
+cat <<EOF >> /var/cache/ccache/ccache.conf
+compression = true
+compression_level = 1
+EOF
+```
+
+Setup `dropbear` config directory:
+
+```bash
+mkdir --mode=0755 /etc/dropbear
+
+# create /etc/dropbear/authorized_keys
+# These public keys will be granted access over SSH upon bootup
+# in order to unlock LUKS partitions remotely.
+```
+
+Build kernel and initramfs for local LUKS unlock:
 
 ```bash
 # I usually make following changes:
@@ -670,8 +693,17 @@ Build kernel and initramfs:
 #         Generic Kernel Debugging Instruments  --->
 #             [ ] Magic SysRq key
 #         [ ] Remote debugging over FireWire early on boot
-genkernel all
+genkernel --initramfs-overlay="/key" --menuconfig all
 ```
+
+Build kernel and initramfs for remote LUKS unlock over SSH:
+
+```bash
+# Reuse the config stored with the previous genkernel execution in /etc/kernels/
+genkernel --initramfs-filename="initramfs-%%KV%%-ssh.img" --kernel-filename="vmlinuz-%%KV%%-ssh" --systemmap-filename="System.map-%%KV%%-ssh" --ssh all
+```
+
+Copy generated `*-ssh*` to ESPs.
 
 ## Secure Boot and Grub
 
