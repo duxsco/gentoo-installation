@@ -124,9 +124,6 @@ Do initial setup (copy&paste one after the other):
 ```bash
 screen -S install
 
-# Don't store commands with leading whitespace in ~/.bash_history
-export HISTCONTROL="ignorespace"
-
 # If no network setup via DHCP done...
 ip a add ...
 ip r add default ...
@@ -187,8 +184,11 @@ Prepare the disks:
 
 ```bash
 bash /tmp/disk.sh -h
-# Place whitespace before following command to have bash not store passwords in ~/.bash_history.
-    bash /tmp/disk.sh -b bootbootboot -m mastermaster -d "/dev/sda /dev/sdb etc." -s 12
+# disable bash history
+set +o history
+bash /tmp/disk.sh -b bootbootboot -m mastermaster -d "/dev/sda /dev/sdb etc." -s 12
+# enable bash history
+set -o history
 ```
 
 ## Prepare chroot
@@ -846,7 +846,11 @@ gpgconf --kill all
 Set the encrypted password you want to login with in the rescue system (change "MyPassWord123" beforehand 😉):
 
 ```bash
-    CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
+# disable bash history
+set +o history
+CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
+# enable bash history
+set -o history
 ```
 
 Create the Grub config to boot into the rescue system:
