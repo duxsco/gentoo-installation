@@ -571,14 +571,14 @@ echo "" >> /etc/fstab && \
 (
 cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r I; do
-  echo "UUID=$(blkid -s UUID -o value "$I")   ${I/devE/e}                   vfat  noatime,noauto             0 0"
+  echo "UUID=$(blkid -s UUID -o value "$I")   ${I/devE/e}                   vfat  noatime,noauto,dmask=0022,fmask=0133  0 0"
 done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime,noauto             0 0
-UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                         0 0
-UUID=$(blkid -s UUID -o value /mapperRoot)   /                       btrfs noatime,subvol=@root       0 0
-UUID=$(blkid -s UUID -o value /mapperRoot)   /home                   btrfs noatime,subvol=@home       0 0
-UUID=$(blkid -s UUID -o value /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles  0 0
-UUID=$(blkid -s UUID -o value /mapperRoot)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage    0 0
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime,noauto                        0 0
+UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                                    0 0
+UUID=$(blkid -s UUID -o value /mapperRoot)   /                       btrfs noatime,subvol=@root                  0 0
+UUID=$(blkid -s UUID -o value /mapperRoot)   /home                   btrfs noatime,subvol=@home                  0 0
+UUID=$(blkid -s UUID -o value /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles             0 0
+UUID=$(blkid -s UUID -o value /mapperRoot)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage               0 0
 EOF
 ) && \
 find /devEfi* -maxdepth 0 | while read -r I; do
