@@ -146,8 +146,8 @@ Execute following SCP/SSH commands **on your local machine** (copy&paste one aft
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-scp -P XXX {disk.sh,fetch_files.sh,update_grub_cfg.sh} root@XXX:/tmp/
-sha256sum disk.sh fetch_files.sh update_grub_cfg.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
+scp -P XXX {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh} root@XXX:/tmp/
+sha256sum disk.sh fetch_files.sh genkernel.sh boot2efi.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
 
 # From local machine, login into the remote machine
 ssh -p XXX root@...
@@ -199,13 +199,13 @@ Set date:
 date MMDDhhmmYYYY
 ```
 
-Extract stage3 tarball and copy `update_grub_cfg.sh`:
+Extract stage3 tarball and copy `genkernel.sh` as well as `boot2efi.sh`:
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -av /tmp/update_grub_cfg.sh /mnt/gentoo/usr/local/sbin/ && \
-chown 0:0 /mnt/gentoo/usr/local/sbin/update_grub_cfg.sh && \
-chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/update_grub_cfg.sh; echo $?
+rsync -av /tmp/{genkernel.sh,boot2efi.sh} /mnt/gentoo/usr/local/sbin/ && \
+chown 0:0 /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh} && \
+chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh}; echo $?
 ```
 
 Mount:
@@ -349,8 +349,8 @@ Enable webrsync. Thereafter, portage uses https only.
 
 ```bash
 mkdir /etc/portage/repos.conf && \
-sed 's/sync-type = rsync/sync-type = webrsync/' /usr/share/portage/config/repos.conf > /etc/portage/repos.conf/gentoo.conf && \
-grep -q "sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/gentoo.conf; echo $?
+sed 's/^sync-type = rsync/sync-type = webrsync/' /usr/share/portage/config/repos.conf > /etc/portage/repos.conf/gentoo.conf && \
+grep -q "^sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/gentoo.conf; echo $?
 ```
 
 Update portage and check news:
@@ -479,9 +479,11 @@ Add [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-patches)
 ```bash
 mkdir -p /etc/portage/patches/sys-kernel/genkernel && \
 GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')" && (
-su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/defaults_initrd.scripts.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_initrd.scripts.patch
+su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/00_defaults_linuxrc.patch\"" > /etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch
 ) && (
-su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/defaults_linuxrc.patch\"" > /etc/portage/patches/sys-kernel/genkernel/defaults_linuxrc.patch
+su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/01_defaults_initrd.scripts.patch\"" > /etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch
+) && (
+su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/02_defaults_initrd.scripts_dosshd.patch\"" > /etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
 ); echo $?
 ```
 
@@ -516,8 +518,9 @@ gpg: Good signature from "David Sardari <d@XXXXX.de>" [ultimate]
 
 # Add paths to sha256.txt and verify
 sed 's|  |  /etc/portage/patches/sys-kernel/genkernel/|' sha256.txt | sha256sum -c -
-/etc/portage/patches/sys-kernel/genkernel/defaults_initrd.scripts.patch: OK
-/etc/portage/patches/sys-kernel/genkernel/defaults_linuxrc.patch: OK
+/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch: OK
+/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch: OK
+/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch: OK
 
 # Stop the gpg-agent
 gpgconf --homedir /tmp/gpgHomeDir --kill all
@@ -657,7 +660,8 @@ Setup `dev-util/ccache` to speed up genkernel:
 ```bash
 mkdir -p /root/.cache/ccache && \
 emerge dev-util/ccache && \
-cat <<EOF >> /var/cache/ccache/ccache.conf
+mkdir -p /var/cache/ccache && \
+cat <<EOF > /var/cache/ccache/ccache.conf
 compression = true
 compression_level = 1
 EOF
@@ -673,7 +677,7 @@ mkdir --mode=0755 /etc/dropbear
 # in order to unlock LUKS partitions remotely.
 ```
 
-Build kernel and initramfs for local LUKS unlock:
+Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 
 ```bash
 # I usually make following changes:
@@ -693,14 +697,7 @@ Build kernel and initramfs for local LUKS unlock:
 #         Generic Kernel Debugging Instruments  --->
 #             [ ] Magic SysRq key
 #         [ ] Remote debugging over FireWire early on boot
-genkernel --initramfs-overlay="/key" --menuconfig all
-```
-
-Build kernel and initramfs for remote LUKS unlock over SSH:
-
-```bash
-# Reuse the config stored with the previous genkernel execution in /etc/kernels/
-genkernel --initramfs-filename="initramfs-%%KV%%-ssh.img" --kernel-filename="vmlinuz-%%KV%%-ssh" --systemmap-filename="System.map-%%KV%%-ssh" --ssh all
+genkernel.sh
 ```
 
 Copy generated `*-ssh*` to ESPs.
@@ -823,7 +820,7 @@ done
 echo $?
 ```
 
-Sign "grub-initial_efi*.cfg" and save your GnuPG public key:
+Sign "grub-initial_efi*.cfg" and save your GnuPG public key. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
 
 ```bash
 # Change Key ID
@@ -842,6 +839,12 @@ done
 gpgconf --kill all
 ```
 
+Setup remote LUKS unlocking:
+
+```bash
+# Change settings depending on your requirements
+echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:XX:XX gk.sshd.port=50023" > /root/.grub_dosshd.config
+```
 
 Set the encrypted password you want to login with in the rescue system (change "MyPassWord123" beforehand 😉):
 
@@ -860,24 +863,15 @@ Credits:
 - https://www.system-rescue.org/manual/Booting_SystemRescue/
 
 ```bash
-ls -1d /efi* | while read -r I; do
-UUID="$(blkid -s UUID -o value "/devEfi${I#/efi}")"
-cat <<EOF >> /etc/grub.d/40_custom; echo $?
-
-menuentry 'SystemRescue (${I#/})' {
-  load_video
-  insmod gzio
-  insmod part_gpt
-  insmod part_msdos
-  insmod ext2
-  search --no-floppy --fs-uuid --set=root ${UUID}
+cat <<EOF > /root/.grub_rescuecd.config; echo $?
+menuentry 'SystemRescue' {
+  search --no-floppy --fs-uuid --set=root UUID_PLACEHOLDER
   echo   'Loading Linux kernel ...'
-  linux  /sysresccd/boot/x86_64/vmlinuz archisobasedir=sysresccd archisolabel=$(tr '[:lower:]' '[:upper:]' <<<"${I#/}") copytoram setkmap=de checksum rootcryptpass=${CRYPT_PASS} noautologin nofirewall
+  linux  /sysresccd/boot/x86_64/vmlinuz archisobasedir=sysresccd archisolabel=UUID_UPPERCASE_PLACEHOLDER copytoram setkmap=de checksum rootcryptpass='${CRYPT_PASS}' noautologin nofirewall
   echo   'Loading initramfs ...'
   initrd /sysresccd/boot/x86_64/sysresccd.img
 }
 EOF
-done
 ```
 
 Download the System Rescue CD .iso file (copy&paste one after the other):
@@ -886,7 +880,7 @@ Download the System Rescue CD .iso file (copy&paste one after the other):
 # Switch to non-root
 su - david
 
-RESCUE_SYSTEM_VERSION="$(curl -fsSL --proto '=https' --tlsv1.3 "https://gitlab.com/systemrescue/systemrescue-sources/-/raw/master/VERSION")"
+RESCUE_SYSTEM_VERSION="$(curl -fsSL --proto '=https' --tlsv1.3 "https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")"
 
 curl --location --proto '=https' --tlsv1.2 --ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384" --output systemrescue.iso "https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download"
 
@@ -909,38 +903,38 @@ exit
 Copy system rescue files to the EFI System Partitions (copy&paste one after the other):
 
 ```bash
-mkdir /mnt/iso
-
-mount -o loop,ro /home/david/systemrescue.iso /mnt/iso
-
+mkdir /mnt/iso && \
+mount -o loop,ro /home/david/systemrescue.iso /mnt/iso && \
+(
 ls -1d /efi* | while read -r I; do
-    rsync -HAXacv --delete /mnt/iso/sysresccd "${I}/"
+    rsync -HAXSacv --delete /mnt/iso/sysresccd "${I}/"
 done
-
-umount /mnt/iso
-
-rm -fv /home/david/systemrescue.iso /home/david/systemrescue.iso.asc /home/david/pubkey.pem
+) && \
+umount /mnt/iso && \
+rm -fv /home/david/systemrescue.iso /home/david/systemrescue.iso.asc /home/david/pubkey.pem; echo $?
 ```
 
 ### EFI binary
+
+Create the EFI binary/ies and Secure Boot sign them:
 
 ```bash
 # GRUB doesn't allow loading new modules from disk when secure boot is in
 # effect, therefore pre-load the required modules.
 MODULES=
-MODULES="${MODULES} part_gpt fat ext2"           # partition and file systems for EFI
-MODULES="${MODULES} configfile"                  # source command
-MODULES="${MODULES} verify gcry_sha512 gcry_rsa" # signature verification
-MODULES="${MODULES} password_pbkdf2"             # hashed password
-MODULES="${MODULES} echo normal linux linuxefi"  # boot linux
-MODULES="${MODULES} all_video"                   # video output
-MODULES="${MODULES} search search_fs_uuid"       # search --fs-uuid
-MODULES="${MODULES} reboot sleep"                # sleep, reboot
+MODULES="${MODULES} part_gpt fat ext2"             # partition and file systems for EFI
+MODULES="${MODULES} configfile"                    # source command
+MODULES="${MODULES} verify gcry_sha512 gcry_rsa"   # signature verification
+MODULES="${MODULES} password_pbkdf2"               # hashed password
+MODULES="${MODULES} echo normal linux linuxefi"    # boot linux
+MODULES="${MODULES} all_video"                     # video output
+MODULES="${MODULES} search search_fs_uuid"         # search --fs-uuid
+MODULES="${MODULES} reboot sleep"                  # sleep, reboot
+MODULES="${MODULES} gzio part_gpt part_msdos ext2" # SystemRescueCD modules
 MODULES="${MODULES} $(grub-mkconfig | grep insmod | awk '{print $NF}' | sort -u | paste -d ' ' -s -)"
 
 ls -1d /efi* | while read -r I; do
     mkdir -p "${I}/EFI/boot" && \
-
     grub-mkstandalone \
         --directory /usr/lib/grub/x86_64-efi \
         --disable-shim-lock \
@@ -950,45 +944,81 @@ ls -1d /efi* | while read -r I; do
         --output "${I}/EFI/boot/bootx64.efi" \
         "boot/grub/grub.cfg=/etc/secureboot/grub-initial_${I#/}.cfg" \
         "boot/grub/grub.cfg.sig=/etc/secureboot/grub-initial_${I#/}.cfg.sig" && \
-
-    sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
-
-    ( grub-mkconfig | sed -n '/^### BEGIN \/etc\/grub.d\/10_linux ###$/,/^### END \/etc\/grub.d\/10_linux ###$/p'; grub-mkconfig | sed -n '/^### BEGIN \/etc\/grub.d\/40_custom ###$/,/^### END \/etc\/grub.d\/40_custom ###$/p' ) | sed -e 's/$menuentry_id_option/--unrestricted --id/' | sed '/^[[:space:]]*else/,/^[[:space:]]*fi/d' | grep -v -e "^[[:space:]]*if" -e "^[[:space:]]*fi" -e "^[[:space:]]*load_video" -e "^[[:space:]]*insmod" > "${I}/grub.cfg"; echo $?
+    sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi"
+    echo $?
 done
 ```
 
-Sign your files with GnuPG. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
+Sign your files with GnuPG:
 
 ```bash
-find /efi* /boot -type f -exec gpg --detach-sign {} \;
+find /efi*/sysresccd /boot -type f -exec gpg --detach-sign {} \;
 echo $?
 gpgconf --kill all
 echo $?
 ```
 
+Copy relevant files from `/boot` to `/efi*/`:
+
+```bash
+boot2efi.sh
+```
+
 ### Result
 
 ```
-# tree /boot /efia /efib
+# tree /boot /efi*
 /boot
-├── System.map-5.15.14-gentoo-x86_64
-├── System.map-5.15.14-gentoo-x86_64.sig
-├── initramfs-5.15.14-gentoo-x86_64.img
-├── initramfs-5.15.14-gentoo-x86_64.img.sig
-├── vmlinuz-5.15.14-gentoo-x86_64
-└── vmlinuz-5.15.14-gentoo-x86_64.sig
+├── System.map-5.15.18-gentoo-x86_64
+├── System.map-5.15.18-gentoo-x86_64-ssh
+├── System.map-5.15.18-gentoo-x86_64-ssh.sig
+├── System.map-5.15.18-gentoo-x86_64.sig
+├── grub_efia.cfg
+├── grub_efia.cfg.sig
+├── grub_efib.cfg
+├── grub_efib.cfg.sig
+├── initramfs-5.15.18-gentoo-x86_64-ssh.img
+├── initramfs-5.15.18-gentoo-x86_64-ssh.img.sig
+├── initramfs-5.15.18-gentoo-x86_64.img
+├── initramfs-5.15.18-gentoo-x86_64.img.sig
+├── vmlinuz-5.15.18-gentoo-x86_64
+├── vmlinuz-5.15.18-gentoo-x86_64-ssh
+├── vmlinuz-5.15.18-gentoo-x86_64-ssh.sig
+└── vmlinuz-5.15.18-gentoo-x86_64.sig
 /efia
 ├── EFI
 │   └── boot
-│       ├── bootx64.efi
-│       └── bootx64.efi.sig
+│       └── bootx64.efi
+├── System.map-5.15.18-gentoo-x86_64-ssh
+├── System.map-5.15.18-gentoo-x86_64-ssh.sig
 ├── grub.cfg
 ├── grub.cfg.sig
-└── sysresccd
-    ├── etc.
-    etc.
+├── initramfs-5.15.18-gentoo-x86_64-ssh.img
+├── initramfs-5.15.18-gentoo-x86_64-ssh.img.sig
+├── sysresccd
+│   ├── VERSION
+│   ├── VERSION.sig
+│   etc.
+├── vmlinuz-5.15.18-gentoo-x86_64-ssh
+└── vmlinuz-5.15.18-gentoo-x86_64-ssh.sig
+/efib
+├── EFI
+│   └── boot
+│       └── bootx64.efi
+├── System.map-5.15.18-gentoo-x86_64-ssh
+├── System.map-5.15.18-gentoo-x86_64-ssh.sig
+├── grub.cfg
+├── grub.cfg.sig
+├── initramfs-5.15.18-gentoo-x86_64-ssh.img
+├── initramfs-5.15.18-gentoo-x86_64-ssh.img.sig
+├── sysresccd
+│   ├── VERSION
+│   ├── VERSION.sig
+│   etc.
+├── vmlinuz-5.15.18-gentoo-x86_64-ssh
+└── vmlinuz-5.15.18-gentoo-x86_64-ssh.sig
 
-8 directories, 174 files
+16 directories, 362 files
 ```
 
 ## Configuration
@@ -1232,7 +1262,26 @@ reboot
 
 ## Grub config update after kernel updates
 
-Execute `update_grub_cfg.sh` as root after every kernel update to create up-to-date `grub.cfg` files.
+For every kernel update, execute `genkernel.sh`, sign files printed out and execute `boot2efi.sh` as root.
+
+## Remote unlock
+
+SSH into the machine, execute `cryptsetup luksOpen` for every LUKS volume you want to open:
+
+```bash
+# Beware to create at least a "root" device:
+cryptsetup luksOpen /dev/vda3 vda3
+cryptsetup luksOpen /dev/vdb3 vdb3
+cryptsetup luksOpen /dev/vda4 vda4
+cryptsetup luksOpen /dev/vdb4 vdb4
+etc.
+```
+
+If you are finished, execute to resume boot:
+
+```bash
+touch /tmp/SWAP.opened /tmp/ROOT.opened && rm /tmp/remote-rescueshell.lock
+```
 
 ## Other Gentoo Linux repos
 
