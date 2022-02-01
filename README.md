@@ -1269,10 +1269,10 @@ For every kernel update, execute `genkernel.sh`, sign files printed out and exec
 SSH into the machine, execute `cryptsetup luksOpen` for every LUKS volume you want to open:
 
 ```bash
-cryptsetup luksOpen /dev/vda3 vda3
-cryptsetup luksOpen /dev/vdb3 vdb3
-cryptsetup luksOpen /dev/vda4 vda4
-cryptsetup luksOpen /dev/vdb4 vdb4
+cryptsetup luksOpen /dev/sda3 sda3
+cryptsetup luksOpen /dev/sdb3 sdb3
+cryptsetup luksOpen /dev/sda4 sda4
+cryptsetup luksOpen /dev/sdb4 sdb4
 etc.
 ```
 
