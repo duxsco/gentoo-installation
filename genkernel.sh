@@ -10,6 +10,20 @@ if ! mountpoint /boot >/dev/null 2>&1; then
     UNMOUNT_BOOT="true"
 fi
 
+echo ""
+read -r -p "Do you want to clear ccache's cache (y/n)?
+See \"Is it safe?\" at https://ccache.dev/. Your answer: " CLEAR_CCACHE
+echo ""
+
+if [[ ${CLEAR_CCACHE} =~ ^[yY]$ ]]; then
+    echo "Clearing ccache's cache..."
+    ccache --clear
+    echo ""
+elif ! [[ ${CLEAR_CCACHE} =~ ^[nN]$ ]]; then
+    echo "No valid response given! Aborting..."
+    exit 1
+fi
+
 genkernel --initramfs-overlay="/key" --menuconfig all
 
 echo ""
