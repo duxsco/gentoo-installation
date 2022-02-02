@@ -16,7 +16,7 @@ echo ""
 read -r -p "Do you want to continue (y/N)? " CONTINUE
 echo ""
 
-if [ "${CONTINUE}" != "y" ]; then
+if ! [[ ${CONTINUE} =~ ^[yY]$ ]]; then
     echo "You didn't approve with \"y\". Exiting..."
     exit 0
 fi
