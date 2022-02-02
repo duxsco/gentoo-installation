@@ -667,7 +667,7 @@ compression_level = 1
 EOF
 ```
 
-Setup `dropbear` config directory:
+Setup `dropbear` config directory and `/etc/dropbear/authorized_keys`:
 
 ```bash
 mkdir --mode=0755 /etc/dropbear
@@ -962,6 +962,9 @@ Copy relevant files from `/boot` to `/efi*/`:
 
 ```bash
 boot2efi.sh
+ls -1d /efi* | while read -r I; do
+    mount "${I}"
+done
 ```
 
 ### Result
