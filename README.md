@@ -863,13 +863,17 @@ Credits:
 - https://www.system-rescue.org/manual/Booting_SystemRescue/
 
 ```bash
-cat <<EOF > /root/.grub_rescuecd.config; echo $?
-menuentry 'SystemRescue' {
-  search --no-floppy --fs-uuid --set=root UUID_PLACEHOLDER
-  echo   'Loading Linux kernel ...'
-  linux  /sysresccd/boot/x86_64/vmlinuz archisobasedir=sysresccd archisolabel=UUID_UPPERCASE_PLACEHOLDER copytoram setkmap=de checksum rootcryptpass='${CRYPT_PASS}' noautologin nofirewall
-  echo   'Loading initramfs ...'
-  initrd /sysresccd/boot/x86_64/sysresccd.img
+UUID="$(blkid -s UUID -o value /devBoot | tr -d '-')"
+cat <<EOF >> /etc/grub.d/40_custom; echo $?
+
+menuentry 'SystemRescueCD' {
+	cryptomount -u ${UUID}
+	set root='cryptouuid/${UUID}'
+	search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID}' $(blkid -s UUID -o value /mapperBoot)
+	echo   'Loading Linux kernel ...'
+	linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devBoot):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=boot copytoram setkmap=de checksum rootcryptpass='${CRYPT_PASS}' noautologin nofirewall
+	echo   'Loading initramfs ...'
+	initrd /sysresccd/boot/x86_64/sysresccd.img
 }
 EOF
 ```
@@ -905,11 +909,7 @@ Copy system rescue files to the EFI System Partitions (copy&paste one after the 
 ```bash
 mkdir /mnt/iso && \
 mount -o loop,ro /home/david/systemrescue.iso /mnt/iso && \
-(
-ls -1d /efi* | while read -r I; do
-    rsync -HAXSacv --delete /mnt/iso/sysresccd "${I}/"
-done
-) && \
+rsync -HAXSacv --delete /mnt/iso/sysresccd /boot/ && \
 umount /mnt/iso && \
 rm -fv /home/david/systemrescue.iso /home/david/systemrescue.iso.asc /home/david/pubkey.pem; echo $?
 ```
@@ -984,6 +984,10 @@ done
 ├── initramfs-5.15.18-gentoo-x86_64-ssh.img.sig
 ├── initramfs-5.15.18-gentoo-x86_64.img
 ├── initramfs-5.15.18-gentoo-x86_64.img.sig
+├── sysresccd
+│   ├── VERSION
+│   ├── VERSION.sig
+│   etc.
 ├── vmlinuz-5.15.18-gentoo-x86_64
 ├── vmlinuz-5.15.18-gentoo-x86_64-ssh
 ├── vmlinuz-5.15.18-gentoo-x86_64-ssh.sig
@@ -998,10 +1002,6 @@ done
 ├── grub.cfg.sig
 ├── initramfs-5.15.18-gentoo-x86_64-ssh.img
 ├── initramfs-5.15.18-gentoo-x86_64-ssh.img.sig
-├── sysresccd
-│   ├── VERSION
-│   ├── VERSION.sig
-│   etc.
 ├── vmlinuz-5.15.18-gentoo-x86_64-ssh
 └── vmlinuz-5.15.18-gentoo-x86_64-ssh.sig
 /efib
@@ -1014,14 +1014,10 @@ done
 ├── grub.cfg.sig
 ├── initramfs-5.15.18-gentoo-x86_64-ssh.img
 ├── initramfs-5.15.18-gentoo-x86_64-ssh.img.sig
-├── sysresccd
-│   ├── VERSION
-│   ├── VERSION.sig
-│   etc.
 ├── vmlinuz-5.15.18-gentoo-x86_64-ssh
 └── vmlinuz-5.15.18-gentoo-x86_64-ssh.sig
 
-16 directories, 362 files
+10 directories, 198 files
 ```
 
 ## Configuration

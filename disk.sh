@@ -112,7 +112,7 @@ find $(getPartitions 1) | while read -r I; do
 done
 
 # boot partition
-mkfs.btrfs --checksum blake2 "/dev/mapper/${BOOT_PARTITION##*\/}"
+mkfs.btrfs --checksum blake2 --label boot "/dev/mapper/${BOOT_PARTITION##*\/}"
 
 # swap partition
 # shellcheck disable=SC2046
@@ -122,12 +122,12 @@ else
     SWAP_PARTITION="/dev/md1"
     mdadm --create "${SWAP_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getMapperPartitions 3)
 fi
-mkswap "${SWAP_PARTITION}"
+mkswap --label swap "${SWAP_PARTITION}"
 swapon "${SWAP_PARTITION}"
 
 # root partition
 # shellcheck disable=SC2046
-mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 $(getMapperPartitions 4)
+mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 --label system $(getMapperPartitions 4)
 
 if [ ! -d /mnt/gentoo ]; then
     mkdir /mnt/gentoo
