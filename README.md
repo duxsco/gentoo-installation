@@ -1189,9 +1189,9 @@ cp -av /etc/ssh/sshd_config{,.old} && \
 sed -i \
 -e 's/^#Port 22$/Port 50022/' \
 -e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
--e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
--e 's/^#ChallengeResponseAuthentication yes$/ChallengeResponseAuthentication no/' \
+-e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
 -e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config && \
+grep -q "^PasswordAuthentication no$" /etc/ssh/sshd_config && \
 (
 cat <<EOF >> /etc/ssh/sshd_config
 
