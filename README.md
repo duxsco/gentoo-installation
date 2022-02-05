@@ -313,9 +313,13 @@ sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /mnt
 #
 TLSv12_CIPHERS="$(openssl ciphers -s -v | grep -i aead | grep -i dhe | sort | sort -k1.1,1.1 -s -r | awk '{print $1}' | paste -d: -s -)"
 
+RAM_SIZE="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)"
+NUMBER_CORES="$(nproc --all)"
+[[ $((NUMBER_CORES*2)) -le ${RAM_SIZE} ]] && NUMBER_OPTS="${NUMBER_CORES}" || NUMBER_OPTS="$(bc <<<"${RAM_SIZE} / 2")"
+
 cat <<EOF >> /mnt/gentoo/etc/portage/make.conf
 
-MAKEOPTS="-j$(nproc --all) -l$(bc -l <<<"0.9 * $(nproc --all)")"
+MAKEOPTS="-j${NUMBER_OPTS} -l$(bc -l <<<"0.9 * ${NUMBER_OPTS}")"
 EMERGE_DEFAULT_OPTS="-j"
 
 L10N="de"
