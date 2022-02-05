@@ -113,6 +113,12 @@ Boot into SystemRescueCD and set the correct keyboard layout:
 loadkeys de-latin1-nodeadkeys
 ```
 
+Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
+
+```bash
+sysctl -w kernel.sysrq=0
+```
+
 Make sure you have booted with EFI:
 
 ```bash
@@ -163,12 +169,6 @@ Check file hashes:
 
 ```bash
 sha256sum -c /tmp/sha256.txt
-```
-
-Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
-
-```bash
-sysctl -w kernel.sysrq=0
 ```
 
 (Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**):
