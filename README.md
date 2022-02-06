@@ -954,7 +954,8 @@ ls -1d /efi* | while read -r I; do
         --output "${I}/EFI/boot/bootx64.efi" \
         "boot/grub/grub.cfg=/etc/secureboot/grub-initial_${I#/}.cfg" \
         "boot/grub/grub.cfg.sig=/etc/secureboot/grub-initial_${I#/}.cfg.sig" && \
-    sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi"
+    sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
+    efibootmgr --create --disk "$(lsblk -ndo pkname "$(readlink -f "${I/efi/devEfi}")")" --part 1 --label "gentoo ${I#/}" --loader '\EFI\boot\bootx64.efi'
     echo $?
 done
 ```
