@@ -1169,6 +1169,14 @@ EOF
 su -l david -c "/bin/fish -c 'alias cp=\"cp -i\"; alias mv=\"mv -i\"; alias rm=\"rm -i\"; funcsave cp; funcsave mv; funcsave rm; fish_config prompt choose terlar; fish_config prompt save'"
 ```
 
+  - mcelog:
+
+```bash
+echo "app-admin/mcelog ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge app-admin/mcelog && \
+rc-update add mcelog default; echo $?
+```
+
   - If you have `sys-fs/mdadm` installed:
 
 ```bash
