@@ -1067,7 +1067,6 @@ sed -i 's/keymap="us"/keymap="de-latin1-nodeadkeys"/' /etc/conf.d/keymaps
 Setup system logger:
 
 ```bash
-echo "app-admin/sysklogd logrotate" >> /etc/portage/package.use/main && \
 emerge app-admin/sysklogd && \
 rc-update add sysklogd default; echo $?
 ```
@@ -1075,7 +1074,7 @@ rc-update add sysklogd default; echo $?
 Setup cronie:
 
 ```bash
-emerge --select --noreplace sys-process/cronie && \
+emerge sys-process/cronie && \
 rc-update add cronie default; echo $?
 ```
 
