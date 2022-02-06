@@ -16,9 +16,9 @@ if [ -d ~/.gnupg ]; then
 fi
 
 # fetch stage3 tarball
-CURRENT_STAGE3="$(curl -fsSL --proto '=https' --tlsv1.3 "https://ftp.tu-ilmenau.de/mirror/gentoo/releases/amd64/autobuilds/latest-stage3-amd64-hardened-openrc.txt" | grep -v "^#" | awk '{print $1}' | cut -d/ -f2)"
-curl -fsSLO --proto '=https' --tlsv1.3 "https://ftp.fau.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64-hardened-openrc/${CURRENT_STAGE3}"
-curl -fsSLO --proto '=https' --tlsv1.3 "https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/releases/amd64/autobuilds/current-stage3-amd64-hardened-openrc/${CURRENT_STAGE3}.DIGESTS.asc"
+CURRENT_STAGE3="$(curl -fsSL --proto '=https' --tlsv1.3 "https://ftp.tu-ilmenau.de/mirror/gentoo/releases/amd64/autobuilds/latest-stage3-amd64-hardened-nomultilib-selinux-openrc.txt" | grep -v "^#" | awk '{print $1}' | cut -d/ -f2)"
+curl -fsSLO --proto '=https' --tlsv1.3 "https://ftp.fau.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64-hardened-nomultilib-selinux-openrc/${CURRENT_STAGE3}"
+curl -fsSLO --proto '=https' --tlsv1.3 "https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/releases/amd64/autobuilds/current-stage3-amd64-hardened-nomultilib-selinux-openrc/${CURRENT_STAGE3}.DIGESTS.asc"
 gpg --keyserver hkps://keys.gentoo.org --recv-keys 0x13EBBDBEDE7A12775DFDB1BABB572E0E2D182910
 echo "13EBBDBEDE7A12775DFDB1BABB572E0E2D182910:6:" | gpg --import-ownertrust
 gpg --status-fd 1 --verify "${CURRENT_STAGE3##*/}.DIGESTS.asc" 2>/dev/null | grep "^\[GNUPG:\]" | awk '{print $2}' | grep -e "^GOODSIG$" -e "^VALIDSIG$" -e "^TRUST_ULTIMATE$" | sort | paste -d ' ' -s - | grep -q "^GOODSIG TRUST_ULTIMATE VALIDSIG$"

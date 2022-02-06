@@ -199,6 +199,8 @@ Set date:
 date MMDDhhmmYYYY
 ```
 
+> ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
+
 Extract stage3 tarball and copy `genkernel.sh` as well as `boot2efi.sh`:
 
 ```bash
@@ -690,6 +692,9 @@ Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 #             Processor family (Core 2/newer Xeon)  --->
 #         <*> CPU microcode loading support
 #         [*]   Intel microcode loading support
+#     Binary Emulations --->
+#         [ ] IA32 Emulation
+#         [ ] x32 ABI for 64-bit mode
 #     Device Drivers  --->
 #         Generic Driver Options --->
 #             Firmware Loader --->
@@ -1256,7 +1261,7 @@ emerge app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel; echo $?
   - stage3 and dev* files:
 
 ```bash
-rm -fv /stage3-amd64-hardened-openrc-* /portage-latest.tar.xz* /devBoot /devEfi* /devRoot* /devSwap* /mapperBoot /mapperSwap /mapperRoot; echo $?
+rm -fv /stage3-* /portage-latest.tar.xz* /devBoot /devEfi* /devRoot* /devSwap* /mapperBoot /mapperSwap /mapperRoot; echo $?
 ```
 
   - exit and reboot (copy&paste one after the other):
