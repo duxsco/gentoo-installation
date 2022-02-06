@@ -667,7 +667,7 @@ Setup `dev-util/ccache` to speed up genkernel:
 mkdir -p /root/.cache/ccache && \
 emerge dev-util/ccache && \
 mkdir -p /var/cache/ccache && \
-cat <<EOF > /var/cache/ccache/ccache.conf
+cat <<EOF > /var/cache/ccache/ccache.conf; echo $?
 compression = true
 compression_level = 1
 EOF
@@ -678,7 +678,7 @@ Setup `dropbear` config directory and `/etc/dropbear/authorized_keys`:
 ```bash
 mkdir --mode=0755 /etc/dropbear
 
-# create /etc/dropbear/authorized_keys
+# create /etc/dropbear/authorized_keys and "chmod og="
 # These public keys will be granted access over SSH upon bootup
 # in order to unlock LUKS partitions remotely.
 ```
@@ -692,6 +692,7 @@ Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 #             Processor family (Core 2/newer Xeon)  --->
 #         <*> CPU microcode loading support
 #         [*]   Intel microcode loading support
+#         [*]   AMD microcode loading support
 #     Binary Emulations --->
 #         [ ] IA32 Emulation
 #         [ ] x32 ABI for 64-bit mode
