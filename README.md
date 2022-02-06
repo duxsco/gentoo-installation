@@ -210,6 +210,161 @@ chown 0:0 /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh} && \
 chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh}; echo $?
 ```
 
+## Customise SystemRescueCD ISO
+
+Before mounting and chrooting, download and customise the SystemRescueCD .iso file, while we are still on SystemRescueCD.
+
+Prepare directory to work in:
+
+```bash
+mkdir -p /mnt/gentoo/etc/systemrescuecd
+
+# user "meh" has been created by disk.sh previously
+chown meh: /mnt/gentoo/etc/systemrescuecd
+```
+
+Download and verify the .iso file:
+
+```bash
+# Switch to non-root
+su - meh
+
+RESCUE_SYSTEM_GNUPG_HOMEDIR="$(mktemp -d)"
+RESCUE_SYSTEM_VERSION="$(curl -fsSL --proto '=https' --tlsv1.3 "https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")"
+
+curl --location --proto '=https' --tlsv1.2 --ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384" --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso "https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download"
+
+curl --location --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc "https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc"
+
+curl --location --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/pubkey.pem "https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem"
+
+gpg --homedir "${RESCUE_SYSTEM_GNUPG_HOMEDIR}" --import /mnt/gentoo/etc/systemrescuecd/pubkey.pem
+
+echo "62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:" | gpg --homedir "${RESCUE_SYSTEM_GNUPG_HOMEDIR}" --import-ownertrust
+
+gpg --homedir "${RESCUE_SYSTEM_GNUPG_HOMEDIR}" --verify /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/systemrescuecd/systemrescue.iso
+
+# Stop the gpg-agent
+gpgconf --homedir "${RESCUE_SYSTEM_GNUPG_HOMEDIR}" --kill all
+
+exit
+
+chown -R root: /mnt/gentoo/etc/systemrescuecd
+```
+
+Customise the .iso file:
+
+```bash
+mkdir -p /mnt/gentoo/etc/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh}},work}
+
+# add your ssh public keys to
+# /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
+
+# set correct modes
+chmod u=rwx,g=rx,o= /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/root
+chmod -R go= /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/root/.ssh
+
+# do some ssh server hardening
+sed \
+-e 's/^#Port 22$/Port 50024/' \
+-e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
+grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
+cat <<EOF >> /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
+
+AuthenticationMethods publickey
+
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+HostKeyAlgorithms ssh-ed25519
+Ciphers chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com
+MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512
+EOF
+
+# create ssh_host_* files in ../build_into_srm/etc/ssh/
+ssh-keygen -A -f /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm
+
+# print out hashes. you can use them to double check upon initial ssh connection
+find /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
+
+# disable magic sysrq due to security considerations
+echo "kernel.sysrq = 0" > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/sysrq.conf
+
+# disable bash history
+set +o history
+# replace "MyPassWord123" with the password you want to use to login via TTY on SystemRescueCD
+CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
+# enable bash history
+set -o history
+
+# set default settings
+cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml
+---
+global:
+    copytoram: true
+    checksum: true
+    nofirewall: false
+    loadsrm: true
+    setkmap: de-latin1-nodeadkeys
+    dostartx: false
+    dovnc: false
+    rootshell: /bin/bash
+    rootcryptpass: '${CRYPT_PASS}'
+
+autorun:
+    ar_disable: false
+    ar_nowait: true
+    ar_nodel: false
+    ar_attempts: 3
+    ar_ignorefail: false
+    ar_suffixes: 0
+EOF
+
+# open up ssh port upon bootup.
+cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun0
+#!/bin/bash
+iptables -I INPUT 4 -p tcp --dport 50024 -j ACCEPT -m conntrack --ctstate NEW
+EOF
+```
+
+Result:
+
+```bash
+# tree -a /mnt/gentoo/etc/systemrescuecd/recipe
+/mnt/gentoo/etc/systemrescuecd/recipe
+├── build_into_srm
+│   ├── etc
+│   │   ├── ssh
+│   │   │   ├── sshd_config
+│   │   │   ├── ssh_host_dsa_key
+│   │   │   ├── ssh_host_dsa_key.pub
+│   │   │   ├── ssh_host_ecdsa_key
+│   │   │   ├── ssh_host_ecdsa_key.pub
+│   │   │   ├── ssh_host_ed25519_key
+│   │   │   ├── ssh_host_ed25519_key.pub
+│   │   │   ├── ssh_host_rsa_key
+│   │   │   └── ssh_host_rsa_key.pub
+│   │   └── sysctl.d
+│   │       └── sysrq.conf
+│   └── root
+│       └── .ssh
+│           └── authorized_keys
+├── iso_add
+│   ├── autorun
+│   │   └── autorun0
+│   └── sysrescue.d
+│       └── 500-settings.yaml
+├── iso_delete
+└── iso_patch_and_script
+
+11 directories, 13 files
+```
+
+Create customised ISO:
+
+```bash
+sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/systemrescuecd/recipe -w /mnt/gentoo/etc/systemrescuecd/work
+```
+
 Mount:
 
 ```bash
@@ -881,47 +1036,20 @@ menuentry 'SystemRescueCD' {
 	set root='cryptouuid/${UUID}'
 	search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID}' $(blkid -s UUID -o value /mapperBoot)
 	echo   'Loading Linux kernel ...'
-	linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devBoot):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=boot copytoram setkmap=de checksum rootcryptpass='${CRYPT_PASS}' noautologin nofirewall
+	linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devBoot):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=boot noautologin
 	echo   'Loading initramfs ...'
 	initrd /sysresccd/boot/x86_64/sysresccd.img
 }
 EOF
 ```
 
-Download the System Rescue CD .iso file (copy&paste one after the other):
-
-```bash
-# Switch to non-root
-su - david
-
-RESCUE_SYSTEM_VERSION="$(curl -fsSL --proto '=https' --tlsv1.3 "https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")"
-
-curl --location --proto '=https' --tlsv1.2 --ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384" --output systemrescue.iso "https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download"
-
-curl --location --proto '=https' --tlsv1.3 --output systemrescue.iso.asc "https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc"
-
-curl --location --proto '=https' --tlsv1.3 --output pubkey.pem "https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem"
-
-gpg --homedir /tmp/gpgHomeDir --import pubkey.pem
-
-echo "62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
-
-gpg --homedir /tmp/gpgHomeDir --verify systemrescue.iso.asc systemrescue.iso
-
-# Stop the gpg-agent
-gpgconf --homedir /tmp/gpgHomeDir --kill all
-
-exit
-```
-
 Copy system rescue files to the EFI System Partitions (copy&paste one after the other):
 
 ```bash
 mkdir /mnt/iso && \
-mount -o loop,ro /home/david/systemrescue.iso /mnt/iso && \
-rsync -HAXSacv --delete /mnt/iso/sysresccd /boot/ && \
-umount /mnt/iso && \
-rm -fv /home/david/systemrescue.iso /home/david/systemrescue.iso.asc /home/david/pubkey.pem; echo $?
+mount -o loop,ro /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
+rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /boot/ && \
+umount /mnt/iso
 ```
 
 ### EFI binary
