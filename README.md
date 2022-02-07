@@ -1050,7 +1050,7 @@ Copy system rescue files to the EFI System Partitions (copy&paste one after the 
 
 ```bash
 mkdir /mnt/iso && \
-mount -o loop,ro /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
+mount -o loop,ro /etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /boot/ && \
 umount /mnt/iso
 ```
