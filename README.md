@@ -283,9 +283,6 @@ EOF
 # create ssh_host_* files in ../build_into_srm/etc/ssh/
 ssh-keygen -A -f /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm
 
-# print out hashes. you can use them to double check upon initial ssh connection
-find /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
-
 # disable magic sysrq due to security considerations
 echo "kernel.sysrq = 0" > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/sysrq.conf
 
@@ -324,6 +321,12 @@ cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun0
 #!/bin/bash
 iptables -I INPUT 4 -p tcp --dport 50024 -j ACCEPT -m conntrack --ctstate NEW
 EOF
+```
+
+Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
+
+```bash
+find /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
 ```
 
 Result:
@@ -865,7 +868,7 @@ Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 genkernel.sh
 ```
 
-Copy generated `*-ssh*` to ESPs.
+`genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
 
 ## Secure Boot and Grub
 
@@ -1353,8 +1356,13 @@ EOF
 ) && \
 ssh-keygen -A && \
 sshd -t && \
-ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub; echo $?
 diff /etc/ssh/sshd_config{,.old}
+```
+
+Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
+
+```bash
+find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
 ```
 
 Setup client SSH config:
