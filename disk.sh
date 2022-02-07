@@ -12,7 +12,7 @@ ${0##*\/} -b BootPassword -m MasterPassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/n
 They should be of the same type and size. Don't mix HDDs with SSDs!
 Number of disks must be >=2 and <=4!
 
-"-e" (optional) specifies EFI System Partition size in MiB (default: 512 MiB).
+"-e" (optional) specifies EFI System Partition size in MiB (default and recommended minimum: 512 MiB).
 "-f" (optional) specifies /boot partition size in MiB (default: 1024 MiB).
 EOF
     return 1
