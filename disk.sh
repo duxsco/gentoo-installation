@@ -13,7 +13,7 @@ They should be of the same type and size. Don't mix HDDs with SSDs!
 Number of disks must be >=2 and <=4!
 
 "-e" (optional) specifies EFI System Partition size in MiB (default and recommended minimum: 512 MiB).
-"-f" (optional) specifies /boot partition size in MiB (default: 1024 MiB).
+"-f" (optional) specifies /boot partition size in MiB (default: 512 MiB).
 EOF
     return 1
 }
@@ -31,7 +31,7 @@ getMapperPartitions() {
 }
 
 EFI_SYSTEM_PARTITION_SIZE="512"
-BOOT_PARTITION_SIZE="1024"
+BOOT_PARTITION_SIZE="512"
 
 # shellcheck disable=SC2207
 while getopts b:d:e:f:m:s:h opt; do
