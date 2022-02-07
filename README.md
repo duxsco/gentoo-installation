@@ -1094,7 +1094,7 @@ done
 Sign your files with GnuPG:
 
 ```bash
-find /efi*/sysresccd /boot -type f -exec gpg --detach-sign {} \;
+find /boot -type f -exec gpg --detach-sign {} \;
 echo $?
 gpgconf --kill all
 echo $?
