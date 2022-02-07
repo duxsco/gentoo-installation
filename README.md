@@ -7,7 +7,7 @@ In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
 You need to boot using EFI (not BIOS), because the boot partition will be encrypted, and decryption of said partition with the help of GRUB won't work otherwise.
 
-The number of disks, where Gentoo Linux will be installed, must be less than 5. Depending on the number of disks, BTRFS "single", "raid1", "raid1c3" or "raid1c4" is used for the `root` partition. Furthermore, MDADM RAID 1 may be used for `boot` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
+The number of disks, where Gentoo Linux will be installed, must be less than 5. Depending on the number of disks, BTRFS "single", "raid1", "raid1c3" or "raid1c4" is used for the `system` partition where the Btrfs subvolumes are located (`@root`, `@home` etc.). Furthermore, MDADM RAID 1 may be used for `boot` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
 
 - Single disk:
 
@@ -20,7 +20,7 @@ PC∕Laptop
     │       └── boot
     ├── 3. LUKS
     │   └── SWAP
-    └── 4. LUKS
+    └── 4. LUKS ("system" partition)
         └── Btrfs (single)
             └── subvolumes
                 ├── @distfiles
@@ -42,7 +42,7 @@ PC∕Laptop───────────────────────
     ├── 3. LUKS                        ├── 3. LUKS
     │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS                        └── 4. LUKS
+    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
         └── BTRFS (raid1)                  └── BTRFS (raid1)
             └── subvolume                      └── subvolume
                 ├── @distfiles                     ├── @distfiles
@@ -64,7 +64,7 @@ PC∕Laptop───────────────────────
     ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
     │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS                        └── 4. LUKS                        └── 4. LUKS
+    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
         └── BTRFS (raid1c3)                └── BTRFS (raid1c3)                └── BTRFS (raid1c3)
             └── subvolume                      └── subvolume                      └── subvolume
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
@@ -86,7 +86,7 @@ PC∕Laptop───────────────────────
     ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
     │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS                        └── 4. LUKS                        └── 4. LUKS                        └── 4. LUKS
+    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
         └── BTRFS (raid1c4)                └── BTRFS (raid1c4)                └── BTRFS (raid1c4)                └── BTRFS (raid1c4)
             └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
@@ -96,7 +96,7 @@ PC∕Laptop───────────────────────
 ```
 
 On LUKS encrypted disks, LUKS passphrase slots are set as follows:
-  - 0: Keyfile (stored in initramfs to unlock `root` and `swap` partitions without interaction)
+  - 0: Keyfile (stored in initramfs to unlock `system` and `swap` partitions without interaction)
   - 1: Master password (fallback password for emergency)
   - 2: Boot password
     - shorter than "master", but still secure
@@ -379,14 +379,14 @@ mount --make-rslave /mnt/gentoo/dev && \
 mount --bind /run /mnt/gentoo/run && \
 mount --make-slave /mnt/gentoo/run && \
 
-mount -o noatime,subvol=@home /mnt/gentoo/mapperRoot /mnt/gentoo/home && \
+mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
 
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
-mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperRoot /mnt/gentoo/var/cache/distfiles && \
+mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
 
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
-mount -o noatime,subvol=@portage /mnt/gentoo/mapperRoot /mnt/gentoo/var/db/repos/gentoo && \
+mount -o noatime,subvol=@portage /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
 
 mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot; echo $?
 ```
@@ -749,10 +749,10 @@ $(find /devEfi* -maxdepth 0 | while read -r I; do
 done)
 UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime,noauto                        0 0
 UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                                    0 0
-UUID=$(blkid -s UUID -o value /mapperRoot)   /                       btrfs noatime,subvol=@root                  0 0
-UUID=$(blkid -s UUID -o value /mapperRoot)   /home                   btrfs noatime,subvol=@home                  0 0
-UUID=$(blkid -s UUID -o value /mapperRoot)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles             0 0
-UUID=$(blkid -s UUID -o value /mapperRoot)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage               0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /                       btrfs noatime,subvol=@root                  0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /home                   btrfs noatime,subvol=@home                  0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles             0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage               0 0
 EOF
 ) && \
 find /devEfi* -maxdepth 0 | while read -r I; do
@@ -943,7 +943,7 @@ MDADM_MOD=" domdadm" || \
 MDADM_MOD=""
 cat <<EOF >> /etc/default/grub; echo $?
 
-MY_CRYPT_ROOT="$(blkid -s UUID -o value /devRoot* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
+MY_CRYPT_ROOT="$(blkid -s UUID -o value /devSystem* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
 MY_CRYPT_SWAP="$(blkid -s UUID -o value /devSwap* | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
 MY_FS="rootfstype=btrfs rootflags=subvol=@root"
 MY_CPU="mitigations=auto,nosmt"
@@ -1400,7 +1400,7 @@ emerge app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel; echo $?
   - stage3 and dev* files:
 
 ```bash
-rm -fv /stage3-* /portage-latest.tar.xz* /devBoot /devEfi* /devRoot* /devSwap* /mapperBoot /mapperSwap /mapperRoot; echo $?
+rm -fv /stage3-* /portage-latest.tar.xz* /devBoot /devEfi* /devSystem* /devSwap* /mapperBoot /mapperSwap /mapperSystem; echo $?
 ```
 
   - exit and reboot (copy&paste one after the other):

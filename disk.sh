@@ -67,9 +67,9 @@ dd bs=512 count=16384 iflag=fullblock if=/dev/random of="${KEYFILE}"
 for i in "${DISKS[@]}"; do
 
     if [ $((512*$(cat "/sys/class/block/${i##*\/}/size"))) -gt 536870912000 ]; then
-        ROOT_SIZE="-5119"
+        SYSTEM_SIZE="-5119"
     else
-        ROOT_SIZE="99%"
+        SYSTEM_SIZE="99%"
     fi
 
     parted --align optimal --script "$i" \
@@ -78,7 +78,7 @@ for i in "${DISKS[@]}"; do
         "mkpart 'efi system partition' 1 $((1 + EFI_SYSTEM_PARTITION_SIZE))" \
         mkpart boot $((1 + EFI_SYSTEM_PARTITION_SIZE)) $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE)) \
         mkpart swap $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE)) $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + SWAP_SIZE)) \
-        "mkpart root $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + SWAP_SIZE)) ${ROOT_SIZE}" \
+        "mkpart system $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + SWAP_SIZE)) ${SYSTEM_SIZE}" \
         set 1 esp on
 done
 
@@ -91,7 +91,7 @@ else
     mdadm --create "${BOOT_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getPartitions 2)
 fi
 
-# encrypting boot, swap and root partitions
+# encrypting boot, swap and system partitions
 unset NON_BOOT
 # shellcheck disable=SC2046
 find "${BOOT_PARTITION}" $(getPartitions 3) $(getPartitions 4) | while read -r I; do
@@ -125,7 +125,7 @@ fi
 mkswap --label swap "${SWAP_PARTITION}"
 swapon "${SWAP_PARTITION}"
 
-# root partition
+# system partition
 # shellcheck disable=SC2046
 mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 --label system $(getMapperPartitions 4)
 
@@ -157,7 +157,7 @@ chown -R root: /mnt/gentoo
 ALPHABET=({a..z})
 ln -s "/dev/mapper/${BOOT_PARTITION##*\/}" /mnt/gentoo/mapperBoot
 ln -s "${SWAP_PARTITION}" /mnt/gentoo/mapperSwap
-ln -s "$(getMapperPartitions 4 | awk '{print $1}')" /mnt/gentoo/mapperRoot
+ln -s "$(getMapperPartitions 4 | awk '{print $1}')" /mnt/gentoo/mapperSystem
 tmpCount=0
 # shellcheck disable=SC2046
 find $(getPartitions 1) | while read -r I; do
@@ -172,7 +172,7 @@ done
 tmpCount=0
 # shellcheck disable=SC2046
 find $(getPartitions 4) | while read -r I; do
-    ln -s "$I" "/mnt/gentoo/devRoot${ALPHABET[tmpCount++]}"
+    ln -s "$I" "/mnt/gentoo/devSystem${ALPHABET[tmpCount++]}"
 done
 
 echo $?
