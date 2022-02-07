@@ -1385,7 +1385,7 @@ chown david: /home/david/.ssh/config; echo $?
   - sysrq (if you don't want to disable in kernel):
 
 ```bash
-sed -i 's/#kernel.sysrq = 0/kernel.sysrq = 0/' /etc/sysctl.conf
+echo "kernel.sysrq = 0" >> /etc/sysctl.d/99sysrq.conf
 ```
 
   - misc tools:
