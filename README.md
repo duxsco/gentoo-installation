@@ -866,35 +866,6 @@ mkdir --mode=0755 /etc/dropbear
 # in order to unlock LUKS partitions remotely.
 ```
 
-Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
-
-```bash
-# I usually make following changes:
-#     Processor type and features  --->
-#         [ ] Support for extended (non-PC) x86 platforms
-#             Processor family (Core 2/newer Xeon)  --->
-#         <*> CPU microcode loading support
-#         [*]   Intel microcode loading support
-#         [*]   AMD microcode loading support
-#     Binary Emulations --->
-#         [ ] IA32 Emulation
-#         [ ] x32 ABI for 64-bit mode
-#     Device Drivers  --->
-#         Generic Driver Options --->
-#             Firmware Loader --->
-#                 -*-   Firmware loading facility
-#                 (intel-ucode/06-a5-02) Build named firmware blobs into the kernel binary
-#                 (/lib/firmware) Firmware blobs root directory (NEW)
-#                 [ ] Enable the firmware sysfs fallback mechanism
-#     Kernel hacking  --->
-#         Generic Kernel Debugging Instruments  --->
-#             [ ] Magic SysRq key
-#         [ ] Remote debugging over FireWire early on boot
-genkernel.sh
-```
-
-`genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system. Ignore the request to sign this time. We'll create the GnuPG keypairs and sign all files in `/boot` in the later installation steps.
-
 ## Secure Boot and Grub
 
 Credits:
@@ -1117,6 +1088,37 @@ ls -1d /efi* | while read -r I; do
 done
 ```
 
+### Kernel generation and installation
+
+Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
+
+```bash
+# I usually make following changes:
+#     Processor type and features  --->
+#         [ ] Support for extended (non-PC) x86 platforms
+#             Processor family (Core 2/newer Xeon)  --->
+#         <*> CPU microcode loading support
+#         [*]   Intel microcode loading support
+#         [*]   AMD microcode loading support
+#     Binary Emulations --->
+#         [ ] IA32 Emulation
+#         [ ] x32 ABI for 64-bit mode
+#     Device Drivers  --->
+#         Generic Driver Options --->
+#             Firmware Loader --->
+#                 -*-   Firmware loading facility
+#                 (intel-ucode/06-a5-02) Build named firmware blobs into the kernel binary
+#                 (/lib/firmware) Firmware blobs root directory (NEW)
+#                 [ ] Enable the firmware sysfs fallback mechanism
+#     Kernel hacking  --->
+#         Generic Kernel Debugging Instruments  --->
+#             [ ] Magic SysRq key
+#         [ ] Remote debugging over FireWire early on boot
+genkernel.sh
+```
+
+`genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
+
 Sign your files with GnuPG:
 
 ```bash
@@ -1135,7 +1137,7 @@ ls -1d /efi* | while read -r I; do
 done
 ```
 
-### Result
+Result:
 
 ```
 # tree -a /boot /efi*
