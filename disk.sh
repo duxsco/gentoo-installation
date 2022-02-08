@@ -104,9 +104,9 @@ find "${BOOT_PARTITION}" $(getPartitions 3) $(getPartitions 4) | while read -r I
 done
 
 # EFI system partition
-# shellcheck disable=SC2046
 ALPHABET=({A..Z})
 tmpCount=0
+# shellcheck disable=SC2046
 find $(getPartitions 1) | while read -r I; do
     mkfs.vfat -n "EFI${ALPHABET[tmpCount++]}" -F 32 "$I"
 done
