@@ -7,7 +7,7 @@ In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
 You need to boot using EFI (not BIOS), because the boot partition will be encrypted, and decryption of said partition with the help of GRUB won't work otherwise.
 
-The number of disks, where Gentoo Linux will be installed, must be less than 5. Depending on the number of disks, BTRFS "single", "raid1", "raid1c3" or "raid1c4" is used for the `system` partition where the Btrfs subvolumes are located (`@root`, `@home` etc.). Furthermore, MDADM RAID 1 may be used for `boot` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
+The number of disks, where Gentoo Linux will be installed, must be less than 5. Depending on the number of disks, BTRFS "single", "raid1", "raid1c3" or "raid1c4" is used for the `system` partition where the Btrfs subvolumes are located (`@root`, `@home` etc.). Furthermore, MDADM RAID 1 may be used for `boot`, `rescue` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
 
 - Single disk:
 
@@ -19,8 +19,11 @@ PC∕Laptop
     │   └── Btrfs (single)
     │       └── boot
     ├── 3. LUKS
+    │   └── Btrfs (single)
+    │       └── rescue
+    ├── 4. LUKS
     │   └── SWAP
-    └── 4. LUKS ("system" partition)
+    └── 5. LUKS ("system" partition)
         └── Btrfs (single)
             └── subvolumes
                 ├── @distfiles
@@ -39,10 +42,14 @@ PC∕Laptop───────────────────────
     │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs
     │           └── boot               │           └── boot
-    ├── 3. LUKS                        ├── 3. LUKS
+    ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
+    │   └── LUKS                       │   └── LUKS
+    │       └── Btrfs                  │       └── Btrfs
+    │           └── rescue             │           └── rescue
+    ├── 4. LUKS                        ├── 4. LUKS
     │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
+    └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
         └── BTRFS (raid1)                  └── BTRFS (raid1)
             └── subvolume                      └── subvolume
                 ├── @distfiles                     ├── @distfiles
@@ -61,10 +68,14 @@ PC∕Laptop───────────────────────
     │   └── LUKS                       │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
     │           └── boot               │           └── boot               │           └── boot
-    ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
+    ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
+    │   └── LUKS                       │   └── LUKS                       │   └── LUKS
+    │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
+    │           └── rescue             │           └── rescue             │           └── rescue
+    ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS
     │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
+    └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
         └── BTRFS (raid1c3)                └── BTRFS (raid1c3)                └── BTRFS (raid1c3)
             └── subvolume                      └── subvolume                      └── subvolume
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
@@ -83,10 +94,14 @@ PC∕Laptop───────────────────────
     │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
     │           └── boot               │           └── boot               │           └── boot               │           └── boot
-    ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
+    ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
+    │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
+    │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
+    │           └── rescue             │           └── rescue             │           └── rescue             │           └── rescue
+    ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS
     │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
+    └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
         └── BTRFS (raid1c4)                └── BTRFS (raid1c4)                └── BTRFS (raid1c4)                └── BTRFS (raid1c4)
             └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
@@ -95,13 +110,17 @@ PC∕Laptop───────────────────────
                 └── @root                          └── @root                          └── @root                          └── @root
 ```
 
-On LUKS encrypted disks, LUKS passphrase slots are set as follows:
+On LUKS encrypted disks except for the `rescue` partition where the SystemRescueCD files are located, LUKS passphrase slots are set as follows:
   - 0: Keyfile (stored in initramfs to unlock `system` and `swap` partitions without interaction)
   - 1: Master password (fallback password for emergency)
   - 2: Boot password
     - shorter than "master", but still secure
     - keyboard layout independent (QWERTY vs QWERTZ)
     - used during boot to unlock `boot` partition via GRUB's password prompt
+
+On the `rescue` partition, LUKS passphrase slots are set as follows:
+  - 0: Keyfile
+  - 1: Rescue password
 
 The following steps are basically those in [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation) with some customisations added.
 
@@ -192,7 +211,7 @@ Prepare the disks:
 bash /tmp/disk.sh -h
 # disable bash history
 set +o history
-bash /tmp/disk.sh -b bootbootboot -m mastermaster -d "/dev/sda /dev/sdb etc." -s 12
+bash /tmp/disk.sh -b bootbootboot -m mastermaster -r rescuerescue -d "/dev/sda /dev/sdb etc." -s 12
 # enable bash history
 set -o history
 ```
@@ -1037,17 +1056,17 @@ Credits:
 - https://www.system-rescue.org/manual/Booting_SystemRescue/
 
 ```bash
-UUID="$(blkid -s UUID -o value /devBoot | tr -d '-')"
+UUID="$(blkid -s UUID -o value /devRescue | tr -d '-')"
 cat <<EOF >> /etc/grub.d/40_custom; echo $?
 
 menuentry 'SystemRescueCD' {
-	cryptomount -u ${UUID}
-	set root='cryptouuid/${UUID}'
-	search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID}' $(blkid -s UUID -o value /mapperBoot)
-	echo   'Loading Linux kernel ...'
-	linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devBoot):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=boot noautologin
-	echo   'Loading initramfs ...'
-	initrd /sysresccd/boot/x86_64/sysresccd.img
+    cryptomount -u ${UUID}
+    set root='cryptouuid/${UUID}'
+    search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID}' $(blkid -s UUID -o value /mapperRescue)
+    echo   'Loading Linux kernel ...'
+    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=boot noautologin
+    echo   'Loading initramfs ...'
+    initrd /sysresccd/boot/x86_64/sysresccd.img
 }
 EOF
 ```
@@ -1055,10 +1074,11 @@ EOF
 Copy system rescue files to the EFI System Partitions (copy&paste one after the other):
 
 ```bash
-mkdir /mnt/iso && \
+mkdir /mnt/iso /mnt/rescue && \
 mount -o loop,ro /etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
-rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /boot/ && \
-umount /mnt/iso
+mount -o noatime /mapperRescue /mnt/rescue && \
+rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /rescue/ && \
+umount /mnt/iso /mnt/rescue; echo $?
 ```
 
 ### EFI binary
@@ -1118,11 +1138,8 @@ done
 ### Result
 
 ```
-# tree /boot /efi*
-boot
-├── autorun
-│   ├── autorun0
-│   └── autorun0.sig
+# tree -a /boot /efi*
+/boot
 ├── grub_efia.cfg
 ├── grub_efia.cfg.sig
 ├── grub_efib.cfg
@@ -1131,8 +1148,6 @@ boot
 ├── initramfs-5.15.21-gentoo-x86_64.img.sig
 ├── initramfs-5.15.21-gentoo-x86_64-ssh.img
 ├── initramfs-5.15.21-gentoo-x86_64-ssh.img.sig
-├── sysresccd
-│   etc.
 ├── System.map-5.15.21-gentoo-x86_64
 ├── System.map-5.15.21-gentoo-x86_64.sig
 ├── System.map-5.15.21-gentoo-x86_64-ssh
@@ -1166,7 +1181,7 @@ boot
 ├── vmlinuz-5.15.21-gentoo-x86_64-ssh
 └── vmlinuz-5.15.21-gentoo-x86_64-ssh.sig
 
-12 directories, 208 files
+4 directories, 34 files
 ```
 
 ## Configuration
@@ -1294,7 +1309,7 @@ ${LAST_LINE}" >> /etc/conf.d/dmcrypt && \
 rc-update add dmcrypt boot; echo $?
 ```
 
-  - fish shell (copy&paste one after the other):
+  - fish shell:
 
 ```bash
 echo "=dev-libs/libpcre2-$(emerge --search '%^dev-libs/libpcre2$' | grep -i 'latest version available' | awk '{print $NF}') pcre32" >> /etc/portage/package.use/main && \
@@ -1414,7 +1429,7 @@ emerge app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel; echo $?
   - stage3 and dev* files:
 
 ```bash
-rm -fv /stage3-* /portage-latest.tar.xz* /devBoot /devEfi* /devSystem* /devSwap* /mapperBoot /mapperSwap /mapperSystem; echo $?
+rm -fv /stage3-* /portage-latest.tar.xz* /devBoot /devEfi* /devRescue /devSystem* /devSwap* /mapperBoot /mapperRescue /mapperSwap /mapperSystem; echo $?
 ```
 
   - exit and reboot (copy&paste one after the other):
@@ -1437,10 +1452,10 @@ For every kernel update, execute `genkernel.sh`, sign files printed out and exec
 SSH into the machine, execute `cryptsetup luksOpen` for every LUKS volume you want to open:
 
 ```bash
-cryptsetup luksOpen /dev/sda3 sda3
-cryptsetup luksOpen /dev/sdb3 sdb3
 cryptsetup luksOpen /dev/sda4 sda4
 cryptsetup luksOpen /dev/sdb4 sdb4
+cryptsetup luksOpen /dev/sda5 sda5
+cryptsetup luksOpen /dev/sdb5 sdb5
 etc.
 ```
 

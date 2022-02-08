@@ -4,9 +4,9 @@ set -euo pipefail
 
 help() {
 cat <<EOF
-${0##*\/} -b BootPassword -m MasterPassword -d "/dev/sda /dev/sdb /dev/sdc" -s SwapSizeInGibibyte
+${0##*\/} -b BootPassword -m MasterPassword -r RescuePassword -d "/dev/sda /dev/sdb /dev/sdc" -s SwapSizeInGibibyte
 OR
-${0##*\/} -b BootPassword -m MasterPassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/nvme2n1" -s SwapSizeInGibibyte
+${0##*\/} -b BootPassword -m MasterPassword -r RescuePassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/nvme2n1" -s SwapSizeInGibibyte
 
 "-d" specifies the disks you want to use for installation.
 They should be of the same type and size. Don't mix HDDs with SSDs!
@@ -14,6 +14,7 @@ Number of disks must be >=2 and <=4!
 
 "-e" (optional) specifies EFI System Partition size in MiB (default and recommended minimum: 512 MiB).
 "-f" (optional) specifies /boot partition size in MiB (default: 512 MiB).
+"-i" (optional) specifies SystemRescueCD partition size in MiB (default: 5120 MiB; recommended minimum: 1024 MiB)
 EOF
     return 1
 }
@@ -32,22 +33,25 @@ getMapperPartitions() {
 
 EFI_SYSTEM_PARTITION_SIZE="512"
 BOOT_PARTITION_SIZE="512"
+RESCUE_PARTITION_SIZE="5120"
 
 # shellcheck disable=SC2207
-while getopts b:d:e:f:m:s:h opt; do
+while getopts b:d:e:f:i:m:r:s:h opt; do
     case $opt in
         b) BOOT_PASSWORD="$OPTARG";;
         d) DISKS=( $(xargs <<<"$OPTARG" | tr ' ' '\n' | sort | xargs) );;
         e) EFI_SYSTEM_PARTITION_SIZE="$OPTARG";;
         f) BOOT_PARTITION_SIZE="$OPTARG";;
+        i) RESCUE_PARTITION_SIZE="$OPTARG";;
         m) MASTER_PASSWORD="$OPTARG";;
+        r) RESCUE_PASSWORD="$OPTARG";;
         s) SWAP_SIZE="$((OPTARG * 1024))";;
         h|?) help;;
     esac
 done
 
 # shellcheck disable=SC2068
-if [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ] || [ -z ${SWAP_SIZE+x} ] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
+if [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ] || [ -z ${RESCUE_PASSWORD+x} ] || [ -z ${SWAP_SIZE+x} ] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
     help
 fi
 
@@ -77,8 +81,9 @@ for i in "${DISKS[@]}"; do
         unit MiB \
         "mkpart 'efi system partition' 1 $((1 + EFI_SYSTEM_PARTITION_SIZE))" \
         mkpart boot $((1 + EFI_SYSTEM_PARTITION_SIZE)) $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE)) \
-        mkpart swap $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE)) $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + SWAP_SIZE)) \
-        "mkpart system $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + SWAP_SIZE)) ${SYSTEM_SIZE}" \
+        mkpart rescue $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE)) $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + RESCUE_PARTITION_SIZE)) \
+        mkpart swap $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + RESCUE_PARTITION_SIZE)) $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + RESCUE_PARTITION_SIZE + SWAP_SIZE)) \
+        "mkpart system $((1 + EFI_SYSTEM_PARTITION_SIZE + BOOT_PARTITION_SIZE + RESCUE_PARTITION_SIZE + SWAP_SIZE)) ${SYSTEM_SIZE}" \
         set 1 esp on
 done
 
@@ -91,16 +96,33 @@ else
     mdadm --create "${BOOT_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getPartitions 2)
 fi
 
+# rescue partition
+# shellcheck disable=SC2046
+if [ ${#DISKS[@]} -eq 1 ]; then
+    RESCUE_PARTITION="$(getPartitions 3)"
+else
+    RESCUE_PARTITION="/dev/md1"
+    mdadm --create "${RESCUE_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getPartitions 3)
+fi
+
 # encrypting boot, swap and system partitions
 unset NON_BOOT
+INDEX=0
 # shellcheck disable=SC2046
-find "${BOOT_PARTITION}" $(getPartitions 3) $(getPartitions 4) | while read -r I; do
+find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartitions 5) | while read -r I; do
+    if [[ ${INDEX} -ge 2 ]]; then
+        NON_BOOT=""
+    fi
     # shellcheck disable=SC2086
     cryptsetup --batch-mode luksFormat ${NON_BOOT---type luks1} --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${NON_BOOT+--pbkdf argon2id} "$I"
-    echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
-    echo -n "${BOOT_PASSWORD}"   | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
+    if [[ ${INDEX} -eq 1 ]]; then
+        echo -n "${RESCUE_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
+    else
+        echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
+        echo -n "${BOOT_PASSWORD}"   | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
+    fi
     cryptsetup luksOpen --key-file "${KEYFILE}" "$I" "${I##*\/}"
-    NON_BOOT=""
+    INDEX=$((INDEX+1))
 done
 
 # EFI system partition
@@ -114,34 +136,37 @@ done
 # boot partition
 mkfs.btrfs --checksum blake2 --label boot "/dev/mapper/${BOOT_PARTITION##*\/}"
 
+# rescue partition
+mkfs.btrfs --checksum blake2 --label rescue "/dev/mapper/${RESCUE_PARTITION##*\/}"
+
 # swap partition
 # shellcheck disable=SC2046
 if [ ${#DISKS[@]} -eq 1 ]; then
-    SWAP_PARTITION="$(getMapperPartitions 3)"
+    SWAP_PARTITION="$(getMapperPartitions 4)"
 else
-    SWAP_PARTITION="/dev/md1"
-    mdadm --create "${SWAP_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getMapperPartitions 3)
+    SWAP_PARTITION="/dev/md2"
+    mdadm --create "${SWAP_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getMapperPartitions 4)
 fi
 mkswap --label swap "${SWAP_PARTITION}"
 swapon "${SWAP_PARTITION}"
 
 # system partition
 # shellcheck disable=SC2046
-mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 --label system $(getMapperPartitions 4)
+mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 --label system $(getMapperPartitions 5)
 
 if [ ! -d /mnt/gentoo ]; then
     mkdir /mnt/gentoo
 fi
 
 # shellcheck disable=SC2046
-mount -o noatime $(getMapperPartitions 4 | awk '{print $1}') /mnt/gentoo
+mount -o noatime $(getMapperPartitions 5 | awk '{print $1}') /mnt/gentoo
 btrfs subvolume create /mnt/gentoo/@distfiles; sync
 btrfs subvolume create /mnt/gentoo/@home; sync
 btrfs subvolume create /mnt/gentoo/@portage; sync
 btrfs subvolume create /mnt/gentoo/@root; sync
 umount /mnt/gentoo
 # shellcheck disable=SC2046
-mount -o noatime,subvol=@root $(getMapperPartitions 4 | awk '{print $1}') /mnt/gentoo
+mount -o noatime,subvol=@root $(getMapperPartitions 5 | awk '{print $1}') /mnt/gentoo
 mkdir -p /mnt/gentoo/key/mnt/key
 rsync -a "${KEYFILE}" /mnt/gentoo/key/mnt/key/key
 sync
@@ -156,22 +181,24 @@ chown -R root: /mnt/gentoo
 
 ALPHABET=({a..z})
 ln -s "/dev/mapper/${BOOT_PARTITION##*\/}" /mnt/gentoo/mapperBoot
+ln -s "/dev/mapper/${RESCUE_PARTITION##*\/}" /mnt/gentoo/mapperRescue
 ln -s "${SWAP_PARTITION}" /mnt/gentoo/mapperSwap
-ln -s "$(getMapperPartitions 4 | awk '{print $1}')" /mnt/gentoo/mapperSystem
+ln -s "$(getMapperPartitions 5 | awk '{print $1}')" /mnt/gentoo/mapperSystem
 tmpCount=0
 # shellcheck disable=SC2046
 find $(getPartitions 1) | while read -r I; do
     ln -s "$I" "/mnt/gentoo/devEfi${ALPHABET[tmpCount++]}"
 done
 ln -s "$(awk '{print $1}' <<<"${BOOT_PARTITION}")" "/mnt/gentoo/devBoot"
+ln -s "$(awk '{print $1}' <<<"${RESCUE_PARTITION}")" "/mnt/gentoo/devRescue"
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 3) | while read -r I; do
+find $(getPartitions 4) | while read -r I; do
     ln -s "$I" "/mnt/gentoo/devSwap${ALPHABET[tmpCount++]}"
 done
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 4) | while read -r I; do
+find $(getPartitions 5) | while read -r I; do
     ln -s "$I" "/mnt/gentoo/devSystem${ALPHABET[tmpCount++]}"
 done
 
