@@ -922,7 +922,7 @@ chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
 
-## Grub preparation
+### Grub preparation
 
 Install `sys-boot/grub`:
 
