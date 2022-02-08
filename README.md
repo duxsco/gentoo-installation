@@ -881,7 +881,7 @@ Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 genkernel.sh
 ```
 
-`genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
+`genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system. Ignore the request to sign this time. We'll create the GnuPG keypairs and sign all files in `/boot` in the later installation steps.
 
 ## Secure Boot and Grub
 
