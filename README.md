@@ -636,13 +636,6 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 
 ## Kernel
 
-Install `sys-boot/grub` which is needed by `genkernel.sh` later on:
-
-```bash
-echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
-emerge sys-boot/grub; echo $?
-```
-
 Install [LTS kernel](https://www.kernel.org/category/releases.html):
 
 ```bash
@@ -958,7 +951,14 @@ chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
 
-## Grub configuration
+## Grub preparation
+
+Install `sys-boot/grub`:
+
+```bash
+echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
+emerge sys-boot/grub; echo $?
+```
 
 Configure grub:
 
