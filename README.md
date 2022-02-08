@@ -1,4 +1,4 @@
-# Gentoo Linux installation
+# Gentoo Linux installation (WIP)
 
 > ⚠ The installation guide builds heavily on `Secure Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom keys. ⚠
 
