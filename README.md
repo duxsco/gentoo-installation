@@ -148,6 +148,12 @@ passwd root
 systemctl start sshd
 ```
 
+Print out fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
+
+```bash
+find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
+```
+
 Execute following SCP/SSH commands **on your local machine** (copy&paste one after the other):
 
 ```bash
