@@ -290,7 +290,7 @@ EOF
 ssh-keygen -A -f /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm
 
 # disable magic sysrq due to security considerations
-echo "kernel.sysrq = 0" > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/sysrq.conf
+echo "kernel.sysrq = 0" > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
 
 # disable bash history
 set +o history
@@ -353,7 +353,7 @@ Result:
 │   │   │   ├── ssh_host_rsa_key
 │   │   │   └── ssh_host_rsa_key.pub
 │   │   └── sysctl.d
-│   │       └── sysrq.conf
+│   │       └── 99sysrq.conf
 │   └── root
 │       └── .ssh
 │           └── authorized_keys
