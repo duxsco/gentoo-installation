@@ -1035,7 +1035,7 @@ menuentry 'SystemRescueCD' {
     set root='cryptouuid/${UUID}'
     search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID}' $(blkid -s UUID -o value /mapperRescue)
     echo   'Loading Linux kernel ...'
-    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=boot noautologin
+    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue noautologin
     echo   'Loading initramfs ...'
     initrd /sysresccd/boot/x86_64/sysresccd.img
 }
@@ -1048,7 +1048,7 @@ Copy system rescue files to the EFI System Partitions (copy&paste one after the 
 mkdir /mnt/iso /mnt/rescue && \
 mount -o loop,ro /etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
 mount -o noatime /mapperRescue /mnt/rescue && \
-rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /rescue/ && \
+rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/rescue/ && \
 umount /mnt/iso /mnt/rescue; echo $?
 ```
 
