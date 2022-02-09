@@ -164,7 +164,6 @@ iptables -I INPUT 4 -p tcp --dport 22 -j ACCEPT -m conntrack --ctstate NEW
 
 # Alternatively, setup /root/.ssh/authorized_keys
 passwd root
-systemctl start sshd
 ```
 
 Print out fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
