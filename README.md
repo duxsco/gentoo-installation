@@ -1043,43 +1043,7 @@ rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/rescue/ &&
 umount /mnt/iso; echo $?
 ```
 
-### EFI binary
-
-Create the EFI binary/ies and Secure Boot sign them:
-
-```bash
-# GRUB doesn't allow loading new modules from disk when secure boot is in
-# effect, therefore pre-load the required modules.
-MODULES=
-MODULES="${MODULES} part_gpt fat ext2"             # partition and file systems for EFI
-MODULES="${MODULES} configfile"                    # source command
-MODULES="${MODULES} verify gcry_sha512 gcry_rsa"   # signature verification
-MODULES="${MODULES} password_pbkdf2"               # hashed password
-MODULES="${MODULES} echo normal linux linuxefi"    # boot linux
-MODULES="${MODULES} all_video"                     # video output
-MODULES="${MODULES} search search_fs_uuid"         # search --fs-uuid
-MODULES="${MODULES} reboot sleep"                  # sleep, reboot
-MODULES="${MODULES} gzio part_gpt part_msdos ext2" # SystemRescueCD modules
-MODULES="${MODULES} $(grub-mkconfig | grep insmod | awk '{print $NF}' | sort -u | paste -d ' ' -s -)"
-
-ls -1d /efi* | while read -r I; do
-    mkdir -p "${I}/EFI/boot" && \
-    grub-mkstandalone \
-        --directory /usr/lib/grub/x86_64-efi \
-        --disable-shim-lock \
-        --format x86_64-efi \
-        --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${MODULES}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)" \
-        --pubkey /etc/secureboot/gpg.pub \
-        --output "${I}/EFI/boot/bootx64.efi" \
-        "boot/grub/grub.cfg=/etc/secureboot/grub-initial_${I#/}.cfg" \
-        "boot/grub/grub.cfg.sig=/etc/secureboot/grub-initial_${I#/}.cfg.sig" && \
-    sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
-    efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${I/efi/devEfi}")")" --part 1 --label "gentoo ${I#/}" --loader '\EFI\boot\bootx64.efi'
-    echo $?
-done
-```
-
-### Kernel generation and installation
+### EFI binary and Kernel installation
 
 CPU microcode:
 
@@ -1117,6 +1081,40 @@ genkernel.sh
 ```
 
 `genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
+
+Create the EFI binary/ies and Secure Boot sign them:
+
+```bash
+# GRUB doesn't allow loading new modules from disk when secure boot is in
+# effect, therefore pre-load the required modules.
+MODULES=
+MODULES="${MODULES} part_gpt fat ext2"             # partition and file systems for EFI
+MODULES="${MODULES} configfile"                    # source command
+MODULES="${MODULES} verify gcry_sha512 gcry_rsa"   # signature verification
+MODULES="${MODULES} password_pbkdf2"               # hashed password
+MODULES="${MODULES} echo normal linux linuxefi"    # boot linux
+MODULES="${MODULES} all_video"                     # video output
+MODULES="${MODULES} search search_fs_uuid"         # search --fs-uuid
+MODULES="${MODULES} reboot sleep"                  # sleep, reboot
+MODULES="${MODULES} gzio part_gpt part_msdos ext2" # SystemRescueCD modules
+MODULES="${MODULES} $(grub-mkconfig | grep insmod | awk '{print $NF}' | sort -u | paste -d ' ' -s -)"
+
+ls -1d /efi* | while read -r I; do
+    mkdir -p "${I}/EFI/boot" && \
+    grub-mkstandalone \
+        --directory /usr/lib/grub/x86_64-efi \
+        --disable-shim-lock \
+        --format x86_64-efi \
+        --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${MODULES}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)" \
+        --pubkey /etc/secureboot/gpg.pub \
+        --output "${I}/EFI/boot/bootx64.efi" \
+        "boot/grub/grub.cfg=/etc/secureboot/grub-initial_${I#/}.cfg" \
+        "boot/grub/grub.cfg.sig=/etc/secureboot/grub-initial_${I#/}.cfg.sig" && \
+    sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
+    efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${I/efi/devEfi}")")" --part 1 --label "gentoo ${I#/}" --loader '\EFI\boot\bootx64.efi'
+    echo $?
+done
+```
 
 Sign your files with GnuPG:
 
