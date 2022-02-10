@@ -241,13 +241,13 @@ Before mounting and chrooting, download and customise the SystemRescueCD .iso fi
 Prepare directory to work in:
 
 ```bash
-mkdir -p /mnt/gentoo/etc/systemrescuecd
+mkdir -p /mnt/gentoo/etc/systemrescuecd && \
 
 # user "meh" has been created by disk.sh previously
 chown meh: /mnt/gentoo/etc/systemrescuecd
 ```
 
-Download and verify the .iso file:
+Download and verify the .iso file (copy&paste one after the other):
 
 ```bash
 # Switch to non-root
@@ -276,7 +276,7 @@ exit
 chown -R root: /mnt/gentoo/etc/systemrescuecd
 ```
 
-Customise the .iso file:
+Customise the .iso file (copy&paste one after the other):
 
 ```bash
 mkdir -p /mnt/gentoo/etc/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh}},work}
@@ -475,7 +475,7 @@ rm -fv /mnt/gentoo/etc/localtime && \
 chroot /mnt/gentoo /bin/bash -c "source /etc/profile && emerge --config sys-libs/timezone-data"; echo $?
 ```
 
-Set make.conf:
+Set make.conf (copy&paste one after the other):
 
 ```bash
 # If you use distcc, beware of:
@@ -1360,7 +1360,7 @@ emerge sys-apps/rng-tools && \
 rc-update add rngd default; echo $?
 ```
 
-  - ssh (optional). Don't forget to fill `~/.ssh/authorized_keys`:
+  - ssh (optional):
 
 ```bash
 ( umask 0177 && touch /home/david/.ssh/authorized_keys ) && \
@@ -1389,6 +1389,8 @@ ssh-keygen -A && \
 sshd -t && \
 diff /etc/ssh/sshd_config{,.old}
 ```
+
+Don't forget to fill `~/.ssh/authorized_keys`.
 
 Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
 
