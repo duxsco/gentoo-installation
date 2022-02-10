@@ -1048,7 +1048,7 @@ mkdir /mnt/iso /mnt/rescue && \
 mount -o loop,ro /etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
 mount -o noatime /mapperRescue /mnt/rescue && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/rescue/ && \
-umount /mnt/iso /mnt/rescue; echo $?
+umount /mnt/iso; echo $?
 ```
 
 ### EFI binary
@@ -1121,7 +1121,7 @@ genkernel.sh
 Sign your files with GnuPG:
 
 ```bash
-find /boot -type f -exec gpg --detach-sign {} \;
+find /boot /mnt/rescue -type f -exec gpg --detach-sign {} \;
 echo $?
 gpgconf --kill all
 echo $?
