@@ -835,14 +835,6 @@ echo "MICROCODE_SIGNATURES=\"-s $(iucode_tool -S 2>&1 | grep -Po "with signature
 emerge sys-firmware/intel-microcode; echo $?
 ```
 
-CPU microcode:
-
-```bash
-ls -1 /lib/firmware/intel-ucode/* | sed 's#/lib/firmware/##'
-```
-
-... outputs `intel-ucode/06-a5-02` in my case. Adjust below kernel config accordingly.
-
 Setup `dev-util/ccache` to speed up genkernel:
 
 ```bash
@@ -1088,6 +1080,14 @@ done
 ```
 
 ### Kernel generation and installation
+
+CPU microcode:
+
+```bash
+ls -1 /lib/firmware/intel-ucode/* | sed 's#/lib/firmware/##'
+```
+
+... outputs `intel-ucode/06-a5-02` in my case. Adjust below kernel config accordingly.
 
 Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 
