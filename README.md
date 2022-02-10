@@ -1138,8 +1138,8 @@ done
 
 Result:
 
-```
-# tree -a /boot /efi*
+```bash
+tree -a /boot /efi*
 /boot
 ├── grub_efia.cfg
 ├── grub_efia.cfg.sig
@@ -1400,7 +1400,7 @@ find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
 
 Setup client SSH config:
 
-```
+```bash
 (
 cat <<EOF > /home/david/.ssh/config
 AddKeysToAgent no
