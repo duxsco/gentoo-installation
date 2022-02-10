@@ -482,20 +482,20 @@ Set make.conf:
 # https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
 sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /mnt/gentoo/etc/portage/make.conf
 
-# The following cipher list contains only AEAD and PFS supporting ciphers. Decreasing priority from top to bottom:
+# The following cipher list contains only AEAD and PFS supporting ciphers with decreasing priority from top to bottom:
 #
 # TLSv1.2:
-#   ECDHE-ECDSA-AES128-GCM-SHA256
 #   ECDHE-ECDSA-AES256-GCM-SHA384
-#   ECDHE-ECDSA-CHACHA20-POLY1305
-#   ECDHE-RSA-AES128-GCM-SHA256
 #   ECDHE-RSA-AES256-GCM-SHA384
-#   ECDHE-RSA-CHACHA20-POLY1305
-#   DHE-RSA-AES128-GCM-SHA256
 #   DHE-RSA-AES256-GCM-SHA384
+#   ECDHE-ECDSA-CHACHA20-POLY1305
+#   ECDHE-RSA-CHACHA20-POLY1305
 #   DHE-RSA-CHACHA20-POLY1305
+#   ECDHE-ECDSA-AES128-GCM-SHA256
+#   ECDHE-RSA-AES128-GCM-SHA256
+#   DHE-RSA-AES128-GCM-SHA256
 #
-TLSv12_CIPHERS="$(openssl ciphers -s -v | grep -i aead | grep -i dhe | sort | sort -k1.1,1.1 -s -r | awk '{print $1}' | paste -d: -s -)"
+TLSv12_CIPHERS="ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES128-GCM-SHA256"
 
 RAM_SIZE="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)"
 NUMBER_CORES="$(nproc --all)"
