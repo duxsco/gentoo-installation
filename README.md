@@ -204,6 +204,8 @@ sha256sum -c /tmp/sha256.txt
 vlock -a
 ```
 
+## Disk setup and stage3 tarball installation
+
 Prepare the disks:
 
 ```bash
@@ -214,8 +216,6 @@ bash /tmp/disk.sh -b bootbootboot -m mastermaster -r rescuerescue -d "/dev/sda /
 # enable bash history
 set -o history
 ```
-
-## Prepare chroot
 
 Set date:
 
