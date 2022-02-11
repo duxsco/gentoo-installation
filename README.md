@@ -304,7 +304,7 @@ Ciphers chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.
 MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512
 EOF
 
-# create ssh_host_* files in ../build_into_srm/etc/ssh/
+# create ssh_host_* files in build_into_srm/etc/ssh/
 ssh-keygen -A -f /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm
 
 # disable magic sysrq due to security considerations
