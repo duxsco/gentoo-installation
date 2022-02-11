@@ -234,6 +234,63 @@ chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh} && \
 chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh}; echo $?
 ```
 
+## genkernel patches
+
+Add [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-patches):
+
+```bash
+mkdir -p /etc/portage/patches/sys-kernel/genkernel && \
+GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')" && (
+su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/00_defaults_linuxrc.patch\"" > /etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch
+) && (
+su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/01_defaults_initrd.scripts.patch\"" > /etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch
+) && (
+su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/02_defaults_initrd.scripts_dosshd.patch\"" > /etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
+); echo $?
+```
+
+Verify the patches (copy&paste one after the other):
+
+```bash
+# Switch to non-root user. All following commands are executed by non-root.
+su - david
+
+# Create GnuPG homedir
+( umask 0077 && mkdir /tmp/gpgHomeDir )
+
+# Fetch the public key; ADJUST THE MAIL ADDRESS!
+gpg --homedir /tmp/gpgHomeDir --auto-key-locate clear,dane --locate-external-key d at "my github username" dot de
+
+# Update ownertrust
+echo "3AAE5FC903BB199165D4C02711BE5F68440E0758:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
+
+# Switch to temp directory
+cd "$(mktemp -d)"
+
+# Download files
+GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')"
+curl --location --proto '=https' --tlsv1.3 --remote-name-all "https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/sha256.txt{,.asc}"
+
+# Verify GPG signature. Btw, the GPG key is the same one I use to sign my commits:
+# https://github.com/duxsco/gentoo-genkernel-patches/commits/main
+gpg --homedir /tmp/gpgHomeDir --verify sha256.txt.asc sha256.txt
+gpg: Signature made Mi 18 Aug 2021 23:11:32 CEST
+gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
+gpg: Good signature from "David Sardari <d@XXXXX.de>" [ultimate]
+
+# Add paths to sha256.txt and verify
+sed 's|  |  /etc/portage/patches/sys-kernel/genkernel/|' sha256.txt | sha256sum -c -
+/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch: OK
+/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch: OK
+/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch: OK
+
+# Stop the gpg-agent
+gpgconf --homedir /tmp/gpgHomeDir --kill all
+
+# Switch back to root
+exit
+```
+
 ## Customise SystemRescueCD ISO
 
 Before mounting and chrooting, download and customise the SystemRescueCD .iso file, while we are still on SystemRescueCD.
@@ -660,61 +717,6 @@ EOF
 emerge sys-kernel/gentoo-sources && \
 eselect kernel list && \
 eselect kernel set 1; echo $?
-```
-
-Add [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-patches):
-
-```bash
-mkdir -p /etc/portage/patches/sys-kernel/genkernel && \
-GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')" && (
-su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/00_defaults_linuxrc.patch\"" > /etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch
-) && (
-su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/01_defaults_initrd.scripts.patch\"" > /etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch
-) && (
-su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/02_defaults_initrd.scripts_dosshd.patch\"" > /etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
-); echo $?
-```
-
-Verify the patches (copy&paste one after the other):
-
-```bash
-# Switch to non-root user. All following commands are executed by non-root.
-su - david
-
-# Create GnuPG homedir
-( umask 0077 && mkdir /tmp/gpgHomeDir )
-
-# Fetch the public key; ADJUST THE MAIL ADDRESS!
-gpg --homedir /tmp/gpgHomeDir --auto-key-locate clear,dane --locate-external-key d at "my github username" dot de
-
-# Update ownertrust
-echo "3AAE5FC903BB199165D4C02711BE5F68440E0758:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
-
-# Switch to temp directory
-cd "$(mktemp -d)"
-
-# Download files
-GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')"
-curl --location --proto '=https' --tlsv1.3 --remote-name-all "https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/sha256.txt{,.asc}"
-
-# Verify GPG signature. Btw, the GPG key is the same one I use to sign my commits:
-# https://github.com/duxsco/gentoo-genkernel-patches/commits/main
-gpg --homedir /tmp/gpgHomeDir --verify sha256.txt.asc sha256.txt
-gpg: Signature made Mi 18 Aug 2021 23:11:32 CEST
-gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
-gpg: Good signature from "David Sardari <d@XXXXX.de>" [ultimate]
-
-# Add paths to sha256.txt and verify
-sed 's|  |  /etc/portage/patches/sys-kernel/genkernel/|' sha256.txt | sha256sum -c -
-/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch: OK
-/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch: OK
-/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch: OK
-
-# Stop the gpg-agent
-gpgconf --homedir /tmp/gpgHomeDir --kill all
-
-# Switch back to root
-exit
 ```
 
 Install genkernel, filesystem and device mapper tools:
