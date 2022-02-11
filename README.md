@@ -898,8 +898,12 @@ cert-to-efi-sig-list -g "${UUID}" KEK.crt KEK.esl && \
 cert-to-efi-sig-list -g "${UUID}" db.crt db.esl && \
 sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
 sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
-sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth; echo $?
+```
 
+If the following commands don't work you have install `db.auth`, `KEK.auth` and `PK.auth` via UEFI Manager upon reboot:
+
+```bash
 # Make them mutable
 chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 
