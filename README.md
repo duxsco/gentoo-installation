@@ -236,6 +236,12 @@ chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh} && \
 chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh}; echo $?
 ```
 
+Extract portage tarball:
+
+```bash
+tar --strip-components=1 -C /mnt/gentoo/var/db/repos/gentoo/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
+```
+
 ## genkernel patches
 
 Add [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-patches):
@@ -483,12 +489,6 @@ mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot; echo $?
 TMPFS_SIZE=4G && \
 mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
 mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/var/tmp; echo $?
-```
-
-Extract portage tarball:
-
-```bash
-tar --strip-components=1 -C /mnt/gentoo/var/db/repos/gentoo/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
 Set resolv.conf:
