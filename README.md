@@ -230,7 +230,7 @@ Extract stage3 tarball and copy `genkernel.sh` as well as `boot2efi.sh`:
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
 rsync -av /tmp/{genkernel.sh,boot2efi.sh} /mnt/gentoo/usr/local/sbin/ && \
-chown 0:0 /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh} && \
+chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh} && \
 chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh}; echo $?
 ```
 
