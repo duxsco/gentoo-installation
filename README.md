@@ -259,6 +259,9 @@ gpg --homedir /tmp/gpgHomeDir --auto-key-locate clear,dane --locate-external-key
 # Update ownertrust
 echo "3AAE5FC903BB199165D4C02711BE5F68440E0758:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
 
+# Stop the gpg-agent
+gpgconf --homedir /tmp/gpgHomeDir --kill all
+
 exit
 ```
 
