@@ -242,22 +242,9 @@ Extract portage tarball:
 tar --strip-components=1 -C /mnt/gentoo/var/db/repos/gentoo/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
-## genkernel patches
+## GnuPG homedir
 
-Add [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-patches):
-
-```bash
-mkdir -p /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel && \
-GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')" && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/00_defaults_linuxrc.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/01_defaults_initrd.scripts.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/02_defaults_initrd.scripts_dosshd.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
-); echo $?
-```
-
-Verify the patches (copy&paste one after the other):
+Setup GnuPG homedir:
 
 ```bash
 # Switch to non-root user. All following commands are executed by non-root.
@@ -272,25 +259,43 @@ gpg --homedir /tmp/gpgHomeDir --auto-key-locate clear,dane --locate-external-key
 # Update ownertrust
 echo "3AAE5FC903BB199165D4C02711BE5F68440E0758:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
 
-# Switch to temp directory
-cd "$(mktemp -d)"
+exit
+```
 
-# Download files
-GENKERNEL_VERSION="$(emerge --search '%^sys-kernel/genkernel$' | grep -i 'latest version available' | awk '{print $NF}')"
-curl --location --proto '=https' --tlsv1.3 --remote-name-all "https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GENKERNEL_VERSION}/sha256.txt{,.asc}"
+## genkernel patches
 
+Download [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-patches):
+
+```bash
+mkdir -p /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel && \
+GIT_TAG="$(grep -o "[^[:space:]]*.ebuild" /var/db/repos/gentoo/sys-kernel/genkernel/Manifest | sed -e 's/\.ebuild$//' -e 's#^#/var/db/repos/gentoo/metadata/md5-cache/sys-kernel/#' | xargs --no-run-if-empty grep --files-with-matches "^KEYWORDS=.*[^\~]amd64[[:space:]$]" | sed 's#.*/##' | sort --version-sort | tail -n 1)" && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/00_defaults_linuxrc.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch
+) && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/01_defaults_initrd.scripts.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch
+) && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/02_defaults_initrd.scripts_dosshd.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
+) && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/sha256.txt\"" > /tmp/genkernel_sha256.txt
+) && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/sha256.txt.asc\"" > /tmp/genkernel_sha256.txt.asc
+); echo $?
+```
+
+Verify the patches (copy&paste one after the other):
+
+```bash
 # Verify GPG signature. Btw, the GPG key is the same one I use to sign my commits:
 # https://github.com/duxsco/gentoo-genkernel-patches/commits/main
-gpg --homedir /tmp/gpgHomeDir --verify sha256.txt.asc sha256.txt
+gpg --homedir /tmp/gpgHomeDir --verify /tmp/genkernel_sha256.txt.asc /tmp/genkernel_sha256.txt
 gpg: Signature made Mi 18 Aug 2021 23:11:32 CEST
 gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
 gpg: Good signature from "David Sardari <d@XXXXX.de>" [ultimate]
 
 # Add paths to sha256.txt and verify
-sed 's|  |  /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/|' sha256.txt | sha256sum -c -
-/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch: OK
-/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch: OK
-/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch: OK
+sed 's|  |  /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/|' /tmp/genkernel_sha256.txt | sha256sum -c -
+/mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch: OK
+/mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch: OK
+/mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch: OK
 
 # Stop the gpg-agent
 gpgconf --homedir /tmp/gpgHomeDir --kill all
