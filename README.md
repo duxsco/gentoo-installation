@@ -304,6 +304,43 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all
 exit
 ```
 
+## gkb2gs - gentoo-kernel-bin config to gentoo-sources
+
+Download and verify [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs) (copy&paste one after the other):
+
+```bash
+su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh" > /usr/local/sbin/gkb2gs.sh
+
+# Switch to non-root
+su - david
+
+# Switch to temp directory
+cd "$(mktemp -d)"
+
+# Download files
+curl --location --proto '=https' --tlsv1.3 --remote-name-all "https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha256{,.asc}"
+
+# And, verify as already done above for genkernel user patches
+gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
+sed 's|  |  /usr/local/sbin/|' gkb2gs.sh.sha256 | sha256sum -c -
+
+# Stop the gpg-agent
+gpgconf --homedir /tmp/gpgHomeDir --kill all
+
+# Switch back to root
+exit
+```
+
+Make script executable and create kernel config:
+
+```bash
+# Create directory to store kernel configs
+mkdir /etc/kernels
+
+chmod u+x /usr/local/sbin/gkb2gs.sh
+gkb2gs.sh
+```
+
 ## Customise SystemRescueCD ISO
 
 Before mounting and chrooting, download and customise the SystemRescueCD .iso file, while we are still on SystemRescueCD.
@@ -798,41 +835,6 @@ cat <<EOF | column -t >> /etc/fstab
 tmpfs /tmp     tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
 tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
 EOF
-```
-
-Download and verify [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs) (copy&paste one after the other):
-
-```bash
-su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh" > /usr/local/sbin/gkb2gs.sh
-
-# Switch to non-root
-su - david
-
-# Switch to temp directory
-cd "$(mktemp -d)"
-
-# Download files
-curl --location --proto '=https' --tlsv1.3 --remote-name-all "https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha256{,.asc}"
-
-# And, verify as already done above for genkernel user patches
-gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
-sed 's|  |  /usr/local/sbin/|' gkb2gs.sh.sha256 | sha256sum -c -
-
-# Stop the gpg-agent
-gpgconf --homedir /tmp/gpgHomeDir --kill all
-
-# Switch back to root
-exit
-```
-
-Make script executable and create kernel config:
-
-```bash
-# Create directory to store kernel configs
-mkdir /etc/kernels
-
-chmod u+x /usr/local/sbin/gkb2gs.sh
-gkb2gs.sh
 ```
 
 If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to use the AMD microcode.
