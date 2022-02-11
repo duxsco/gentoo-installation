@@ -415,7 +415,7 @@ mount -o noatime,subvol=@portage /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/rep
 mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot; echo $?
 ```
 
-(Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things., but requires sufficient amount of RAM.
+(Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
 
 ```bash
 # Change TMPFS_SIZE based on available RAM
@@ -779,7 +779,7 @@ done
 echo $?
 ```
 
-(Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things.
+(Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
 
 ```bash
 echo "" >> /etc/fstab
