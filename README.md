@@ -306,23 +306,27 @@ exit
 
 ## gkb2gs - gentoo-kernel-bin config to gentoo-sources
 
-Download and verify [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs) (copy&paste one after the other):
+Download [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs):
 
 ```bash
-su -l david -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh" > /usr/local/sbin/gkb2gs.sh
+(
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh" > /mnt/gentoo/usr/local/sbin/gkb2gs.sh
+) && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha256" > /tmp/gkb2gs.sh.sha256
+) && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha256.asc" > /tmp/gkb2gs.sh.sha256.asc
+); echo $?
+```
 
+Verify gkb2gs (copy&paste one after the other):
+
+```bash
 # Switch to non-root
-su - david
-
-# Switch to temp directory
-cd "$(mktemp -d)"
-
-# Download files
-curl --location --proto '=https' --tlsv1.3 --remote-name-all "https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha256{,.asc}"
+su - meh
 
 # And, verify as already done above for genkernel user patches
-gpg --homedir /tmp/gpgHomeDir --verify gkb2gs.sh.sha256.asc gkb2gs.sh.sha256
-sed 's|  |  /usr/local/sbin/|' gkb2gs.sh.sha256 | sha256sum -c -
+gpg --homedir /tmp/gpgHomeDir --verify /tmp/gkb2gs.sh.sha256.asc /tmp/gkb2gs.sh.sha256
+sed 's|  |  /mnt/gentoo/usr/local/sbin/|' /tmp/gkb2gs.sh.sha256 | sha256sum -c -
 
 # Stop the gpg-agent
 gpgconf --homedir /tmp/gpgHomeDir --kill all
@@ -331,14 +335,12 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all
 exit
 ```
 
-Make script executable and create kernel config:
+Create kernel config directory and make script executable:
 
 ```bash
-# Create directory to store kernel configs
-mkdir /etc/kernels
+mkdir /mnt/gentoo/etc/kernels
 
-chmod u+x /usr/local/sbin/gkb2gs.sh
-gkb2gs.sh
+chmod u+x /mnt/gentoo/usr/local/sbin/gkb2gs.sh
 ```
 
 ## Customise SystemRescueCD ISO
@@ -761,6 +763,12 @@ EOF
 emerge sys-kernel/gentoo-sources && \
 eselect kernel list && \
 eselect kernel set 1; echo $?
+```
+
+Install kernel configuration:
+
+```bash
+gkb2gs.sh
 ```
 
 Install genkernel, filesystem and device mapper tools:
