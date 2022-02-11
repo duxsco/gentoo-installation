@@ -138,6 +138,12 @@ Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_S
 sysctl -w kernel.sysrq=0
 ```
 
+Set date if system time is not correct:
+
+```bash
+date MMDDhhmmYYYY
+```
+
 Make sure you have booted with EFI:
 
 ```bash
@@ -218,12 +224,6 @@ set -o history
 ```
 
 `disk.sh` creates user "meh" which will be used later on to act as non-root.
-
-Set date:
-
-```bash
-date MMDDhhmmYYYY
-```
 
 > ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
