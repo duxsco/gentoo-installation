@@ -392,6 +392,8 @@ Create customised ISO:
 sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/systemrescuecd/recipe -w /mnt/gentoo/etc/systemrescuecd/work
 ```
 
+## Chroot
+
 Mount:
 
 ```bash
@@ -521,8 +523,6 @@ I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-page
 ```bash
 echo "sys-apps/man-pages -l10n_de" >> /mnt/gentoo/etc/portage/package.use/main
 ```
-
-## Chroot
 
 Chroot (copy&paste one after the other):
 
