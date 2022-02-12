@@ -614,7 +614,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 
 ## Post-chroot configuration
 
-Set make.conf (copy&paste one after the other):
+Configure make.conf (copy&paste one after the other):
 
 ```bash
 # If you use distcc, beware of:
