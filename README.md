@@ -872,19 +872,17 @@ Install genkernel, filesystem and device mapper tools:
 
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel && (
+emerge dev-util/ccache sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel && (
     [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
     emerge sys-fs/mdadm || \
     true
 ); echo $?
 ```
 
-Setup `dev-util/ccache` to speed up genkernel:
+Configure `dev-util/ccache`, used to speed up genkernel:
 
 ```bash
-mkdir -p /root/.cache/ccache && \
-emerge dev-util/ccache && \
-mkdir -p /var/cache/ccache && \
+mkdir -p /root/.cache/ccache /var/cache/ccache && \
 cat <<EOF > /var/cache/ccache/ccache.conf; echo $?
 compression = true
 compression_level = 1
