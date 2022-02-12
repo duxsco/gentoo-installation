@@ -879,6 +879,18 @@ emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel && (
 ); echo $?
 ```
 
+Setup `dev-util/ccache` to speed up genkernel:
+
+```bash
+mkdir -p /root/.cache/ccache && \
+emerge dev-util/ccache && \
+mkdir -p /var/cache/ccache && \
+cat <<EOF > /var/cache/ccache/ccache.conf; echo $?
+compression = true
+compression_level = 1
+EOF
+```
+
 Configure genkernel:
 
 ```bash
@@ -910,18 +922,6 @@ echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license 
 emerge -1 sys-apps/iucode_tool && \
 echo "MICROCODE_SIGNATURES=\"-s $(iucode_tool -S 2>&1 | grep -Po "with signature \K.*")\"" >> /etc/portage/make.conf && \
 emerge sys-firmware/intel-microcode; echo $?
-```
-
-Setup `dev-util/ccache` to speed up genkernel:
-
-```bash
-mkdir -p /root/.cache/ccache && \
-emerge dev-util/ccache && \
-mkdir -p /var/cache/ccache && \
-cat <<EOF > /var/cache/ccache/ccache.conf; echo $?
-compression = true
-compression_level = 1
-EOF
 ```
 
 Setup `dropbear` config directory and `/etc/dropbear/authorized_keys`:
