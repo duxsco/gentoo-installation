@@ -354,38 +354,34 @@ Prepare directory to work in:
 
 ```bash
 mkdir -p /mnt/gentoo/etc/systemrescuecd && \
-
-# user "meh" has been created by disk.sh previously
 chown meh: /mnt/gentoo/etc/systemrescuecd
 ```
 
-Download and verify the .iso file (copy&paste one after the other):
+Download .iso file:
 
 ```bash
-# Switch to non-root
-su - meh
+RESCUE_SYSTEM_VERSION="$(su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.2 --ciphers \"ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384\" --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download\""
+) && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc\""
+) && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/pubkey.pem https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem"
+); echo $?
+```
 
-RESCUE_SYSTEM_GNUPG_HOMEDIR="$(mktemp -d)"
-RESCUE_SYSTEM_VERSION="$(curl -fsSL --proto '=https' --tlsv1.3 "https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")"
+Verify the .iso file:
 
-curl --location --proto '=https' --tlsv1.2 --ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384" --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso "https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download"
-
-curl --location --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc "https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc"
-
-curl --location --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/pubkey.pem "https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem"
-
-gpg --homedir "${RESCUE_SYSTEM_GNUPG_HOMEDIR}" --import /mnt/gentoo/etc/systemrescuecd/pubkey.pem
-
-echo "62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:" | gpg --homedir "${RESCUE_SYSTEM_GNUPG_HOMEDIR}" --import-ownertrust
-
-gpg --homedir "${RESCUE_SYSTEM_GNUPG_HOMEDIR}" --verify /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/systemrescuecd/systemrescue.iso
-
-# Stop the gpg-agent
-gpgconf --homedir "${RESCUE_SYSTEM_GNUPG_HOMEDIR}" --kill all
-
-exit
-
-chown -R root: /mnt/gentoo/etc/systemrescuecd
+```bash
+(
+su -l meh -c "gpg --homedir /tmp/gpgHomeDir --import /mnt/gentoo/etc/systemrescuecd/pubkey.pem"
+) && (
+su -l meh -c "echo \"62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:\" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust"
+) && (
+su -l meh -c "gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/systemrescuecd/systemrescue.iso"
+) && (
+su -l meh -c "gpgconf --homedir /tmp/gpgHomeDir --kill all"
+) && \
+chown -R root: /mnt/gentoo/etc/systemrescuecd; echo $?
 ```
 
 Customise the .iso file (copy&paste one after the other):
@@ -405,7 +401,9 @@ sed \
 -e 's/^#Port 22$/Port 50024/' \
 -e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
 -e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
+
 grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
+
 cat <<EOF >> /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
 
 AuthenticationMethods publickey
