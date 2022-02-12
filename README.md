@@ -705,11 +705,22 @@ eselect news list
 # etc.
 ```
 
-Update system. If any config files need to be merged the diff is shown by `dispatch-conf` in color:
+Update system:
 
 ```bash
-sed -i "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" /etc/dispatch-conf.conf && \
 emerge -avuDN --with-bdeps=y --noconfmem --complete-graph=y @world
+```
+
+Make `dispatch-conf` show diffs in color:
+
+```bash
+sed -i "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" /etc/dispatch-conf.conf
+```
+
+Update configuration files:
+
+```bash
+dispatch-conf
 ```
 
 Make sure that `app-editors/nano` won't be removed and remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
