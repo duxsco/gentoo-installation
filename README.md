@@ -254,7 +254,7 @@ su - meh
 ( umask 0077 && mkdir /tmp/gpgHomeDir )
 
 # Fetch the public key; ADJUST THE MAIL ADDRESS!
-gpg --homedir /tmp/gpgHomeDir --auto-key-locate clear,dane --locate-external-key d at "my github username" dot de
+gpg --homedir /tmp/gpgHomeDir --auto-key-locate clear,dane,wkd,hkps://keys.duxsco.de --locate-external-key d at "my github username" dot de
 
 # Update ownertrust
 echo "3AAE5FC903BB199165D4C02711BE5F68440E0758:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
