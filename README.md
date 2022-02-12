@@ -872,14 +872,11 @@ Install genkernel, filesystem and device mapper tools:
 
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel; echo $?
-```
-
-Install `sys-fs/mdadm`:
-
-```bash
-[ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
-emerge -av sys-fs/mdadm
+emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel && (
+    [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
+    emerge sys-fs/mdadm || \
+    true
+); echo $?
 ```
 
 Configure genkernel:
