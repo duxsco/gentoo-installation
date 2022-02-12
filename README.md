@@ -350,6 +350,18 @@ chmod u+x /mnt/gentoo/usr/local/sbin/gkb2gs.sh
 
 Before mounting and chrooting, download and customise the SystemRescueCD .iso file, while we are still on SystemRescueCD.
 
+Import Gnupg public key:
+
+```bash
+(
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import"
+) && (
+su -l meh -c "echo \"62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:\" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust"
+) && (
+gpgconf --homedir /tmp/gpgHomeDir --kill all
+)
+```
+
 Prepare directory to work in:
 
 ```bash
@@ -364,8 +376,6 @@ RESCUE_SYSTEM_VERSION="$(su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 htt
 su -l meh -c "curl -fsSL --proto '=https' --tlsv1.2 --ciphers \"ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384\" --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download\""
 ) && (
 su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc\""
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/pubkey.pem https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem"
 ); echo $?
 ```
 
@@ -373,10 +383,6 @@ Verify the .iso file:
 
 ```bash
 (
-su -l meh -c "gpg --homedir /tmp/gpgHomeDir --import /mnt/gentoo/etc/systemrescuecd/pubkey.pem"
-) && (
-su -l meh -c "echo \"62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:\" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust"
-) && (
 su -l meh -c "gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/systemrescuecd/systemrescue.iso"
 ) && (
 su -l meh -c "gpgconf --homedir /tmp/gpgHomeDir --kill all"
