@@ -769,6 +769,45 @@ eselect vi set vim && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
+## fstab configuration
+
+Set /etc/fstab:
+
+```bash
+echo "" >> /etc/fstab && \
+
+(
+cat <<EOF | column -t >> /etc/fstab
+$(find /devEfi* -maxdepth 0 | while read -r I; do
+  echo "UUID=$(blkid -s UUID -o value "$I")   ${I/devE/e}                   vfat  noatime,noauto,dmask=0022,fmask=0133  0 0"
+done)
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime,noauto                        0 0
+UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                                    0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /                       btrfs noatime,subvol=@root                  0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /home                   btrfs noatime,subvol=@home                  0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles             0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage               0 0
+EOF
+) && \
+find /devEfi* -maxdepth 0 | while read -r I; do
+  mkdir "${I/devE/e}"
+  mount "${I/devE/e}"
+done
+echo $?
+```
+
+(Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
+
+```bash
+echo "" >> /etc/fstab
+
+TMPFS_SIZE=4G
+cat <<EOF | column -t >> /etc/fstab
+tmpfs /tmp     tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
+tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
+EOF
+```
+
 ## Kernel
 
 Install [LTS kernel](https://www.kernel.org/category/releases.html):
@@ -833,43 +872,6 @@ sed -i \
 /etc/genkernel.conf && \
 diff -y --suppress-common-lines /etc/genkernel.conf /etc/genkernel.conf.old
 rm /etc/genkernel.conf.old
-```
-
-Set /etc/fstab. `/boot` entry is required by `sys-kernel/genkernel`:
-
-```bash
-echo "" >> /etc/fstab && \
-
-(
-cat <<EOF | column -t >> /etc/fstab
-$(find /devEfi* -maxdepth 0 | while read -r I; do
-  echo "UUID=$(blkid -s UUID -o value "$I")   ${I/devE/e}                   vfat  noatime,noauto,dmask=0022,fmask=0133  0 0"
-done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime,noauto                        0 0
-UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                                    0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /                       btrfs noatime,subvol=@root                  0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /home                   btrfs noatime,subvol=@home                  0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles             0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage               0 0
-EOF
-) && \
-find /devEfi* -maxdepth 0 | while read -r I; do
-  mkdir "${I/devE/e}"
-  mount "${I/devE/e}"
-done
-echo $?
-```
-
-(Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
-
-```bash
-echo "" >> /etc/fstab
-
-TMPFS_SIZE=4G
-cat <<EOF | column -t >> /etc/fstab
-tmpfs /tmp     tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
-tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
-EOF
 ```
 
 If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to use the AMD microcode.
