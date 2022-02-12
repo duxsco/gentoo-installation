@@ -601,6 +601,19 @@ EMERGE_DEFAULT_OPTS="-j"
 EOF
 ```
 
+## Chrooting
+
+Chroot (copy&paste one after the other):
+
+```bash
+chroot /mnt/gentoo /bin/bash
+source /etc/profile
+su -
+env-update && source /etc/profile && export PS1="(chroot) $PS1"
+```
+
+## Post-chroot configuration
+
 Set make.conf (copy&paste one after the other):
 
 ```bash
@@ -640,19 +653,6 @@ I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-page
 ```bash
 echo "sys-apps/man-pages -l10n_de" >> /mnt/gentoo/etc/portage/package.use/main
 ```
-
-## Chrooting
-
-Chroot (copy&paste one after the other):
-
-```bash
-chroot /mnt/gentoo /bin/bash
-source /etc/profile
-su -
-env-update && source /etc/profile && export PS1="(chroot) $PS1"
-```
-
-## Post-chroot configuration
 
 Enable webrsync. Thereafter, portage uses https only.
 
