@@ -717,6 +717,8 @@ emerge --select --noreplace app-editors/nano && \
 emerge --depclean -a
 ```
 
+## Non-root user setup
+
 Create user:
 
 ```bash
