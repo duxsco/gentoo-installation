@@ -210,7 +210,7 @@ sha256sum -c /tmp/sha256.txt
 vlock -a
 ```
 
-## Disk setup and stage3 tarball installation
+## Disk setup and stage3/portage tarball installation
 
 Prepare the disks:
 
