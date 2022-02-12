@@ -817,9 +817,10 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 emerge sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel; echo $?
 ```
 
-If you use more than one disk, install `sys-fs/mdadm`:
+Install `sys-fs/mdadm`:
 
 ```bash
+[ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
 emerge -av sys-fs/mdadm
 ```
 
@@ -828,7 +829,7 @@ Configure genkernel:
 ```bash
 cp -av /etc/genkernel.conf{,.old} && \
 (
-    eix -I -e sys-fs/mdadm && \
+    [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
     sed -i 's/^#MDADM="no"$/MDADM="yes"/' /etc/genkernel.conf || \
     true
 ) && \
@@ -948,9 +949,11 @@ emerge sys-boot/grub; echo $?
 Configure grub:
 
 ```bash
-eix -I -e sys-fs/mdadm && \
-MDADM_MOD=" domdadm" || \
-MDADM_MOD=""
+(
+    [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
+    MDADM_MOD=" domdadm" || \
+    MDADM_MOD=""
+) && \
 cat <<EOF >> /etc/default/grub; echo $?
 
 MY_CRYPT_ROOT="$(blkid -s UUID -o value /devSystem* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
@@ -1402,6 +1405,7 @@ rc-update add mcelog default; echo $?
   - If you have `sys-fs/mdadm` installed:
 
 ```bash
+[ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
 echo "" >> /etc/mdadm.conf && \
 mdadm --detail --scan >> /etc/mdadm.conf
 ```
