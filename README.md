@@ -810,33 +810,6 @@ EOF
 
 ## Kernel
 
-Install [LTS kernel](https://www.kernel.org/category/releases.html):
-
-```bash
-INSTALL_LTS_KERNEL="true" && (
-cat <<EOF >> /etc/portage/package.accept_keywords/main
-sys-kernel/gentoo-kernel-bin ~amd64
-sys-kernel/gentoo-sources ~amd64
-sys-kernel/linux-headers ~amd64
-EOF
-) && (
-[ "${INSTALL_LTS_KERNEL}" == "true" ] && \
-cat <<EOF >> /etc/portage/package.mask/main
->=sys-kernel/gentoo-kernel-bin-5.16
->=sys-kernel/gentoo-sources-5.16
->=sys-kernel/linux-headers-5.16
-EOF
-) && (
-cat <<EOF >> /etc/portage/package.use/main
-sys-fs/btrfs-progs -convert
-sys-kernel/gentoo-kernel-bin -initramfs
-EOF
-) && \
-emerge sys-kernel/gentoo-sources && \
-eselect kernel list && \
-eselect kernel set 1; echo $?
-```
-
 Install genkernel, filesystem and device mapper tools:
 
 ```bash
@@ -1094,6 +1067,33 @@ umount /mnt/iso; echo $?
 ```
 
 ## EFI binary and Kernel installation
+
+Install [LTS kernel](https://www.kernel.org/category/releases.html):
+
+```bash
+INSTALL_LTS_KERNEL="true" && (
+cat <<EOF >> /etc/portage/package.accept_keywords/main
+sys-kernel/gentoo-kernel-bin ~amd64
+sys-kernel/gentoo-sources ~amd64
+sys-kernel/linux-headers ~amd64
+EOF
+) && (
+[ "${INSTALL_LTS_KERNEL}" == "true" ] && \
+cat <<EOF >> /etc/portage/package.mask/main
+>=sys-kernel/gentoo-kernel-bin-5.16
+>=sys-kernel/gentoo-sources-5.16
+>=sys-kernel/linux-headers-5.16
+EOF
+) && (
+cat <<EOF >> /etc/portage/package.use/main
+sys-fs/btrfs-progs -convert
+sys-kernel/gentoo-kernel-bin -initramfs
+EOF
+) && \
+emerge sys-kernel/gentoo-sources && \
+eselect kernel list && \
+eselect kernel set 1; echo $?
+```
 
 Install kernel configuration:
 
