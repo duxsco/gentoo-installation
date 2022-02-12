@@ -769,6 +769,64 @@ eselect vi set vim && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
+## Secure Boot preparation
+
+Credits:
+- https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
+- https://www.funtoo.org/Secure_Boot
+- https://www.rodsbooks.com/efi-bootloaders/secureboot.html
+- https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot&mobileaction=toggle_view_mobile
+- https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot
+
+In order to add your custom keys enable `Setup Mode` in your UEFI firmware. Beware that this deletes all existing keys. Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
+
+```bash
+(
+cat <<EOF >> /etc/portage/packages.accept_keywords
+app-crypt/efitools ~amd64
+app-crypt/sbsigntools ~amd64
+EOF
+) && \
+emerge -av app-crypt/efitools app-crypt/sbsigntools; echo $?
+```
+
+Create Secure Boot keys and certificates:
+
+```bash
+mkdir --mode=0700 /etc/secureboot && \
+pushd /etc/secureboot && \
+
+# Create the keys
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
+
+# Prepare installation in EFI
+UUID="$(uuidgen --random)" && \
+cert-to-efi-sig-list -g "${UUID}" PK.crt PK.esl && \
+cert-to-efi-sig-list -g "${UUID}" KEK.crt KEK.esl && \
+cert-to-efi-sig-list -g "${UUID}" db.crt db.esl && \
+sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
+sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth; echo $?
+```
+
+If the following commands don't work you have install `db.auth`, `KEK.auth` and `PK.auth` via UEFI Manager upon reboot:
+
+```bash
+# Make them mutable
+chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+
+# Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
+efi-updatevar -f db.auth db && \
+efi-updatevar -f KEK.auth KEK && \
+efi-updatevar -f PK.auth PK && \
+
+# Make them immutable
+chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+popd; echo $?
+```
+
 ## fstab configuration
 
 Set /etc/fstab:
@@ -877,64 +935,6 @@ mkdir --mode=0755 /etc/dropbear
 # create /etc/dropbear/authorized_keys and "chmod og="
 # These public keys will be granted access over SSH upon bootup
 # in order to unlock LUKS partitions remotely.
-```
-
-## Secure Boot preparation
-
-Credits:
-- https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
-- https://www.funtoo.org/Secure_Boot
-- https://www.rodsbooks.com/efi-bootloaders/secureboot.html
-- https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot&mobileaction=toggle_view_mobile
-- https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot
-
-In order to add your custom keys enable `Setup Mode` in your UEFI firmware. Beware that this deletes all existing keys. Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
-
-```bash
-(
-cat <<EOF >> /etc/portage/packages.accept_keywords
-app-crypt/efitools ~amd64
-app-crypt/sbsigntools ~amd64
-EOF
-) && \
-emerge -av app-crypt/efitools app-crypt/sbsigntools; echo $?
-```
-
-Create Secure Boot keys and certificates:
-
-```bash
-mkdir --mode=0700 /etc/secureboot && \
-pushd /etc/secureboot && \
-
-# Create the keys
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
-
-# Prepare installation in EFI
-UUID="$(uuidgen --random)" && \
-cert-to-efi-sig-list -g "${UUID}" PK.crt PK.esl && \
-cert-to-efi-sig-list -g "${UUID}" KEK.crt KEK.esl && \
-cert-to-efi-sig-list -g "${UUID}" db.crt db.esl && \
-sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
-sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
-sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth; echo $?
-```
-
-If the following commands don't work you have install `db.auth`, `KEK.auth` and `PK.auth` via UEFI Manager upon reboot:
-
-```bash
-# Make them mutable
-chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
-
-# Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
-efi-updatevar -f db.auth db && \
-efi-updatevar -f KEK.auth KEK && \
-efi-updatevar -f PK.auth PK && \
-
-# Make them immutable
-chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
-popd; echo $?
 ```
 
 ## Grub preparation
