@@ -508,6 +508,16 @@ Create customised ISO:
 sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/systemrescuecd/recipe -w /mnt/gentoo/etc/systemrescuecd/work
 ```
 
+Copy system rescue files to the EFI System Partitions (copy&paste one after the other):
+
+```bash
+mkdir /mnt/iso /mnt/rescue && \
+mount -o loop,ro /etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
+mount -o noatime /mapperRescue /mnt/rescue && \
+rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/rescue/ && \
+umount /mnt/iso; echo $?
+```
+
 ## Mounting
 
 ```bash
@@ -1053,16 +1063,6 @@ menuentry 'SystemRescueCD' {
     initrd /sysresccd/boot/x86_64/sysresccd.img
 }
 EOF
-```
-
-Copy system rescue files to the EFI System Partitions (copy&paste one after the other):
-
-```bash
-mkdir /mnt/iso /mnt/rescue && \
-mount -o loop,ro /etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
-mount -o noatime /mapperRescue /mnt/rescue && \
-rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/rescue/ && \
-umount /mnt/iso; echo $?
 ```
 
 ## EFI binary and Kernel installation
