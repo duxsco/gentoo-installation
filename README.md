@@ -868,6 +868,16 @@ EOF
 
 ## Kernel
 
+Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
+
+```bash
+! grep "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
+echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
+echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use && \
+emerge sys-firmware/intel-microcode; echo $?
+```
+
 Install genkernel, filesystem and device mapper tools:
 
 ```bash
@@ -911,15 +921,6 @@ sed -i \
 /etc/genkernel.conf && \
 diff -y --suppress-common-lines /etc/genkernel.conf /etc/genkernel.conf.old
 rm /etc/genkernel.conf.old
-```
-
-If you have an Intel CPU install `sys-firmware/intel-microcode`. Otherwise, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to use the AMD microcode.
-
-```bash
-echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
-emerge -1 sys-apps/iucode_tool && \
-echo "MICROCODE_SIGNATURES=\"-s $(iucode_tool -S 2>&1 | grep -Po "with signature \K.*")\"" >> /etc/portage/make.conf && \
-emerge sys-firmware/intel-microcode; echo $?
 ```
 
 Setup `dropbear` config directory and `/etc/dropbear/authorized_keys`:
@@ -1099,14 +1100,6 @@ Install kernel configuration:
 gkb2gs.sh
 ```
 
-CPU microcode:
-
-```bash
-ls -1 /lib/firmware/intel-ucode/* | sed 's#/lib/firmware/##'
-```
-
-... outputs `intel-ucode/06-a5-02` in my case. Adjust below kernel config accordingly.
-
 Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 
 ```bash
@@ -1124,8 +1117,6 @@ Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 #         Generic Driver Options --->
 #             Firmware Loader --->
 #                 -*-   Firmware loading facility
-#                 (intel-ucode/06-a5-02) Build named firmware blobs into the kernel binary
-#                 (/lib/firmware) Firmware blobs root directory (NEW)
 #                 [ ] Enable the firmware sysfs fallback mechanism
 #     Kernel hacking  --->
 #         Generic Kernel Debugging Instruments  --->
