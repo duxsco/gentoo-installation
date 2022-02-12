@@ -362,14 +362,14 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all
 )
 ```
 
-Prepare directory to work in:
+Prepare working directory:
 
 ```bash
 mkdir -p /mnt/gentoo/etc/systemrescuecd && \
 chown meh: /mnt/gentoo/etc/systemrescuecd
 ```
 
-Download .iso file:
+Download .iso and .asc file:
 
 ```bash
 RESCUE_SYSTEM_VERSION="$(su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && (
