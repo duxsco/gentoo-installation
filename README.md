@@ -905,7 +905,7 @@ mkdir --mode=0755 /etc/dropbear
 # in order to unlock LUKS partitions remotely.
 ```
 
-## Secure Boot and Grub
+## Secure Boot preparation
 
 Credits:
 - https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
@@ -913,8 +913,6 @@ Credits:
 - https://www.rodsbooks.com/efi-bootloaders/secureboot.html
 - https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot&mobileaction=toggle_view_mobile
 - https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot
-
-### Secure Boot preparation
 
 In order to add your custom keys enable `Setup Mode` in your UEFI firmware. Beware that this deletes all existing keys. Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
 
@@ -965,7 +963,7 @@ chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
 
-### Grub preparation
+## Grub preparation
 
 Install `sys-boot/grub`:
 
@@ -1095,7 +1093,7 @@ rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/rescue/ &&
 umount /mnt/iso; echo $?
 ```
 
-### EFI binary and Kernel installation
+## EFI binary and Kernel installation
 
 Install kernel configuration:
 
