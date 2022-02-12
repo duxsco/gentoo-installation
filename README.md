@@ -508,9 +508,7 @@ Create customised ISO:
 sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/systemrescuecd/recipe -w /mnt/gentoo/etc/systemrescuecd/work
 ```
 
-## Chroot
-
-Mount:
+## Mounting
 
 ```bash
 mount --types proc /proc /mnt/gentoo/proc && \
@@ -541,6 +539,8 @@ TMPFS_SIZE=4G && \
 mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
 mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/var/tmp; echo $?
 ```
+
+## Pre-chroot configuration
 
 Set resolv.conf:
 
@@ -634,6 +634,8 @@ I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-page
 echo "sys-apps/man-pages -l10n_de" >> /mnt/gentoo/etc/portage/package.use/main
 ```
 
+## Chrooting
+
 Chroot (copy&paste one after the other):
 
 ```bash
@@ -642,6 +644,8 @@ source /etc/profile
 su -
 env-update && source /etc/profile && export PS1="(chroot) $PS1"
 ```
+
+## Post-chroot configuration
 
 Enable webrsync. Thereafter, portage uses https only.
 
