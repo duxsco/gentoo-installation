@@ -656,6 +656,18 @@ RESUMECOMMAND="curl --continue-at - --fail --silent --show-error --location --pr
 EOF
 ```
 
+Set USE flags in `/etc/portage/make.conf`:
+
+```bash
+ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags && \
+cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/make.conf && \
+cat <<EOF >> /etc/portage/make.conf; echo $?
+USE_HARDENED="pie -sslv3 -suid"
+USE="\${CPU_FLAGS_X86} \${USE_HARDENED} fish-completion"
+
+EOF
+```
+
 (Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf`:
 
 ```bash
@@ -689,18 +701,6 @@ eselect news list
 # eselect news read 1
 # eselect news read 2
 # etc.
-```
-
-Set USE flags in `/etc/portage/make.conf`:
-
-```bash
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags && \
-cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/make.conf && \
-cat <<EOF >> /etc/portage/make.conf; echo $?
-USE_HARDENED="pie -sslv3 -suid"
-USE="\${CPU_FLAGS_X86} \${USE_HARDENED} fish-completion"
-
-EOF
 ```
 
 Update system. If any config files need to be merged the diff is shown by `dispatch-conf` in color:
