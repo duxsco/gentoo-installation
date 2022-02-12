@@ -587,6 +587,20 @@ rm -fv /mnt/gentoo/etc/localtime && \
 chroot /mnt/gentoo /bin/bash -c "source /etc/profile && emerge --config sys-libs/timezone-data"; echo $?
 ```
 
+Set `MAKEOPTS` (copy&paste one after the other):
+
+```bash
+RAM_SIZE="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)"
+NUMBER_CORES="$(nproc --all)"
+[[ $((NUMBER_CORES*2)) -le ${RAM_SIZE} ]] && NUMBER_OPTS="${NUMBER_CORES}" || NUMBER_OPTS="$(bc <<<"${RAM_SIZE} / 2")"
+
+cat <<EOF >> /mnt/gentoo/etc/portage/make.conf
+
+MAKEOPTS="-j${NUMBER_OPTS} -l$(bc -l <<<"0.9 * ${NUMBER_OPTS}")"
+EMERGE_DEFAULT_OPTS="-j"
+EOF
+```
+
 Set make.conf (copy&paste one after the other):
 
 ```bash
@@ -609,14 +623,7 @@ sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /mnt
 #
 TLSv12_CIPHERS="ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES128-GCM-SHA256"
 
-RAM_SIZE="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)"
-NUMBER_CORES="$(nproc --all)"
-[[ $((NUMBER_CORES*2)) -le ${RAM_SIZE} ]] && NUMBER_OPTS="${NUMBER_CORES}" || NUMBER_OPTS="$(bc <<<"${RAM_SIZE} / 2")"
-
 cat <<EOF >> /mnt/gentoo/etc/portage/make.conf
-
-MAKEOPTS="-j${NUMBER_OPTS} -l$(bc -l <<<"0.9 * ${NUMBER_OPTS}")"
-EMERGE_DEFAULT_OPTS="-j"
 
 L10N="de"
 LINGUAS="\${L10N}"
