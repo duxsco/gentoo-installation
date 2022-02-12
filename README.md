@@ -614,7 +614,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 
 ## Post-chroot configuration
 
-Enable webrsync. Thereafter, portage uses https only.
+Enable webrsync. Thereafter, portage uses https only with below changes to make.conf.
 
 ```bash
 mkdir /etc/portage/repos.conf && \
