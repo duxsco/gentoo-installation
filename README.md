@@ -798,12 +798,6 @@ eselect kernel list && \
 eselect kernel set 1; echo $?
 ```
 
-Install kernel configuration:
-
-```bash
-gkb2gs.sh
-```
-
 Install genkernel, filesystem and device mapper tools:
 
 ```bash
@@ -1100,6 +1094,12 @@ umount /mnt/iso; echo $?
 ```
 
 ### EFI binary and Kernel installation
+
+Install kernel configuration:
+
+```bash
+gkb2gs.sh
+```
 
 CPU microcode:
 
