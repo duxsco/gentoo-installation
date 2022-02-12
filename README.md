@@ -612,7 +612,7 @@ su -
 env-update && source /etc/profile && export PS1="(chroot) $PS1"
 ```
 
-## Post-chroot configuration
+## Portage configuration
 
 Enable webrsync. Thereafter, portage uses https only with below changes to make.conf.
 
