@@ -614,6 +614,14 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 
 ## Post-chroot configuration
 
+Enable webrsync. Thereafter, portage uses https only.
+
+```bash
+mkdir /etc/portage/repos.conf && \
+sed 's/^sync-type = rsync/sync-type = webrsync/' /usr/share/portage/config/repos.conf > /etc/portage/repos.conf/gentoo.conf && \
+grep -q "^sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/gentoo.conf; echo $?
+```
+
 Configure make.conf (copy&paste one after the other):
 
 ```bash
@@ -670,14 +678,6 @@ I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-page
 
 ```bash
 echo "sys-apps/man-pages -l10n_de" >> /mnt/gentoo/etc/portage/package.use/main
-```
-
-Enable webrsync. Thereafter, portage uses https only.
-
-```bash
-mkdir /etc/portage/repos.conf && \
-sed 's/^sync-type = rsync/sync-type = webrsync/' /usr/share/portage/config/repos.conf > /etc/portage/repos.conf/gentoo.conf && \
-grep -q "^sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/gentoo.conf; echo $?
 ```
 
 Update portage and check news:
