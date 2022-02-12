@@ -692,6 +692,8 @@ I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-page
 echo "sys-apps/man-pages -l10n_de" >> /mnt/gentoo/etc/portage/package.use/main
 ```
 
+## System update
+
 Update portage and check news:
 
 ```bash
