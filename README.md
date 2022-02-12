@@ -648,6 +648,24 @@ RESUMECOMMAND="curl --continue-at - --fail --silent --show-error --location --pr
 EOF
 ```
 
+(Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf`:
+
+```bash
+ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq && \
+
+# Create mirror list and sort according to your liking.
+# I use following list of German mirrors:
+#   https://ftp.fau.de/gentoo/
+#   https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/
+#   https://ftp.tu-ilmenau.de/mirror/gentoo/
+#   https://mirror.leaseweb.com/gentoo/
+curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq | jq -r '.mirrors.mirrorgroup[] | select(."@country" == "DE") | .mirror[].uri[] | select(."@protocol" == "http" and ."@ipv4" == "y" and ."@ipv6" == "y") | select(."#text" | startswith("https://")) | ."#text"' | while read -r I; do
+  if curl -fsL --proto '=https' --tlsv1.3 -I "$I" >/dev/null; then
+    echo "$I"
+  fi
+done
+```
+
 I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-pages`. Makes using Stackoverflow easier 😉.
 
 ```bash
@@ -671,24 +689,6 @@ eselect news list
 # eselect news read 1
 # eselect news read 2
 # etc.
-```
-
-(Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf`:
-
-```bash
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq && \
-
-# Create mirror list and sort according to your liking.
-# I use following list of German mirrors:
-#   https://ftp.fau.de/gentoo/
-#   https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/
-#   https://ftp.tu-ilmenau.de/mirror/gentoo/
-#   https://mirror.leaseweb.com/gentoo/
-curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq | jq -r '.mirrors.mirrorgroup[] | select(."@country" == "DE") | .mirror[].uri[] | select(."@protocol" == "http" and ."@ipv4" == "y" and ."@ipv6" == "y") | select(."#text" | startswith("https://")) | ."#text"' | while read -r I; do
-  if curl -fsL --proto '=https' --tlsv1.3 -I "$I" >/dev/null; then
-    echo "$I"
-  fi
-done
 ```
 
 Set USE flags in `/etc/portage/make.conf`:
