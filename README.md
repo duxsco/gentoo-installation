@@ -656,7 +656,7 @@ Configure make.conf (copy&paste one after the other):
 ```bash
 # If you use distcc, beware of:
 # https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
-sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /mnt/gentoo/etc/portage/make.conf
+sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/make.conf
 
 # The following cipher list contains only AEAD and PFS supporting ciphers with decreasing priority from top to bottom:
 #
@@ -673,7 +673,7 @@ sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /mnt
 #
 TLSv12_CIPHERS="ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES128-GCM-SHA256"
 
-cat <<EOF >> /mnt/gentoo/etc/portage/make.conf
+cat <<EOF >> /etc/portage/make.conf
 
 L10N="de"
 LINGUAS="\${L10N}"
@@ -718,7 +718,7 @@ done
 I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-pages`. Makes using Stackoverflow easier 😉.
 
 ```bash
-echo "sys-apps/man-pages -l10n_de" >> /mnt/gentoo/etc/portage/package.use/main
+echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main
 ```
 
 ## System update
