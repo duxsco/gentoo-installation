@@ -364,8 +364,7 @@ exit
 Create kernel config directory and make script executable:
 
 ```bash
-mkdir /mnt/gentoo/etc/kernels
-
+mkdir /mnt/gentoo/etc/kernels && \
 chmod u+x /mnt/gentoo/usr/local/sbin/gkb2gs.sh
 ```
 
@@ -380,9 +379,8 @@ Import Gnupg public key:
 su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import"
 ) && (
 su -l meh -c "echo \"62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:\" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust"
-) && (
-gpgconf --homedir /tmp/gpgHomeDir --kill all
-)
+) && \
+gpgconf --homedir /tmp/gpgHomeDir --kill all; echo $?
 ```
 
 Prepare working directory:
@@ -531,7 +529,7 @@ Create customised ISO:
 sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/systemrescuecd/recipe -w /mnt/gentoo/etc/systemrescuecd/work
 ```
 
-Copy system rescue files to the EFI System Partitions (copy&paste one after the other):
+Copy system rescue files to the EFI System Partitions:
 
 ```bash
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
@@ -1197,7 +1195,7 @@ done
 Copy relevant files from `/boot` to `/efi*/`:
 
 ```bash
-boot2efi.sh
+boot2efi.sh && \
 ls -1d /efi* | while read -r I; do
     mount "${I}"
 done
