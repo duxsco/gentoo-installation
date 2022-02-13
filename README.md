@@ -810,13 +810,7 @@ Credits:
 In order to add your custom keys enable `Setup Mode` in your UEFI firmware. Beware that this deletes all existing keys. Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
 
 ```bash
-(
-cat <<EOF >> /etc/portage/packages.accept_keywords
-app-crypt/efitools ~amd64
-app-crypt/sbsigntools ~amd64
-EOF
-) && \
-emerge -av app-crypt/efitools app-crypt/sbsigntools; echo $?
+emerge -av app-crypt/efitools app-crypt/sbsigntools
 ```
 
 Create Secure Boot keys and certificates:
