@@ -298,12 +298,17 @@ su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercont
 Verify the patches (copy&paste one after the other):
 
 ```bash
+# Switch to non-root user. All following commands are executed by non-root.
+su - meh
+
 # Verify GPG signature. Btw, the GPG key is the same one I use to sign my commits:
 # https://github.com/duxsco/gentoo-genkernel-patches/commits/main
 gpg --homedir /tmp/gpgHomeDir --verify /tmp/genkernel_sha256.txt.asc /tmp/genkernel_sha256.txt
-gpg: Signature made Mi 18 Aug 2021 23:11:32 CEST
+gpg: Signature made Tue 01 Feb 2022 12:22:06 AM UTC
 gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
-gpg: Good signature from "David Sardari <d@XXXXX.de>" [ultimate]
+gpg:                issuer "d@XXXXXX.de"
+gpg: Good signature from "David Sardari <d@XXXXXX.de>" [ultimate]
+gpg: Preferred keyserver: hkps://keys.duxsco.de
 
 # Add paths to sha256.txt and verify
 sed 's|  |  /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/|' /tmp/genkernel_sha256.txt | sha256sum -c -
@@ -340,6 +345,13 @@ su - meh
 
 # And, verify as already done above for genkernel user patches
 gpg --homedir /tmp/gpgHomeDir --verify /tmp/gkb2gs.sh.sha256.asc /tmp/gkb2gs.sh.sha256
+gpg: Signature made Sat 01 Jan 2022 01:58:07 PM UTC
+gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
+gpg:                issuer "d@XXXXXX.de"
+gpg: Good signature from "David Sardari <d@XXXXXX.de>" [ultimate]
+gpg: Preferred keyserver: hkps://keys.duxsco.de
+
+# Add paths to sha256.txt and verify
 sed 's|  |  /mnt/gentoo/usr/local/sbin/|' /tmp/gkb2gs.sh.sha256 | sha256sum -c -
 
 # Stop the gpg-agent
