@@ -943,7 +943,7 @@ mkdir --mode=0755 /etc/dropbear
 # in order to unlock LUKS partitions remotely.
 ```
 
-## Grub preparation
+## Grub
 
 Install `sys-boot/grub`:
 
