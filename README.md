@@ -472,13 +472,11 @@ autorun:
     ar_disable: false
     ar_nowait: true
     ar_nodel: false
-    ar_attempts: 3
     ar_ignorefail: false
-    ar_suffixes: 0
 EOF
 
 # open up ssh port upon bootup.
-cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun0
+cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun
 #!/bin/bash
 
 iptables -F
@@ -551,7 +549,7 @@ Result:
 │           └── authorized_keys
 ├── iso_add
 │   ├── autorun
-│   │   └── autorun0
+│   │   └── autorun
 │   └── sysrescue.d
 │       └── 500-settings.yaml
 ├── iso_delete
