@@ -1180,6 +1180,8 @@ ls -1d /efi* | while read -r I; do
 done
 ```
 
+## Boot file installation
+
 Copy relevant files from `/boot` to `/efi*/`:
 
 ```bash
