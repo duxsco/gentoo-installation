@@ -511,10 +511,10 @@ sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/systemrescuecd/systemr
 Copy system rescue files to the EFI System Partitions (copy&paste one after the other):
 
 ```bash
-mkdir /mnt/iso /mnt/rescue && \
-mount -o loop,ro /etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
-mount -o noatime /mapperRescue /mnt/rescue && \
-rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/rescue/ && \
+mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
+mount -o loop,ro /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
+mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
+rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ && \
 umount /mnt/iso; echo $?
 ```
 
