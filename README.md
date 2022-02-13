@@ -137,21 +137,6 @@ Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_S
 sysctl -w kernel.sysrq=0
 ```
 
-Set date if system time is not correct:
-
-```bash
-! grep "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
-# replace "MMDDhhmmYYYY" with UTC time
-date MMDDhhmmYYYY
-```
-
-Update hardware clock:
-
-```bash
-! grep "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
-hwclock --systohc --utc
-```
-
 Make sure you have booted with EFI:
 
 ```bash
@@ -216,6 +201,21 @@ sha256sum -c /tmp/sha256.txt
 # If relogin doesn't work you can switch tty to fix (e.g. set password again).
 # If relogin succeeds execute vlock with flag "-a" to lock all tty.
 vlock -a
+```
+
+Set date if system time is not correct:
+
+```bash
+! grep "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+# replace "MMDDhhmmYYYY" with UTC time
+date MMDDhhmmYYYY
+```
+
+Update hardware clock:
+
+```bash
+! grep "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+hwclock --systohc --utc
 ```
 
 ## Disk setup and stage3/portage tarball installation
