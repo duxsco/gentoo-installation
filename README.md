@@ -141,7 +141,16 @@ sysctl -w kernel.sysrq=0
 Set date if system time is not correct:
 
 ```bash
+! grep "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+# replace "MMDDhhmmYYYY" with UTC time
 date MMDDhhmmYYYY
+```
+
+Update hardware clock:
+
+```bash
+! grep "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+hwclock --systohc --utc
 ```
 
 Make sure you have booted with EFI:
