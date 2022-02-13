@@ -944,11 +944,8 @@ rm /etc/genkernel.conf.old
 Setup `dropbear` config directory and `/etc/dropbear/authorized_keys`:
 
 ```bash
-mkdir --mode=0755 /etc/dropbear
-
-# create /etc/dropbear/authorized_keys and "chmod og="
-# These public keys will be granted access over SSH upon bootup
-# in order to unlock LUKS partitions remotely.
+mkdir --mode=0755 /etc/dropbear && \
+rsync -a /etc/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /etc/dropbear/; echo $?
 ```
 
 ## Grub
@@ -1427,6 +1424,9 @@ rc-update add rngd default; echo $?
   - ssh (optional):
 
 ```bash
+rsync -av /etc/dropbear/authorized_keys /home/david/.ssh/ && \
+chmod og= /home/david/.ssh/authorized_keys && \
+chown david: /home/david/.ssh/authorized_keys && \
 ( umask 0177 && touch /home/david/.ssh/authorized_keys ) && \
 chown david: /home/david/.ssh/authorized_keys && \
 cp -av /etc/ssh/sshd_config{,.old} && \
@@ -1453,8 +1453,6 @@ ssh-keygen -A && \
 sshd -t && \
 diff /etc/ssh/sshd_config{,.old}
 ```
-
-Don't forget to fill `~/.ssh/authorized_keys`.
 
 Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
 
