@@ -1007,25 +1007,6 @@ done
 echo $?
 ```
 
-Sign "grub-initial_efi*.cfg" and save your GnuPG public key. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
-
-```bash
-# Change Key ID
-KEY_ID="0xasdfasdf"
-gpg --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
-
-# If signature creation fails...
-GPG_TTY="$(tty)"
-export GPG_TTY
-
-ls -1d /efi* | while read -r I; do
-    gpg --default-key "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
-done
-
-# Stop the gpg-agent
-gpgconf --kill all
-```
-
 Setup remote LUKS unlocking:
 
 ```bash
@@ -1127,6 +1108,34 @@ genkernel.sh
 
 `genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
 
+Sign "grub-initial_efi*.cfg" and save your GnuPG public key. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
+
+```bash
+# Change Key ID
+KEY_ID="0xasdfasdf"
+gpg --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
+
+# If signature creation fails...
+GPG_TTY="$(tty)"
+export GPG_TTY
+
+ls -1d /efi* | while read -r I; do
+    gpg --default-key "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
+done
+
+# Stop the gpg-agent
+gpgconf --kill all
+```
+
+Sign your files with GnuPG:
+
+```bash
+find /boot /mnt/rescue -type f -exec gpg --detach-sign {} \;
+echo $?
+gpgconf --kill all
+echo $?
+```
+
 Create the EFI binary/ies and Secure Boot sign them:
 
 ```bash
@@ -1159,15 +1168,6 @@ ls -1d /efi* | while read -r I; do
     efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${I/efi/devEfi}")")" --part 1 --label "gentoo ${I#/}" --loader '\EFI\boot\bootx64.efi'
     echo $?
 done
-```
-
-Sign your files with GnuPG:
-
-```bash
-find /boot /mnt/rescue -type f -exec gpg --detach-sign {} \;
-echo $?
-gpgconf --kill all
-echo $?
 ```
 
 Copy relevant files from `/boot` to `/efi*/`:
