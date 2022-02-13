@@ -952,7 +952,7 @@ echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/pack
 emerge sys-boot/grub; echo $?
 ```
 
-Configure grub:
+### Base Grub configuration
 
 ```bash
 (
@@ -972,6 +972,8 @@ GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
 EOF
 ```
+
+### ESP Grub configuration
 
 In the following, a minimal Grub config for each EFI system partition is created. Take care of the line marked with `TODO`.
 
@@ -1006,6 +1008,8 @@ EOF
 done
 echo $?
 ```
+
+### SystemRescueCD Grub configuration
 
 Setup remote LUKS unlocking:
 
