@@ -247,6 +247,9 @@ chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh}; echo $?
 Extract portage tarball:
 
 ```bash
+mkdir /mnt/gentoo/var/db/repos/gentoo && \
+touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
+mount -o noatime,subvol=@portage /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
 tar --strip-components=1 -C /mnt/gentoo/var/db/repos/gentoo/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
@@ -541,10 +544,6 @@ mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
 
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
 mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
-
-mkdir /mnt/gentoo/var/db/repos/gentoo && \
-touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
-mount -o noatime,subvol=@portage /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
 
 mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot; echo $?
 ```
