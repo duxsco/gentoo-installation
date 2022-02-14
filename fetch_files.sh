@@ -18,11 +18,10 @@ fi
 # fetch stage3 tarball
 CURRENT_STAGE3="$(curl -fsSL --proto '=https' --tlsv1.3 "https://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64-hardened-nomultilib-selinux-openrc.txt" | grep -v "^#" | awk '{print $1}' | cut -d/ -f2)"
 curl -fsSLO --proto '=https' --tlsv1.3 "https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-hardened-nomultilib-selinux-openrc/${CURRENT_STAGE3}"
-curl -fsSLO --proto '=https' --tlsv1.3 "https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-hardened-nomultilib-selinux-openrc/${CURRENT_STAGE3}.DIGESTS.asc"
+curl -fsSLO --proto '=https' --tlsv1.3 "https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-hardened-nomultilib-selinux-openrc/${CURRENT_STAGE3}.asc"
 gpg --keyserver hkps://keys.gentoo.org --recv-keys 0x13EBBDBEDE7A12775DFDB1BABB572E0E2D182910
 echo "13EBBDBEDE7A12775DFDB1BABB572E0E2D182910:6:" | gpg --import-ownertrust
-gpg --status-fd 1 --verify "${CURRENT_STAGE3##*/}.DIGESTS.asc" 2>/dev/null | grep "^\[GNUPG:\]" | awk '{print $2}' | grep -e "^GOODSIG$" -e "^VALIDSIG$" -e "^TRUST_ULTIMATE$" | sort | paste -d ' ' -s - | grep -q "^GOODSIG TRUST_ULTIMATE VALIDSIG$"
-grep -A1 "SHA512" "${CURRENT_STAGE3##*/}.DIGESTS.asc" | grep "${CURRENT_STAGE3##*/}$" | sha512sum -c
+gpg --status-fd 1 --verify "${CURRENT_STAGE3##*/}.asc" "${CURRENT_STAGE3##*/}" 2>/dev/null | grep "^\[GNUPG:\]" | awk '{print $2}' | grep -e "^GOODSIG$" -e "^VALIDSIG$" -e "^TRUST_ULTIMATE$" | sort | paste -d ' ' -s - | grep -q "^GOODSIG TRUST_ULTIMATE VALIDSIG$"
 
 rmGPG
 
