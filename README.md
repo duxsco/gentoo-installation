@@ -1054,6 +1054,10 @@ echo $?
 
 ### SystemRescueCD Grub configuration
 
+Credits:
+- https://www.system-rescue.org/manual/Installing_SystemRescue_on_the_disk/
+- https://www.system-rescue.org/manual/Booting_SystemRescue/
+
 Setup remote LUKS unlocking:
 
 ```bash
@@ -1072,10 +1076,6 @@ set -o history
 ```
 
 Create the Grub config to boot into the rescue system:
-
-Credits:
-- https://www.system-rescue.org/manual/Installing_SystemRescue_on_the_disk/
-- https://www.system-rescue.org/manual/Booting_SystemRescue/
 
 ```bash
 UUID="$(blkid -s UUID -o value /devRescue | tr -d '-')"
