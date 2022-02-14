@@ -176,6 +176,8 @@ Execute following SCP/SSH commands **on your local machine** (copy&paste one aft
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
 scp -P XXX {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh} root@XXX:/tmp/
+
+# Send checksums
 sha256sum disk.sh fetch_files.sh genkernel.sh boot2efi.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
 
 # From local machine, login into the remote machine
@@ -220,13 +222,17 @@ hwclock --systohc --utc
 
 ## Disk setup and stage3/portage tarball installation
 
-Prepare the disks:
+Prepare the disks (copy&paste one after the other):
 
 ```bash
 bash /tmp/disk.sh -h
+
 # disable bash history
 set +o history
+
+# adjust to your liking
 bash /tmp/disk.sh -b bootbootboot -m mastermaster -r rescuerescue -d "/dev/sda /dev/sdb etc." -s 12
+
 # enable bash history
 set -o history
 ```
@@ -255,7 +261,7 @@ tar --strip-components=1 -C /mnt/gentoo/var/db/repos/gentoo/ -xvpJf /mnt/gentoo/
 
 ## GnuPG homedir
 
-Setup GnuPG homedir:
+Setup GnuPG homedir (copy&paste one after the other):
 
 ```bash
 # Switch to non-root user. All following commands are executed by non-root.
@@ -649,14 +655,13 @@ rm -fv /mnt/gentoo/etc/localtime && \
 chroot /mnt/gentoo /bin/bash -c "source /etc/profile && emerge --config sys-libs/timezone-data"; echo $?
 ```
 
-Set `MAKEOPTS` (copy&paste one after the other):
+Set `MAKEOPTS`:
 
 ```bash
-RAM_SIZE="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)"
-NUMBER_CORES="$(nproc --all)"
-[[ $((NUMBER_CORES*2)) -le ${RAM_SIZE} ]] && NUMBER_OPTS="${NUMBER_CORES}" || NUMBER_OPTS="$(bc <<<"${RAM_SIZE} / 2")"
-
-cat <<EOF >> /mnt/gentoo/etc/portage/make.conf
+RAM_SIZE="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)" && \
+NUMBER_CORES="$(nproc --all)" && \
+[[ $((NUMBER_CORES*2)) -le ${RAM_SIZE} ]] && NUMBER_OPTS="${NUMBER_CORES}" || NUMBER_OPTS="$(bc <<<"${RAM_SIZE} / 2")" && \
+cat <<EOF >> /mnt/gentoo/etc/portage/make.conf; echo $?
 
 MAKEOPTS="-j${NUMBER_OPTS} -l$(bc -l <<<"0.9 * ${NUMBER_OPTS}")"
 EMERGE_DEFAULT_OPTS="-j"
@@ -913,10 +918,9 @@ echo $?
 (Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
 
 ```bash
-echo "" >> /etc/fstab
-
-TMPFS_SIZE=4G
+TMPFS_SIZE=4G && \
 cat <<EOF | column -t >> /etc/fstab
+
 tmpfs /tmp     tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
 tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
 EOF
@@ -976,6 +980,11 @@ sed -i \
 -e 's|^#UTILS_CXX="g++"$|UTILS_CXX="/usr/lib/ccache/bin/g++"|' \
 /etc/genkernel.conf && \
 diff -y --suppress-common-lines /etc/genkernel.conf /etc/genkernel.conf.old
+```
+
+Delete old config:
+
+```
 rm /etc/genkernel.conf.old
 ```
 
@@ -1048,8 +1057,7 @@ echo Rebooting the system in 10 seconds.
 sleep 10
 reboot
 EOF
-done
-echo $?
+done; echo $?
 ```
 
 ### SystemRescueCD Grub configuration
@@ -1061,7 +1069,7 @@ Credits:
 Setup remote LUKS unlocking:
 
 ```bash
-# Change settings depending on your requirements
+# Change settings depending on your requirements; set correct MAC address for XX:XX:XX:XX:XX:XX
 echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:XX:XX gk.sshd.port=50023" > /root/.grub_dosshd.config
 ```
 
@@ -1151,17 +1159,20 @@ For now, ignore the request to sign files. The GnuPG keypair must be created fir
 
 The whole boot process must be GnuPG signed. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
 
-Export your GnuPG public key and sign "grub-initial_efi*.cfg":
+Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one after the other):
 
 ```bash
 # Change Key ID
 KEY_ID="0xasdfasdf"
+
+# Export public key
 gpg --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
 
 # If signature creation fails...
 GPG_TTY="$(tty)"
 export GPG_TTY
 
+# Sign initial grub.cfg
 ls -1d /efi* | while read -r I; do
     gpg --default-key "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
 done
@@ -1173,10 +1184,8 @@ gpgconf --kill all
 Sign your boot files with GnuPG:
 
 ```bash
-find /boot /mnt/rescue -type f -exec gpg --detach-sign {} \;
-echo $?
-gpgconf --kill all
-echo $?
+find /boot /mnt/rescue -type f -exec gpg --detach-sign {} \; && \
+gpgconf --kill all; echo $?
 ```
 
 ## EFI binary
@@ -1539,7 +1548,7 @@ For every kernel update, execute `genkernel.sh`, sign files printed out and exec
 
 ## Remote unlock
 
-SSH into the machine, execute `cryptsetup luksOpen` for every LUKS volume you want to open:
+SSH into the machine, execute `cryptsetup luksOpen` for every LUKS volume you want to open. Example:
 
 ```bash
 cryptsetup luksOpen /dev/sda4 sda4
