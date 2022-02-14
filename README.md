@@ -1542,10 +1542,11 @@ rm -fv /stage3-* /portage-latest.tar.xz* /devBoot /devEfi* /devRescue /devSystem
 ```bash
 exit
 exit
+exit
 cd
 umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
-reboot
+shutdown -h now
 ```
 
 ## Grub config update after kernel updates
