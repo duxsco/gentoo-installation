@@ -872,7 +872,7 @@ sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
 sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth; echo $?
 ```
 
-If the following commands don't work you have install `db.auth`, `KEK.auth` and `PK.auth` via UEFI Manager upon reboot:
+If these commands fail, take a look at the next section:
 
 ```bash
 # Make them mutable
@@ -887,6 +887,22 @@ efi-updatevar -f PK.auth PK && \
 chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
+
+If `efi-updatevar` fails, you can import Secure Boot files upon reboot.
+
+First, save necessary files in `DER` form:
+
+```bash
+(
+! mountpoint /efia && \
+mount /efia || true
+) && \
+openssl x509 -outform der -in /etc/secureboot/db.crt -out /efia/db.der && \
+openssl x509 -outform der -in /etc/secureboot/KEK.crt -out /efia/KEK.der && \
+openssl x509 -outform der -in /etc/secureboot/PK.crt -out /efia/PK.der; echo $?
+```
+
+After the completion of the installation guide, reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successfull boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
 
 ## fstab configuration
 
