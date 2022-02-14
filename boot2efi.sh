@@ -30,8 +30,11 @@ grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfa
     sync
     cmp "/boot/grub_${I}.cfg" "/${I}/grub.cfg"
     cmp "/boot/grub_${I}.cfg.sig" "/${I}/grub.cfg.sig"
+    rm -f "/boot/grub_${I}.cfg" "/boot/grub_${I}.cfg.sig"
     umount "/${I}"
 done
+
+rm -f /boot/{"System.map-${KERNEL_VERSION}-x86_64-ssh","initramfs-${KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION}-x86_64-ssh"}{,.sig}
 
 if [ "${UNMOUNT_BOOT}" == "true" ]; then
     umount /boot

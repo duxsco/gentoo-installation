@@ -1237,16 +1237,10 @@ tree -a /boot /efi*
 ├── grub_efib.cfg.sig
 ├── initramfs-5.15.21-gentoo-x86_64.img
 ├── initramfs-5.15.21-gentoo-x86_64.img.sig
-├── initramfs-5.15.21-gentoo-x86_64-ssh.img
-├── initramfs-5.15.21-gentoo-x86_64-ssh.img.sig
 ├── System.map-5.15.21-gentoo-x86_64
 ├── System.map-5.15.21-gentoo-x86_64.sig
-├── System.map-5.15.21-gentoo-x86_64-ssh
-├── System.map-5.15.21-gentoo-x86_64-ssh.sig
 ├── vmlinuz-5.15.21-gentoo-x86_64
 ├── vmlinuz-5.15.21-gentoo-x86_64.sig
-├── vmlinuz-5.15.21-gentoo-x86_64-ssh
-└── vmlinuz-5.15.21-gentoo-x86_64-ssh.sig
 /efia
 ├── EFI
 │   └── boot
