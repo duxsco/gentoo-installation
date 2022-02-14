@@ -1065,16 +1065,6 @@ Setup remote LUKS unlocking:
 echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:XX:XX gk.sshd.port=50023" > /root/.grub_dosshd.config
 ```
 
-Set the encrypted password you want to login with in the rescue system (change "MyPassWord123" beforehand 😉):
-
-```bash
-# disable bash history
-set +o history
-CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
-# enable bash history
-set -o history
-```
-
 Create the Grub config to boot into the rescue system:
 
 ```bash
