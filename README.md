@@ -1369,6 +1369,7 @@ rc-update add acpid default; echo $?
   - chrony:
 
 ```bash
+! grep -q "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 emerge net-misc/chrony && \
 rc-update add chronyd default && \
 sed -i 's/^server/#server/' /etc/chrony/chrony.conf && \
