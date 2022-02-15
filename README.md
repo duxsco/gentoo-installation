@@ -1256,40 +1256,36 @@ Result:
 ```bash
 tree -a /boot /efi*
 /boot
-├── grub_efia.cfg
-├── grub_efia.cfg.sig
-├── grub_efib.cfg
-├── grub_efib.cfg.sig
-├── initramfs-5.15.21-gentoo-x86_64.img
-├── initramfs-5.15.21-gentoo-x86_64.img.sig
-├── System.map-5.15.21-gentoo-x86_64
-├── System.map-5.15.21-gentoo-x86_64.sig
-├── vmlinuz-5.15.21-gentoo-x86_64
-├── vmlinuz-5.15.21-gentoo-x86_64.sig
+├── initramfs-5.15.23-gentoo-x86_64.img
+├── initramfs-5.15.23-gentoo-x86_64.img.sig
+├── System.map-5.15.23-gentoo-x86_64
+├── System.map-5.15.23-gentoo-x86_64.sig
+├── vmlinuz-5.15.23-gentoo-x86_64
+├── vmlinuz-5.15.23-gentoo-x86_64.sig
 /efia
 ├── EFI
 │   └── boot
 │       └── bootx64.efi
 ├── grub.cfg
 ├── grub.cfg.sig
-├── initramfs-5.15.21-gentoo-x86_64-ssh.img
-├── initramfs-5.15.21-gentoo-x86_64-ssh.img.sig
-├── System.map-5.15.21-gentoo-x86_64-ssh
-├── System.map-5.15.21-gentoo-x86_64-ssh.sig
-├── vmlinuz-5.15.21-gentoo-x86_64-ssh
-└── vmlinuz-5.15.21-gentoo-x86_64-ssh.sig
+├── initramfs-5.15.23-gentoo-x86_64-ssh.img
+├── initramfs-5.15.23-gentoo-x86_64-ssh.img.sig
+├── System.map-5.15.23-gentoo-x86_64-ssh
+├── System.map-5.15.23-gentoo-x86_64-ssh.sig
+├── vmlinuz-5.15.23-gentoo-x86_64-ssh
+└── vmlinuz-5.15.23-gentoo-x86_64-ssh.sig
 /efib
 ├── EFI
 │   └── boot
 │       └── bootx64.efi
 ├── grub.cfg
 ├── grub.cfg.sig
-├── initramfs-5.15.21-gentoo-x86_64-ssh.img
-├── initramfs-5.15.21-gentoo-x86_64-ssh.img.sig
-├── System.map-5.15.21-gentoo-x86_64-ssh
-├── System.map-5.15.21-gentoo-x86_64-ssh.sig
-├── vmlinuz-5.15.21-gentoo-x86_64-ssh
-└── vmlinuz-5.15.21-gentoo-x86_64-ssh.sig
+├── initramfs-5.15.23-gentoo-x86_64-ssh.img
+├── initramfs-5.15.23-gentoo-x86_64-ssh.img.sig
+├── System.map-5.15.23-gentoo-x86_64-ssh
+├── System.map-5.15.23-gentoo-x86_64-ssh.sig
+├── vmlinuz-5.15.23-gentoo-x86_64-ssh
+└── vmlinuz-5.15.23-gentoo-x86_64-ssh.sig
 
 4 directories, 34 files
 ```
