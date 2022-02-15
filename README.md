@@ -2,6 +2,11 @@
 
 > ⚠ The installation guide builds heavily on `Secure Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom keys. ⚠
 
+The following installation guide results in a fully encrypted, Secure Boot signed (EFI binary/binaries) and GnuPG signed (kernel, initramfs, microcode etc.) system with heavy use of RAID (mdadm and BTRFS based) and support for LUKS unlock:
+- Locally: One-time password entry and automatic decryption of LUKS partitions (multiple root and swap partitions) in further boot process via LUKS keyfile stored in initramfs which itself is stored on LUKS encrypted partition(s)
+- Remote: SSH login into initramfs+dropbear system, manual decryption of LUKS partitions and resumption of Gentoo Linux boot
+- After boot into rescue system based upon a customised SystemRescueCD
+
 ## Disk layout
 
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
