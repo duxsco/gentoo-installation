@@ -845,7 +845,9 @@ Credits:
 - https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot&mobileaction=toggle_view_mobile
 - https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot
 
-In order to add your custom keys enable `Setup Mode` in your UEFI firmware. Beware that this deletes all existing keys. Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
+In order to add your custom keys `Setup Mode` must have been enabled in your `UEFI Firmware Settings` before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling `Setup Mode`. In the following, however, you have to generate Secure Boot files either way.
+
+Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
 
 ```bash
 emerge -av app-crypt/efitools app-crypt/sbsigntools
@@ -873,7 +875,7 @@ sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
 popd; echo $?
 ```
 
-If the following commands don't work you have install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide.
+If the following commands don't work you have install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
 
 ```bash
 # Make them mutable
