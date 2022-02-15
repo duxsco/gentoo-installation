@@ -481,7 +481,7 @@ autorun:
     ar_ignorefail: false
 EOF
 
-# open up ssh port upon bootup.
+# set firewall rules upon bootup.
 cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun
 #!/bin/bash
 
