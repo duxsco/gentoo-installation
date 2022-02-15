@@ -1163,11 +1163,66 @@ For now, ignore the request to sign files. The GnuPG keypair must be created fir
 
 The whole boot process must be GnuPG signed. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
 
+Create a GnuPG keypair, e.g.:
+
+```bash
+# gpg --full-gen-key
+gpg (GnuPG) 2.2.32; Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+gpg: directory '/root/.gnupg' created
+gpg: keybox '/root/.gnupg/pubring.kbx' created
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+  (14) Existing key from card
+Your selection? 4
+RSA keys may be between 1024 and 4096 bits long.
+What keysize do you want? (3072)
+Requested keysize is 3072 bits
+Please specify how long the key should be valid.
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0)
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: grubEfi
+Email address:
+Comment:
+You selected this USER-ID:
+    "grubEfi"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+```
+
+Result:
+
+```bash
+# gpg --list-keys
+gpg: checking the trustdb
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+/root/.gnupg/pubring.kbx
+------------------------
+pub   rsa3072 2022-02-15 [SC]
+      714F5DD28AC1A31E04BCB850B158334ADAF5E3C0
+uid           [ultimate] grubEfi
+```
+
 Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one after the other):
 
 ```bash
 # Change Key ID
-KEY_ID="0xasdfasdf"
+KEY_ID="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
 
 # Export public key
 gpg --export-options export-minimal --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
