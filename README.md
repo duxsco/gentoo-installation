@@ -1603,13 +1603,15 @@ If `efi-updatevar` fails, you can import Secure Boot files after the completion 
 First, boot into the Gentoo Linux and save necessary files in `DER` form:
 
 ```bash
+bash -c '
 (
-! mountpoint /efia && \
+! mountpoint /efia && \\
 mount /efia || true
-) && \
-openssl x509 -outform der -in /etc/secureboot/db.crt -out /efia/db.der && \
-openssl x509 -outform der -in /etc/secureboot/KEK.crt -out /efia/KEK.der && \
+) && \\
+openssl x509 -outform der -in /etc/secureboot/db.crt -out /efia/db.der && \\
+openssl x509 -outform der -in /etc/secureboot/KEK.crt -out /efia/KEK.der && \\
 openssl x509 -outform der -in /etc/secureboot/PK.crt -out /efia/PK.der; echo $?
+'
 ```
 
 Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successfull boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
