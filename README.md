@@ -1170,7 +1170,7 @@ Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one af
 KEY_ID="0xasdfasdf"
 
 # Export public key
-gpg --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
+gpg --export-options export-minimal --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
 
 # If signature creation fails...
 GPG_TTY="$(tty)"
