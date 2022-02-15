@@ -873,7 +873,7 @@ sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
 popd; echo $?
 ```
 
-If these commands fail, take a look at the next section:
+If the following commands don't work you have install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide.
 
 ```bash
 # Make them mutable
@@ -888,22 +888,6 @@ efi-updatevar -f PK.auth PK && \
 chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
-
-If `efi-updatevar` fails, you can import Secure Boot files upon reboot.
-
-First, save necessary files in `DER` form:
-
-```bash
-(
-! mountpoint /efia && \
-mount /efia || true
-) && \
-openssl x509 -outform der -in /etc/secureboot/db.crt -out /efia/db.der && \
-openssl x509 -outform der -in /etc/secureboot/KEK.crt -out /efia/KEK.der && \
-openssl x509 -outform der -in /etc/secureboot/PK.crt -out /efia/PK.der; echo $?
-```
-
-After the completion of the installation guide, reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successfull boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
 
 ## fstab configuration
 
@@ -1555,6 +1539,24 @@ umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
 shutdown -h now
 ```
+
+## Installation of Secure Boot files via UEFI Firmware Settings
+
+If `efi-updatevar` fails, you can import Secure Boot files after the completion of this installation guide.
+
+First, boot into the Gentoo Linux and save necessary files in `DER` form:
+
+```bash
+(
+! mountpoint /efia && \
+mount /efia || true
+) && \
+openssl x509 -outform der -in /etc/secureboot/db.crt -out /efia/db.der && \
+openssl x509 -outform der -in /etc/secureboot/KEK.crt -out /efia/KEK.der && \
+openssl x509 -outform der -in /etc/secureboot/PK.crt -out /efia/PK.der; echo $?
+```
+
+Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successfull boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
 
 ## Grub config update after kernel updates
 
