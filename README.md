@@ -922,9 +922,9 @@ echo $?
 (Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
 
 ```bash
+echo "" >> /etc/fstab && \
 TMPFS_SIZE=4G && \
 cat <<EOF | column -t >> /etc/fstab
-
 tmpfs /tmp     tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
 tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
 EOF
