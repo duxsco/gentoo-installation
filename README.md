@@ -359,6 +359,7 @@ gpg: Preferred keyserver: hkps://keys.duxsco.de
 
 # Add paths to sha256.txt and verify
 sed 's|  |  /mnt/gentoo/usr/local/sbin/|' /tmp/gkb2gs.sh.sha256 | sha256sum -c -
+/mnt/gentoo/usr/local/sbin/gkb2gs.sh: OK
 
 # Stop the gpg-agent
 gpgconf --homedir /tmp/gpgHomeDir --kill all
