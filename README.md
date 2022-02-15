@@ -1133,13 +1133,13 @@ gkb2gs.sh
 Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 
 ```bash
-# I usually make following changes:
+# I usually make following changes for systems with Intel CPU:
 #     Processor type and features  --->
 #         [ ] Support for extended (non-PC) x86 platforms
 #             Processor family (Core 2/newer Xeon)  --->
 #         <*> CPU microcode loading support
 #         [*]   Intel microcode loading support
-#         [*]   AMD microcode loading support
+#         [ ]   AMD microcode loading support
 #     Binary Emulations --->
 #         [ ] IA32 Emulation
 #         [ ] x32 ABI for 64-bit mode
