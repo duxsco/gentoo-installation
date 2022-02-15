@@ -571,7 +571,7 @@ Create customised ISO:
 sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/systemrescuecd/recipe -w /mnt/gentoo/etc/systemrescuecd/work
 ```
 
-Copy system rescue files to the EFI System Partitions:
+Copy system rescue files to the `rescue` partition:
 
 ```bash
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
