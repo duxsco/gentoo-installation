@@ -1455,13 +1455,11 @@ emerge sys-apps/rng-tools && \
 rc-update add rngd default; echo $?
 ```
 
-  - ssh (optional):
+  - ssh:
 
 ```bash
 rsync -av /etc/dropbear/authorized_keys /home/david/.ssh/ && \
 chmod og= /home/david/.ssh/authorized_keys && \
-chown david: /home/david/.ssh/authorized_keys && \
-( umask 0177 && touch /home/david/.ssh/authorized_keys ) && \
 chown david: /home/david/.ssh/authorized_keys && \
 cp -av /etc/ssh/sshd_config{,.old} && \
 sed -i \
