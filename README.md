@@ -869,7 +869,8 @@ cert-to-efi-sig-list -g "${UUID}" KEK.crt KEK.esl && \
 cert-to-efi-sig-list -g "${UUID}" db.crt db.esl && \
 sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
 sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
-sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth; echo $?
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
+popd; echo $?
 ```
 
 If these commands fail, take a look at the next section:
