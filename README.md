@@ -489,6 +489,9 @@ autorun:
     ar_ignorefail: false
 EOF
 
+# Delete variable
+unset CRYPT_PASS
+
 # set firewall rules upon bootup.
 cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun
 #!/bin/bash
