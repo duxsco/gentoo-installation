@@ -1659,6 +1659,10 @@ boot2efi.sh
 SSH into the machine, execute `cryptsetup luksOpen` for every LUKS volume you want to open. Example:
 
 ```bash
+# At least luksOpen the swap and system partitions, see
+# https://github.com/duxsco/gentoo-installation#disk-layout
+#
+# Example:
 cryptsetup luksOpen /dev/sda4 sda4
 cryptsetup luksOpen /dev/sdb4 sdb4
 cryptsetup luksOpen /dev/sda5 sda5
