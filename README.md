@@ -1243,7 +1243,7 @@ export GPG_TTY
 
 # Sign initial grub.cfg
 ls -1d /efi* | while read -r I; do
-    gpg --default-key "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
+    gpg --local-user "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
 done
 
 # Stop the gpg-agent
@@ -1253,7 +1253,10 @@ gpgconf --kill all
 Sign your boot files with GnuPG:
 
 ```bash
-find /boot /mnt/rescue -type f -exec gpg --detach-sign {} \; && \
+# Change Key ID
+KEY_ID="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
+
+find /boot /mnt/rescue -type f -exec gpg --detach-sign --local-user "${KEY_ID}" {} \; && \
 gpgconf --kill all; echo $?
 ```
 
