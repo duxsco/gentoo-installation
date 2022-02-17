@@ -182,10 +182,10 @@ Execute following SCP/SSH commands **on your local machine** (copy&paste one aft
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-scp -P XXX {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh} root@XXX:/tmp/
+scp -P XXX {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh} root@XXX:/tmp/
 
 # Send checksums
-sha256sum disk.sh fetch_files.sh genkernel.sh boot2efi.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
+sha256sum disk.sh fetch_files.sh genkernel.sh boot2efi.sh firewall_base.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
 
 # From local machine, login into the remote machine
 ssh -p XXX root@...
@@ -248,10 +248,11 @@ set -o history
 
 > ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
-Extract stage3 tarball and copy `genkernel.sh` as well as `boot2efi.sh`:
+Extract stage3 tarball and copy `firewall_base.sh`, `genkernel.sh` as well as `boot2efi.sh`:
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
+rsync -av /tmp/firewall_base.sh /mnt/gentoo/root/ && \
 rsync -av /tmp/{genkernel.sh,boot2efi.sh} /mnt/gentoo/usr/local/sbin/ && \
 chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh} && \
 chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh}; echo $?
@@ -508,46 +509,8 @@ Create firewall rules:
 
 ```bash
 # set firewall rules upon bootup.
-cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun
-#!/usr/bin/env bash
-
-# Credits:
-# https://github.com/openwrt/openwrt/blob/master/package/network/config/firewall/files/firewall.config
-
-iptables -F
-iptables -X
-iptables -t nat -F
-ip6tables -F
-ip6tables -X
-
-iptables -P FORWARD DROP
-iptables -P INPUT DROP
-iptables -P OUTPUT ACCEPT
-ip6tables -P FORWARD DROP
-ip6tables -P INPUT DROP
-ip6tables -P OUTPUT ACCEPT
-
-iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-
-iptables -A INPUT -i lo -j ACCEPT
-ip6tables -A INPUT -i lo -j ACCEPT
-
-iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
-
-ip6tables -A INPUT -s fc00::/6 -d fc00::/6 -p udp --dport 546 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 1 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 2 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 3 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 4 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 128 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 129 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 133 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 134 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 135 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 136 -j ACCEPT
+rsync -av /tmp/firewall_base.sh /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun && \
+cat <<EOF >> /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun; echo $?
 
 iptables -A INPUT -p tcp --dport 50024 -m conntrack --ctstate NEW -j ACCEPT
 ip6tables -A INPUT -p tcp --dport 50024 -m conntrack --ctstate NEW -j ACCEPT
@@ -1625,6 +1588,35 @@ cd
 umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
 reboot
+```
+
+## Firewall rules
+
+Create firewall rules:
+
+```bash
+rsync -av /root/firewall_base.sh /usr/local/sbin/firewall.sh && \
+(
+cat <<EOF >> /usr/local/sbin/firewall.sh
+
+iptables -A INPUT -p tcp --dport 50022 -m conntrack --ctstate NEW -j ACCEPT
+ip6tables -A INPUT -p tcp --dport 50022 -m conntrack --ctstate NEW -j ACCEPT
+EOF
+) && \
+chmod u+x /usr/local/sbin/firwall.sh; echo $?
+```
+
+Save firewall rules:
+
+```bash
+(
+[ ! -f /sbin/iptables ] && emerge iptables || true
+)  && \
+/usr/local/sbin/firewall.sh && \
+rc-service iptables save && \
+rc-service ip6tables save && \
+rc-update add iptables default && \
+rc-update add ip6tables default; echo $?
 ```
 
 ## Installation of Secure Boot files via UEFI Firmware Settings
