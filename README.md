@@ -1134,13 +1134,13 @@ eselect kernel list && \
 eselect kernel set 1; echo $?
 ```
 
-Install kernel configuration:
+Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel-bin` with:
 
 ```bash
 gkb2gs.sh
 ```
 
-Build kernel and initramfs for local and remote (via SSH) LUKS unlock:
+Customise kernel configuration and build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 
 ```bash
 # I usually make following changes for systems with Intel CPU:
@@ -1629,9 +1629,30 @@ openssl x509 -outform der -in /etc/secureboot/PK.crt -out /efia/PK.der; echo $?
 
 Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successfull boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
 
-## Grub config update after kernel updates
+## Update Linux kernel
 
-For every kernel update, execute `genkernel.sh`, sign files printed out and execute `boot2efi.sh` as root.
+For every kernel update, execute:
+
+```bash
+# Install kernel update with "emerge"
+
+# List kernels
+eselect kernel list
+
+# Select the kernel of your choice with
+eselect kernel set <NUMBER>
+
+# Configure the kernel from scratch, use an old config or use the configuration from sys-kernel/gentoo-kernel-bin with
+gkb2gs.sh
+
+# Customise kernel configuration and build kernel
+genkernel.sh
+
+# GnuPG sign files printed out by genkernel.sh
+
+# Copy files from /boot to /efi*
+boot2efi.sh
+```
 
 ## Remote unlock
 
