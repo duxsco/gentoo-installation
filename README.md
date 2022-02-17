@@ -509,7 +509,7 @@ Create firewall rules:
 ```bash
 # set firewall rules upon bootup.
 cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Credits:
 # https://github.com/openwrt/openwrt/blob/master/package/network/config/firewall/files/firewall.config
