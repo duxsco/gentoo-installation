@@ -1624,7 +1624,7 @@ exit
 cd
 umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
-shutdown -h now
+reboot
 ```
 
 ## Installation of Secure Boot files via UEFI Firmware Settings
