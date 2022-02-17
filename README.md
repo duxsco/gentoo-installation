@@ -1167,7 +1167,7 @@ genkernel.sh
 
 `genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
 
-For now, ignore the request to sign files. The GnuPG keypair must be created first and other files must be signed, too. This will be done in a later step.
+For now, ignore the request to sign files. The GnuPG keypair must be created first and other files must be signed, too. This will be done in the next chapter.
 
 ## GnuPG boot file signing
 
@@ -1351,7 +1351,7 @@ Set hostname:
 sed -i 's/^hostname="localhost"/hostname="micro"/' /etc/conf.d/hostname
 ```
 
-(Optional) Set IP address:
+Set IP address:
 
 ```bash
 # Change interface name and settings according to your requirements
@@ -1397,7 +1397,7 @@ emerge sys-process/cronie && \
 rc-update add cronie default; echo $?
 ```
 
-(Optional) Enable ssh service:
+Enable ssh service:
 
 ```bash
 rc-update add sshd default
