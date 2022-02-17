@@ -511,6 +511,9 @@ Create firewall rules:
 cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun
 #!/bin/bash
 
+# Credits:
+# https://github.com/openwrt/openwrt/blob/master/package/network/config/firewall/files/firewall.config
+
 iptables -F
 iptables -X
 iptables -t nat -F
