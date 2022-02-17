@@ -425,7 +425,7 @@ su -l meh -c "gpgconf --homedir /tmp/gpgHomeDir --kill all"
 chown -R root: /mnt/gentoo/etc/systemrescuecd; echo $?
 ```
 
-Customise the .iso file (copy&paste one after the other):
+Create folder structure and `authorized_keys` file (copy&paste one after the other):
 
 ```bash
 mkdir -p /mnt/gentoo/etc/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh}},work}
@@ -436,15 +436,19 @@ mkdir -p /mnt/gentoo/etc/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sys
 # set correct modes
 chmod u=rwx,g=rx,o= /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/root
 chmod -R go= /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/root/.ssh
+```
 
+Configure OpenSSH:
+
+```bash
 # do some ssh server hardening
 sed \
 -e 's/^#Port 22$/Port 50024/' \
 -e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 
-grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
-
+grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  && \
+(
 cat <<EOF >> /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
 
 AuthenticationMethods publickey
@@ -454,13 +458,20 @@ HostKeyAlgorithms ssh-ed25519
 Ciphers chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com
 MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,hmac-sha2-512
 EOF
-
+) && \
 # create ssh_host_* files in build_into_srm/etc/ssh/
-ssh-keygen -A -f /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm
+ssh-keygen -A -f /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm; echo $?
+```
 
-# disable magic sysrq due to security considerations
+Disable magic SysRq key for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
+
+```bash
 echo "kernel.sysrq = 0" > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
+```
 
+Create settings YAML (copy&paste one after the other):
+
+```bash
 # disable bash history
 set +o history
 # replace "MyPassWord123" with the password you want to use to login via TTY on SystemRescueCD
@@ -491,7 +502,11 @@ EOF
 
 # Delete variable
 unset CRYPT_PASS
+```
 
+Create firewall rules:
+
+```bash
 # set firewall rules upon bootup.
 cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun
 #!/bin/bash
