@@ -7,6 +7,14 @@ The following installation guide results in a **fully encrypted, Secure Boot sig
 - **Remote:** SSH login into initramfs+dropbear system, manual decryption of LUKS partitions and resumption of Gentoo Linux boot
 - After boot into **rescue system** based upon a **customised SystemRescueCD**
 
+After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
+
+- Gentoo Linux system: `ssh -p 50022 david@<IP address>`
+- Initramfs system to LUKS unlock remotely (further info at the bottom of this page): `ssh -p 50023 david@<IP address`
+- Customised SystemRescueCD system: `ssh -p 50024 david@<IP address`
+
+All three boot options are available in GRUB's boot menu.
+
 ## Disk layout
 
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
