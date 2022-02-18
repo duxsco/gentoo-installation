@@ -409,17 +409,17 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all; echo $?
 Prepare working directory:
 
 ```bash
-mkdir -p /mnt/gentoo/etc/systemrescuecd && \
-chown meh: /mnt/gentoo/etc/systemrescuecd
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
+chown meh: /mnt/gentoo/etc/gentoo-installation/systemrescuecd
 ```
 
 Download .iso and .asc file:
 
 ```bash
 RESCUE_SYSTEM_VERSION="$(su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.2 --ciphers \"ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384\" --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download\""
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.2 --ciphers \"ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384\" --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download\""
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc\""
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc\""
 ); echo $?
 ```
 
@@ -427,24 +427,24 @@ Verify the .iso file:
 
 ```bash
 (
-su -l meh -c "gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/systemrescuecd/systemrescue.iso"
+su -l meh -c "gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso"
 ) && (
 su -l meh -c "gpgconf --homedir /tmp/gpgHomeDir --kill all"
 ) && \
-chown -R root: /mnt/gentoo/etc/systemrescuecd; echo $?
+chown -R root: /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 ```
 
 Create folder structure and `authorized_keys` file (copy&paste one after the other):
 
 ```bash
-mkdir -p /mnt/gentoo/etc/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh}},work}
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh}},work}
 
 # add your ssh public keys to
-# /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
+# /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
 
 # set correct modes
-chmod u=rwx,g=rx,o= /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/root
-chmod -R go= /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/root/.ssh
+chmod u=rwx,g=rx,o= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
+chmod -R go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 ```
 
 Configure OpenSSH:
@@ -454,11 +454,11 @@ Configure OpenSSH:
 sed \
 -e 's/^#Port 22$/Port 50024/' \
 -e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 
-grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  && \
+grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  && \
 (
-cat <<EOF >> /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
+cat <<EOF >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
 
 AuthenticationMethods publickey
 
@@ -469,13 +469,13 @@ MACs hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha2-256,h
 EOF
 ) && \
 # create ssh_host_* files in build_into_srm/etc/ssh/
-ssh-keygen -A -f /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm; echo $?
+ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm; echo $?
 ```
 
 Disable magic SysRq key for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
 ```bash
-echo "kernel.sysrq = 0" > /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
+echo "kernel.sysrq = 0" > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
 ```
 
 Create settings YAML (copy&paste one after the other):
@@ -489,7 +489,7 @@ CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt
 set -o history
 
 # set default settings
-cat <<EOF > /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml
+cat <<EOF > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml
 ---
 global:
     copytoram: true
@@ -517,8 +517,8 @@ Create firewall rules:
 
 ```bash
 # set firewall rules upon bootup.
-rsync -av /tmp/firewall_base.sh /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun && \
-cat <<EOF >> /mnt/gentoo/etc/systemrescuecd/recipe/iso_add/autorun/autorun; echo $?
+rsync -av /tmp/firewall_base.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun && \
+cat <<EOF >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun; echo $?
 
 iptables -A INPUT -p tcp --dport 50024 -m conntrack --ctstate NEW -j ACCEPT
 ip6tables -A INPUT -p tcp --dport 50024 -m conntrack --ctstate NEW -j ACCEPT
@@ -528,14 +528,14 @@ EOF
 Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
 
 ```bash
-find /mnt/gentoo/etc/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
+find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
 ```
 
 Result:
 
 ```bash
-# tree -a /mnt/gentoo/etc/systemrescuecd/recipe
-/mnt/gentoo/etc/systemrescuecd/recipe
+# tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+/mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├── build_into_srm
 │   ├── etc
 │   │   ├── ssh
@@ -567,14 +567,14 @@ Result:
 Create customised ISO:
 
 ```bash
-sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/systemrescuecd/recipe -w /mnt/gentoo/etc/systemrescuecd/work
+sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work
 ```
 
 Copy system rescue files to the `rescue` partition:
 
 ```bash
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
-mount -o loop,ro /mnt/gentoo/etc/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
+mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
 mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ && \
 umount /mnt/iso; echo $?
@@ -855,8 +855,8 @@ emerge -av app-crypt/efitools app-crypt/sbsigntools
 Create Secure Boot keys and certificates:
 
 ```bash
-mkdir --mode=0700 /etc/secureboot && \
-pushd /etc/secureboot && \
+mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
+pushd /etc/gentoo-installation/secureboot && \
 
 # Create the keys
 openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
@@ -994,7 +994,7 @@ Setup `dropbear` config directory and `/etc/dropbear/authorized_keys`:
 
 ```bash
 mkdir --mode=0755 /etc/dropbear && \
-rsync -a /etc/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /etc/dropbear/; echo $?
+rsync -a /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /etc/dropbear/; echo $?
 ```
 
 ## Grub
@@ -1035,7 +1035,7 @@ In the following, a minimal Grub config for each EFI system partition is created
 ls -1d /efi* | while read -r I; do
 UUID="$(blkid -s UUID -o value "/devEfi${I#/efi}")"
 
-cat <<EOF > "/etc/secureboot/grub-initial_${I#/}.cfg"
+cat <<EOF > "/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg"
 # Enforce that all loaded files must have a valid signature.
 set check_signatures=enforce
 export check_signatures
@@ -1072,7 +1072,7 @@ Setup remote LUKS unlocking:
 
 ```bash
 # Change settings depending on your requirements; set correct MAC address for XX:XX:XX:XX:XX:XX
-echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:XX:XX gk.sshd.port=50023" > /root/.grub_dosshd.config
+echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:XX:XX gk.sshd.port=50023" > /etc/gentoo-installation/systemrescuecd_dosshd.conf
 ```
 
 Create the Grub config to boot into the rescue system:
@@ -1223,7 +1223,7 @@ Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one af
 KEY_ID="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
 
 # Export public key
-gpg --export-options export-minimal --export "${KEY_ID}" > /etc/secureboot/gpg.pub; echo $?
+gpg --export-options export-minimal --export "${KEY_ID}" > /etc/gentoo-installation/secureboot/gpg.pub; echo $?
 
 # If signature creation fails...
 GPG_TTY="$(tty)"
@@ -1231,7 +1231,7 @@ export GPG_TTY
 
 # Sign initial grub.cfg
 ls -1d /efi* | while read -r I; do
-    gpg --local-user "${KEY_ID}" --detach-sign "/etc/secureboot/grub-initial_${I#/}.cfg"; echo $?
+    gpg --local-user "${KEY_ID}" --detach-sign "/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg"; echo $?
 done
 
 # Stop the gpg-agent
@@ -1274,11 +1274,11 @@ ls -1d /efi* | while read -r I; do
         --disable-shim-lock \
         --format x86_64-efi \
         --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${MODULES}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)" \
-        --pubkey /etc/secureboot/gpg.pub \
+        --pubkey /etc/gentoo-installation/secureboot/gpg.pub \
         --output "${I}/EFI/boot/bootx64.efi" \
-        "boot/grub/grub.cfg=/etc/secureboot/grub-initial_${I#/}.cfg" \
-        "boot/grub/grub.cfg.sig=/etc/secureboot/grub-initial_${I#/}.cfg.sig" && \
-    sbsign --key /etc/secureboot/db.key --cert /etc/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
+        "boot/grub/grub.cfg=/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg" \
+        "boot/grub/grub.cfg.sig=/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg.sig" && \
+    sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
     efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${I/efi/devEfi}")")" --part 1 --label "gentoo ${I#/}" --loader '\EFI\boot\bootx64.efi'
     echo $?
 done
@@ -1638,9 +1638,9 @@ bash -c '
 ! mountpoint /efia && \\
 mount /efia || true
 ) && \\
-openssl x509 -outform der -in /etc/secureboot/db.crt -out /efia/db.der && \\
-openssl x509 -outform der -in /etc/secureboot/KEK.crt -out /efia/KEK.der && \\
-openssl x509 -outform der -in /etc/secureboot/PK.crt -out /efia/PK.der; echo $?
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der && \\
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der && \\
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /efia/PK.der; echo $?
 '
 ```
 
