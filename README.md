@@ -1613,7 +1613,8 @@ iptables -A INPUT -p tcp --dport 50022 -m conntrack --ctstate NEW -j ACCEPT
 ip6tables -A INPUT -p tcp --dport 50022 -m conntrack --ctstate NEW -j ACCEPT
 EOF
 ) && \
-chmod u+x /usr/local/sbin/firwall.sh; echo $?
+chown root: /usr/local/sbin/firewall.sh && \
+chmod u+x /usr/local/sbin/firewall.sh; echo $?
 ```
 
 Save firewall rules:
