@@ -99,7 +99,7 @@ ls -1 /boot/{grub_efi[a-z].cfg,System.map-"${KERNEL_VERSION}"-x86_64{,-ssh},init
 if ls -1 /boot/*"${KERNEL_VERSION}"*.old >/dev/null 2>&1; then
     echo -e "\n\033[1;31mEither delete OR
 sign old files to keep files for backup purposes while
-preventing \"kernel_rsync.sh\" from throwing an alarm:\033[0m"
+preventing \"boot2efi.sh\" from throwing an alarm:\033[0m"
     ls -1 /boot/*"${KERNEL_VERSION}"*.old
 fi
 
