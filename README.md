@@ -233,6 +233,7 @@ hwclock --systohc --utc
 If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk:
 
 ```bash
+# Change disk name to the one you want to wipe
 DISK="/dev/sda"
 lsblk -npo kname "${DISK}" | sort -r | while read -r I; do wipefs -a "$I"; done
 ```
