@@ -674,7 +674,7 @@ NUMBER_CORES="$(nproc --all)" && \
 [[ $((NUMBER_CORES*2)) -le ${RAM_SIZE} ]] && JOBS="${NUMBER_CORES}" || JOBS="$(bc <<<"${RAM_SIZE} / 2")" && \
 cat <<EOF >> /mnt/gentoo/etc/portage/make.conf; echo $?
 
-MAKEOPTS="-j${JOBS}
+MAKEOPTS="-j${JOBS}"
 EOF
 ```
 
