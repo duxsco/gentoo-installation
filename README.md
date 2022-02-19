@@ -322,9 +322,9 @@ su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercont
 ) && (
 su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/02_defaults_initrd.scripts_dosshd.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/sha256.txt\"" > /tmp/genkernel_sha256.txt
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/sha512.txt\"" > /tmp/genkernel_sha512.txt
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/sha256.txt.asc\"" > /tmp/genkernel_sha256.txt.asc
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/sha512.txt.asc\"" > /tmp/genkernel_sha512.txt.asc
 ); echo $?
 ```
 
@@ -336,15 +336,15 @@ su - meh
 
 # Verify GPG signature. Btw, the GPG key is the same one I use to sign my commits:
 # https://github.com/duxsco/gentoo-genkernel-patches/commits/main
-gpg --homedir /tmp/gpgHomeDir --verify /tmp/genkernel_sha256.txt.asc /tmp/genkernel_sha256.txt
+gpg --homedir /tmp/gpgHomeDir --verify /tmp/genkernel_sha512.txt.asc /tmp/genkernel_sha512.txt
 gpg: Signature made Tue 01 Feb 2022 12:22:06 AM UTC
 gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
 gpg:                issuer "d@XXXXXX.de"
 gpg: Good signature from "David Sardari <d@XXXXXX.de>" [ultimate]
 gpg: Preferred keyserver: hkps://keys.duxsco.de
 
-# Add paths to sha256.txt and verify
-sed 's|  |  /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/|' /tmp/genkernel_sha256.txt | sha256sum -c -
+# Add paths to sha512.txt and verify
+sed 's|  |  /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/|' /tmp/genkernel_sha512.txt | sha512sum -c -
 /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch: OK
 /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch: OK
 /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch: OK
@@ -364,9 +364,9 @@ Download [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs):
 (
 su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh" > /mnt/gentoo/usr/local/sbin/gkb2gs.sh
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha256" > /tmp/gkb2gs.sh.sha256
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha512" > /tmp/gkb2gs.sh.sha512
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha256.asc" > /tmp/gkb2gs.sh.sha256.asc
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha512.asc" > /tmp/gkb2gs.sh.sha512.asc
 ); echo $?
 ```
 
@@ -377,15 +377,15 @@ Verify gkb2gs (copy&paste one after the other):
 su - meh
 
 # And, verify as already done above for genkernel user patches
-gpg --homedir /tmp/gpgHomeDir --verify /tmp/gkb2gs.sh.sha256.asc /tmp/gkb2gs.sh.sha256
+gpg --homedir /tmp/gpgHomeDir --verify /tmp/gkb2gs.sh.sha512.asc /tmp/gkb2gs.sh.sha512
 gpg: Signature made Sat 01 Jan 2022 01:58:07 PM UTC
 gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
 gpg:                issuer "d@XXXXXX.de"
 gpg: Good signature from "David Sardari <d@XXXXXX.de>" [ultimate]
 gpg: Preferred keyserver: hkps://keys.duxsco.de
 
-# Add paths to sha256.txt and verify
-sed 's|  |  /mnt/gentoo/usr/local/sbin/|' /tmp/gkb2gs.sh.sha256 | sha256sum -c -
+# Add paths to sha512.txt and verify
+sed 's|  |  /mnt/gentoo/usr/local/sbin/|' /tmp/gkb2gs.sh.sha512 | sha512sum -c -
 /mnt/gentoo/usr/local/sbin/gkb2gs.sh: OK
 
 # Stop the gpg-agent
