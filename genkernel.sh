@@ -24,6 +24,36 @@ elif ! [[ ${CLEAR_CCACHE} =~ ^[nN]$ ]]; then
     exit 1
 fi
 
+if [ -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
+    BOOT_ENTRY="$(cat "/etc/gentoo-installation/grub_default_boot_option.conf")"
+else
+    read -r -p "Available boot options:
+  0) Remote LUKS unlock via initramfs+dropbear
+  1) Local LUKS unlock via TTY/IPMI
+  2) SystemRescueCD
+  3) Enforce manual selection upon each boot
+
+Please, select your option [0-3]: " BOOT_ENTRY
+    echo ""
+fi
+
+NUMBER_REGEX='^[0-3]$'
+if ! [[ ${BOOT_ENTRY} =~ ${NUMBER_REGEX} ]]; then
+    if [ -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
+        echo -e "\"/etc/gentoo-installation/grub_default_boot_option.conf\" misconfigured! Aborting...\n"
+    else
+        echo -e "Invalid choice! Aborting...\n"
+    fi
+    exit 1
+elif [ ! -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
+    cat <<EOF
+You can persist your choice by storing
+your selection in the configuration file, e.g.:
+echo ${BOOT_ENTRY} > /etc/gentoo-installation/grub_default_boot_option.conf
+
+EOF
+fi
+
 genkernel --initramfs-overlay="/key" --menuconfig all
 
 echo ""
@@ -48,7 +78,13 @@ grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfa
     UUID="$(grep -Po "(?<=^UUID=)[0-9A-F]{4}-[0-9A-F]{4}(?=[[:space:]]+/${I}[[:space:]]+vfat[[:space:]]+)" /etc/fstab)"
     GRUB_SSH_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | grep -v -e "^[[:space:]]*cryptomount[[:space:]]" -e "^[[:space:]]*set[[:space:]]*root=" | sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${UUID}/" -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(cat /etc/gentoo-installation/systemrescuecd_dosshd.conf)|" -e 's/root_key=key//' -e 's/swap_key=key//')"
 
-    cat <<EOF > "/boot/grub_${I}.cfg"
+    if [[ ${BOOT_ENTRY} -ne 3 ]]; then
+        echo -e "set default=${BOOT_ENTRY}\nset timeout=5\n" > "/boot/grub_${I}.cfg"
+    elif [ -f "/boot/grub_${I}.cfg" ]; then
+        rm -f "/boot/grub_${I}.cfg"
+    fi
+
+    cat <<EOF >> "/boot/grub_${I}.cfg"
 ${GRUB_SSH_CONFIG}
 
 ${GRUB_LOCAL_CONFIG}
