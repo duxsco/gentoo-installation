@@ -1605,6 +1605,7 @@ reboot
 Create firewall rules:
 
 ```bash
+bash -c '
 rsync -av /root/firewall_base.sh /usr/local/sbin/firewall.sh && \
 (
 cat <<EOF >> /usr/local/sbin/firewall.sh
@@ -1615,11 +1616,13 @@ EOF
 ) && \
 chown root: /usr/local/sbin/firewall.sh && \
 chmod u+x /usr/local/sbin/firewall.sh; echo $?
+'
 ```
 
 Save firewall rules:
 
 ```bash
+bash -c '
 (
 [ ! -f /sbin/iptables ] && emerge iptables || true
 )  && \
@@ -1628,6 +1631,7 @@ rc-service iptables save && \
 rc-service ip6tables save && \
 rc-update add iptables default && \
 rc-update add ip6tables default; echo $?
+'
 ```
 
 ## Installation of Secure Boot files via UEFI Firmware Settings
