@@ -45,13 +45,6 @@ if ! [[ ${BOOT_ENTRY} =~ ${NUMBER_REGEX} ]]; then
         echo -e "Invalid choice! Aborting...\n"
     fi
     exit 1
-elif [ ! -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
-    cat <<EOF
-You can persist your choice by storing
-your selection in the configuration file, e.g.:
-echo ${BOOT_ENTRY} > /etc/gentoo-installation/grub_default_boot_option.conf
-
-EOF
 fi
 
 genkernel --initramfs-overlay="/key" --menuconfig all
@@ -105,4 +98,13 @@ fi
 
 if [ "${UNMOUNT_BOOT}" == "true" ]; then
     umount /boot
+fi
+
+if [ ! -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
+    cat <<EOF
+You can persist your choice by storing
+your selection in the configuration file, e.g.:
+echo ${BOOT_ENTRY} > /etc/gentoo-installation/grub_default_boot_option.conf
+
+EOF
 fi
