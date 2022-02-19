@@ -228,6 +228,8 @@ hwclock --systohc --utc
 
 ## Disk setup and stage3/portage tarball installation
 
+### Wiping disks
+
 `disk.sh` expects the disks, where you want to install Gentoo Linux on, to be completely empty.
 
 If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk:
@@ -239,6 +241,8 @@ lsblk -npo kname "${DISK}" | sort -r | while read -r I; do wipefs -a "$I"; done
 ```
 
 > ⚠ If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. https://wiki.archlinux.org/title/Securely_wipe_disk ⚠
+
+### Disk setup
 
 Prepare the disks (copy&paste one after the other):
 
@@ -256,6 +260,65 @@ set -o history
 ```
 
 `disk.sh` creates user "meh" which will be used later on to act as non-root.
+
+### /mnt/gentoo content
+
+Result of a single disk setup:
+
+```bash
+# tree -a /mnt/gentoo/
+/mnt/gentoo/
+├── devBoot -> /dev/sda2
+├── devEfia -> /dev/sda1
+├── devRescue -> /dev/sda3
+├── devSwapa -> /dev/sda4
+├── devSystema -> /dev/sda5
+├── key
+│   └── mnt
+│       └── key
+│           └── key
+├── mapperBoot -> /dev/mapper/sda2
+├── mapperRescue -> /dev/mapper/sda3
+├── mapperSwap -> /dev/mapper/sda4
+├── mapperSystem -> /dev/mapper/sda5
+├── portage-latest.tar.xz
+├── portage-latest.tar.xz.gpgsig
+├── stage3-amd64-hardened-nomultilib-selinux-openrc-20220217T125149Z.tar.xz
+└── stage3-amd64-hardened-nomultilib-selinux-openrc-20220217T125149Z.tar.xz.asc
+
+3 directories, 14 files
+```
+
+... and dual disk setup:
+
+```bash
+# tree -a /mnt/gentoo/
+/mnt/gentoo/
+├── devBoot -> /dev/md0
+├── devEfia -> /dev/sda1
+├── devEfib -> /dev/sdb1
+├── devRescue -> /dev/md1
+├── devSwapa -> /dev/sda4
+├── devSwapb -> /dev/sdb4
+├── devSystema -> /dev/sda5
+├── devSystemb -> /dev/sdb5
+├── key
+│   └── mnt
+│       └── key
+│           └── key
+├── mapperBoot -> /dev/mapper/md0
+├── mapperRescue -> /dev/mapper/md1
+├── mapperSwap -> /dev/md2
+├── mapperSystem -> /dev/mapper/sda5
+├── portage-latest.tar.xz
+├── portage-latest.tar.xz.gpgsig
+├── stage3-amd64-hardened-nomultilib-selinux-openrc-20220217T125149Z.tar.xz
+└── stage3-amd64-hardened-nomultilib-selinux-openrc-20220217T125149Z.tar.xz.asc
+
+3 directories, 17 files
+```
+
+### Extracting tarballs
 
 > ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
