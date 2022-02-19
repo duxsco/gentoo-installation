@@ -237,6 +237,17 @@ hwclock --systohc --utc
 
 ## Disk setup and stage3/portage tarball installation
 
+`disk.sh` expects the disks, where you want to install Gentoo Linux on, to be completely empty.
+
+If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk:
+
+```bash
+DISK="/dev/sda"
+lsblk -npo kname "${DISK}" | sort -r | while read -r I; do wipefs -a "$I"; done
+```
+
+> ⚠ If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. https://wiki.archlinux.org/title/Securely_wipe_disk ⚠
+
 Prepare the disks (copy&paste one after the other):
 
 ```bash
