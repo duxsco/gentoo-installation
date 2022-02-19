@@ -190,25 +190,16 @@ Execute following SCP/SSH commands **on your local machine** (copy&paste one aft
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-scp -P XXX {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh} root@XXX:/tmp/
-
-# Send checksums
-sha256sum disk.sh fetch_files.sh genkernel.sh boot2efi.sh firewall_base.sh | sed 's#  #  /tmp/#' | ssh -p XXX root@... dd of=/tmp/sha256.txt
+rsync -cav {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
-ssh -p XXX root@...
+ssh root@...
 ```
 
 Resume `screen`:
 
 ```bash
 screen -d -r install
-```
-
-Check file hashes:
-
-```bash
-sha256sum -c /tmp/sha256.txt
 ```
 
 (Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**):
