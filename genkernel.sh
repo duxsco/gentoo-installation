@@ -102,9 +102,9 @@ fi
 
 if [ ! -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
     cat <<EOF
-You can persist your choice by storing
-your selection in the configuration file, e.g.:
-echo ${BOOT_ENTRY} > /etc/gentoo-installation/grub_default_boot_option.conf
 
+You can persist your choice made in GRUB's boot menu
+by storing your selection in the configuration file, e.g.:
+echo ${BOOT_ENTRY} > /etc/gentoo-installation/grub_default_boot_option.conf
 EOF
 fi
