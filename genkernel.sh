@@ -86,15 +86,13 @@ $(grep -A999 "^menuentry" /etc/grub.d/40_custom)
 EOF
 done
 
-echo -e "\n\033[1;32mSign these files:\033[0m"
-ls -1 /boot/{grub_efi[a-z].cfg,System.map-"${KERNEL_VERSION}"-x86_64{,-ssh},initramfs-"${KERNEL_VERSION}"-x86_64{,-ssh}.img,vmlinuz-"${KERNEL_VERSION}"-x86_64{,-ssh}}
-
 if ls -1 /boot/*"${KERNEL_VERSION}"*.old >/dev/null 2>&1; then
-    echo -e "\n\033[1;31mEither delete OR
-sign old files to keep files for backup purposes while
-preventing \"boot2efi.sh\" from throwing an alarm:\033[0m"
+    echo -e "\n\033[1;31mDelete these files if you don't want to keep them:\033[0m"
     ls -1 /boot/*"${KERNEL_VERSION}"*.old
 fi
+
+echo -e "\n\033[1;32mSign all files in \"/boot\":\033[0m"
+echo 'find /boot -type f ! -name "*\.sig" -exec gpg --detach-sign {} \;'
 
 if [ "${UNMOUNT_BOOT}" == "true" ]; then
     umount /boot
