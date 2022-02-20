@@ -1682,6 +1682,13 @@ chmod u+x /usr/local/sbin/firewall.sh; echo $?
 '
 ```
 
+Don't save firewall rules on shutdown:
+
+```bash
+sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/iptables
+sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/ip6tables
+```
+
 Save firewall rules:
 
 ```bash
