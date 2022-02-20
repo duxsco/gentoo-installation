@@ -1728,6 +1728,38 @@ openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /e
 
 Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successfull boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
 
+## Enable SELinux
+
+Enable SELinux via kernel command-line parameter in GRUB config:
+
+```bash
+sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"$/GRUB_CMDLINE_LINUX_DEFAULT="\1 lsm=selinux"/' /etc/default/grub
+```
+
+Recreate `grub.conf`. Alternatively, you can follow the steps in [kernel update](#update-linux-kernel). For kernel recreation, I wouldn't delete ccache in order to speed up things. Reboot the system thereafter.
+
+After bootup, [relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel). But, don't forget to mount `/boot` and all `/efi*` first. Make sure to apply the `setfiles` command on `/boot`, `/var/cache/distfiles`, `/var/db/repos/gentoo` and all `/efi*`.
+
+Add the initial user to the administration SELinux user, and take care of services:
+- https://wiki.gentoo.org/wiki/SELinux/Installation#Define_the_administrator_accounts
+- https://wiki.gentoo.org/wiki/SELinux/Installation#Supporting_service_administration
+
+Setup `app-admin/sudo`:
+
+```bash
+bash -c 'echo "%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?'
+```
+
+Edit `/etc/selinux/config` to your liking.
+
+Enable logging:
+
+```bash
+rc-update add auditd
+```
+
+Reboot again.
+
 ## Update Linux kernel
 
 For every kernel update, execute:
@@ -1746,8 +1778,6 @@ gkb2gs.sh
 
 # Customise kernel configuration and build kernel
 genkernel.sh
-
-# GnuPG sign files printed out by genkernel.sh
 
 # Copy files from /boot to /efi*
 boot2efi.sh
