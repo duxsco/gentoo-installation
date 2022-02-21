@@ -205,6 +205,10 @@ screen -d -r install
 (Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**):
 
 ```bash
+# If you have set /root/.authorized_keys in the previous step
+# and haven't executed "passwd" make sure to do it now for "vlock" to work...
+passwd root
+
 # Execute "vlock" without any flags first.
 # If relogin doesn't work you can switch tty to fix (e.g. set password again).
 # If relogin succeeds execute vlock with flag "-a" to lock all tty.
