@@ -186,7 +186,7 @@ Print out fingerprints to double check upon initial SSH connection to the System
 find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
 ```
 
-Execute following SCP/SSH commands **on your local machine** (copy&paste one after the other):
+Execute following `rsync` and `ssh` command **on your local machine** (copy&paste one after the other):
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
@@ -940,7 +940,7 @@ sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
 popd; echo $?
 ```
 
-If the following commands don't work you have install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
+If the following commands don't work you have to install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
 
 ```bash
 # Make them mutable
