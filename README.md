@@ -877,6 +877,14 @@ cat <<EOF >> /home/david/.bashrc
 alias cp="cp -i"
 alias mv="mv -i"
 alias rm="rm -i"
+
+# Execute glsa-check once a day
+if [ ! -f "${HOME}/.glsa_check_timestamp" ] || [[ $(($(cat "${HOME}/.glsa_check_timestamp") + 86400))  -lt $(date --utc +%s) ]]; then
+  echo "Executing glsa-check..."
+  glsa-check -t all
+  echo ""
+  date --utc +%s > "${HOME}/.glsa_check_timestamp"
+fi
 EOF
 ) && \
 passwd david
