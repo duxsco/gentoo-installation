@@ -10,8 +10,8 @@ The following installation guide results in a **fully encrypted, Secure Boot sig
 After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
 
 - Gentoo Linux system: `ssh -p 50022 david@<IP address>`
-- Initramfs system to LUKS unlock remotely (further info at the bottom of this page): `ssh -p 50023 david@<IP address`
-- Customised SystemRescueCD system: `ssh -p 50024 david@<IP address`
+- Initramfs system to LUKS unlock remotely (further info at the bottom of this page): `ssh -p 50023 root@<IP address`
+- Customised SystemRescueCD system: `ssh -p 50024 root@<IP address`
 
 All three boot options are available in GRUB's boot menu.
 
@@ -205,7 +205,7 @@ screen -d -r install
 (Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**):
 
 ```bash
-# If you have set /root/.authorized_keys in the previous step
+# If you have set /root/.ssh/authorized_keys in the previous step
 # and haven't executed "passwd" make sure to do it now for "vlock" to work...
 passwd root
 
