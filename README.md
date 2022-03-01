@@ -218,7 +218,7 @@ vlock -a
 Set date if system time is not correct:
 
 ```bash
-! grep -q "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 # replace "MMDDhhmmYYYY" with UTC time
 date MMDDhhmmYYYY
 ```
@@ -226,7 +226,7 @@ date MMDDhhmmYYYY
 Update hardware clock:
 
 ```bash
-! grep -q "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 hwclock --systohc --utc
 ```
 
@@ -1011,7 +1011,7 @@ EOF
 Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
 
 ```bash
-! grep -q "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
 echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
 echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use && \
@@ -1490,7 +1490,7 @@ rc-update add acpid default; echo $?
   - chrony:
 
 ```bash
-! grep -q "[[:space:]]hypervisor[[:space:]]" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 emerge net-misc/chrony && \
 rc-update add chronyd default && \
 sed -i 's/^server/#server/' /etc/chrony/chrony.conf && \
