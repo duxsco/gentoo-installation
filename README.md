@@ -879,7 +879,7 @@ alias mv="mv -i"
 alias rm="rm -i"
 
 # Execute glsa-check once a day
-if [ ! -f "${HOME}/.glsa_check_timestamp" ] || [[ $(($(cat "${HOME}/.glsa_check_timestamp") + 86400))  -lt $(date --utc +%s) ]]; then
+if [ ! -f "${HOME}/.glsa_check_timestamp" ] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt $(date -d '-1 day' '+%s') ]]; then
   echo "Executing glsa-check..."
   glsa-check -t all
   echo ""
