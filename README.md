@@ -873,7 +873,7 @@ Create user:
 ```bash
 useradd -m -G wheel -s /bin/bash david && \
 chmod og= /home/david && (
-cat <<EOF >> /home/david/.bashrc
+cat <<'EOF' >> /home/david/.bashrc
 alias cp="cp -i"
 alias mv="mv -i"
 alias rm="rm -i"
@@ -1373,7 +1373,7 @@ ls -1d /efi* | while read -r I; do
 done
 ```
 
-Result:
+Result on a dual disk system:
 
 ```bash
 tree -a /boot /efi*
@@ -1697,7 +1697,7 @@ chmod u+x /usr/local/sbin/firewall.sh; echo $?
 Don't save firewall rules on shutdown:
 
 ```bash
-sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/iptables
+sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/iptables && \
 sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/ip6tables
 ```
 
