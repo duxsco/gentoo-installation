@@ -19,7 +19,7 @@ All three boot options are available in GRUB's boot menu.
 
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
 
-The number of disks, where Gentoo Linux will be installed, must be less than 5. Depending on the number of disks, BTRFS "single", "raid1", "raid1c3" or "raid1c4" is used for the `system` partition where the Btrfs subvolumes are located (`@root`, `@home` etc.). Furthermore, MDADM RAID 1 may be used for `boot`, `rescue` and `swap` partitions. And, EFI System Partitions each with their own EFI entry are created one for each disk.
+Depending on the number of disks and the `disk.sh` options chosen, BTRFS "single", "raid1", "raid1c3", "raid1c4", "raid10", "raid5" or "raid6" is used for the data block groups of the `system` partition where the Btrfs subvolumes are located (`@root`, `@home` etc.). `single` or a RAID 1 flavour is always used for [metadata block groups](https://btrfs.wiki.kernel.org/index.php/RAID56). Furthermore, MDADM RAID 1 may be used for `boot`, `rescue` and `swap` partitions with RAID 10, RAID 5 and RAID 6 being further options for `swap`. And, EFI System Partitions each with their own EFI entry are created one for each disk.
 
 - Single disk:
 
@@ -85,10 +85,10 @@ PC∕Laptop───────────────────────
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
     │           └── rescue             │           └── rescue             │           └── rescue
     ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS
-    │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1
+    │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP
     └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
-        └── BTRFS (raid1c3)                └── BTRFS (raid1c3)                └── BTRFS (raid1c3)
+        └── BTRFS (raid1c3|raid5)          └── BTRFS (raid1c3|raid5)          └── BTRFS (raid1c3|raid5)
             └── subvolume                      └── subvolume                      └── subvolume
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home                          ├── @home
@@ -111,16 +111,18 @@ PC∕Laptop───────────────────────
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
     │           └── rescue             │           └── rescue             │           └── rescue             │           └── rescue
     ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS
-    │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1               │   └── MDADM RAID 1
+    │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
     └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
-        └── BTRFS (raid1c4)                └── BTRFS (raid1c4)                └── BTRFS (raid1c4)                └── BTRFS (raid1c4)
+        └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)
             └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home                          ├── @home                          ├── @home
                 ├── @portage                       ├── @portage                       ├── @portage                       ├── @portage
                 └── @root                          └── @root                          └── @root                          └── @root
 ```
+
+- More disks can be used. RAID 10 is only available to setups with an even number of disks.
 
 On LUKS encrypted disks except for the `rescue` partition where the SystemRescueCD files are located, LUKS passphrase slots are set as follows:
   - 0: Keyfile (stored in initramfs to unlock `system` and `swap` partitions without interaction)
@@ -293,7 +295,7 @@ Result of a single disk setup:
 3 directories, 14 files
 ```
 
-... and dual disk setup:
+... and four disk setup:
 
 ```bash
 # tree -a /mnt/gentoo/
@@ -301,11 +303,17 @@ Result of a single disk setup:
 ├── devBoot -> /dev/md0
 ├── devEfia -> /dev/sda1
 ├── devEfib -> /dev/sdb1
+├── devEfic -> /dev/sdc1
+├── devEfid -> /dev/sdd1
 ├── devRescue -> /dev/md1
 ├── devSwapa -> /dev/sda4
 ├── devSwapb -> /dev/sdb4
+├── devSwapc -> /dev/sdc4
+├── devSwapd -> /dev/sdd4
 ├── devSystema -> /dev/sda5
 ├── devSystemb -> /dev/sdb5
+├── devSystemc -> /dev/sdc5
+├── devSystemd -> /dev/sdd5
 ├── key
 │   └── mnt
 │       └── key
@@ -316,10 +324,10 @@ Result of a single disk setup:
 ├── mapperSystem -> /dev/mapper/sda5
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-hardened-nomultilib-selinux-openrc-20220217T125149Z.tar.xz
-└── stage3-amd64-hardened-nomultilib-selinux-openrc-20220217T125149Z.tar.xz.asc
+├── stage3-amd64-hardened-nomultilib-selinux-openrc-20220227T170528Z.tar.xz
+└── stage3-amd64-hardened-nomultilib-selinux-openrc-20220227T170528Z.tar.xz.asc
 
-3 directories, 17 files
+3 directories, 23 files
 ```
 
 ### Extracting tarballs

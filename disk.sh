@@ -10,11 +10,23 @@ ${0##*\/} -b BootPassword -m MasterPassword -r RescuePassword -d "/dev/nvme0n1 /
 
 "-d" specifies the disks you want to use for installation.
 They should be of the same type and size. Don't mix HDDs with SSDs!
-Number of disks must be >=2 and <=4!
 
-"-e" (optional) specifies EFI System Partition size in MiB (default and recommended minimum: 512 MiB).
-"-f" (optional) specifies /boot partition size in MiB (default: 512 MiB).
-"-i" (optional) specifies SystemRescueCD partition size in MiB (default: 5120 MiB; recommended minimum: 1024 MiB)
+By default, RAID 1 is used for multi-disk setups.
+This can be changed for "swap" and "system" partitions.
+In case of the "system" partition (contains @home, @root etc.),
+this is only applied to the data group blocks,
+while raid1, raid1c3 or raid1c4 is used for metadata group blocks, due to:
+https://btrfs.wiki.kernel.org/index.php/RAID56
+
+Optional RAID flags:
+"-5": Create RAID 5 devices which require >=3 disks.
+"-6": Create RAID 6 devices which require >=4 disks.
+"-t": Create RAID 10 devices which require >=4+2*x disks with x being a non-negative integer.
+
+Further optional flags:
+"-e": specifies EFI System Partition size in MiB (default and recommended minimum: 512 MiB).
+"-f": specifies /boot partition size in MiB (default: 512 MiB).
+"-i": specifies SystemRescueCD partition size in MiB (default: 5120 MiB; recommended minimum: 1024 MiB)
 EOF
     return 1
 }
@@ -34,10 +46,16 @@ getMapperPartitions() {
 EFI_SYSTEM_PARTITION_SIZE="512"
 BOOT_PARTITION_SIZE="512"
 RESCUE_PARTITION_SIZE="5120"
+RAID=""
+RAID5="false"
+RAID6="false"
+RAID10="false"
 
 # shellcheck disable=SC2207
-while getopts b:d:e:f:i:m:r:s:h opt; do
+while getopts 56b:d:e:f:i:m:r:s:th opt; do
     case $opt in
+        5) RAID5="true"; RAID="5";;
+        6) RAID6="true"; RAID="6";;
         b) BOOT_PASSWORD="$OPTARG";;
         d) DISKS=( $(xargs <<<"$OPTARG" | tr ' ' '\n' | sort | xargs) );;
         e) EFI_SYSTEM_PARTITION_SIZE="$OPTARG";;
@@ -46,21 +64,29 @@ while getopts b:d:e:f:i:m:r:s:h opt; do
         m) MASTER_PASSWORD="$OPTARG";;
         r) RESCUE_PASSWORD="$OPTARG";;
         s) SWAP_SIZE="$((OPTARG * 1024))";;
+        t) RAID10="true"; RAID="10";;
         h|?) help;;
     esac
 done
 
 # shellcheck disable=SC2068
-if [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ] || [ -z ${RESCUE_PASSWORD+x} ] || [ -z ${SWAP_SIZE+x} ] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
+if { [ "${RAID5}" == "true" ] && [ "${RAID6}" == "true" ]; } || \
+   { [ "${RAID6}" == "true" ] && [ "${RAID10}" == "true" ]; } || \
+   { [ "${RAID10}" == "true" ] && [ "${RAID5}" == "true" ]; } || \
+   { [[ ${#DISKS[@]} -lt 3 ]] && [[ ${RAID} -eq 5 ]]; } || \
+   { [[ ${#DISKS[@]} -lt 4 ]] && [[ ${RAID} -eq 6 ]]; } || \
+   { [[ ${#DISKS[@]} -lt 4 ]] && [[ ${RAID} -eq 10 ]]; } || \
+   { [[ $((${#DISKS[@]}%2)) -ne 0 ]] && [[ ${RAID} -eq 10 ]]; } || \
+   [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ] || \
+   [ -z ${RESCUE_PASSWORD+x} ] || [ -z ${SWAP_SIZE+x} ] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
     help
 fi
 
 case ${#DISKS[@]} in
-    1) BTRFS_RAID="single";;
-    2) BTRFS_RAID="raid1";;
-    3) BTRFS_RAID="raid1c3";;
-    4) BTRFS_RAID="raid1c4";;
-    *) help;;
+    1) BTRFS_RAID_DATA="single"; BTRFS_RAID_METADATA="single";;
+    2) BTRFS_RAID_DATA="raid1"; BTRFS_RAID_METADATA="raid1";;
+    3) BTRFS_RAID_DATA="raid${RAID:-1c3}"; BTRFS_RAID_METADATA="raid1c3";;
+    *) BTRFS_RAID_DATA="raid${RAID:-1c4}"; BTRFS_RAID_METADATA="raid1c4";;
 esac
 
 # create keyfile
@@ -145,14 +171,14 @@ if [ ${#DISKS[@]} -eq 1 ]; then
     SWAP_PARTITION="$(getMapperPartitions 4)"
 else
     SWAP_PARTITION="/dev/md2"
-    mdadm --create "${SWAP_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getMapperPartitions 4)
+    mdadm --create "${SWAP_PARTITION}" --level="${RAID:-1}" --raid-devices=${#DISKS[@]} --metadata=default $(getMapperPartitions 4)
 fi
 mkswap --label swap "${SWAP_PARTITION}"
 swapon "${SWAP_PARTITION}"
 
 # system partition
 # shellcheck disable=SC2046
-mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 --label system $(getMapperPartitions 5)
+mkfs.btrfs --data "${BTRFS_RAID_DATA}" --metadata "${BTRFS_RAID_METADATA}" --checksum blake2 --label system $(getMapperPartitions 5)
 
 if [ ! -d /mnt/gentoo ]; then
     mkdir /mnt/gentoo
