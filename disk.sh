@@ -140,7 +140,7 @@ find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartition
         NON_BOOT=""
     fi
     # shellcheck disable=SC2086
-    cryptsetup --batch-mode luksFormat ${NON_BOOT---type luks1} --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${NON_BOOT+--pbkdf argon2id} "$I"
+    cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${NON_BOOT+--pbkdf argon2id} "$I"
     if [[ ${INDEX} -eq 1 ]]; then
         echo -n "${RESCUE_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
     else
