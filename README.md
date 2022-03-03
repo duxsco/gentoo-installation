@@ -1112,11 +1112,10 @@ emerge sys-boot/grub; echo $?
 cat <<EOF >> /etc/default/grub; echo $?
 
 MY_CRYPT_ROOT="$(blkid -s UUID -o value /devSystem* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
-MY_CRYPT_SWAP="$(blkid -s UUID -o value /devSwap* | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
 MY_FS="rootfstype=btrfs rootflags=subvol=@root"
 MY_CPU="mitigations=auto,nosmt"
 MY_MOD="dobtrfs${MDADM_MOD}"
-GRUB_CMDLINE_LINUX_DEFAULT="\${MY_CRYPT_ROOT} \${MY_CRYPT_SWAP} \${MY_FS} \${MY_CPU} \${MY_MOD} keymap=de"
+GRUB_CMDLINE_LINUX_DEFAULT="\${MY_CRYPT_ROOT} \${MY_FS} \${MY_CPU} \${MY_MOD} keymap=de"
 GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
 EOF
@@ -1545,13 +1544,26 @@ rc-update add consolefont boot; echo $?
   - dmcrypt:
 
 ```bash
-LAST_LINE="$(cat /etc/conf.d/dmcrypt | tail -n 1)" && \
+LAST_LINE="$(tail -n 1 /etc/conf.d/dmcrypt)" && \
 sed -i '$ d' /etc/conf.d/dmcrypt && \
-echo "target='boot'
+(
+cat <<EOF >> /etc/conf.d/dmcrypt
+target='boot'
 source=UUID='$(blkid -s UUID -o value /devBoot)'
 key='/key/mnt/key/key'
 
-${LAST_LINE}" >> /etc/conf.d/dmcrypt && \
+EOF
+) && (
+find /devSwap* | while read -r I; do
+cat <<EOF
+target='swap_${I: -1}'
+source=UUID='$(blkid -s UUID -o value "${I}")'
+key='/key/mnt/key/key'
+
+EOF
+done
+) && \
+echo "${LAST_LINE}" >> /etc/conf.d/dmcrypt && \
 rc-update add dmcrypt boot; echo $?
 ```
 
@@ -1813,12 +1825,11 @@ boot2efi.sh
 SSH into the machine, execute `cryptsetup luksOpen` for every LUKS volume you want to open. Example:
 
 ```bash
-# At least luksOpen the swap and system partitions, see
+# At least luksOpen system partitions
+# which should have the highest partition number on each disk. See:
 # https://github.com/duxsco/gentoo-installation#disk-layout
 #
 # Example:
-cryptsetup luksOpen /dev/sda4 sda4
-cryptsetup luksOpen /dev/sdb4 sdb4
 cryptsetup luksOpen /dev/sda5 sda5
 cryptsetup luksOpen /dev/sdb5 sdb5
 etc.
