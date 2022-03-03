@@ -38,6 +38,7 @@ PC∕Laptop
     └── 5. LUKS ("system" partition)
         └── Btrfs (single)
             └── subvolumes
+                ├── @binpkgs
                 ├── @distfiles
                 ├── @home
                 ├── @portage
@@ -64,6 +65,7 @@ PC∕Laptop───────────────────────
     └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
         └── BTRFS (raid1)                  └── BTRFS (raid1)
             └── subvolume                      └── subvolume
+                ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home
                 ├── @portage                       ├── @portage
@@ -90,6 +92,7 @@ PC∕Laptop───────────────────────
     └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
         └── BTRFS (raid1c3|raid5)          └── BTRFS (raid1c3|raid5)          └── BTRFS (raid1c3|raid5)
             └── subvolume                      └── subvolume                      └── subvolume
+                ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home                          ├── @home
                 ├── @portage                       ├── @portage                       ├── @portage
@@ -116,6 +119,7 @@ PC∕Laptop───────────────────────
     └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
         └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)
             └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
+                ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home                          ├── @home                          ├── @home
                 ├── @portage                       ├── @portage                       ├── @portage                       ├── @portage
@@ -671,6 +675,9 @@ mount --make-slave /mnt/gentoo/run && \
 
 mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
 
+touch /mnt/gentoo/var/cache/binpkgs/.keep && \
+mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
+
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
 mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
 
@@ -789,6 +796,7 @@ sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc
 TLSv12_CIPHERS="ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES128-GCM-SHA256"
 
 cat <<EOF >> /etc/portage/make.conf
+EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '*/*-bin sys-kernel/* virtual/*'"
 
 L10N="de"
 LINGUAS="\${L10N}"
@@ -992,6 +1000,7 @@ UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noati
 UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                                    0 0
 UUID=$(blkid -s UUID -o value /mapperSystem)   /                       btrfs noatime,subvol=@root                  0 0
 UUID=$(blkid -s UUID -o value /mapperSystem)   /home                   btrfs noatime,subvol=@home                  0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/binpkgs      btrfs noatime,subvol=@binpkgs               0 0
 UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles             0 0
 UUID=$(blkid -s UUID -o value /mapperSystem)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage               0 0
 EOF
@@ -1754,7 +1763,7 @@ sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"$/GRUB_CMDLINE_LINUX_DEFAULT="\1 l
 
 Recreate `grub.conf`. Alternatively, you can follow the steps in [kernel update](#update-linux-kernel). For kernel recreation, I wouldn't delete ccache in order to speed up things. Reboot the system thereafter.
 
-After bootup, [relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel). But, don't forget to mount `/boot` and all `/efi*` first. Make sure to apply the `setfiles` command on `/boot`, `/var/cache/distfiles`, `/var/db/repos/gentoo` and all `/efi*`.
+After bootup, [relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel). But, don't forget to mount `/boot` and all `/efi*` first. Make sure to apply the `setfiles` command on `/boot`, `/var/cache/binpkgs`, `/var/cache/distfiles`, `/var/db/repos/gentoo` and all `/efi*`.
 
 Add the initial user to the administration SELinux user, and take care of services:
 - https://wiki.gentoo.org/wiki/SELinux/Installation#Define_the_administrator_accounts
