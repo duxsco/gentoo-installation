@@ -895,7 +895,7 @@ alias mv="mv -i"
 alias rm="rm -i"
 
 # Execute glsa-check once a day
-if [ ! -f "${HOME}/.glsa_check_timestamp" ] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt $(date -d '-1 day' '+%s') ]]; then
+if [ ! -f "${HOME}/.glsa_check_timestamp" ] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt $(awk '{print $1}' "$(portageq get_repo_path / gentoo)/metadata/timestamp.x") ]]; then
   echo "Executing glsa-check..."
   glsa-check -t all
   echo ""
