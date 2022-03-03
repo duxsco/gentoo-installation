@@ -1606,8 +1606,11 @@ rc-update add mcelog default; echo $?
 
 ```bash
 [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
-echo "" >> /etc/mdadm.conf && \
-mdadm --detail --scan >> /etc/mdadm.conf
+rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
+echo "" >> /etc/._cfg0000_mdadm.conf && \
+mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
+rsync -a /etc/default/mdadm /etc/default/._cfg0000_mdadm && \
+sed -i 's/#AUTOCHECK=true/AUTOCHECK=true/' /etc/default/._cfg0000_mdadm; echo $?
 ```
 
   - rng-tools:
