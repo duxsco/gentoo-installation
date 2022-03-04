@@ -532,11 +532,13 @@ chmod -R go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_int
 Configure OpenSSH:
 
 ```bash
+rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
+
 # do some ssh server hardening
-sed \
+sed -i \
 -e 's/^#Port 22$/Port 50024/' \
 -e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 
 grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  && \
 (
@@ -763,22 +765,27 @@ su -
 env-update && source /etc/profile && export PS1="(chroot) $PS1"
 ```
 
+> ⚠ Execute `dispatch-conf` after every code block where a file with prefix `._cfg0000_` has been created. ⚠
+
 ## Portage configuration
 
 Enable webrsync. Thereafter, portage uses https only with below changes to make.conf.
 
 ```bash
 mkdir /etc/portage/repos.conf && \
-sed 's/^sync-type = rsync/sync-type = webrsync/' /usr/share/portage/config/repos.conf > /etc/portage/repos.conf/gentoo.conf && \
-grep -q "^sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/gentoo.conf; echo $?
+rsync -a /usr/share/portage/config/repos.conf /etc/portage/repos.conf/._cfg0000_gentoo.conf && \
+sed -i 's/^sync-type = rsync/sync-type = webrsync/' /etc/portage/repos.conf/._cfg0000_gentoo.conf && \
+grep -q "^sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/._cfg0000_gentoo.conf; echo $?
 ```
 
 Configure make.conf (copy&paste one after the other):
 
 ```bash
+rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
+
 # If you use distcc, beware of:
 # https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
-sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/make.conf
+sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/._cfg0000_make.conf
 
 # The following cipher list contains only AEAD and PFS supporting ciphers with decreasing priority from top to bottom:
 #
@@ -795,7 +802,7 @@ sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc
 #
 TLSv12_CIPHERS="ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES128-GCM-SHA256"
 
-cat <<EOF >> /etc/portage/make.conf
+cat <<EOF >> /etc/portage/._cfg0000_make.conf
 EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '*/*-bin sys-kernel/* virtual/*'"
 
 L10N="de"
@@ -811,9 +818,11 @@ EOF
 Set USE flags in `/etc/portage/make.conf`:
 
 ```bash
+rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
+
 ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags && \
-cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/make.conf && \
-cat <<EOF >> /etc/portage/make.conf; echo $?
+cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/._cfg0000_make.conf && \
+cat <<EOF >> /etc/portage/._cfg0000_make.conf; echo $?
 USE_HARDENED="pie -sslv3 -suid"
 USE="\${CPU_FLAGS_X86} \${USE_HARDENED} fish-completion"
 
@@ -866,13 +875,8 @@ emerge -avuDN --with-bdeps=y --noconfmem --complete-graph=y @world
 Make `dispatch-conf` show diffs in color:
 
 ```bash
-sed -i "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" /etc/dispatch-conf.conf
-```
-
-Update configuration files:
-
-```bash
-dispatch-conf
+rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
+sed -i "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" /etc/._cfg0000_dispatch-conf.conf
 ```
 
 Make sure that `app-editors/nano` won't be removed and remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
@@ -1059,10 +1063,10 @@ EOF
 Configure genkernel:
 
 ```bash
-cp -av /etc/genkernel.conf{,.old} && \
+rsync -av /etc/genkernel.conf /etc/._cfg0000_genkernel.conf && \
 (
     [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
-    sed -i 's/^#MDADM="no"$/MDADM="yes"/' /etc/genkernel.conf || \
+    sed -i 's/^#MDADM="no"$/MDADM="yes"/' /etc/._cfg0000_genkernel.conf || \
     true
 ) && \
 sed -i \
@@ -1075,14 +1079,7 @@ sed -i \
 -e 's|^#KERNEL_CC="gcc"$|KERNEL_CC="/usr/lib/ccache/bin/gcc"|' \
 -e 's|^#UTILS_CC="gcc"$|UTILS_CC="/usr/lib/ccache/bin/gcc"|' \
 -e 's|^#UTILS_CXX="g++"$|UTILS_CXX="/usr/lib/ccache/bin/g++"|' \
-/etc/genkernel.conf && \
-diff -y --suppress-common-lines /etc/genkernel.conf /etc/genkernel.conf.old
-```
-
-Delete old config:
-
-```
-rm /etc/genkernel.conf.old
+/etc/._cfg0000_genkernel.conf
 ```
 
 Setup `dropbear` config directory and `/etc/dropbear/authorized_keys`:
@@ -1433,7 +1430,8 @@ tree -a /boot /efi*
 Set hostname:
 
 ```bash
-sed -i 's/^hostname="localhost"/hostname="micro"/' /etc/conf.d/hostname
+rsync -a /etc/conf.d/hostname /etc/conf.d/._cfg0000_hostname && \
+sed -i 's/^hostname="localhost"/hostname="micro"/' /etc/conf.d/._cfg0000_hostname
 ```
 
 Set IP address:
@@ -1449,19 +1447,22 @@ rc-update add net.enp0s3 default; echo $?
 Set `/etc/hosts`:
 
 ```bash
-sed -i 's/localhost$/localhost micro/' /etc/hosts
+rsync -a /etc/hosts /etc/._cfg0000_hosts && \
+sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
 
 Set /etc/rc.conf:
 
 ```bash
-sed -i 's/#rc_logger="NO"/rc_logger="YES"/' /etc/rc.conf
+rsync -a /etc/rc.conf /etc/._cfg0000_rc.conf && \
+sed -i 's/#rc_logger="NO"/rc_logger="YES"/' /etc/._cfg0000_rc.conf
 ```
 
 Set /etc/conf.d/keymaps:
 
 ```bash
-sed -i 's/keymap="us"/keymap="de-latin1-nodeadkeys"/' /etc/conf.d/keymaps
+rsync -a /etc/conf.d/keymaps /etc/conf.d/._cfg0000_keymaps && \
+sed -i 's/keymap="us"/keymap="de-latin1-nodeadkeys"/' /etc/conf.d/._cfg0000_keymaps
 ```
 
 `clock="UTC"` should be set in /etc/conf.d/hwclock which is the default.
@@ -1537,17 +1538,20 @@ EOF
   - consolefont:
 
 ```bash
-sed -i 's/^consolefont="\(.*\)"$/consolefont="lat9w-16"/' /etc/conf.d/consolefont && \
+rsync -a /etc/conf.d/consolefont /etc/conf.d/._cfg0000_consolefont && \
+sed -i 's/^consolefont="\(.*\)"$/consolefont="lat9w-16"/' /etc/conf.d/._cfg0000_consolefont && \
 rc-update add consolefont boot; echo $?
 ```
 
   - dmcrypt:
 
 ```bash
-LAST_LINE="$(tail -n 1 /etc/conf.d/dmcrypt)" && \
-sed -i '$ d' /etc/conf.d/dmcrypt && \
+rsync -a /etc/conf.d/dmcrypt /etc/conf.d/._cfg0000_dmcrypt && \
+
+LAST_LINE="$(tail -n 1 /etc/conf.d/._cfg0000_dmcrypt)" && \
+sed -i '$ d' /etc/conf.d/._cfg0000_dmcrypt && \
 (
-cat <<EOF >> /etc/conf.d/dmcrypt
+cat <<EOF >> /etc/conf.d/._cfg0000_dmcrypt
 target='boot'
 source=UUID='$(blkid -s UUID -o value /devBoot)'
 key='/key/mnt/key/key'
@@ -1555,7 +1559,7 @@ key='/key/mnt/key/key'
 EOF
 ) && (
 find /devSwap* | while read -r I; do
-cat <<EOF
+cat <<EOF >> /etc/conf.d/._cfg0000_dmcrypt
 target='swap_${I: -1}'
 source=UUID='$(blkid -s UUID -o value "${I}")'
 key='/key/mnt/key/key'
@@ -1563,7 +1567,7 @@ key='/key/mnt/key/key'
 EOF
 done
 ) && \
-echo "${LAST_LINE}" >> /etc/conf.d/dmcrypt && \
+echo "${LAST_LINE}" >> /etc/conf.d/._cfg0000_dmcrypt && \
 rc-update add dmcrypt boot; echo $?
 ```
 
@@ -1627,15 +1631,15 @@ rc-update add rngd default; echo $?
 rsync -av /etc/dropbear/authorized_keys /home/david/.ssh/ && \
 chmod og= /home/david/.ssh/authorized_keys && \
 chown david: /home/david/.ssh/authorized_keys && \
-cp -av /etc/ssh/sshd_config{,.old} && \
+rsync -av /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
 sed -i \
 -e 's/^#Port 22$/Port 50022/' \
 -e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
 -e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/sshd_config && \
-grep -q "^PasswordAuthentication no$" /etc/ssh/sshd_config && \
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config && \
+grep -q "^PasswordAuthentication no$" /etc/ssh/._cfg0000_sshd_config && \
 (
-cat <<EOF >> /etc/ssh/sshd_config
+cat <<EOF >> /etc/ssh/._cfg0000_sshd_config
 
 AuthenticationMethods publickey
 
@@ -1648,8 +1652,7 @@ AllowUsers david
 EOF
 ) && \
 ssh-keygen -A && \
-sshd -t && \
-diff /etc/ssh/sshd_config{,.old}
+sshd -t
 ```
 
 Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
@@ -1709,11 +1712,17 @@ reboot
 
 ## Firewall rules
 
+Install:
+
+```bash
+emerge -av net-firewall/iptables
+```
+
 Create firewall rules:
 
 ```bash
 bash -c '
-rsync -av /root/firewall_base.sh /usr/local/sbin/firewall.sh && \
+rsync -a /root/firewall_base.sh /usr/local/sbin/firewall.sh && \
 (
 cat <<EOF >> /usr/local/sbin/firewall.sh
 
@@ -1729,23 +1738,20 @@ chmod u+x /usr/local/sbin/firewall.sh; echo $?
 Don't save firewall rules on shutdown:
 
 ```bash
-sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/iptables && \
-sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/ip6tables
+rsync -a /etc/conf.d/iptables /etc/conf.d/._cfg0000_iptables && \
+rsync -a /etc/conf.d/ip6tables /etc/conf.d/._cfg0000_ip6tables && \
+sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_iptables && \
+sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_ip6tables
 ```
 
 Save firewall rules:
 
 ```bash
-bash -c '
-(
-[ ! -f /sbin/iptables ] && emerge iptables || true
-)  && \
 /usr/local/sbin/firewall.sh && \
 rc-service iptables save && \
 rc-service ip6tables save && \
 rc-update add iptables default && \
 rc-update add ip6tables default; echo $?
-'
 ```
 
 ## Installation of Secure Boot files via UEFI Firmware Settings
@@ -1773,7 +1779,8 @@ Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`
 Enable SELinux via kernel command-line parameter in GRUB config:
 
 ```bash
-sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"$/GRUB_CMDLINE_LINUX_DEFAULT="\1 lsm=selinux"/' /etc/default/grub
+rsync -a /etc/default/grub /etc/default/._cfg0000_grub && \
+sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"$/GRUB_CMDLINE_LINUX_DEFAULT="\1 lsm=selinux"/' /etc/default/._cfg0000_grub
 ```
 
 Recreate `grub.conf`. Alternatively, you can follow the steps in [kernel update](#update-linux-kernel). For kernel recreation, I wouldn't delete ccache in order to speed up things. Reboot the system thereafter.
