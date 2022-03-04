@@ -196,7 +196,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -cav {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh} root@XXX:/tmp/
+rsync -cav {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh,btrfs-scrub.sh} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -338,14 +338,14 @@ Result of a single disk setup:
 
 > ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
-Extract stage3 tarball and copy `firewall_base.sh`, `genkernel.sh` as well as `boot2efi.sh`:
+Extract stage3 tarball and copy `firewall_base.sh`, `genkernel.sh`, `btrfs-scrub.sh` as well as `boot2efi.sh`:
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
 rsync -av /tmp/firewall_base.sh /mnt/gentoo/root/ && \
-rsync -av /tmp/{genkernel.sh,boot2efi.sh} /mnt/gentoo/usr/local/sbin/ && \
-chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh} && \
-chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh}; echo $?
+rsync -av /tmp/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh} /mnt/gentoo/usr/local/sbin/ && \
+chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh} && \
+chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh}; echo $?
 ```
 
 Extract portage tarball:
@@ -683,7 +683,8 @@ mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
 mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
 
-mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot; echo $?
+mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
+chmod og= /mnt/gentoo/boot; echo $?
 ```
 
 (Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
@@ -1000,7 +1001,7 @@ cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r I; do
   echo "UUID=$(blkid -s UUID -o value "$I")   ${I/devE/e}                   vfat  noatime,noauto,dmask=0022,fmask=0133  0 0"
 done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime,noauto                        0 0
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime                               0 0
 UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                                    0 0
 UUID=$(blkid -s UUID -o value /mapperSystem)   /                       btrfs noatime,subvol=@root                  0 0
 UUID=$(blkid -s UUID -o value /mapperSystem)   /home                   btrfs noatime,subvol=@home                  0 0
@@ -1479,8 +1480,14 @@ rc-update add sysklogd default; echo $?
 Setup cronie:
 
 ```bash
+# server running 24/7: 0 X * * *
+# otherwise: Y * * * *
+# with X being a non-negative integer, less than 24
+# with Y being a non-negative integer, less than 60
+# and keeping clock change in mind
 emerge sys-process/cronie && \
-rc-update add cronie default; echo $?
+rc-update add cronie default && \
+echo "0 1 * * * /usr/local/sbin/btrfs-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e; echo $?
 ```
 
 Enable ssh service:
