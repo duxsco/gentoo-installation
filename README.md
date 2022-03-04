@@ -778,6 +778,12 @@ sed -i 's/^sync-type = rsync/sync-type = webrsync/' /etc/portage/repos.conf/._cf
 grep -q "^sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/._cfg0000_gentoo.conf; echo $?
 ```
 
+Install to be able to configure `/etc/portage/make.conf`:
+
+```bash
+ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags
+```
+
 Configure make.conf (copy&paste one after the other):
 
 ```bash
@@ -813,16 +819,10 @@ FETCHCOMMAND="curl --fail --silent --show-error --location --proto '=https' --tl
 RESUMECOMMAND="curl --continue-at - --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
 
 EOF
-```
 
-Set USE flags in `/etc/portage/make.conf`:
+cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/._cfg0000_make.conf
 
-```bash
-rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
-
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags && \
-cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/._cfg0000_make.conf && \
-cat <<EOF >> /etc/portage/._cfg0000_make.conf; echo $?
+cat <<EOF >> /etc/portage/._cfg0000_make.conf
 USE_HARDENED="pie -sslv3 -suid"
 USE="\${CPU_FLAGS_X86} \${USE_HARDENED} fish-completion"
 
