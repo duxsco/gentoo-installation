@@ -10,8 +10,8 @@ The following installation guide results in a **fully encrypted, Secure Boot sig
 After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
 
 - Gentoo Linux system: `ssh -p 50022 david@<IP address>`
-- Initramfs system to LUKS unlock remotely (further info at the bottom of this page): `ssh -p 50023 root@<IP address`
-- Customised SystemRescueCD system: `ssh -p 50024 root@<IP address`
+- Initramfs system to LUKS unlock remotely (further info at the bottom of this page): `ssh -p 50023 root@<IP address>`
+- Customised SystemRescueCD system: `ssh -p 50024 root@<IP address>`
 
 All three boot options are available in GRUB's boot menu.
 
@@ -226,7 +226,7 @@ Set date if system time is not correct:
 ```bash
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 # replace "MMDDhhmmYYYY" with UTC time
-date MMDDhhmmYYYY
+date --utc MMDDhhmmYYYY
 ```
 
 Update hardware clock:
@@ -338,7 +338,7 @@ Result of a single disk setup:
 
 > ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
-Extract stage3 tarball and copy `firewall_base.sh`, `genkernel.sh`, `btrfs-scrub.sh` as well as `boot2efi.sh`:
+Extract stage3 tarball and copy `firewall_base.sh`, `genkernel.sh`, `btrfs-scrub.sh`, `mdadm-scrub.sh` as well as `boot2efi.sh`:
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
@@ -774,6 +774,7 @@ Enable webrsync. Thereafter, portage uses https only with below changes to make.
 
 ```bash
 mkdir /etc/portage/repos.conf && \
+rsync -a /usr/share/portage/config/repos.conf /etc/portage/repos.conf/gentoo.conf && \
 rsync -a /usr/share/portage/config/repos.conf /etc/portage/repos.conf/._cfg0000_gentoo.conf && \
 sed -i 's/^sync-type = rsync/sync-type = webrsync/' /etc/portage/repos.conf/._cfg0000_gentoo.conf && \
 grep -q "^sync-webrsync-verify-signature = yes" /etc/portage/repos.conf/._cfg0000_gentoo.conf; echo $?
@@ -1673,7 +1674,7 @@ AllowUsers david
 EOF
 ) && \
 ssh-keygen -A && \
-sshd -t
+sshd -t; echo $?
 ```
 
 Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
