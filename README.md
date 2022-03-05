@@ -770,6 +770,13 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 
 ## Portage configuration
 
+Make `dispatch-conf` show diffs in color:
+
+```bash
+rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
+sed -i "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" /etc/._cfg0000_dispatch-conf.conf
+```
+
 Enable webrsync. Thereafter, portage uses https only with below changes to make.conf.
 
 ```bash
@@ -872,13 +879,6 @@ Update system:
 
 ```bash
 emerge -avuDN --with-bdeps=y --noconfmem --complete-graph=y @world
-```
-
-Make `dispatch-conf` show diffs in color:
-
-```bash
-rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
-sed -i "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" /etc/._cfg0000_dispatch-conf.conf
 ```
 
 Make sure that `app-editors/nano` won't be removed and remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
