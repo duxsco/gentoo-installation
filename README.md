@@ -899,6 +899,21 @@ alias cp="cp -i"
 alias mv="mv -i"
 alias rm="rm -i"
 
+# Raise an alert if something is wrong with btrfs or mdadm
+if  grep -q "\[[U_]*_[U_]*\]" /proc/mdstat || \
+    [[ $(find /sys/fs/btrfs -type f -name "error_stats" -exec awk '{sum += $2} END {print sum}' {} +) -ne 0 ]]; then
+echo '
+  _________________
+< Something smells! >
+  -----------------
+         \   ^__^
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+'
+fi
+
 # Execute glsa-check once a day
 if [ ! -f "${HOME}/.glsa_check_timestamp" ] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt $(awk '{print $1}' "$(portageq get_repo_path / gentoo)/metadata/timestamp.x") ]]; then
   echo "Executing glsa-check..."
