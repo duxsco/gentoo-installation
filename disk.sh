@@ -132,20 +132,20 @@ else
 fi
 
 # encrypting boot, swap and system partitions
-unset NON_BOOT
+PBKDF="--pbkdf pbkdf2"
 INDEX=0
 # shellcheck disable=SC2046
 find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartitions 5) | while read -r I; do
-    if [[ ${INDEX} -ge 2 ]]; then
-        NON_BOOT=""
+    if [[ ${INDEX} -eq 2 ]]; then
+        unset PBKDF
     fi
     # shellcheck disable=SC2086
-    cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${NON_BOOT+--pbkdf argon2id} "$I"
+    cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${PBKDF:---pbkdf argon2id} "$I"
     if [[ ${INDEX} -eq 1 ]]; then
-        echo -n "${RESCUE_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
+        echo -n "${RESCUE_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
     else
-        echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
-        echo -n "${BOOT_PASSWORD}"   | cryptsetup luksAddKey --key-file "${KEYFILE}" ${NON_BOOT+--pbkdf argon2id} "$I" -
+        echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
+        echo -n "${BOOT_PASSWORD}"   | cryptsetup luksAddKey --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
     fi
     cryptsetup luksOpen --key-file "${KEYFILE}" "$I" "${I##*\/}"
     INDEX=$((INDEX+1))
