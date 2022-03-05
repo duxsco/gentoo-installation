@@ -196,7 +196,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -cav {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh,btrfs-scrub.sh} root@XXX:/tmp/
+rsync -cav {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh,btrfs-scrub.sh,mdadm-scrub.sh} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -343,9 +343,9 @@ Extract stage3 tarball and copy `firewall_base.sh`, `genkernel.sh`, `btrfs-scrub
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
 rsync -av /tmp/firewall_base.sh /mnt/gentoo/root/ && \
-rsync -av /tmp/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh} /mnt/gentoo/usr/local/sbin/ && \
-chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh} && \
-chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh}; echo $?
+rsync -av /tmp/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/ && \
+chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} && \
+chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh}; echo $?
 ```
 
 Extract portage tarball:
@@ -1487,7 +1487,8 @@ Setup cronie:
 # and keeping clock change in mind
 emerge sys-process/cronie && \
 rc-update add cronie default && \
-echo "0 1 * * * /usr/local/sbin/btrfs-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e; echo $?
+echo "0 1 * * * /usr/local/sbin/btrfs-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e && \
+echo "0 4 * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e; echo $?
 ```
 
 Enable ssh service:
@@ -1619,9 +1620,7 @@ rc-update add mcelog default; echo $?
 [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
 rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
 echo "" >> /etc/._cfg0000_mdadm.conf && \
-mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
-rsync -a /etc/default/mdadm /etc/default/._cfg0000_mdadm && \
-sed -i 's/#AUTOCHECK=true/AUTOCHECK=true/' /etc/default/._cfg0000_mdadm; echo $?
+mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
 ```
 
   - rng-tools:
