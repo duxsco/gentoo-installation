@@ -196,7 +196,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -cav {disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh,btrfs-scrub.sh,mdadm-scrub.sh} root@XXX:/tmp/
+rsync -cav bin/{disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh,btrfs-scrub.sh,mdadm-scrub.sh} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
