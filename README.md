@@ -1261,6 +1261,17 @@ Customise kernel configuration and build kernel and initramfs for local and remo
 genkernel.sh
 ```
 
+You can persist your choice you have to make in GRUB's boot menu:
+
+```bash
+# Available boot options:
+#   0) Remote LUKS unlock via initramfs+dropbear
+#   1) Local LUKS unlock via TTY/IPMI
+#   2) SystemRescueCD
+#   3) Enforce manual selection upon each boot
+echo 1 > /etc/gentoo-installation/grub_default_boot_option.conf
+```
+
 `genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
 
 For now, ignore the request to sign files. The GnuPG keypair must be created first and other files must be signed, too. This will be done in the next chapter.
