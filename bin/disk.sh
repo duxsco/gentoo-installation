@@ -143,12 +143,12 @@ find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartition
     cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${PBKDF:---pbkdf argon2id} "$I"
     if [[ ${INDEX} -eq 1 ]]; then
         # shellcheck disable=SC2086
-        echo -n "${RESCUE_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
+        echo -n "${RESCUE_PASSWORD}" | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
     else
         # shellcheck disable=SC2086
-        echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
+        echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
         # shellcheck disable=SC2086
-        echo -n "${BOOT_PASSWORD}"   | cryptsetup luksAddKey --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
+        echo -n "${BOOT_PASSWORD}"   | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
     fi
     cryptsetup luksOpen --key-file "${KEYFILE}" "$I" "${I##*\/}"
     INDEX=$((INDEX+1))
