@@ -1044,6 +1044,34 @@ tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,
 EOF
 ```
 
+## dmcrypt configuration
+
+```bash
+rsync -a /etc/conf.d/dmcrypt /etc/conf.d/._cfg0000_dmcrypt && \
+
+LAST_LINE="$(tail -n 1 /etc/conf.d/._cfg0000_dmcrypt)" && \
+sed -i '$ d' /etc/conf.d/._cfg0000_dmcrypt && \
+(
+cat <<EOF >> /etc/conf.d/._cfg0000_dmcrypt
+target='boot'
+source=UUID='$(blkid -s UUID -o value /devBoot)'
+key='/key/mnt/key/key'
+
+EOF
+) && (
+find /devSwap* | while read -r I; do
+cat <<EOF >> /etc/conf.d/._cfg0000_dmcrypt
+target='swap_${I: -1}'
+source=UUID='$(blkid -s UUID -o value "${I}")'
+key='/key/mnt/key/key'
+
+EOF
+done
+) && \
+echo "${LAST_LINE}" >> /etc/conf.d/._cfg0000_dmcrypt && \
+rc-update add dmcrypt boot; echo $?
+```
+
 ## CPU, disk and kernel tools
 
 Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
@@ -1576,34 +1604,6 @@ EOF
 rsync -a /etc/conf.d/consolefont /etc/conf.d/._cfg0000_consolefont && \
 sed -i 's/^consolefont="\(.*\)"$/consolefont="lat9w-16"/' /etc/conf.d/._cfg0000_consolefont && \
 rc-update add consolefont boot; echo $?
-```
-
-  - dmcrypt:
-
-```bash
-rsync -a /etc/conf.d/dmcrypt /etc/conf.d/._cfg0000_dmcrypt && \
-
-LAST_LINE="$(tail -n 1 /etc/conf.d/._cfg0000_dmcrypt)" && \
-sed -i '$ d' /etc/conf.d/._cfg0000_dmcrypt && \
-(
-cat <<EOF >> /etc/conf.d/._cfg0000_dmcrypt
-target='boot'
-source=UUID='$(blkid -s UUID -o value /devBoot)'
-key='/key/mnt/key/key'
-
-EOF
-) && (
-find /devSwap* | while read -r I; do
-cat <<EOF >> /etc/conf.d/._cfg0000_dmcrypt
-target='swap_${I: -1}'
-source=UUID='$(blkid -s UUID -o value "${I}")'
-key='/key/mnt/key/key'
-
-EOF
-done
-) && \
-echo "${LAST_LINE}" >> /etc/conf.d/._cfg0000_dmcrypt && \
-rc-update add dmcrypt boot; echo $?
 ```
 
   - fish shell:
