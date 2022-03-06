@@ -1208,7 +1208,7 @@ Setup remote LUKS unlocking:
 
 ```bash
 # Change settings depending on your requirements; set correct MAC address for XX:XX:XX:XX:XX:XX
-echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:XX:XX gk.sshd.port=50023" > /etc/gentoo-installation/systemrescuecd_dosshd.conf
+echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:XX:XX gk.sshd.port=50023" > /etc/gentoo-installation/dosshd.conf
 ```
 
 Create the Grub config to boot into the rescue system:

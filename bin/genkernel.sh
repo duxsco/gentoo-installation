@@ -69,7 +69,7 @@ GRUB_LOCAL_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64'/,/^}$/p" <<<
 
 grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r I; do
     UUID="$(grep -Po "(?<=^UUID=)[0-9A-F]{4}-[0-9A-F]{4}(?=[[:space:]]+/${I}[[:space:]]+vfat[[:space:]]+)" /etc/fstab)"
-    GRUB_SSH_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | grep -v -e "^[[:space:]]*cryptomount[[:space:]]" -e "^[[:space:]]*set[[:space:]]*root=" | sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${UUID}/" -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(cat /etc/gentoo-installation/systemrescuecd_dosshd.conf)|" -e 's/root_key=key//' -e 's/swap_key=key//')"
+    GRUB_SSH_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | grep -v -e "^[[:space:]]*cryptomount[[:space:]]" -e "^[[:space:]]*set[[:space:]]*root=" | sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${UUID}/" -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(cat /etc/gentoo-installation/dosshd.conf)|" -e 's/root_key=key//' -e 's/swap_key=key//')"
 
     if [[ ${BOOT_ENTRY} -ne 3 ]]; then
         echo -e "set default=${BOOT_ENTRY}\nset timeout=5\n" > "/boot/grub_${I}.cfg"
