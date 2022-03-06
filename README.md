@@ -1790,11 +1790,13 @@ sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_ip6tabl
 Save firewall rules:
 
 ```bash
+bash -c '
 /usr/local/sbin/firewall.sh && \
 rc-service iptables save && \
 rc-service ip6tables save && \
 rc-update add iptables default && \
 rc-update add ip6tables default; echo $?
+'
 ```
 
 ## Installation of Secure Boot files via UEFI Firmware Settings
