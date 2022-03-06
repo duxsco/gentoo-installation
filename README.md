@@ -1412,6 +1412,7 @@ MODULES="${MODULES} all_video"                     # video output
 MODULES="${MODULES} search search_fs_uuid"         # search --fs-uuid
 MODULES="${MODULES} reboot sleep"                  # sleep, reboot
 MODULES="${MODULES} gzio part_gpt part_msdos ext2" # SystemRescueCD modules
+MODULES="${MODULES} luks2 btrfs part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 mdraid1x" # LUKS2 modules
 MODULES="${MODULES} $(grub-mkconfig | grep insmod | awk '{print $NF}' | sort -u | paste -d ' ' -s -)"
 
 ls -1d /efi* | while read -r I; do

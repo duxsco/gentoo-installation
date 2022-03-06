@@ -64,12 +64,18 @@ fi
 # must be stored on a non-encrypted partition.
 genkernel --initramfs-filename="initramfs-%%KV%%-ssh.img" --kernel-filename="vmlinuz-%%KV%%-ssh" --systemmap-filename="System.map-%%KV%%-ssh" --ssh all
 
-GRUB_CONFIG="$(grub-mkconfig 2>/dev/null | sed -n '/^### BEGIN \/etc\/grub.d\/10_linux ###$/,/^### END \/etc\/grub.d\/10_linux ###$/p' | sed -n '/^submenu/,/^}$/p' | sed '1d;$d' | sed 's/^\t//' | sed -e "s/\$menuentry_id_option/--unrestricted --id/" | sed '/^[[:space:]]*else/,/^[[:space:]]*fi/d' | grep -v -e "^[[:space:]]*if" -e "^[[:space:]]*fi" -e "^[[:space:]]*load_video" -e "^[[:space:]]*insmod")"
-GRUB_LOCAL_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64'/,/^}$/p" <<<"${GRUB_CONFIG}")"
+GRUB_CONFIG="$(grub-mkconfig 2>/dev/null | sed -n '/^### BEGIN \/etc\/grub.d\/10_linux ###$/,/^### END \/etc\/grub.d\/10_linux ###$/p' | sed -n '/^submenu/,/^}$/p' | sed '1d;$d' | sed 's/^\t//' | sed -e "s/\$menuentry_id_option/--unrestricted --id/" | grep -v -e "^[[:space:]]*if" -e "^[[:space:]]*fi" -e "^[[:space:]]*load_video" -e "^[[:space:]]*insmod")"
+
+UUID_LUKS="$(sed -n "/^target='boot'/,/^$/p" /etc/conf.d/dmcrypt | sed -n "s/source=UUID='\(.*\)'/\1/p" | tr -d '-')"
+UUID_BOOT="$(sed -n 's#^UUID=\([^[:space:]]*\)[[:space:]]*/boot[[:space:]]*.*#\1#p' /etc/fstab)"
+CRYPTOMOUNT="\tcryptomount -u ${UUID_LUKS}\\
+\tset root='cryptouuid/${UUID_LUKS}'\\
+\tsearch --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID_LUKS}' ${UUID_BOOT}"
+GRUB_LOCAL_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64'/,/^}$/p" <<<"${GRUB_CONFIG}" | sed "s#^[[:space:]]*search[[:space:]]*.*#${CRYPTOMOUNT}#")"
 
 grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r I; do
     UUID="$(grep -Po "(?<=^UUID=)[0-9A-F]{4}-[0-9A-F]{4}(?=[[:space:]]+/${I}[[:space:]]+vfat[[:space:]]+)" /etc/fstab)"
-    GRUB_SSH_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | grep -v -e "^[[:space:]]*cryptomount[[:space:]]" -e "^[[:space:]]*set[[:space:]]*root=" | sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${UUID}/" -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(cat /etc/gentoo-installation/dosshd.conf)|" -e 's/root_key=key//' -e 's/swap_key=key//')"
+    GRUB_SSH_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${UUID}/" -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(cat /etc/gentoo-installation/dosshd.conf)|" -e 's/root_key=key//')"
 
     if [[ ${BOOT_ENTRY} -ne 3 ]]; then
         echo -e "set default=${BOOT_ENTRY}\nset timeout=5\n" > "/boot/grub_${I}.cfg"
