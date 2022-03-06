@@ -553,7 +553,8 @@ MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 EOF
 ) && \
 # create ssh_host_* files in build_into_srm/etc/ssh/
-ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm; echo $?
+ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm && \
+diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config; echo $?
 ```
 
 Disable magic SysRq key for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
@@ -1046,6 +1047,14 @@ EOF
 
 ## dmcrypt configuration
 
+Install `sys-fs/cryptsetup`:
+
+```bash
+emerge -av sys-fs/cryptsetup
+```
+
+Configure:
+
 ```bash
 rsync -a /etc/conf.d/dmcrypt /etc/conf.d/._cfg0000_dmcrypt && \
 
@@ -1088,7 +1097,7 @@ Install genkernel, filesystem and device mapper tools:
 
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge dev-util/ccache sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel && (
+emerge dev-util/ccache sys-fs/btrfs-progs sys-kernel/genkernel && (
     [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
     emerge sys-fs/mdadm || \
     true
