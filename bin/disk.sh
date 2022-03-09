@@ -192,7 +192,7 @@ mount -o noatime $(getMapperPartitions 5 | awk '{print $1}') /mnt/gentoo
 btrfs subvolume create /mnt/gentoo/@binpkgs; sync
 btrfs subvolume create /mnt/gentoo/@distfiles; sync
 btrfs subvolume create /mnt/gentoo/@home; sync
-btrfs subvolume create /mnt/gentoo/@portage; sync
+btrfs subvolume create /mnt/gentoo/@ebuilds; sync
 btrfs subvolume create /mnt/gentoo/@root; sync
 umount /mnt/gentoo
 # shellcheck disable=SC2046

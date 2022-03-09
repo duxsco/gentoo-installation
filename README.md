@@ -41,7 +41,7 @@ PC∕Laptop
                 ├── @binpkgs
                 ├── @distfiles
                 ├── @home
-                ├── @portage
+                ├── @ebuilds
                 └── @root
 ```
 
@@ -68,7 +68,7 @@ PC∕Laptop───────────────────────
                 ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home
-                ├── @portage                       ├── @portage
+                ├── @ebuilds                       ├── @ebuilds
                 └── @root                          └── @root
 ```
 
@@ -95,7 +95,7 @@ PC∕Laptop───────────────────────
                 ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home                          ├── @home
-                ├── @portage                       ├── @portage                       ├── @portage
+                ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds
                 └── @root                          └── @root                          └── @root
 ```
 
@@ -122,7 +122,7 @@ PC∕Laptop───────────────────────
                 ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home                          ├── @home                          ├── @home
-                ├── @portage                       ├── @portage                       ├── @portage                       ├── @portage
+                ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds
                 └── @root                          └── @root                          └── @root                          └── @root
 ```
 
@@ -353,7 +353,7 @@ Extract portage tarball:
 ```bash
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
-mount -o noatime,subvol=@portage /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
+mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
 tar --strip-components=1 -C /mnt/gentoo/var/db/repos/gentoo/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
@@ -1024,7 +1024,7 @@ UUID=$(blkid -s UUID -o value /mapperSystem)   /                       btrfs noa
 UUID=$(blkid -s UUID -o value /mapperSystem)   /home                   btrfs noatime,subvol=@home                  0 0
 UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/binpkgs      btrfs noatime,subvol=@binpkgs               0 0
 UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles             0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /var/db/repos/gentoo    btrfs noatime,subvol=@portage               0 0
+UUID=$(blkid -s UUID -o value /mapperSystem)   /var/db/repos/gentoo    btrfs noatime,subvol=@ebuilds               0 0
 EOF
 ) && \
 find /devEfi* -maxdepth 0 | while read -r I; do
