@@ -833,7 +833,7 @@ EOF
 cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/._cfg0000_make.conf
 
 cat <<EOF >> /etc/portage/._cfg0000_make.conf
-USE_HARDENED="pie -sslv3 -suid"
+USE_HARDENED="pie -sslv3 -suid verify-sig"
 USE="\${CPU_FLAGS_X86} \${USE_HARDENED} fish-completion"
 
 EOF
