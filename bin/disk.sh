@@ -77,8 +77,8 @@ if { [ "${RAID5}" == "true" ] && [ "${RAID6}" == "true" ]; } || \
    { [[ ${#DISKS[@]} -lt 4 ]] && [[ ${RAID} -eq 6 ]]; } || \
    { [[ ${#DISKS[@]} -lt 4 ]] && [[ ${RAID} -eq 10 ]]; } || \
    { [[ $((${#DISKS[@]}%2)) -ne 0 ]] && [[ ${RAID} -eq 10 ]]; } || \
-   [ -z ${BOOT_PASSWORD+x} ] || [ -z ${DISKS+x} ] || [ -z ${MASTER_PASSWORD+x} ] || \
-   [ -z ${RESCUE_PASSWORD+x} ] || [ -z ${SWAP_SIZE+x} ] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
+   [[ -z ${BOOT_PASSWORD} ]] || [[ ${#DISKS[@]} -eq 0 ]] || [[ -z ${MASTER_PASSWORD} ]] || \
+   [[ -z ${RESCUE_PASSWORD} ]] || [[ -z ${SWAP_SIZE} ]] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
     help
 fi
 
