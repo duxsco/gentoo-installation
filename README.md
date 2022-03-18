@@ -803,20 +803,17 @@ rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 # https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
 sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/._cfg0000_make.conf
 
-# The following cipher list contains only AEAD and PFS supporting ciphers with decreasing priority from top to bottom:
+# The following cipher list contains only AEAD, ECDHE and PFS supporting ciphers with decreasing priority from top to bottom:
 #
 # TLSv1.2:
 #   ECDHE-ECDSA-AES256-GCM-SHA384
 #   ECDHE-RSA-AES256-GCM-SHA384
-#   DHE-RSA-AES256-GCM-SHA384
 #   ECDHE-ECDSA-CHACHA20-POLY1305
 #   ECDHE-RSA-CHACHA20-POLY1305
-#   DHE-RSA-CHACHA20-POLY1305
 #   ECDHE-ECDSA-AES128-GCM-SHA256
 #   ECDHE-RSA-AES128-GCM-SHA256
-#   DHE-RSA-AES128-GCM-SHA256
 #
-TLSv12_CIPHERS="ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES128-GCM-SHA256"
+TLSv12_CIPHERS="ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
 
 cat <<EOF >> /etc/portage/._cfg0000_make.conf
 EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '*/*-bin sys-kernel/* virtual/*'"
