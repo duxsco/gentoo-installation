@@ -1267,7 +1267,8 @@ eselect kernel set 1; echo $?
 Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel-bin` with:
 
 ```bash
-gkb2gs.sh
+gkb2gs.sh -h
+gkb2gs.sh -l
 ```
 
 Customise kernel configuration and build kernel and initramfs for local and remote (via SSH) LUKS unlock:
@@ -1863,7 +1864,7 @@ eselect kernel list
 eselect kernel set <NUMBER>
 
 # Configure the kernel from scratch, use an old config or use the configuration from sys-kernel/gentoo-kernel-bin with
-gkb2gs.sh
+gkb2gs.sh -l
 
 # Customise kernel configuration and build kernel
 genkernel.sh
