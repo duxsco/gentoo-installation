@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+# Prevent tainting variables via environment
+# See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
+unset BOOT_ENTRY CLEAR_CCACHE CONTINUE CRYPTOMOUNT EFI_MOUNTPOINT EFI_UUID GRUB_CONFIG GRUB_LOCAL_CONFIG GRUB_SSH_CONFIG KERNEL_VERSION NUMBER_REGEX UMOUNT_BOOT UUID_BOOT_FILESYSTEM UUID_BOOT_LUKS_DEVICE
 
-UNMOUNT_BOOT="false"
 KERNEL_VERSION="$(readlink /usr/src/linux | sed 's/linux-//')"
 
-if ! mountpoint /boot >/dev/null 2>&1; then
-    mount /boot
-    UNMOUNT_BOOT="true"
+#########
+# mount #
+#########
+
+if ! mountpoint --quiet /boot; then
+    if ! mount /boot || ! mountpoint --quiet /boot; then
+        echo 'Failed to mount "/boot"! Aborting...' >&2
+        exit 1
+    fi
+
+    UMOUNT_BOOT="true"
 fi
+
+###################
+# ccache clearing #
+###################
 
 echo ""
 read -r -p "Do you want to clear ccache's cache (y/n)?
@@ -24,8 +37,12 @@ elif ! [[ ${CLEAR_CCACHE} =~ ^[nN]$ ]]; then
     exit 1
 fi
 
-if [ -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
-    BOOT_ENTRY="$(cat "/etc/gentoo-installation/grub_default_boot_option.conf")"
+######################
+# default boot entry #
+######################
+
+if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
+    BOOT_ENTRY="$(cat /etc/gentoo-installation/grub_default_boot_option.conf)"
 else
     read -r -p "Available boot options:
   0) Remote LUKS unlock via initramfs+dropbear
@@ -39,7 +56,7 @@ fi
 
 NUMBER_REGEX='^[0-3]$'
 if ! [[ ${BOOT_ENTRY} =~ ${NUMBER_REGEX} ]]; then
-    if [ -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
+    if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
         echo -e "\"/etc/gentoo-installation/grub_default_boot_option.conf\" misconfigured! Aborting...\n"
     else
         echo -e "Invalid choice! Aborting...\n"
@@ -47,7 +64,15 @@ if ! [[ ${BOOT_ENTRY} =~ ${NUMBER_REGEX} ]]; then
     exit 1
 fi
 
+###############
+# local setup #
+###############
+
 genkernel --initramfs-overlay="/key" --menuconfig all
+
+################
+# remote setup #
+################
 
 echo ""
 read -r -p "Do you want to continue (y/N)? " CONTINUE
@@ -64,26 +89,51 @@ fi
 # must be stored on a non-encrypted partition.
 genkernel --initramfs-filename="initramfs-%%KV%%-ssh.img" --kernel-filename="vmlinuz-%%KV%%-ssh" --systemmap-filename="System.map-%%KV%%-ssh" --ssh all
 
-GRUB_CONFIG="$(grub-mkconfig 2>/dev/null | sed -n '/^### BEGIN \/etc\/grub.d\/10_linux ###$/,/^### END \/etc\/grub.d\/10_linux ###$/p' | sed -n '/^submenu/,/^}$/p' | sed '1d;$d' | sed 's/^\t//' | sed -e "s/\$menuentry_id_option/--unrestricted --id/" | grep -v -e "^[[:space:]]*if" -e "^[[:space:]]*fi" -e "^[[:space:]]*load_video" -e "^[[:space:]]*insmod")"
+##########
+# config #
+##########
 
-UUID_LUKS="$(sed -n "/^target='boot'/,/^$/p" /etc/conf.d/dmcrypt | sed -n "s/source=UUID='\(.*\)'/\1/p" | tr -d '-')"
-UUID_BOOT="$(sed -n 's#^UUID=\([^[:space:]]*\)[[:space:]]*/boot[[:space:]]*.*#\1#p' /etc/fstab)"
-CRYPTOMOUNT="\tcryptomount -u ${UUID_LUKS}\\
-\tset root='cryptouuid/${UUID_LUKS}'\\
-\tsearch --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID_LUKS}' ${UUID_BOOT}"
-GRUB_LOCAL_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64'/,/^}$/p" <<<"${GRUB_CONFIG}" | sed "s#^[[:space:]]*search[[:space:]]*.*#${CRYPTOMOUNT}#")"
+GRUB_CONFIG="$(
+    grub-mkconfig 2>/dev/null | \
+    sed -n '/^### BEGIN \/etc\/grub.d\/10_linux ###$/,/^### END \/etc\/grub.d\/10_linux ###$/p' | \
+    sed -n '/^submenu/,/^}$/p' | \
+    sed '1d;$d' | \
+    sed 's/^\t//' | \
+    sed -e "s/\$menuentry_id_option/--unrestricted --id/" | \
+    grep -v -e "^[[:space:]]*if" -e "^[[:space:]]*fi" -e "^[[:space:]]*load_video" -e "^[[:space:]]*insmod"
+)"
 
-grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r I; do
-    UUID="$(grep -Po "(?<=^UUID=)[0-9A-F]{4}-[0-9A-F]{4}(?=[[:space:]]+/${I}[[:space:]]+vfat[[:space:]]+)" /etc/fstab)"
-    GRUB_SSH_CONFIG="$(sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${UUID}/" -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(cat /etc/gentoo-installation/dosshd.conf)|" -e 's/root_key=key//')"
+UUID_BOOT_LUKS_DEVICE="$(
+    sed -n "/^target='boot'/,/^$/p" /etc/conf.d/dmcrypt | \
+    sed -n "s/source=UUID='\(.*\)'/\1/p" | \
+    tr -d '-'
+)"
+UUID_BOOT_FILESYSTEM="$(sed -n 's#^UUID=\([^[:space:]]*\)[[:space:]]*/boot[[:space:]]*.*#\1#p' /etc/fstab)"
+CRYPTOMOUNT="\tcryptomount -u ${UUID_BOOT_LUKS_DEVICE}\\
+\tset root='cryptouuid/${UUID_BOOT_LUKS_DEVICE}'\\
+\tsearch --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID_BOOT_LUKS_DEVICE}' ${UUID_BOOT_FILESYSTEM}"
+
+GRUB_LOCAL_CONFIG="$(
+    sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64'/,/^}$/p" <<<"${GRUB_CONFIG}" | \
+    sed "s#^[[:space:]]*search[[:space:]]*.*#${CRYPTOMOUNT}#"
+)"
+
+grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r EFI_MOUNTPOINT; do
+    EFI_UUID="$(grep -Po "(?<=^UUID=)[0-9A-F]{4}-[0-9A-F]{4}(?=[[:space:]]+/${EFI_MOUNTPOINT}[[:space:]]+vfat[[:space:]]+)" /etc/fstab)"
+    GRUB_SSH_CONFIG="$(
+        sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | \
+        sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${EFI_UUID}/" \
+            -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(cat /etc/gentoo-installation/dosshd.conf)|" \
+            -e 's/root_key=key//'
+    )"
 
     if [[ ${BOOT_ENTRY} -ne 3 ]]; then
-        echo -e "set default=${BOOT_ENTRY}\nset timeout=5\n" > "/boot/grub_${I}.cfg"
-    elif [ -f "/boot/grub_${I}.cfg" ]; then
-        rm -f "/boot/grub_${I}.cfg"
+        echo -e "set default=${BOOT_ENTRY}\nset timeout=5\n" > "/boot/grub_${EFI_MOUNTPOINT}.cfg"
+    elif [[ -f /boot/grub_${EFI_MOUNTPOINT}.cfg ]]; then
+        rm -f "/boot/grub_${EFI_MOUNTPOINT}.cfg"
     fi
 
-    cat <<EOF >> "/boot/grub_${I}.cfg"
+    cat <<EOF >> "/boot/grub_${EFI_MOUNTPOINT}.cfg"
 ${GRUB_SSH_CONFIG}
 
 ${GRUB_LOCAL_CONFIG}
@@ -100,11 +150,15 @@ fi
 echo -e "\n\033[1;32mSign all files in \"/boot\":\033[0m"
 echo 'find /boot -type f ! -name "*\.sig" -exec gpg --detach-sign {} \;'
 
-if [ "${UNMOUNT_BOOT}" == "true" ]; then
+##########
+# umount #
+##########
+
+if [[ -n ${UMOUNT_BOOT} ]]; then
     umount /boot
 fi
 
-if [ ! -f "/etc/gentoo-installation/grub_default_boot_option.conf" ]; then
+if [[ ! -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
     cat <<EOF
 
 You can persist your choice you have to make in GRUB's boot menu

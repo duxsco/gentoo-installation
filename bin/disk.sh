@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+# Prevent tainting variables via environment
+# See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
+unset ALPHABET BOOT_PARTITION BOOT_PASSWORD BTRFS_RAID_DATA BTRFS_RAID_METADATA DISK DISKS INDEX KEYFILE MASTER_PASSWORD PARTITION PBKDF RAID RAID10 RAID5 RAID6 RESCUE_PARTITION RESCUE_PASSWORD SWAP_PARTITION SWAP_SIZE SYSTEM_SIZE
 
-help() {
+function help() {
 cat <<EOF
 ${0##*\/} -b BootPassword -m MasterPassword -r RescuePassword -d "/dev/sda /dev/sdb /dev/sdc" -s SwapSizeInGibibyte
 OR
@@ -28,18 +30,17 @@ Further optional flags:
 "-f": specifies /boot partition size in MiB (default: 512 MiB).
 "-i": specifies SystemRescueCD partition size in MiB (default: 5120 MiB; recommended minimum: 1024 MiB)
 EOF
-    return 1
 }
 
-getPartitions() {
-    for i in "${DISKS[@]}"; do
-        ls "${i}"*"$1"
+function getPartitions() {
+    for DISK in "${DISKS[@]}"; do
+        ls "${DISK}"*"$1"
     done | xargs
 }
 
-getMapperPartitions() {
-    for i in "${DISKS[@]}"; do
-        ls "${i/\/dev\//\/dev\/mapper\/}"*"$1"
+function getMapperPartitions() {
+    for DISK in "${DISKS[@]}"; do
+        ls "${DISK/\/dev\//\/dev\/mapper\/}"*"$1"
     done | xargs
 }
 
@@ -65,14 +66,15 @@ while getopts 56b:d:e:f:i:m:r:s:th opt; do
         r) RESCUE_PASSWORD="$OPTARG";;
         s) SWAP_SIZE="$((OPTARG * 1024))";;
         t) RAID10="true"; RAID="10";;
-        h|?) help;;
+        h) help; exit 0;;
+        ?) help; exit 1;;
     esac
 done
 
 # shellcheck disable=SC2068
-if { [ "${RAID5}" == "true" ] && [ "${RAID6}" == "true" ]; } || \
-   { [ "${RAID6}" == "true" ] && [ "${RAID10}" == "true" ]; } || \
-   { [ "${RAID10}" == "true" ] && [ "${RAID5}" == "true" ]; } || \
+if { [[ ${RAID5} == true ]] && [[ ${RAID6} == true ]]; } || \
+   { [[ ${RAID6} == true ]] && [[ ${RAID10} == true ]]; } || \
+   { [[ ${RAID10} == true ]] && [[ ${RAID5} == true ]]; } || \
    { [[ ${#DISKS[@]} -lt 3 ]] && [[ ${RAID} -eq 5 ]]; } || \
    { [[ ${#DISKS[@]} -lt 4 ]] && [[ ${RAID} -eq 6 ]]; } || \
    { [[ ${#DISKS[@]} -lt 4 ]] && [[ ${RAID} -eq 10 ]]; } || \
@@ -80,6 +82,7 @@ if { [ "${RAID5}" == "true" ] && [ "${RAID6}" == "true" ]; } || \
    [[ -z ${BOOT_PASSWORD} ]] || [[ ${#DISKS[@]} -eq 0 ]] || [[ -z ${MASTER_PASSWORD} ]] || \
    [[ -z ${RESCUE_PASSWORD} ]] || [[ -z ${SWAP_SIZE} ]] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
     help
+    exit 1
 fi
 
 case ${#DISKS[@]} in
@@ -94,15 +97,15 @@ KEYFILE="$(umask 0377 && mktemp)"
 dd bs=512 count=16384 iflag=fullblock if=/dev/random of="${KEYFILE}"
 
 # partition
-for i in "${DISKS[@]}"; do
+for DISK in "${DISKS[@]}"; do
 
-    if [ $((512*$(cat "/sys/class/block/${i##*\/}/size"))) -gt 536870912000 ]; then
+    if [ $((512*$(cat "/sys/class/block/${DISK##*\/}/size"))) -gt 536870912000 ]; then
         SYSTEM_SIZE="-5119"
     else
         SYSTEM_SIZE="99%"
     fi
 
-    parted --align optimal --script "$i" \
+    parted --align optimal --script "${DISK}" \
         mklabel gpt \
         unit MiB \
         "mkpart 'efi system partition' 1 $((1 + EFI_SYSTEM_PARTITION_SIZE))" \
@@ -114,20 +117,20 @@ for i in "${DISKS[@]}"; do
 done
 
 # boot partition
-# shellcheck disable=SC2046
-if [ ${#DISKS[@]} -eq 1 ]; then
+if [[ ${#DISKS[@]} -eq 1 ]]; then
     BOOT_PARTITION="$(getPartitions 2)"
 else
     BOOT_PARTITION="/dev/md0"
+    # shellcheck disable=SC2046
     mdadm --create "${BOOT_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getPartitions 2)
 fi
 
 # rescue partition
-# shellcheck disable=SC2046
-if [ ${#DISKS[@]} -eq 1 ]; then
+if [[ ${#DISKS[@]} -eq 1 ]]; then
     RESCUE_PARTITION="$(getPartitions 3)"
 else
     RESCUE_PARTITION="/dev/md1"
+    # shellcheck disable=SC2046
     mdadm --create "${RESCUE_PARTITION}" --level=1 --raid-devices=${#DISKS[@]} --metadata=default $(getPartitions 3)
 fi
 
@@ -135,22 +138,22 @@ fi
 PBKDF="--pbkdf pbkdf2"
 INDEX=0
 # shellcheck disable=SC2046
-find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartitions 5) | while read -r I; do
+find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartitions 5) | while read -r PARTITION; do
     if [[ ${INDEX} -eq 2 ]]; then
         unset PBKDF
     fi
     # shellcheck disable=SC2086
-    cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${PBKDF:---pbkdf argon2id} "$I"
+    cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${KEYFILE}" --use-random ${PBKDF:---pbkdf argon2id} "${PARTITION}"
     if [[ ${INDEX} -eq 1 ]]; then
         # shellcheck disable=SC2086
-        echo -n "${RESCUE_PASSWORD}" | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
+        echo -n "${RESCUE_PASSWORD}" | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "${PARTITION}" -
     else
         # shellcheck disable=SC2086
-        echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
+        echo -n "${MASTER_PASSWORD}" | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "${PARTITION}" -
         # shellcheck disable=SC2086
-        echo -n "${BOOT_PASSWORD}"   | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "$I" -
+        echo -n "${BOOT_PASSWORD}"   | cryptsetup luksAddKey --hash sha512 --key-file "${KEYFILE}" ${PBKDF:---pbkdf argon2id} "${PARTITION}" -
     fi
-    cryptsetup luksOpen --key-file "${KEYFILE}" "$I" "${I##*\/}"
+    cryptsetup luksOpen --key-file "${KEYFILE}" "${PARTITION}" "${PARTITION##*\/}"
     INDEX=$((INDEX+1))
 done
 
@@ -158,8 +161,8 @@ done
 ALPHABET=({A..Z})
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 1) | while read -r I; do
-    mkfs.vfat -n "EFI${ALPHABET[tmpCount++]}" -F 32 "$I"
+find $(getPartitions 1) | while read -r PARTITION; do
+    mkfs.vfat -n "EFI${ALPHABET[tmpCount++]}" -F 32 "${PARTITION}"
 done
 
 # boot partition
@@ -216,20 +219,20 @@ ln -s "${SWAP_PARTITION}" /mnt/gentoo/mapperSwap
 ln -s "$(getMapperPartitions 5 | awk '{print $1}')" /mnt/gentoo/mapperSystem
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 1) | while read -r I; do
-    ln -s "$I" "/mnt/gentoo/devEfi${ALPHABET[tmpCount++]}"
+find $(getPartitions 1) | while read -r PARTITION; do
+    ln -s "${PARTITION}" "/mnt/gentoo/devEfi${ALPHABET[tmpCount++]}"
 done
 ln -s "$(awk '{print $1}' <<<"${BOOT_PARTITION}")" "/mnt/gentoo/devBoot"
 ln -s "$(awk '{print $1}' <<<"${RESCUE_PARTITION}")" "/mnt/gentoo/devRescue"
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 4) | while read -r I; do
-    ln -s "$I" "/mnt/gentoo/devSwap${ALPHABET[tmpCount++]}"
+find $(getPartitions 4) | while read -r PARTITION; do
+    ln -s "${PARTITION}" "/mnt/gentoo/devSwap${ALPHABET[tmpCount++]}"
 done
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 5) | while read -r I; do
-    ln -s "$I" "/mnt/gentoo/devSystem${ALPHABET[tmpCount++]}"
+find $(getPartitions 5) | while read -r PARTITION; do
+    ln -s "${PARTITION}" "/mnt/gentoo/devSystem${ALPHABET[tmpCount++]}"
 done
 
 echo $?
