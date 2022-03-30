@@ -26,9 +26,9 @@ Optional RAID flags:
 "-t": Create RAID 10 devices which require >=4+2*x disks with x being a non-negative integer.
 
 Further optional flags:
-"-e": specifies EFI System Partition size in MiB (default and recommended minimum: 512 MiB).
+"-e": specifies EFI System Partition size in MiB (default and recommended minimum: 260 MiB).
 "-f": specifies /boot partition size in MiB (default: 512 MiB).
-"-i": specifies SystemRescueCD partition size in MiB (default: 5120 MiB; recommended minimum: 1024 MiB)
+"-i": specifies SystemRescueCD partition size in MiB (default: 2048 MiB; recommended minimum: 1024 MiB)
 EOF
 }
 
@@ -44,9 +44,9 @@ function getMapperPartitions() {
     done | xargs
 }
 
-EFI_SYSTEM_PARTITION_SIZE="512"
+EFI_SYSTEM_PARTITION_SIZE="260"
 BOOT_PARTITION_SIZE="512"
-RESCUE_PARTITION_SIZE="5120"
+RESCUE_PARTITION_SIZE="2048"
 RAID=""
 RAID5="false"
 RAID6="false"
