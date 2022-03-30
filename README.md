@@ -129,7 +129,7 @@ PC∕Laptop───────────────────────
 - More disks can be used. RAID 10 is only available to setups with an even number of disks.
 
 On LUKS encrypted disks except for the `rescue` partition where the SystemRescueCD files are located, LUKS passphrase slots are set as follows:
-  - 0: Keyfile (stored in initramfs to unlock `system` and `swap` partitions without interaction)
+  - 0: Keyfile (stored in initramfs to unlock `system` partitions without interaction)
   - 1: Master password (fallback password for emergency)
   - 2: Boot password
     - shorter than "master", but still secure
@@ -1888,7 +1888,7 @@ etc.
 If you are finished, execute to resume boot:
 
 ```bash
-touch /tmp/SWAP.opened /tmp/ROOT.opened && rm /tmp/remote-rescueshell.lock
+touch /tmp/ROOT.opened && rm /tmp/remote-rescueshell.lock
 ```
 
 ## Other Gentoo Linux repos
