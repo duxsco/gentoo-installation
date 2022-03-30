@@ -1268,7 +1268,7 @@ Configure the kernel from scratch or use the configuration from `sys-kernel/gent
 
 ```bash
 gkb2gs.sh -h
-gkb2gs.sh -l
+gkb2gs.sh
 ```
 
 Customise kernel configuration and build kernel and initramfs for local and remote (via SSH) LUKS unlock:
@@ -1444,10 +1444,7 @@ done
 Copy relevant files from `/boot` to `/efi*/`:
 
 ```bash
-boot2efi.sh && \
-ls -1d /efi* | while read -r I; do
-    mount "${I}"
-done
+boot2efi.sh
 ```
 
 Result on a dual disk system:
@@ -1864,7 +1861,7 @@ eselect kernel list
 eselect kernel set <NUMBER>
 
 # Configure the kernel from scratch, use an old config or use the configuration from sys-kernel/gentoo-kernel-bin with
-gkb2gs.sh -l
+gkb2gs.sh
 
 # Customise kernel configuration and build kernel
 genkernel.sh
