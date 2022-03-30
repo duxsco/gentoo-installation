@@ -913,8 +913,7 @@ echo '
 '
 fi
 
-# Execute glsa-check once a day
-if [ ! -f "${HOME}/.glsa_check_timestamp" ] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt $(awk '{print $1}' "$(portageq get_repo_path / gentoo)/metadata/timestamp.x") ]]; then
+if [[ ! -f ${HOME}/.glsa_check_timestamp ]] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt $(date --date "$(cat "$(portageq get_repo_path / gentoo)/metadata/timestamp.chk")" +%s) ]]; then
   echo "Executing glsa-check..."
   glsa-check -t all
   echo ""
@@ -1095,7 +1094,7 @@ Install genkernel, filesystem and device mapper tools:
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
 emerge dev-util/ccache sys-fs/btrfs-progs sys-kernel/genkernel && (
-    [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
+    [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
     emerge sys-fs/mdadm || \
     true
 ); echo $?
@@ -1116,7 +1115,7 @@ Configure genkernel:
 ```bash
 rsync -av /etc/genkernel.conf /etc/._cfg0000_genkernel.conf && \
 (
-    [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
+    [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
     sed -i 's/^#MDADM="no"$/MDADM="yes"/' /etc/._cfg0000_genkernel.conf || \
     true
 ) && \
@@ -1153,7 +1152,7 @@ emerge sys-boot/grub; echo $?
 
 ```bash
 (
-    [ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
+    [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
     MDADM_MOD=" domdadm" || \
     MDADM_MOD=""
 ) && \
@@ -1247,12 +1246,13 @@ sys-kernel/gentoo-sources ~amd64
 sys-kernel/linux-headers ~amd64
 EOF
 ) && (
-[ "${INSTALL_LTS_KERNEL}" == "true" ] && \
+if [[ ${INSTALL_LTS_KERNEL} == true ]]; then
 cat <<EOF >> /etc/portage/package.mask/main
 >=sys-kernel/gentoo-kernel-bin-5.16
 >=sys-kernel/gentoo-sources-5.16
 >=sys-kernel/linux-headers-5.16
 EOF
+fi
 ) && (
 cat <<EOF >> /etc/portage/package.use/main
 sys-fs/btrfs-progs -convert
@@ -1548,7 +1548,13 @@ Setup cronie:
 emerge sys-process/cronie && \
 rc-update add cronie default && \
 echo "0 1 * * * /usr/local/sbin/btrfs-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e && \
-echo "0 4 * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e; echo $?
+(
+if [[ $(lsblk -ndo type /devBoot) == raid1 ]]; then
+    echo "0 4 * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e
+else
+    echo "#0 4 * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e
+fi
+); echo $?
 ```
 
 Enable ssh service:
@@ -1649,7 +1655,7 @@ rc-update add mcelog default; echo $?
   - If you have `sys-fs/mdadm` installed:
 
 ```bash
-[ "$(lsblk -ndo type /devBoot)" == "raid1" ] && \
+[[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
 rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
 echo "" >> /etc/._cfg0000_mdadm.conf && \
 mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
