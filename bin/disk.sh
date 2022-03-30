@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset ALPHABET BOOT_PARTITION BOOT_PASSWORD BTRFS_RAID_DATA BTRFS_RAID_METADATA DISK DISKS INDEX KEYFILE MASTER_PASSWORD PARTITION PBKDF RAID RAID10 RAID5 RAID6 RESCUE_PARTITION RESCUE_PASSWORD SWAP_PARTITION SWAP_SIZE SYSTEM_SIZE
+unset ALPHABET BOOT_PARTITION BOOT_PASSWORD BTRFS_RAID DISK DISKS INDEX KEYFILE MASTER_PASSWORD PARTITION PBKDF RAID RESCUE_PARTITION RESCUE_PASSWORD SWAP_PARTITION SWAP_SIZE SYSTEM_SIZE
 
 function help() {
 cat <<EOF
@@ -14,13 +14,7 @@ ${0##*\/} -b BootPassword -m MasterPassword -r RescuePassword -d "/dev/nvme0n1 /
 They should be of the same type and size. Don't mix HDDs with SSDs!
 
 By default, RAID 1 is used for multi-disk setups.
-This can be changed for "swap" and "system" partitions.
-In case of the "system" partition (contains @home, @root etc.),
-this is only applied to the data group blocks,
-while raid1, raid1c3 or raid1c4 is used for metadata group blocks, due to:
-https://btrfs.wiki.kernel.org/index.php/RAID56
-
-Optional RAID flags:
+This can be changed for "swap" partitions:
 "-5": Create RAID 5 devices which require >=3 disks.
 "-6": Create RAID 6 devices which require >=4 disks.
 "-t": Create RAID 10 devices which require >=4+2*x disks with x being a non-negative integer.
@@ -44,19 +38,24 @@ function getMapperPartitions() {
     done | xargs
 }
 
+function setRaid() {
+    if [[ -z ${RAID} ]]; then
+        RAID="$1"
+    else
+        help
+        exit 1
+    fi
+}
+
 EFI_SYSTEM_PARTITION_SIZE="260"
 BOOT_PARTITION_SIZE="512"
 RESCUE_PARTITION_SIZE="2048"
-RAID=""
-RAID5="false"
-RAID6="false"
-RAID10="false"
 
 # shellcheck disable=SC2207
 while getopts 56b:d:e:f:i:m:r:s:th opt; do
     case $opt in
-        5) RAID5="true"; RAID="5";;
-        6) RAID6="true"; RAID="6";;
+        5) setRaid 5;;
+        6) setRaid 6;;
         b) BOOT_PASSWORD="$OPTARG";;
         d) DISKS=( $(xargs <<<"$OPTARG" | tr ' ' '\n' | sort | xargs) );;
         e) EFI_SYSTEM_PARTITION_SIZE="$OPTARG";;
@@ -65,20 +64,17 @@ while getopts 56b:d:e:f:i:m:r:s:th opt; do
         m) MASTER_PASSWORD="$OPTARG";;
         r) RESCUE_PASSWORD="$OPTARG";;
         s) SWAP_SIZE="$((OPTARG * 1024))";;
-        t) RAID10="true"; RAID="10";;
+        t) setRaid 10;;
         h) help; exit 0;;
         ?) help; exit 1;;
     esac
 done
 
 # shellcheck disable=SC2068
-if { [[ ${RAID5} == true ]] && [[ ${RAID6} == true ]]; } || \
-   { [[ ${RAID6} == true ]] && [[ ${RAID10} == true ]]; } || \
-   { [[ ${RAID10} == true ]] && [[ ${RAID5} == true ]]; } || \
-   { [[ ${#DISKS[@]} -lt 3 ]] && [[ ${RAID} -eq 5 ]]; } || \
-   { [[ ${#DISKS[@]} -lt 4 ]] && [[ ${RAID} -eq 6 ]]; } || \
-   { [[ ${#DISKS[@]} -lt 4 ]] && [[ ${RAID} -eq 10 ]]; } || \
-   { [[ $((${#DISKS[@]}%2)) -ne 0 ]] && [[ ${RAID} -eq 10 ]]; } || \
+if { [[ -n ${RAID} ]] && [[ ${RAID} -eq 5  ]] && [[ ${#DISKS[@]} -lt 3 ]]; } || \
+   { [[ -n ${RAID} ]] && [[ ${RAID} -eq 6  ]] && [[ ${#DISKS[@]} -lt 4 ]]; } || \
+   { [[ -n ${RAID} ]] && [[ ${RAID} -eq 10 ]] && [[ ${#DISKS[@]} -lt 4 ]]; } || \
+   { [[ -n ${RAID} ]] && [[ ${RAID} -eq 10 ]] && [[ $((${#DISKS[@]}%2)) -ne 0 ]]; } || \
    [[ -z ${BOOT_PASSWORD} ]] || [[ ${#DISKS[@]} -eq 0 ]] || [[ -z ${MASTER_PASSWORD} ]] || \
    [[ -z ${RESCUE_PASSWORD} ]] || [[ -z ${SWAP_SIZE} ]] || ! ls ${DISKS[@]} >/dev/null 2>&1; then
     help
@@ -86,10 +82,10 @@ if { [[ ${RAID5} == true ]] && [[ ${RAID6} == true ]]; } || \
 fi
 
 case ${#DISKS[@]} in
-    1) BTRFS_RAID_DATA="single"; BTRFS_RAID_METADATA="single";;
-    2) BTRFS_RAID_DATA="raid1"; BTRFS_RAID_METADATA="raid1";;
-    3) BTRFS_RAID_DATA="raid${RAID:-1c3}"; BTRFS_RAID_METADATA="raid1c3";;
-    *) BTRFS_RAID_DATA="raid${RAID:-1c4}"; BTRFS_RAID_METADATA="raid1c4";;
+    1) BTRFS_RAID="single";;
+    2) BTRFS_RAID="raid1";;
+    3) BTRFS_RAID="raid1c3";;
+    *) BTRFS_RAID="raid1c4";;
 esac
 
 # create keyfile
@@ -184,7 +180,7 @@ swapon "${SWAP_PARTITION}"
 
 # system partition
 # shellcheck disable=SC2046
-mkfs.btrfs --data "${BTRFS_RAID_DATA}" --metadata "${BTRFS_RAID_METADATA}" --checksum blake2 --label system $(getMapperPartitions 5)
+mkfs.btrfs --data "${BTRFS_RAID}" --metadata "${BTRFS_RAID}" --checksum blake2 --label system $(getMapperPartitions 5)
 
 if [ ! -d /mnt/gentoo ]; then
     mkdir /mnt/gentoo
