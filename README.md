@@ -693,8 +693,9 @@ chmod og= /mnt/gentoo/boot; echo $?
 ```bash
 # Change TMPFS_SIZE based on available RAM
 TMPFS_SIZE=4G && \
-mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
-mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/var/tmp; echo $?
+mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
+mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/var/tmp && \
+mount -t tmpfs -o noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=portage,gid=portage,X-mount.mkdir=0775 tmpfs /mnt/gentoo/var/tmp/portage; echo $?
 ```
 
 ## Pre-chroot configuration
@@ -1036,8 +1037,9 @@ echo $?
 echo "" >> /etc/fstab && \
 TMPFS_SIZE=4G && \
 cat <<EOF | column -t >> /etc/fstab
-tmpfs /tmp     tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
-tmpfs /var/tmp tmpfs noatime,nodev,nosuid,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
+tmpfs /tmp             tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
+tmpfs /var/tmp         tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
+tmpfs /var/tmp/portage tmpfs noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=portage,gid=portage,X-mount.mkdir=0775 0 0
 EOF
 ```
 
