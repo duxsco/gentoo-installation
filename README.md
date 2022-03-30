@@ -3,7 +3,7 @@
 > ⚠ The installation guide builds heavily on `Secure Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom keys. ⚠
 
 The following installation guide results in a **fully encrypted, Secure Boot signed** (EFI binary/binaries) **and GnuPG signed** (kernel, initramfs, microcode etc.) **system** with heavy use of **RAID** (mdadm and BTRFS based) and support for **LUKS unlock**:
-- **Locally:** One-time password entry and automatic decryption of LUKS partitions (multiple root and swap partitions) in further boot process via LUKS keyfile stored in initramfs which itself is stored on LUKS encrypted partition(s)
+- **Locally:** One-time password entry and automatic decryption of (multiple) LUKS `system` partitions in further boot process via LUKS keyfile stored in initramfs which itself is stored on LUKS encrypted partition(s)
 - **Remote:** SSH login into initramfs+dropbear system, manual decryption of LUKS partitions and resumption of Gentoo Linux boot
 - After boot into **rescue system** based upon a **customised SystemRescueCD**
 
@@ -19,7 +19,7 @@ All three boot options are available in GRUB's boot menu.
 
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
 
-Depending on the number of disks and the `disk.sh` options chosen, BTRFS "single", "raid1", "raid1c3", "raid1c4", "raid10", "raid5" or "raid6" is used for the data block groups of the `system` partition where the Btrfs subvolumes are located (`@root`, `@home` etc.). `single` or a RAID 1 flavour is always used for [metadata block groups](https://btrfs.wiki.kernel.org/index.php/RAID56). Furthermore, MDADM RAID 1 may be used for `boot`, `rescue` and `swap` partitions with RAID 10, RAID 5 and RAID 6 being further options for `swap`. And, EFI System Partitions each with their own EFI entry are created one for each disk.
+EFI System Partitions (ESP) each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 may be used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
 - Single disk:
 
@@ -63,7 +63,7 @@ PC∕Laptop───────────────────────
     │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP
     └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
-        └── BTRFS (raid1)                  └── BTRFS (raid1)
+        └── BTRFS raid1                    └── BTRFS raid1
             └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles
@@ -90,7 +90,7 @@ PC∕Laptop───────────────────────
     │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP
     └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
-        └── BTRFS (raid1c3|raid5)          └── BTRFS (raid1c3|raid5)          └── BTRFS (raid1c3|raid5)
+        └── BTRFS raid1c3                  └── BTRFS raid1c3                  └── BTRFS raid1c3
             └── subvolume                      └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
@@ -117,7 +117,7 @@ PC∕Laptop───────────────────────
     │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
     └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)   └── 5. LUKS ("system" partition)
-        └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)         └── BTRFS (raid1c4|5|6|10)
+        └── BTRFS raid1c4                  └── BTRFS raid1c4                  └── BTRFS raid1c4                  └── BTRFS raid1c4
             └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
