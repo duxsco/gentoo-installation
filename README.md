@@ -788,7 +788,10 @@ rsync -a /usr/share/portage/config/repos.conf /etc/portage/repos.conf/._cfg0000_
 sed -i \
     -e 's/^\(sync-type[[:space:]]*=[[:space:]]*\).*/\1git/' \
     -e 's#^\(sync-uri[[:space:]]*=[[:space:]]*\).*#\1https://anongit.gentoo.org/git/repo/sync/gentoo.git#' \
-    -e '$ a sync-git-verify-commit-signature = yes' /etc/portage/repos.conf/._cfg0000_gentoo.conf; echo $?
+    -e '$ a sync-git-verify-commit-signature = yes' \
+    -e '$ a clone-depth = 1' \
+    -e '$ a sync-depth = 1' \
+    /etc/portage/repos.conf/._cfg0000_gentoo.conf; echo $?
 ```
 
 Install to be able to configure `/etc/portage/make.conf`:
