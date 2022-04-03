@@ -353,7 +353,7 @@ Extract portage tarball:
 ```bash
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
-mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
+mount -o noatime,noexec,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
 tar --strip-components=1 -C /mnt/gentoo/var/db/repos/gentoo/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
@@ -659,8 +659,8 @@ Copy system rescue files to the `rescue` partition:
 
 ```bash
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
-mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
-mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
+mount -o loop,noexec,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
+mount -o noatime,noexec /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ && \
 umount /mnt/iso; echo $?
 ```
@@ -676,15 +676,15 @@ mount --make-rslave /mnt/gentoo/dev && \
 mount --bind /run /mnt/gentoo/run && \
 mount --make-slave /mnt/gentoo/run && \
 
-mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
+mount -o noatime,noexec,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
 
 touch /mnt/gentoo/var/cache/binpkgs/.keep && \
-mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
+mount -o noatime,noexec,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
 
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
-mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
+mount -o noatime,noexec,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
 
-mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
+mount -o noatime,noexec /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
 chmod og= /mnt/gentoo/boot; echo $?
 ```
 
@@ -692,10 +692,13 @@ chmod og= /mnt/gentoo/boot; echo $?
 
 ```bash
 # Change TMPFS_SIZE based on available RAM
-TMPFS_SIZE=4G && \
+TMPFS_SIZE=12G && \
 mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
 mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/var/tmp && \
-mount -t tmpfs -o noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=portage,gid=portage,X-mount.mkdir=0775 tmpfs /mnt/gentoo/var/tmp/portage; echo $?
+mount -t tmpfs -o noatime,nodev,nosuid,mode=0755,size=${TMPFS_SIZE},uid=root,gid=root,X-mount.mkdir=0755 tmpfs /mnt/gentoo/var/tmp/genkernel && \
+! grep ":250:" /etc/group && \
+! grep ":250:" /etc/passwd && \
+mount -t tmpfs -o noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=250,gid=250,X-mount.mkdir=0775 tmpfs /mnt/gentoo/var/tmp/portage; echo $?
 ```
 
 ## Pre-chroot configuration
@@ -1034,15 +1037,15 @@ echo "" >> /etc/fstab && \
 (
 cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r I; do
-  echo "UUID=$(blkid -s UUID -o value "$I")   ${I/devE/e}                   vfat  noatime,noauto,dmask=0022,fmask=0133  0 0"
+  echo "UUID=$(blkid -s UUID -o value "$I")  ${I/devE/e}          vfat  noatime,noauto,noexec,dmask=0022,fmask=0133 0 0"
 done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                   btrfs noatime                               0 0
-UUID=$(blkid -s UUID -o value /mapperSwap)   none                    swap  sw                                    0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /                       btrfs noatime,subvol=@root                  0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /home                   btrfs noatime,subvol=@home                  0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/binpkgs      btrfs noatime,subvol=@binpkgs               0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /var/cache/distfiles    btrfs noatime,subvol=@distfiles             0 0
-UUID=$(blkid -s UUID -o value /mapperSystem)   /var/db/repos/gentoo    btrfs noatime,subvol=@ebuilds               0 0
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noexec                              0 0
+UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                                          0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root                        0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,noexec,subvol=@home                 0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,noexec,subvol=@binpkgs              0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,noexec,subvol=@distfiles            0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,noexec,subvol=@ebuilds              0 0
 EOF
 ) && \
 find /devEfi* -maxdepth 0 | while read -r I; do
@@ -1056,11 +1059,12 @@ echo $?
 
 ```bash
 echo "" >> /etc/fstab && \
-TMPFS_SIZE=4G && \
+TMPFS_SIZE=12G && \
 cat <<EOF | column -t >> /etc/fstab
-tmpfs /tmp             tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
-tmpfs /var/tmp         tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
-tmpfs /var/tmp/portage tmpfs noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=portage,gid=portage,X-mount.mkdir=0775 0 0
+tmpfs /tmp               tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
+tmpfs /var/tmp           tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root 0 0
+tmpfs /var/tmp/genkernel tmpfs noatime,nodev,nosuid,mode=0755,size=${TMPFS_SIZE},uid=root,gid=root,X-mount.mkdir=0755 0 0
+tmpfs /var/tmp/portage   tmpfs noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=portage,gid=portage,X-mount.mkdir=0775 0 0
 EOF
 ```
 
