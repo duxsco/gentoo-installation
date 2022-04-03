@@ -1839,7 +1839,7 @@ First, boot into the Gentoo Linux and save necessary files in `DER` form:
 ```bash
 bash -c '
 (
-! mountpoint /efia && \\
+! mountpoint --quiet /efia && \\
 mount /efia || true
 ) && \\
 openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der && \\
