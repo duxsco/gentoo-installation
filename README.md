@@ -986,7 +986,8 @@ In order to add your custom keys `Setup Mode` must have been enabled in your `UE
 Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
 
 ```bash
-emerge -av app-crypt/efitools app-crypt/sbsigntools
+echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge -av app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
 ```
 
 Create Secure Boot keys and certificates:
@@ -1846,6 +1847,12 @@ openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /e
 ```
 
 Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successful boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
+
+To check whether Secure Boot is enabled execute:
+
+```bash
+mokutil --sb-state
+```
 
 ## Enable SELinux
 
