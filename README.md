@@ -960,6 +960,8 @@ echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo 
 Setup vim:
 
 ```bash
+USE="-verify-sig" emerge -1 dev-libs/libsodium && \
+emerge -1 dev-libs/libsodium && \
 emerge app-editors/vim && \
 echo "filetype plugin on
 filetype indent on
