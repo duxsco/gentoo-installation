@@ -2,7 +2,7 @@
 
 > ⚠ The installation guide builds heavily on `Secure Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom keys. ⚠
 
-The following installation guide results in a **fully encrypted, Secure Boot signed** (EFI binary/binaries) **and GnuPG signed** (kernel, initramfs, microcode etc.) **system** with heavy use of **RAID** (mdadm and BTRFS based) and support for **LUKS unlock**:
+The following installation guide results in a **fully encrypted** (except ESP), **Secure Boot signed** (EFI binary/binaries) **and GnuPG signed** (kernel, initramfs, microcode etc.) **system** with heavy use of **RAID** (mdadm and BTRFS based) and support for **LUKS unlock**:
 - **Locally:** One-time password entry and automatic decryption of (multiple) LUKS `system` partitions in further boot process via LUKS keyfile stored in initramfs which itself is stored on LUKS encrypted partition(s)
 - **Remote:** SSH login into initramfs+dropbear system, manual decryption of LUKS partitions and resumption of Gentoo Linux boot
 - After boot into **rescue system** based upon a **customised SystemRescueCD**
@@ -1479,20 +1479,20 @@ Result on a dual disk system:
 
 ```bash
 tree -a /boot /efi*
-/boot
-├── initramfs-5.15.23-gentoo-x86_64.img
+/boot 👈 LUKS encrypted partition
+├── initramfs-5.15.23-gentoo-x86_64.img 👈 LUKS keyfile integrated
 ├── initramfs-5.15.23-gentoo-x86_64.img.sig
 ├── System.map-5.15.23-gentoo-x86_64
 ├── System.map-5.15.23-gentoo-x86_64.sig
 ├── vmlinuz-5.15.23-gentoo-x86_64
 ├── vmlinuz-5.15.23-gentoo-x86_64.sig
-/efia
+/efia 👈 Not LUKS encrypted
 ├── EFI
 │   └── boot
 │       └── bootx64.efi
 ├── grub.cfg
 ├── grub.cfg.sig
-├── initramfs-5.15.23-gentoo-x86_64-ssh.img
+├── initramfs-5.15.23-gentoo-x86_64-ssh.img 👈 No LUKS keyfile integrated
 ├── initramfs-5.15.23-gentoo-x86_64-ssh.img.sig
 ├── System.map-5.15.23-gentoo-x86_64-ssh
 ├── System.map-5.15.23-gentoo-x86_64-ssh.sig
@@ -1865,7 +1865,7 @@ sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"$/GRUB_CMDLINE_LINUX_DEFAULT="\1 l
 
 Recreate `grub.conf`. Alternatively, you can follow the steps in [kernel update](#update-linux-kernel). For kernel recreation, I wouldn't delete ccache in order to speed up things. Reboot the system thereafter.
 
-After bootup, [relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel). But, don't forget to mount `/boot` and all `/efi*` first. Make sure to apply the `setfiles` command on `/boot`, `/var/cache/binpkgs`, `/var/cache/distfiles`, `/var/db/repos/gentoo` and all `/efi*`.
+After bootup, [relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel). But, don't forget to mount `/boot` and all `/efi*` first. Make sure to apply the `setfiles` command on `/boot`, `/var/cache/binpkgs`, `/var/cache/distfiles`, `/var/db/repos/gentoo`, `/var/tmp` and all `/efi*`.
 
 Add the initial user to the administration SELinux user, and take care of services:
 - https://wiki.gentoo.org/wiki/SELinux/Installation#Define_the_administrator_accounts
