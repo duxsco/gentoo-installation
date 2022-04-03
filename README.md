@@ -1650,7 +1650,7 @@ rc-update add consolefont boot; echo $?
   - fish shell:
 
 ```bash
-echo "=dev-libs/libpcre2-$(emerge --search '%^dev-libs/libpcre2$' | grep -i 'latest version available' | awk '{print $NF}') pcre32" >> /etc/portage/package.use/main && \
+echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
 echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/fish && (
 cat <<EOF | tee -a /root/.bashrc >> /home/david/.bashrc
