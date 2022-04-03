@@ -44,7 +44,6 @@ grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfa
     rsync -a "/boot/grub_${MOUNTPOINT}.cfg.sig" "/${MOUNTPOINT}/grub.cfg.sig"
     rm "/boot/grub_${MOUNTPOINT}.cfg" "/boot/grub_${MOUNTPOINT}.cfg.sig"
     sync
-    umount "/${MOUNTPOINT}"
 done
 
 rm -f /boot/{"System.map-${KERNEL_VERSION}-x86_64-ssh","initramfs-${KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION}-x86_64-ssh"}{,.sig}
