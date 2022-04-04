@@ -938,11 +938,12 @@ echo '
 '
 fi
 
-if [[ ! -f ${HOME}/.glsa_check_timestamp ]] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt $(date --date "$(cat "$(portageq get_repo_path / gentoo)/metadata/timestamp.chk")" +%s) ]]; then
+GENTOO_EBUILD_TIMESTAMP="$(date --date "$(cat "$(portageq get_repo_path / gentoo)/metadata/timestamp.chk")" +%s)"
+if [[ ! -f ${HOME}/.glsa_check_timestamp ]] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt ${GENTOO_EBUILD_TIMESTAMP} ]]; then
   echo "Executing glsa-check..."
   glsa-check -t all
   echo ""
-  date --utc +%s > "${HOME}/.glsa_check_timestamp"
+  echo "${GENTOO_EBUILD_TIMESTAMP}" > "${HOME}/.glsa_check_timestamp"
 fi
 EOF
 ) && \
