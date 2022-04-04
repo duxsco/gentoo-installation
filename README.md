@@ -782,21 +782,6 @@ rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
 sed -i "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" /etc/._cfg0000_dispatch-conf.conf
 ```
 
-Make portage use git+https:
-
-```bash
-mkdir /etc/portage/repos.conf && \
-rsync -a /usr/share/portage/config/repos.conf /etc/portage/repos.conf/gentoo.conf && \
-rsync -a /usr/share/portage/config/repos.conf /etc/portage/repos.conf/._cfg0000_gentoo.conf && \
-sed -i \
-    -e 's/^\(sync-type[[:space:]]*=[[:space:]]*\).*/\1git/' \
-    -e 's#^\(sync-uri[[:space:]]*=[[:space:]]*\).*#\1https://anongit.gentoo.org/git/repo/sync/gentoo.git#' \
-    -e '$ a sync-git-verify-commit-signature = yes' \
-    -e '$ a clone-depth = 1' \
-    -e '$ a sync-depth = 1' \
-    /etc/portage/repos.conf/._cfg0000_gentoo.conf; echo $?
-```
-
 Install to be able to configure `/etc/portage/make.conf`:
 
 ```bash
@@ -871,31 +856,21 @@ echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main
 
 ## System update
 
-Update portage and check news:
+Install `app-portage/eix`:
 
 ```bash
-emerge app-portage/eix dev-vcs/git && \
-find /var/db/repos/gentoo -maxdepth 1 -mindepth 1 -exec rm -rf {} + && \
-git config --system includeIf.gitdir:/var/db/repos/gentoo/.path /etc/portage/gitconfig && \
-git config --file /etc/portage/gitconfig http.sslCAInfo /etc/ssl/certs/4042bcee.0 && \
-git config --file /etc/portage/gitconfig http.sslCAPath /etc/ssl/certs/4042bcee.0 && \
-git config --file /etc/portage/gitconfig http.sslVersion tlsv1.3 && \
-git config --file /etc/portage/gitconfig protocol.allow never && \
-git config --file /etc/portage/gitconfig protocol.https.allow always && \
-eix-sync && \
+emerge app-portage/eix
+```
+
+Make portage use git+https following [this guide](https://github.com/duxsco/gentoo-git).
+
+Read Gentoo news items:
+
+```
 eselect news list
 # eselect news read 1
 # eselect news read 2
 # etc.
-```
-
-In the previous codeblock, the use of Let's Encrypt's root certificate is enforced:
-
-```bash
-openssl x509 -hash -subject -issuer -noout -in /etc/ssl/certs/4042bcee.0
-4042bcee
-subject=C = US, O = Internet Security Research Group, CN = ISRG Root X1
-issuer=C = US, O = Internet Security Research Group, CN = ISRG Root X1
 ```
 
 Update system:
