@@ -1,0 +1,36 @@
+#!/usr/bin/env nft -f
+
+flush ruleset
+
+table inet filter {
+	chain INPUT {
+		type filter hook input priority 0; policy drop;
+		ct state invalid drop
+		ct state established,related accept
+		iifname "lo" accept
+	}
+
+	chain FORWARD {
+		type filter hook forward priority 0; policy drop;
+		ct state invalid drop
+		ct state established,related accept
+	}
+
+	chain OUTPUT {
+		type filter hook output priority 0; policy accept;
+	}
+}
+
+table ip filter {
+	chain INPUT {
+		icmp type 8 accept
+	}
+}
+
+# https://datatracker.ietf.org/doc/html/rfc4890#section-4.4.1
+table ip6 filter {
+	chain INPUT {
+		icmpv6 type { 1, 2, 3, 4, 128, 133, 134, 135, 136, 141, 142, 148, 149 } accept
+		ip6 saddr fe80::/10 icmpv6 type { 130, 131, 132, 143, 151, 152, 153 } accept
+	}
+}
