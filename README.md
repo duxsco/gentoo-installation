@@ -913,8 +913,8 @@ echo '
 '
 fi
 
-GENTOO_EBUILD_TIMESTAMP="$(date --date "$(cat "$(portageq get_repo_path / gentoo)/metadata/timestamp.chk")" +%s)"
-if [[ ! -f ${HOME}/.glsa_check_timestamp ]] || [[ $(cat "${HOME}/.glsa_check_timestamp") -lt ${GENTOO_EBUILD_TIMESTAMP} ]]; then
+GENTOO_EBUILD_TIMESTAMP="$(date --date "$(<"$(portageq get_repo_path / gentoo)/metadata/timestamp.chk")" +%s)"
+if [[ ! -f ${HOME}/.glsa_check_timestamp ]] || [[ $(<"${HOME}/.glsa_check_timestamp") -lt ${GENTOO_EBUILD_TIMESTAMP} ]]; then
   echo "Executing glsa-check..."
   glsa-check -t all
   echo ""

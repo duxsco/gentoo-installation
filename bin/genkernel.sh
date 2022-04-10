@@ -42,7 +42,7 @@ fi
 ######################
 
 if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
-    BOOT_ENTRY="$(cat /etc/gentoo-installation/grub_default_boot_option.conf)"
+    BOOT_ENTRY="$(</etc/gentoo-installation/grub_default_boot_option.conf)"
 else
     read -r -p "Available boot options:
   0) Remote LUKS unlock via initramfs+dropbear
@@ -123,7 +123,7 @@ grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfa
     GRUB_SSH_CONFIG="$(
         sed -n "/^menuentry.*${KERNEL_VERSION}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | \
         sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${EFI_UUID}/" \
-            -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(cat /etc/gentoo-installation/dosshd.conf)|" \
+            -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(</etc/gentoo-installation/dosshd.conf)|" \
             -e 's/root_key=key//'
     )"
 

@@ -95,7 +95,7 @@ dd bs=512 count=16384 iflag=fullblock if=/dev/random of="${KEYFILE}"
 # partition
 for DISK in "${DISKS[@]}"; do
 
-    if [ $((512*$(cat "/sys/class/block/${DISK##*\/}/size"))) -gt 536870912000 ]; then
+    if [ $((512*$(<"/sys/class/block/${DISK##*\/}/size"))) -gt 536870912000 ]; then
         SYSTEM_SIZE="-5119"
     else
         SYSTEM_SIZE="99%"
