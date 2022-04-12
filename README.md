@@ -196,7 +196,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -av --no-o --no-g bin/{disk.sh,fetch_files.sh,genkernel.sh,boot2efi.sh,firewall_base.sh,btrfs-scrub.sh,mdadm-scrub.sh} root@XXX:/tmp/
+rsync -av --no-o --no-g bin/{boot2efi.sh,btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall_base.nft,firewall_base.sh,genkernel.sh,mdadm-scrub.sh} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -338,11 +338,13 @@ Result of a single disk setup:
 
 > ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
-Extract stage3 tarball and copy `firewall_base.sh`, `genkernel.sh`, `btrfs-scrub.sh`, `mdadm-scrub.sh` as well as `boot2efi.sh`:
+Extract stage3 tarball and copy `firewall_base.nft`, `genkernel.sh`, `btrfs-scrub.sh`, `mdadm-scrub.sh` as well as `boot2efi.sh`:
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -av /tmp/firewall_base.sh /mnt/gentoo/root/ && \
+rsync -a /tmp/firewall_base.nft /usr/local/sbin/firewall.nft && \
+chown root: /usr/local/sbin/firewall.nft && \
+chmod u=rwx,og=r /usr/local/sbin/firewall.nft && \
 rsync -av /tmp/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/ && \
 chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} && \
 chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh}; echo $?
@@ -602,12 +604,7 @@ Create firewall rules:
 
 ```bash
 # set firewall rules upon bootup.
-rsync -av /tmp/firewall_base.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun && \
-cat <<EOF >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun; echo $?
-
-iptables -A INPUT -p tcp --dport 50024 -m conntrack --ctstate NEW -j ACCEPT
-ip6tables -A INPUT -p tcp --dport 50024 -m conntrack --ctstate NEW -j ACCEPT
-EOF
+rsync -av /tmp/firewall_base.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
 ```
 
 Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
@@ -1765,33 +1762,14 @@ reboot
 Install:
 
 ```bash
-emerge -av net-firewall/iptables
-```
-
-Create firewall rules:
-
-```bash
-bash -c '
-rsync -a /root/firewall_base.sh /usr/local/sbin/firewall.sh && \
-(
-cat <<EOF >> /usr/local/sbin/firewall.sh
-
-iptables -A INPUT -p tcp --dport 50022 -m conntrack --ctstate NEW -j ACCEPT
-ip6tables -A INPUT -p tcp --dport 50022 -m conntrack --ctstate NEW -j ACCEPT
-EOF
-) && \
-chown root: /usr/local/sbin/firewall.sh && \
-chmod u+x /usr/local/sbin/firewall.sh; echo $?
-'
+emerge -av net-firewall/nftables
 ```
 
 Don't save firewall rules on shutdown:
 
 ```bash
-rsync -a /etc/conf.d/iptables /etc/conf.d/._cfg0000_iptables && \
-rsync -a /etc/conf.d/ip6tables /etc/conf.d/._cfg0000_ip6tables && \
-sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_iptables && \
-sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_ip6tables
+rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables && \
+sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_nftables
 ```
 
 Save firewall rules:
@@ -1799,10 +1777,8 @@ Save firewall rules:
 ```bash
 bash -c '
 /usr/local/sbin/firewall.sh && \
-rc-service iptables save && \
-rc-service ip6tables save && \
-rc-update add iptables default && \
-rc-update add ip6tables default; echo $?
+rc-service nftables save && \
+rc-update add nftables default; echo $?
 '
 ```
 

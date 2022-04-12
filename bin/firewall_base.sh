@@ -49,3 +49,6 @@ ip6tables -A INPUT -p icmpv6 --icmpv6-type 149 -j ACCEPT
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 151 -j ACCEPT -s fe80::/10
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 152 -j ACCEPT -s fe80::/10
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 153 -j ACCEPT -s fe80::/10
+
+iptables  -A INPUT -p tcp --dport 50024 -m conntrack --ctstate NEW -j ACCEPT
+ip6tables -A INPUT -p tcp --dport 50024 -m conntrack --ctstate NEW -j ACCEPT
