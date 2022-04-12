@@ -196,7 +196,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -av --no-o --no-g bin/{boot2efi.sh,btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh} root@XXX:/tmp/
+rsync -av --chown=root:root --chmod=u=rw,go=r bin/{boot2efi.sh,btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -342,12 +342,7 @@ Extract stage3 tarball and copy `firewall.nft`, `genkernel.sh`, `btrfs-scrub.sh`
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -a /tmp/firewall.nft /usr/local/sbin/firewall.nft && \
-chown root: /usr/local/sbin/firewall.nft && \
-chmod u=rwx,og=r /usr/local/sbin/firewall.nft && \
-rsync -av /tmp/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/ && \
-chown root:root /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} && \
-chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/{genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh}; echo $?
+rsync -a --chown=root:root --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/
 ```
 
 Extract portage tarball:
@@ -604,7 +599,7 @@ Create firewall rules:
 
 ```bash
 # set firewall rules upon bootup.
-rsync -av /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
+rsync -av --chown=root:root --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
 ```
 
 Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
@@ -709,8 +704,8 @@ cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 Set aliases:
 
 ```bash
-rsync -av /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
-rsync -av /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
+rsync -av --chown=root:root --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
+rsync -av --chown=root:root --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
 cat <<EOF  >> /mnt/gentoo/root/.bashrc; echo $?
 alias cp="cp -i"
 alias mv="mv -i"
@@ -1116,7 +1111,7 @@ EOF
 Configure genkernel:
 
 ```bash
-rsync -av /etc/genkernel.conf /etc/._cfg0000_genkernel.conf && \
+rsync -a /etc/genkernel.conf /etc/._cfg0000_genkernel.conf && \
 (
     [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
     sed -i 's/^#MDADM="no"$/MDADM="yes"/' /etc/._cfg0000_genkernel.conf || \
@@ -1675,10 +1670,8 @@ rc-update add rngd default; echo $?
   - ssh:
 
 ```bash
-rsync -av /etc/dropbear/authorized_keys /home/david/.ssh/ && \
-chmod og= /home/david/.ssh/authorized_keys && \
-chown david: /home/david/.ssh/authorized_keys && \
-rsync -av /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
+rsync -a --chown=david:david --chmod=u=rw,og= /etc/dropbear/authorized_keys /home/david/.ssh/ && \
+rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
 sed -i \
 -e 's/^#Port 22$/Port 50022/' \
 -e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
