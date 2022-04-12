@@ -822,19 +822,21 @@ USE="\${CPU_FLAGS_X86} \${USE_HARDENED} fish-completion"
 EOF
 ```
 
-(Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf`:
+(Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf` (copy&paste one after the other):
 
 ```bash
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq && \
+# Install app-misc/yq
+ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq
 
-# Create mirror list and sort according to your liking.
-# I use following list of German mirrors:
-#   https://ftp.fau.de/gentoo/
-#   https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/
-#   https://ftp.tu-ilmenau.de/mirror/gentoo/
-#   https://mirror.leaseweb.com/gentoo/
-curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq | jq -r '.mirrors.mirrorgroup[] | select(."@country" == "DE") | .mirror[].uri[] | select(."@protocol" == "http" and ."@ipv4" == "y" and ."@ipv6" == "y") | select(."#text" | startswith("https://")) | ."#text"' | while read -r I; do
-  if curl -fsL --proto '=https' --tlsv1.3 -I "$I" >/dev/null; then
+# Get a list of country codes and names:
+curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r '.mirrors.mirrorgroup[] | "\(.["@country"]) \(.["@countryname"])"' | sort -k2.2
+
+# Choose your countries the mirrors should be located in:
+COUNTRY='"AU","BE","BR","CA","CH","CL","CN","CZ","DE","DK","ES","FR","GR","HK","IL","IT","JP","KR","KZ","LU","NA","NC","NL","PH","PL","PT","RO","RU","SG","SK","TR","TW","UK","US","ZA"'
+
+# Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support
+curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r ".mirrors.mirrorgroup[] | select([.\"@country\"] | inside([${COUNTRY}])) | .mirror | if type==\"array\" then .[] else . end | .uri | if type==\"array\" then .[] else . end | select(.\"@protocol\" == \"http\" and .\"@ipv4\" == \"y\" and .\"@ipv6\" == \"y\" and (.\"#text\" | startswith(\"https://\"))) | .\"#text\"" | while read -r I; do
+  if curl -fs --proto '=https' --tlsv1.3 -I "$I" >/dev/null; then
     echo "$I"
   fi
 done
