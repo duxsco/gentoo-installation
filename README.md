@@ -1578,7 +1578,7 @@ emerge sys-power/acpid && \
 rc-update add acpid default; echo $?
 ```
 
-  - chrony:
+  - chrony with [NTS servers](https://netfuture.ch/2021/12/transparent-trustworthy-time-with-ntp-and-nts/#server-list):
 
 ```bash
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
@@ -1586,21 +1586,11 @@ emerge net-misc/chrony && \
 rc-update add chronyd default && \
 sed -i 's/^server/#server/' /etc/chrony/chrony.conf && \
 cat <<EOF >> /etc/chrony/chrony.conf; echo $?
-
-# https://blog.cloudflare.com/nts-is-now-rfc/
-server time.cloudflare.com iburst nts
-
-# https://www.netnod.se/time-and-frequency/network-time-security
-# https://www.netnod.se/time-and-frequency/how-to-use-nts
-server nts.netnod.se       iburst nts
-
-# https://nts.time.nl
-server nts.time.nl         iburst nts
-
-# https://www.ptb.de/cms/ptb/fachabteilungen/abtq/gruppe-q4/ref-q42/zeitsynchronisation-von-rechnern-mit-hilfe-des-network-time-protocol-ntp.html
-server ptbtime1.ptb.de     iburst nts
-server ptbtime2.ptb.de     iburst nts
-server ptbtime3.ptb.de     iburst nts
+server ptbtime1.ptb.de       iburst nts
+server ptbtime2.ptb.de       iburst nts
+server ptbtime3.ptb.de       iburst nts
+server nts1.adopo.net        iburst nts
+server www.jabber-germany.de iburst nts
 
 # NTS cookie jar to minimise NTS-KE requests upon chronyd restart
 ntsdumpdir /var/lib/chrony
