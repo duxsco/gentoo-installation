@@ -196,7 +196,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -av --chown=root:root --chmod=u=rw,go=r bin/{boot2efi.sh,btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh} root@XXX:/tmp/
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r bin/{boot2efi.sh,btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -342,7 +342,7 @@ Extract stage3 tarball and copy `firewall.nft`, `genkernel.sh`, `btrfs-scrub.sh`
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -a --chown=root:root --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/
 ```
 
 Extract portage tarball:
@@ -467,7 +467,7 @@ Create kernel config directory and make script executable:
 
 ```bash
 mkdir /mnt/gentoo/etc/kernels && \
-chmod u+x /mnt/gentoo/usr/local/sbin/gkb2gs.sh
+chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/gkb2gs.sh
 ```
 
 ## Customise SystemRescueCD ISO
@@ -489,7 +489,7 @@ Prepare working directory:
 
 ```bash
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
-chown meh: /mnt/gentoo/etc/gentoo-installation/systemrescuecd
+chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd
 ```
 
 Download .iso and .asc file:
@@ -510,7 +510,7 @@ su -l meh -c "gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/gentoo-inst
 ) && (
 su -l meh -c "gpgconf --homedir /tmp/gpgHomeDir --kill all"
 ) && \
-chown -R root: /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
+chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 ```
 
 Create folder structure and `authorized_keys` file (copy&paste one after the other):
@@ -523,7 +523,7 @@ mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,
 
 # set correct modes
 chmod u=rwx,g=rx,o= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
-chmod -R go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
+chmod -R u=rwX,go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 ```
 
 Configure OpenSSH:
@@ -599,7 +599,7 @@ Create firewall rules:
 
 ```bash
 # set firewall rules upon bootup.
-rsync -av --chown=root:root --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
 ```
 
 Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
@@ -677,7 +677,7 @@ touch /mnt/gentoo/var/cache/distfiles/.keep && \
 mount -o noatime,noexec,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
 
 mount -o noatime,noexec /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
-chmod og= /mnt/gentoo/boot; echo $?
+chmod u=rwx,og= /mnt/gentoo/boot; echo $?
 ```
 
 (Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
@@ -704,8 +704,8 @@ cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 Set aliases:
 
 ```bash
-rsync -av --chown=root:root --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
-rsync -av --chown=root:root --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
 cat <<EOF  >> /mnt/gentoo/root/.bashrc; echo $?
 alias cp="cp -i"
 alias mv="mv -i"
@@ -886,7 +886,7 @@ Create user:
 
 ```bash
 useradd -m -G wheel -s /bin/bash david && \
-chmod og= /home/david && (
+chmod u=rwx,og= /home/david && (
 cat <<'EOF' >> /home/david/.bashrc
 alias cp="cp -i"
 alias mv="mv -i"
@@ -938,7 +938,7 @@ filetype indent on
 set number
 set paste
 syntax on" | tee -a /root/.vimrc >> /home/david/.vimrc  && \
-chown david: /home/david/.vimrc && \
+chown david:david /home/david/.vimrc && \
 eselect editor set vi && \
 eselect vi set vim && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
@@ -1707,7 +1707,7 @@ HashKnownHosts no
 StrictHostKeyChecking ask
 EOF
 ) && \
-chown david: /home/david/.ssh/config; echo $?
+chown david:david /home/david/.ssh/config; echo $?
 ```
 
   - sysrq (if you don't want to disable in kernel):
