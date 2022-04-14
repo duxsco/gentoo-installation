@@ -426,6 +426,12 @@ exit
 
 ## gkb2gs - gentoo-kernel config to gentoo-sources
 
+Install `gkb2gs.sh` dependency if not already done:
+
+```bash
+emerge -at --select --noreplace app-portage/portage-utils
+```
+
 Download [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs):
 
 ```bash
