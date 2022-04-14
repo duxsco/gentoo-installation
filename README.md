@@ -853,7 +853,7 @@ echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main
 Install `app-portage/eix`:
 
 ```bash
-emerge app-portage/eix
+emerge -at app-portage/eix
 ```
 
 Make portage use git+https following [this guide](https://github.com/duxsco/gentoo-git).
@@ -870,14 +870,14 @@ eselect news list
 Update system:
 
 ```bash
-emerge -avuDN --with-bdeps=y --noconfmem --complete-graph=y @world
+emerge -atuDN @world
 ```
 
 Make sure that `app-editors/nano` won't be removed and remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
 ```bash
 emerge --select --noreplace app-editors/nano && \
-emerge --depclean -a
+emerge --depclean -at
 ```
 
 ## Non-root user setup
@@ -959,7 +959,7 @@ Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
 
 ```bash
 echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge -av app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
+emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
 ```
 
 Create Secure Boot keys and certificates:
@@ -1046,7 +1046,7 @@ EOF
 Install `sys-fs/cryptsetup`:
 
 ```bash
-emerge -av sys-fs/cryptsetup
+emerge -at sys-fs/cryptsetup
 ```
 
 Configure:
@@ -1086,7 +1086,7 @@ Microcode updates are not necessary for virtual systems. Otherwise, install `sys
 grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
 echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
 echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use && \
-emerge sys-firmware/intel-microcode; echo $?
+emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
 Install genkernel, filesystem and device mapper tools:
@@ -1145,7 +1145,7 @@ Install `sys-boot/grub`:
 
 ```bash
 echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
-emerge sys-boot/grub; echo $?
+emerge -at sys-boot/grub; echo $?
 ```
 
 ### Base Grub configuration
@@ -1259,9 +1259,7 @@ sys-fs/btrfs-progs -convert
 sys-kernel/gentoo-kernel -initramfs
 EOF
 ) && \
-emerge sys-kernel/gentoo-sources && \
-eselect kernel list && \
-eselect kernel set 1; echo $?
+emerge -at sys-kernel/gentoo-sources; echo $?
 ```
 
 Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel` with:
@@ -1533,7 +1531,7 @@ sed -i 's/keymap="us"/keymap="de-latin1-nodeadkeys"/' /etc/conf.d/._cfg0000_keym
 Setup system logger:
 
 ```bash
-emerge app-admin/sysklogd && \
+emerge -at app-admin/sysklogd && \
 rc-update add sysklogd default; echo $?
 ```
 
@@ -1545,7 +1543,7 @@ Setup cronie:
 # with X being a non-negative integer, less than 24
 # with Y being a non-negative integer, less than 60
 # and keeping clock change in mind
-emerge sys-process/cronie && \
+emerge -at sys-process/cronie && \
 rc-update add cronie default && \
 echo "0 1 * * * /usr/local/sbin/btrfs-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e && \
 (
@@ -1566,7 +1564,7 @@ rc-update add sshd default
 Install DHCP client (you never know...):
 
 ```bash
-emerge net-misc/dhcpcd
+emerge -at net-misc/dhcpcd
 ```
 
 ## Further customisations
@@ -1574,7 +1572,7 @@ emerge net-misc/dhcpcd
   - acpid:
 
 ```bash
-emerge sys-power/acpid && \
+emerge -at sys-power/acpid && \
 rc-update add acpid default; echo $?
 ```
 
@@ -1719,7 +1717,7 @@ echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
   - misc tools:
 
 ```bash
-emerge app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel; echo $?
+emerge -at app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel
 ```
 
 ## Cleanup and reboot
@@ -1747,7 +1745,7 @@ reboot
 Install:
 
 ```bash
-emerge -av net-firewall/nftables
+emerge -at net-firewall/nftables
 ```
 
 Don't save firewall rules on shutdown:
