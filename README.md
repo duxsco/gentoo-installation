@@ -276,7 +276,7 @@ set -o history
 Result of a single disk setup:
 
 ```bash
-# tree -a /mnt/gentoo/
+➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devBoot -> /dev/sda2
 ├── devEfia -> /dev/sda1
@@ -302,7 +302,7 @@ Result of a single disk setup:
 ... and four disk setup:
 
 ```bash
-# tree -a /mnt/gentoo/
+➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devBoot -> /dev/md0
 ├── devEfia -> /dev/sda1
@@ -611,7 +611,7 @@ find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/et
 Result:
 
 ```bash
-# tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+➤ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├── build_into_srm
 │   ├── etc
@@ -1318,7 +1318,7 @@ The whole boot process must be GnuPG signed. You can use either RSA or some NIST
 Create a GnuPG keypair, e.g.:
 
 ```bash
-# gpg --full-gen-key
+➤ gpg --full-gen-key
 gpg (GnuPG) 2.2.32; Copyright (C) 2021 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -1359,7 +1359,7 @@ Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
 Result:
 
 ```bash
-# gpg --list-keys
+➤ gpg --list-keys
 gpg: checking the trustdb
 gpg: marginals needed: 3  completes needed: 1  trust model: pgp
 gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
