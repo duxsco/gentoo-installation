@@ -351,7 +351,7 @@ Extract portage tarball:
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
 mount -o noatime,noexec,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
-tar --strip-components=1 -C /mnt/gentoo/var/db/repos/gentoo/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
+tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
 ## GnuPG homedir
