@@ -17,9 +17,9 @@ All three boot options are available in GRUB's boot menu.
 
 ## Disk layout
 
-The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
+The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions (ESP) are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
 
-EFI System Partitions (ESP) each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 may be used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
+ESPs each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 may be used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
 - Single disk:
 
@@ -126,7 +126,7 @@ PC∕Laptop───────────────────────
                 └── @root                          └── @root                          └── @root                          └── @root
 ```
 
-- More disks can be used. RAID 10 is only available to setups with an even number of disks.
+- More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
 
 On LUKS encrypted disks except for the `rescue` partition where the SystemRescueCD files are located, LUKS passphrase slots are set as follows:
   - 0: Keyfile (stored in initramfs to unlock `system` partitions without interaction)
@@ -158,7 +158,7 @@ Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_S
 sysctl -w kernel.sysrq=0
 ```
 
-Make sure you have booted with EFI:
+Make sure you have booted with UEFI:
 
 ```bash
 [ -d /sys/firmware/efi ] && echo UEFI || echo BIOS
@@ -216,7 +216,7 @@ screen -d -r install
 passwd root
 
 # Execute "vlock" without any flags first.
-# If relogin doesn't work you can switch tty to fix (e.g. set password again).
+# If relogin doesn't work you can switch tty and set password again.
 # If relogin succeeds execute vlock with flag "-a" to lock all tty.
 vlock -a
 ```
@@ -478,7 +478,7 @@ chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/gkb2gs.sh
 
 ## Customise SystemRescueCD ISO
 
-Before mounting and chrooting, download and customise the SystemRescueCD .iso file, while we are still on SystemRescueCD.
+Before mounting and chrooting, download and customise the SystemRescueCD .iso file, while we are still on SystemRescueCD and not in chroot.
 
 Import Gnupg public key:
 
@@ -1176,7 +1176,7 @@ EOF
 
 ### ESP Grub configuration
 
-In the following, a minimal Grub config for each EFI system partition is created. Take care of the line marked with `TODO`.
+In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
 
 ```bash
 ls -1d /efi* | while read -r I; do
