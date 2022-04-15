@@ -795,27 +795,15 @@ rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 # https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
 sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/._cfg0000_make.conf
 
-# The following cipher list contains only AEAD, ECDHE and PFS supporting ciphers with decreasing priority from top to bottom:
-#
-# TLSv1.2:
-#   ECDHE-ECDSA-AES256-GCM-SHA384
-#   ECDHE-RSA-AES256-GCM-SHA384
-#   ECDHE-ECDSA-CHACHA20-POLY1305
-#   ECDHE-RSA-CHACHA20-POLY1305
-#   ECDHE-ECDSA-AES128-GCM-SHA256
-#   ECDHE-RSA-AES128-GCM-SHA256
-#
-TLSv12_CIPHERS="ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
-
-cat <<EOF >> /etc/portage/._cfg0000_make.conf
+cat <<'EOF' >> /etc/portage/._cfg0000_make.conf
 EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '*/*-bin sys-kernel/* virtual/*' --noconfmem --with-bdeps=y --complete-graph=y"
 
 L10N="de"
-LINGUAS="\${L10N}"
+LINGUAS="${L10N}"
 
 GENTOO_MIRRORS="https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/"
-FETCHCOMMAND="curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
-RESUMECOMMAND="curl --continue-at - --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers '${TLSv12_CIPHERS}' --retry 2 --connect-timeout 60 -o \"\\\${DISTDIR}/\\\${FILE}\" \"\\\${URI}\""
+FETCHCOMMAND="curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
+RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"
 
 EOF
 
