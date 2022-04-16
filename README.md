@@ -478,7 +478,14 @@ chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/gkb2gs.sh
 
 ## Customise SystemRescueCD ISO
 
-Before mounting and chrooting, download and customise the SystemRescueCD .iso file, while we are still on SystemRescueCD and not in chroot.
+While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.
+
+Prepare working directory:
+
+```bash
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
+chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd
+```
 
 Import Gnupg public key:
 
@@ -489,13 +496,6 @@ su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.or
 su -l meh -c "echo \"62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:\" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust"
 ) && \
 gpgconf --homedir /tmp/gpgHomeDir --kill all; echo $?
-```
-
-Prepare working directory:
-
-```bash
-mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
-chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd
 ```
 
 Download .iso and .asc file:
