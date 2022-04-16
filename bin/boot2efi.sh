@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset BOOT_EFI_FILE KERNEL_VERSION MOUNTPOINT UMOUNT
+unset BOOT_EFI_FILE NEW_KERNEL_VERSION MOUNTPOINT UMOUNT
 
 function secure_mount() {
     if ! mountpoint --quiet "$1"; then
@@ -15,7 +15,7 @@ function secure_mount() {
     fi
 }
 
-KERNEL_VERSION="$(readlink /usr/src/linux | sed 's/linux-//')"
+NEW_KERNEL_VERSION="$(readlink /usr/src/linux | sed 's/linux-//')"
 declare -a UMOUNT
 
 secure_mount "/boot"
@@ -37,7 +37,7 @@ find /boot -type f ! -name "*\.sig" | while read -r BOOT_FILE; do
 done
 
 grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r MOUNTPOINT; do
-    (find /"${MOUNTPOINT}"/{"System.map-${KERNEL_VERSION}-x86_64-ssh","initramfs-${KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION}-x86_64-ssh"} 2>/dev/null || true) | while read -r EFI_FILE; do
+    (find /"${MOUNTPOINT}"/{"System.map-${NEW_KERNEL_VERSION}-x86_64-ssh","initramfs-${NEW_KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${NEW_KERNEL_VERSION}-x86_64-ssh"} 2>/dev/null || true) | while read -r EFI_FILE; do
         if [[ -f ${EFI_FILE} ]]; then
             mv -f "${EFI_FILE}" "${EFI_FILE}.old"
             mv -f "${EFI_FILE}.sig" "${EFI_FILE}.old.sig"
@@ -60,14 +60,14 @@ find /boot /efi* -type f ! -name "*\.sig" ! -name "bootx64\.efi" | while read -r
 done
 
 grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r MOUNTPOINT; do
-    rsync -a /boot/{"System.map-${KERNEL_VERSION}-x86_64-ssh","initramfs-${KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION}-x86_64-ssh"}{,.sig} "/${MOUNTPOINT}/"
+    rsync -a /boot/{"System.map-${NEW_KERNEL_VERSION}-x86_64-ssh","initramfs-${NEW_KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${NEW_KERNEL_VERSION}-x86_64-ssh"}{,.sig} "/${MOUNTPOINT}/"
     rsync -a "/boot/grub_${MOUNTPOINT}.cfg" "/${MOUNTPOINT}/grub.cfg"
     rsync -a "/boot/grub_${MOUNTPOINT}.cfg.sig" "/${MOUNTPOINT}/grub.cfg.sig"
     rm "/boot/grub_${MOUNTPOINT}.cfg" "/boot/grub_${MOUNTPOINT}.cfg.sig"
     sync
 done
 
-rm -f /boot/{"System.map-${KERNEL_VERSION}-x86_64-ssh","initramfs-${KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION}-x86_64-ssh"}{,.sig}
+rm -f /boot/{"System.map-${NEW_KERNEL_VERSION}-x86_64-ssh","initramfs-${NEW_KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${NEW_KERNEL_VERSION}-x86_64-ssh"}{,.sig}
 
 for MOUNTPOINT in "${UMOUNT[@]}"; do
     umount "${MOUNTPOINT}"
