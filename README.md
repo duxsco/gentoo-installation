@@ -1311,7 +1311,7 @@ For now, ignore the request to sign files. The GnuPG keypair must be created fir
 
 The whole boot process must be GnuPG signed. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
 
-Create a GnuPG keypair, e.g.:
+Create a GnuPG keypair with `gpg --full-gen-key`, e.g.:
 
 ```bash
 ➤ gpg --full-gen-key
@@ -1765,7 +1765,7 @@ rc-update add nftables default; echo $?
 
 ## Installation of Secure Boot files via UEFI Firmware Settings
 
-If `efi-updatevar` fails, you can import Secure Boot files after the completion of this installation guide.
+If `efi-updatevar` failed in one of the previous sections, you can import Secure Boot files the following way.
 
 First, boot into the Gentoo Linux and save necessary files in `DER` form:
 
