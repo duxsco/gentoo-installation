@@ -424,7 +424,7 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all
 exit
 ```
 
-## gkb2gs - gentoo-kernel config to gentoo-sources
+## gkb2gs - gentoo-kernel-bin config to gentoo-sources
 
 Download [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs):
 
@@ -1230,21 +1230,21 @@ EOF
 
 ## Kernel installation
 
-> ⚠ The config of `sys-kernel/gentoo-kernel` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-kernel-5.17.x` kernel with `=sys-kernel/gentoo-kernel-5.16.x` config. ⚠
+> ⚠ The config of `sys-kernel/gentoo-kernel-bin` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel-bin` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-kernel-bin-5.17.x` kernel with `=sys-kernel/gentoo-kernel-bin-5.16.x` config. ⚠
 
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
 ```bash
 INSTALL_LTS_KERNEL="true" && (
 cat <<EOF >> /etc/portage/package.accept_keywords/main
-sys-kernel/gentoo-kernel ~amd64
+sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/gentoo-sources ~amd64
 sys-kernel/linux-headers ~amd64
 EOF
 ) && (
 if [[ ${INSTALL_LTS_KERNEL} == true ]]; then
 cat <<EOF >> /etc/portage/package.mask/main
->=sys-kernel/gentoo-kernel-5.16
+>=sys-kernel/gentoo-kernel-bin-5.16
 >=sys-kernel/gentoo-sources-5.16
 >=sys-kernel/linux-headers-5.16
 EOF
@@ -1252,7 +1252,7 @@ fi
 ) && (
 cat <<EOF >> /etc/portage/package.use/main
 sys-fs/btrfs-progs -convert
-sys-kernel/gentoo-kernel -initramfs
+sys-kernel/gentoo-kernel-bin -initramfs
 EOF
 ) && \
 emerge -at sys-kernel/gentoo-sources && \
@@ -1260,7 +1260,7 @@ eselect kernel set 1 && \
 eselect kernel list; echo $?
 ```
 
-Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel` with:
+Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel-bin` with:
 
 ```bash
 gkb2gs.sh -h
@@ -1835,7 +1835,7 @@ eselect kernel list
 # Select the kernel of your choice with
 eselect kernel set <NUMBER>
 
-# Configure the kernel from scratch, use an old config or use the configuration from sys-kernel/gentoo-kernel with
+# Configure the kernel from scratch, use an old config or use the configuration from sys-kernel/gentoo-kernel-bin with
 gkb2gs.sh
 
 # Customise kernel configuration and build kernel
