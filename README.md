@@ -1536,19 +1536,14 @@ rc-update add sysklogd default; echo $?
 Setup cronie:
 
 ```bash
-# server running 24/7: 0 X * * *
-# otherwise: Y * * * *
-# with X being a non-negative integer, less than 24
-# with Y being a non-negative integer, less than 60
-# and keeping clock change in mind
 emerge -at sys-process/cronie && \
 rc-update add cronie default && \
-echo "0 1 * * * /usr/local/sbin/btrfs-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e && \
+echo "5 * * * * /usr/local/sbin/btrfs-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e && \
 (
 if [[ $(lsblk -ndo type /devBoot) == raid1 ]]; then
-    echo "0 4 * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e
+    echo "35 * * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e
 else
-    echo "#0 4 * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e
+    echo "#35 * * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e
 fi
 ); echo $?
 ```
