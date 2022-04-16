@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset BOOT_EFI_FILE NEW_KERNEL_VERSION MOUNTPOINT UMOUNT
+unset BOOT_EFI_FILE BOOT_FILE CURRENT_KERNEL_VERSION EFI_FILE MOUNTPOINT NEW_KERNEL_VERSION UMOUNT
 
 function secure_mount() {
     if ! mountpoint --quiet "$1"; then
