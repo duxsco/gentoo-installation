@@ -24,6 +24,27 @@ grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfa
     secure_mount "/${MOUNTPOINT}"
 done
 
+find /boot -type f -name "*\.sig" | while read -r BOOT_FILE; do
+    if [[ -f ${BOOT_FILE%\.sig}.old ]] && [[ ! -f "${BOOT_FILE%\.sig}.old.sig" ]]; then
+        mv "${BOOT_FILE}" "${BOOT_FILE%\.sig}.old.sig"
+    fi
+done
+
+find /boot -type f ! -name "*\.sig" | while read -r BOOT_FILE; do
+    if [[ ! -f ${BOOT_FILE}.sig ]]; then
+        gpg --detach-sign "${BOOT_FILE}"
+    fi
+done
+
+grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r MOUNTPOINT; do
+    (find /"${MOUNTPOINT}"/{"System.map-${KERNEL_VERSION}-x86_64-ssh","initramfs-${KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION}-x86_64-ssh"} 2>/dev/null || true) | while read -r EFI_FILE; do
+        if [[ -f ${EFI_FILE} ]]; then
+            mv -f "${EFI_FILE}" "${EFI_FILE}.old"
+            mv -f "${EFI_FILE}.sig" "${EFI_FILE}.old.sig"
+        fi
+    done
+done
+
 find /boot /efi* -type f ! -name "*\.sig" ! -name "bootx64\.efi" | while read -r BOOT_EFI_FILE; do
     if  [[ ! -f ${BOOT_EFI_FILE}.sig ]] || \
         ! grep -q "^GOODSIG TRUST_ULTIMATE VALIDSIG$" < <(
