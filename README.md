@@ -19,7 +19,7 @@ All three boot options are available in GRUB's boot menu.
 
 The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions (ESP) are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
 
-ESPs each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 may be used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
+ESPs each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
 - Single disk:
 
@@ -342,7 +342,7 @@ Extract stage3 tarball and copy `firewall.nft`, `genkernel.sh`, `btrfs-scrub.sh`
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/; echo $?
 ```
 
 Extract portage tarball:
@@ -425,12 +425,6 @@ exit
 ```
 
 ## gkb2gs - gentoo-kernel config to gentoo-sources
-
-Install `gkb2gs.sh` dependency if not already done:
-
-```bash
-emerge -at --select --noreplace app-portage/portage-utils
-```
 
 Download [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs):
 
@@ -653,7 +647,7 @@ Create customised ISO:
 sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work
 ```
 
-Copy system rescue files to the `rescue` partition:
+Copy ISO files to the `rescue` partition:
 
 ```bash
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
@@ -852,6 +846,12 @@ emerge -at app-portage/eix
 
 Make portage use git+https following [this guide](https://github.com/duxsco/gentoo-git).
 
+Execute `eix-update`:
+
+```bash
+eix-update
+```
+
 Read Gentoo news items:
 
 ```
@@ -949,7 +949,7 @@ Credits:
 
 In order to add your custom keys `Setup Mode` must have been enabled in your `UEFI Firmware Settings` before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling `Setup Mode`. In the following, however, you have to generate Secure Boot files either way.
 
-Install `app-crypt/efitools` and `app-crypt/sbsigntool` on your system:
+Install required tools on your system:
 
 ```bash
 echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
@@ -1230,7 +1230,9 @@ EOF
 
 ## Kernel installation
 
-Install [LTS kernel](https://www.kernel.org/category/releases.html):
+> ⚠ The config of `sys-kernel/gentoo-kernel` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-kernel-5.17.x` kernel with `=sys-kernel/gentoo-kernel-5.16.x` config. ⚠
+
+Install the [kernel](https://www.kernel.org/category/releases.html):
 
 ```bash
 INSTALL_LTS_KERNEL="true" && (
@@ -1253,7 +1255,9 @@ sys-fs/btrfs-progs -convert
 sys-kernel/gentoo-kernel -initramfs
 EOF
 ) && \
-emerge -at sys-kernel/gentoo-sources; echo $?
+emerge -at sys-kernel/gentoo-sources && \
+eselect kernel set 1 && \
+eselect kernel list; echo $?
 ```
 
 Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel` with:
@@ -1753,7 +1757,7 @@ Save firewall rules:
 
 ```bash
 bash -c '
-/usr/local/sbin/firewall.sh && \
+/usr/local/sbin/firewall.nft && \
 rc-service nftables save && \
 rc-update add nftables default; echo $?
 '
