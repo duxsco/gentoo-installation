@@ -22,6 +22,12 @@ secure_mount "/boot"
 
 grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r MOUNTPOINT; do
     secure_mount "/${MOUNTPOINT}"
+
+    CURRENT_KERNEL_VERSION="$(uname -r | sed "s/-$(arch)$//")"
+    if ! cmp "/boot/grub_${MOUNTPOINT}.cfg" <(sed "s/${CURRENT_KERNEL_VERSION}/${NEW_KERNEL_VERSION}/g" "/${MOUNTPOINT}/boot.cfg"); then
+        echo "Something is possibly wrong with /boot/grub_${MOUNTPOINT}.cfg! Aborting..."
+        exit 1
+    fi
 done
 
 find /boot -type f -name "*\.sig" | while read -r BOOT_FILE; do
