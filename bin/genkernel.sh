@@ -148,7 +148,7 @@ if ls -1 /boot/*"${KERNEL_VERSION}"*.old >/dev/null 2>&1; then
 fi
 
 echo -e "\n\033[1;32mSign all files in \"/boot\":\033[0m"
-echo 'find /boot -type f ! -name "*\.sig" -exec gpg --detach-sign {} \;'
+echo 'find /boot -type f ! -name "*\.sig" -exec bash -c "if [[ ! -f {}.sig ]]; then gpg --detach-sign {}; fi" \;'
 
 ##########
 # umount #
