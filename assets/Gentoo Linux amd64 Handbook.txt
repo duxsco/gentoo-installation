@@ -112,7 +112,7 @@ M-:
           o 7.2 Alternative: Using PPP
           o 7.3 Alternative: Using PPTP
     * 8 Manual network configuration
-          o 8.1 Loading the appropriate network modules
+          o 8.1 Loading the appropriate network kernel modules
           o 8.2 Using DHCP
           o 8.3 Preparing for wireless access
           o 8.4 Understanding network terminology
@@ -220,8 +220,8 @@ M-:
                 # 28.1.1 OpenRC
                 # 28.1.2 systemd
           o 28.2 Network
-                # 28.2.1 dhcpcd (any init system)
-                # 28.2.2 netifrc (primarily OpenRC)
+                # 28.2.1 DHCP via dhcpcd (any init system)
+                # 28.2.2 netifrc (OpenRC)
                       # 28.2.2.1 Configuring the network
                       # 28.2.2.2 Automatically start networking at boot
           o 28.3 The hosts file
@@ -235,35 +235,36 @@ M-:
     * 31 Optional: Cron daemon
     * 32 Optional: File indexing
     * 33 Optional: Remote access
-    * 34 Filesystem tools
-    * 35 Networking tools
-          o 35.1 Installing a DHCP client
-          o 35.2 Optional: Installing a PPPoE client
-          o 35.3 Optional: Install wireless networking tools
-    * 36 Selecting a boot loader
-    * 37 Default: GRUB2
-          o 37.1 Emerge
-          o 37.2 Install
-          o 37.3 Configure
-    * 38 Alternative 1: LILO
+    * 34 Time synchronization
+    * 35 Filesystem tools
+    * 36 Networking tools
+          o 36.1 Installing a DHCP client
+          o 36.2 Optional: Installing a PPPoE client
+          o 36.3 Optional: Install wireless networking tools
+    * 37 Selecting a boot loader
+    * 38 Default: GRUB2
           o 38.1 Emerge
-          o 38.2 Configure
-          o 38.3 Install
-    * 39 Alternative 2: efibootmgr
-    * 40 Alternative 3: Syslinux
-    * 41 Rebooting the system
-    * 42 User administration
-          o 42.1 Adding a user for daily use
-    * 43 Disk cleanup
-          o 43.1 Removing tarballs
-    * 44 Where to go from here
-          o 44.1 Additional documentation
-          o 44.2 Gentoo online
-                # 44.2.1 Forums and IRC
-                # 44.2.2 Mailing lists
-                # 44.2.3 Bugs
-                # 44.2.4 Development guide
-          o 44.3 Closing thoughts
+          o 38.2 Install
+          o 38.3 Configure
+    * 39 Alternative 1: LILO
+          o 39.1 Emerge
+          o 39.2 Configure
+          o 39.3 Install
+    * 40 Alternative 2: efibootmgr
+    * 41 Alternative 3: Syslinux
+    * 42 Rebooting the system
+    * 43 User administration
+          o 43.1 Adding a user for daily use
+    * 44 Disk cleanup
+          o 44.1 Removing tarballs
+    * 45 Where to go from here
+          o 45.1 Additional documentation
+          o 45.2 Gentoo online
+                # 45.2.1 Forums and IRC
+                # 45.2.2 Mailing lists
+                # 45.2.3 Bugs
+                # 45.2.4 Development guide
+          o 45.3 Closing thoughts
 
 
 ***** Introduction *****
@@ -322,7 +323,7 @@ It is okay to use other, non-Gentoo installation media, although official media 
 The Gentoo minimal installation CD is a bootable image: a self-contained Gentoo environment. It allows the user to boot Linux from the CD or other installation media. During the boot process the hardware is detected and the appropriate drivers are loaded. The image is maintained by Gentoo developers and allows anyone to install Gentoo if an active Internet connection is available.
 The Minimal Installation CD is called install-amd64-minimal-<release>.iso.
 **** The occasional Gentoo LiveDVD ****
-Occasionally, a special DVD image is crafted which can be used to install Gentoo. The instructions in this chapter target the Minimal Installation CD, so things might be a bit different when booting from the LiveDVD. However, the LiveDVD (or any other bootable Linux environment) supports getting a root prompt by just invoking sudo su - or sudo -i in a terminal.
+Occasionally, a special DVD image is crafted which can be used to install Gentoo. The instructions in this chapter target the Minimal Installation CD, so things might be a bit different when booting from the LiveDVD. However, the LiveDVD (or any other official Gentoo Linux environment) supports getting a root prompt by just invoking sudo su - or sudo -i in a terminal.
 **** What are stages then? ****
 A stage3 tarball is an archive containing a profile specific minimal Gentoo environment. Stage3 tarballs are suitable to continue the Gentoo installation using the instructions in this handbook. Previously, the handbook described the installation using one of three stage tarballs. Gentoo does not offer stage1 and stage2 tarballs for download any more since these are mostly for internal use and for bootstrapping Gentoo on new architectures.
 Stage3 tarballs can be downloaded from releases/amd64/autobuilds/ on any of the official Gentoo mirrors. Stage files update frequently and are not included in official installation images.
@@ -343,32 +344,25 @@ CODE Example list of downloadable files at releases/amd64/autobuilds/current-iso
 [   ] install-amd64-minimal-20141204.iso                 04-Dec-2014 21:04  208M
 [   ] install-amd64-minimal-20141204.iso.CONTENTS        04-Dec-2014 21:04  3.0K
 [   ] install-amd64-minimal-20141204.iso.DIGESTS         04-Dec-2014 21:04  740
-[TXT] install-amd64-minimal-20141204.iso.DIGESTS.asc     05-Dec-2014 01:42  1.6K
+[TXT] install-amd64-minimal-20141204.iso.asc             05-Dec-2014 01:42  1.6K
 [   ] stage3-amd64-20141204.tar.bz2                      04-Dec-2014 21:04  198M
 [   ] stage3-amd64-20141204.tar.bz2.CONTENTS             04-Dec-2014 21:04  4.6M
 [   ] stage3-amd64-20141204.tar.bz2.DIGESTS              04-Dec-2014 21:04  720
-[TXT] stage3-amd64-20141204.tar.bz2.DIGESTS.asc          05-Dec-2014 01:42  1.5K
+[TXT] stage3-amd64-20141204.tar.bz2.asc                  05-Dec-2014 01:42  1.5K
 In the above example, the install-amd64-minimal-20141204.iso file is the minimal installation CD itself. But as can be seen, other related files exist as well:
     * A .CONTENTS file which is a text file listing all files available on the installation media. This file can be useful to verify if particular firmware or drivers are available on the installation media before downloading it.
     * A .DIGESTS file which contains the hash of the ISO file itself, in various hashing formats/algorithms. This file can be used to verify if the downloaded ISO file is corrupt or not.
-    * A .DIGESTS.asc file which not only contains the hash of the ISO file (like the .DIGESTS file), but also a cryptographic signature of that file. This can be used to both verify if the downloaded ISO file is corrupt or not, as well as verify that the download is indeed provided by the Gentoo Release Engineering team and has not been tampered with.
-Ignore the other files available at this location for now - those will come back when the installation has proceeded further. Download the .iso file and, if verification of the download is wanted, download the .DIGESTS.asc file for the .iso file as well. The .CONTENTS file does not need to be downloaded as the installation instructions will not refer to this file anymore, and the .DIGESTS file should contain the same information as the .DIGESTS.asc file, except that the latter also contains a signature on top of it.
+    * A .asc file which is a cryptographic signature of the ISO file. This can be used to both verify if the downloaded ISO file is corrupt or not, as well as verify that the download is indeed provided by the Gentoo Release Engineering team and has not been tampered with.
+Ignore the other files available at this location for now - those will come back when the installation has proceeded further. Download the .iso file and, if verification of the download is wanted, download the .iso.asc file for the .iso file as well. The .CONTENTS file does not need to be downloaded as the installation instructions will not refer to this file anymore, and the .DIGESTS is not needed if you can verify the signature in the .iso.asc file.
 **** Verifying the downloaded files ****
  Note
 
 This is an optional step and not necessary to install Gentoo Linux. However, it is recommended as it ensures that the downloaded file is not corrupt and has indeed been provided by the Gentoo Infrastructure team.
-Through the .DIGESTS and .DIGESTS.asc files, the validity of the ISO file can be confirmed using the right set of tools. This verification is usually done in two steps:
-   1. First, the cryptographic signature is validated to make sure that the installation file is provided by the Gentoo Release Engineering team
-   2. If the cryptographic signature validates, then the checksum is verified to make sure that the downloaded file itself is not corrupted
+The .asc file provides a cryptographic signature of the ISO. By validating it, one can make sure that the installation file is provided by the Gentoo Release Engineering team and is intact and unmodified.
 *** Microsoft Windows based verification ***
-On a Microsoft Windows system, chances are low that the right set of tools to verify checksums and cryptographic signatures are in place.
-To first verify the cryptographic signature, tools such as GPG4Win can be used. After installation, the public keys of the Gentoo Release Engineering team need to be imported. The list of keys is available on the signatures page. Once imported, the user can then verify the signature of the .DIGESTS.asc file.
- Important
-
-This does not verify that the .DIGESTS file is correct, only that the .DIGESTS.asc file is. That also implies that the checksum should be verified against the values in the .DIGESTS.asc file, which is why the instructions above only refer to downloading the .DIGESTS.asc file.
-The checksum itself can be verified using the Hashcalc application, although many others exist as well. Most of the time, these tools will show the user the calculated checksum, and the user is requested to verify this checksum with the value that is inside the .DIGESTS.asc file.
+To first verify the cryptographic signature, tools such as GPG4Win can be used. After installation, the public keys of the Gentoo Release Engineering team need to be imported. The list of keys is available on the signatures page. Once imported, the user can then verify the signature in the .asc file.
 *** Linux based verification ***
-On a Linux system, the most common method for verifying the cryptographic signature is to use the app-crypt/gnupg software. With this package installed, the following commands can be used to verify the cryptographic signature of the .DIGESTS.asc file.
+On a Linux system, the most common method for verifying the cryptographic signature is to use the app-crypt/gnupg software. With this package installed, the following command can be used to verify the cryptographic signature in the .asc file.
 First, download the right set of keys as made available on the signatures page:
 user $gpg --keyserver hkps://keys.gentoo.org --recv-keys 0xBB572E0E2D182910
 gpg: requesting key 0xBB572E0E2D182910 from hkp server pool.sks-keyservers.net
@@ -380,29 +374,21 @@ gpg: next trustdb check due at 2018-09-15
 gpg: Total number processed: 1
 gpg:         new signatures: 1
 Alternatively you can use instead the WKD to download the key:
-user $wget -O- https://gentoo.org/.well-known/openpgpkey/hu/wtktzo4gyuhzu8a4z5fdj3fgmr1u6tob?l=releng | gpg --import
---2019-04-19 20:46:32--  https://gentoo.org/.well-known/openpgpkey/hu/wtktzo4gyuhzu8a4z5fdj3fgmr1u6tob?l=releng
-Resolving gentoo.org (gentoo.org)... 89.16.167.134
-Connecting to gentoo.org (gentoo.org)|89.16.167.134|:443... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 35444 (35K) [application/octet-stream]
-Saving to: 'STDOUT'
-
-     0K .......... .......... .......... ....                 100% 11.9M=0.003s
-
-2019-04-19 20:46:32 (11.9 MB/s) - written to stdout [35444/35444]
-
-gpg: key 9E6438C817072058: 84 signatures not checked due to missing keys
-gpg: /tmp/test2/trustdb.gpg: trustdb created
-gpg: key 9E6438C817072058: public key "Gentoo Linux Release Engineering (Gentoo Linux Release Signing Key) <releng@gentoo.org>" imported
-gpg: key BB572E0E2D182910: 12 signatures not checked due to missing keys
-gpg: key BB572E0E2D182910: 1 bad signature
-gpg: key BB572E0E2D182910: public key "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" imported
+user $gpg --auto-key-locate=clear,nodefault,wkd --locate-key releng@gentoo.org
+gpg: key 0x9E6438C817072058: public key "Gentoo Linux Release Engineering (Gentoo Linux Release Signing Key) <releng@gentoo.org>" imported
+gpg: key 0xBB572E0E2D182910: public key "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" imported
 gpg: Total number processed: 2
 gpg:               imported: 2
-gpg: no ultimately trusted keys found
-Next verify the cryptographic signature of the .DIGESTS.asc file:
-user $gpg --verify install-amd64-minimal-20141204.iso.DIGESTS.asc
+gpg: public key of ultimately trusted key 0x58497EE51D5D74A5 not found
+gpg: public key of ultimately trusted key 0x1F3D03348DB1A3E2 not found
+gpg: marginals needed: 3  completes needed: 1  trust model: pgp
+gpg: depth: 0  valid:   2  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 2u
+pub   dsa1024/0x9E6438C817072058 2004-07-20 [SC] [expires: 2024-01-01]
+      D99EAC7379A850BCE47DA5F29E6438C817072058
+uid                   [ unknown] Gentoo Linux Release Engineering (Gentoo Linux Release Signing Key) <releng@gentoo.org>
+sub   elg2048/0x0403710E1415B4ED 2004-07-20 [E] [expires: 2024-01-01]
+Next verify the cryptographic signature:
+user $gpg --verify install-amd64-minimal-20141204.iso.asc
 gpg: Signature made Fri 05 Dec 2014 02:42:44 AM CET
 gpg:                using RSA key 0xBB572E0E2D182910
 gpg: Good signature from "Gentoo Linux Release Engineering (Automated Weekly Release Key) <releng@gentoo.org>" [unknown]
@@ -410,17 +396,6 @@ gpg: WARNING: This key is not certified with a trusted signature!
 gpg:          There is no indication that the signature belongs to the owner.
 Primary key fingerprint: 13EB BDBE DE7A 1277 5DFD  B1BA BB57 2E0E 2D18 2910
 To be absolutely certain that everything is valid, verify the fingerprint shown with the fingerprint on the Gentoo signatures page.
-With the cryptographic signature validated, next verify the checksum to make sure the downloaded ISO file is not corrupted. The .DIGESTS.asc file contains multiple hashing algorithms, so one of the methods to validate the right one is to first look at the checksum registered in the .DIGESTS.asc file. For instance, to get the SHA512 checksum:
-user $grep -A 1 -i sha512 install-amd64-minimal-20141204.iso.DIGESTS.asc
-# SHA512 HASH
-364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
---
-# SHA512 HASH
-0719a8954dc7432750de2e3076c8b843a2c79f5e60defe43fcca8c32ab26681dfb9898b102e211174a895ff4c8c41ddd9e9a00ad6434d36c68d74bd02f19b57f  install-amd64-minimal-20141204.iso.CONTENTS
-In the above output, two SHA512 checksums are shown - one for the install-amd64-minimal-20141204.iso file and one for its accompanying .CONTENTS file. Only the first checksum is of interest, as it needs to be compared with the calculated SHA512 checksum which can be generated as follows:
-user $sha512sum install-amd64-minimal-20141204.iso
-364d32c4f8420605f8a9fa3a0fc55864d5b0d1af11aa62b7a4d4699a427e5144b2d918225dfb7c5dec8d3f0fe2cddb7cc306da6f0cef4f01abec33eec74f3024  install-amd64-minimal-20141204.iso
-As both checksums match, the file is not corrupted and the installation can continue.
 **** Burning a disk ****
 Of course, with just an ISO file downloaded, the Gentoo Linux installation cannot be started. The ISO file needs to be burned on a CD to boot from, and in such a way that its content is burned on the CD, not just the file itself. Below a few common methods are described - a more elaborate set of instructions can be found in Our FAQ on burning an ISO file.
 *** Burning with Microsoft Windows 7 and above ***
@@ -573,7 +548,7 @@ To be able to use sshd, the network needs to function properly. Continue with th
 
 ***** Automatic network detection *****
 Maybe it just works?
-If the system is plugged into an Ethernet network with a DHCP server, it is very likely that the networking configuration has already been set up automatically. If so, then the many included network-aware commands on the installation CD such as ssh, scp, ping, irssi, wget, and links, among others, will work immediately.
+If the system is plugged into an Ethernet network with a DHCP server, it is very likely that the networking configuration has already been set up automatically. If so, then the many included network-aware commands on the installation media such as ssh, scp, ping, irssi, wget, and links, among others, will work immediately.
 **** Determine interface names ****
 *** ifconfig command ***
 If networking has been configured, the ifconfig command should list one or more network interfaces (besides lo). In the example below eth0 shows up:
@@ -644,7 +619,7 @@ When all that is done, run pptp (along with the options that couldn't be set in 
 root #pptp <server ipv4 address>
 Now continue with Preparing the disks.
 ***** Manual network configuration *****
-**** Loading the appropriate network modules ****
+**** Loading the appropriate network kernel modules ****
 When the Installation CD boots, it tries to detect all the hardware devices and loads the appropriate kernel modules (drivers) to support the hardware. In the vast majority of cases, it does a very good job. However, in some cases, it may not auto-load the kernel modules needed to communicate properly with the present network hardware.
 If net-setup or pppoe-setup failed, then it is possible that the network card wasn't found immediately. This means users may have to load the appropriate kernel modules manually.
 To find out what kernel modules are provided for networking, use the ls command:
@@ -1062,7 +1037,7 @@ Linux supports several dozen filesystems, although many of them are only wise to
   JFS
       IBM's high-performance journaling filesystem. JFS is a light, fast, and reliable B+tree-based filesystem with good performance in various conditions.
   ReiserFS
-      A B+tree-based journaled filesystem that has good overall performance, especially when dealing with many tiny files at the cost of more CPU cycles. ReiserFS version 3 is included in the mainline Linux kernel, but is not recommended to be used when initially installing a Gentoo system. Newer versions of the ReiserFS filesystem exist, however they require additional patching of the mainline kernel to be utilized.
+      A B+tree-based journaled filesystem that has good overall performance, especially when dealing with many tiny files at the cost of more CPU cycles. ReiserFS version 3 is included in the mainline Linux kernel, but is not recommended to be used when initially installing a Gentoo system. Newer versions of the ReiserFS filesystem exist, however they require additional patching of the mainline kernel to be utilized. IMPORTANT: Deprecated in kernel 5.18 and scheduled to be removed in 2025.
   XFS
       A filesystem with metadata journaling which comes with a robust feature-set and is optimized for scalability. XFS seems to be less forgiving to various hardware problems, but has been continuously upgraded to include modern features.
   VFAT
@@ -1771,18 +1746,18 @@ Continue the installation with Configuring the system.
 **** About fstab ****
 Under Linux, all partitions used by the system must be listed in /etc/fstab. This file contains the mount points of those partitions (where they are seen in the file system structure), how they should be mounted and with what special options (automatically or not, whether users can mount them or not, etc.)
 **** Creating the fstab file ****
-The /etc/fstab file uses a table-like syntax. Every line consists of six fields, separated by whitespace (space(s), tabs or a mixture). Each field has its own meaning:
+The /etc/fstab file uses a table-like syntax. Every line consists of six fields, separated by whitespace (space(s), tabs, or a mixture of the two). Each field has its own meaning:
    1. The first field shows the block special device or remote filesystem to be mounted. Several kinds of device identifiers are available for block special device nodes, including paths to device files, filesystem labels and UUIDs, and partition labels and UUIDs.
    2. The second field shows the mount point at which the partition should be mounted.
    3. The third field shows the filesystem used by the partition.
-   4. The fourth field shows the mount options used by mount when it wants to mount the partition. As every filesystem has its own mount options, users are encouraged to read the mount man page (man mount) for a full listing. Multiple mount options are comma-separated.
+   4. The fourth field shows the mount options used by mount when it wants to mount the partition. As every filesystem has its own mount options, so system admins are encouraged to read the mount man page (man mount) for a full listing. Multiple mount options are comma-separated.
    5. The fifth field is used by dump to determine if the partition needs to be dumped or not. This can generally be left as 0 (zero).
-   6. The sixth field is used by fsck to determine the order in which filesystems should be checked if the system wasn't shut down properly. The root filesystem should have 1 while the rest should have 2 (or 0 if a filesystem check isn't necessary).
+   6. The sixth field is used by fsck to determine the order in which filesystems should be checked if the system wasn't shut down properly. The root filesystem should have 1 while the rest should have 2 (or 0 if a filesystem check is not necessary).
  Important
 
-The default /etc/fstab file provided by Gentoo is not a valid fstab file but instead more of a template.
+The default /etc/fstab file provided in Gentoo stage files is not a valid fstab file but instead a template that can be used to enter in relevant values.
 root #nano -w /etc/fstab
-In the remainder of the text, we use the default /dev/sd* block device files as partition.
+In the remainder of the text, the default /dev/sd* block device files will be used as partition identifiers.
 *** Filesystem labels and UUIDs ***
 Both MBR (BIOS) and GPT include support for filesystem labels and filesystem UUIDs. These attributes can be defined in /etc/fstab as alternatives for the mount command to use when attempting to find and mount block devices. Filesystem labels and UUIDs are identified by the LABEL and UUID prefix and can be viewed with the blkid command:
 root #blkid
@@ -1790,6 +1765,9 @@ root #blkid
 
 If the filesystem inside a partition is wiped, then the filesystem label and the UUID values will be subsequently altered or removed.
 Because of uniqueness, readers that are using an MBR-style partition table are recommended to use UUIDs over labels to define mountable volumes in /etc/fstab.
+ Important
+
+UUIDs of the filesystem on a LVM volume and its LVM snapshots are identical, therefore using UUIDs to mount LVM volumes should be avoided.
 *** Partition labels and UUIDs ***
 Users who have gone the GPT route have a couple more 'robust' options available to define partitions in /etc/fstab. Partition labels and partition UUIDs can be used to identify the block device's individual partition(s), regardless of what filesystem has been chosen for the partition itself. Partition labels and UUIDs are identified by the PARTLABEL and PARTUUID prefixes respectively and can be viewed nicely in the terminal by running the blkid command:
 root #blkid
@@ -1798,23 +1776,31 @@ The naming for block device files depends on a number of factors, including how 
 
 Let us take a look at how to write down the options for the /boot/ partition. This is just an example, and should be modified according to the partitioning decisions made earlier in the installation. In our amd64 partitioning example, /boot/ is usually the /dev/sda1 partition, with ext4 as filesystem. It needs to be checked during boot, so we would write down:
 FILE /etc/fstabAn example /boot line for /etc/fstab
-/dev/sda1   /boot     ext4    defaults        0 2
+# Adjust any formatting difference from the Preparing the disks step
+/dev/sda1   /boot     Vfat    defaults        0 2
 Some users don't want their /boot/ partition to be mounted automatically to improve their system's security. Those people should substitute defaults with noauto. This does mean that those users will need to manually mount this partition every time they want to use it.
 Add the rules that match the previously decided partitioning scheme and append rules for devices such as CD-ROM drive(s), and of course, if other partitions or drives are used, for those too.
 Below is a more elaborate example of an /etc/fstab file:
 
 FILE /etc/fstabA full /etc/fstab example
-/dev/sda1   /boot        ext4    defaults,noatime     0 2
+# Adjust any formatting difference and additional partitions created from the Preparing the disks step
+/dev/sda1   /boot        Vfat    defaults,noatime     0 2
 /dev/sda2   none         swap    sw                   0 0
 /dev/sda3   /            ext4    noatime              0 1
 
 /dev/cdrom  /mnt/cdrom   auto    noauto,user          0 0
 When auto is used in the third field, it makes the mount command guess what the filesystem would be. This is recommended for removable media as they can be created with one of many filesystems. The user option in the fourth field makes it possible for non-root users to mount the CD.
-To improve performance, most users would want to add the noatime mount option, which results in a faster system since access times aren't registered (those are not needed generally anyway). This is also recommended for solid state drive (SSD) users, who should also enable the discard mount option (ext4 and btrfs only for now) which makes the TRIM command work.
+To improve performance, most users would want to add the noatime mount option, which results in a faster system since access times are not registered (those are not needed generally anyway). This is also recommended for systems with solid state drives (SSDs).
+ Tip
+
+Due to degradation in performance, defining the discard mount option in /etc/fstab is not recommended. It is generally better to schedule block discards on a periodic basis using a job scheduler such as cron or a timer (systemd). See Periodic fstrim jobs for more information.
 Double-check the /etc/fstab file, save and quit to continue.
 ***** Networking information *****
+It is important to note the following sections are provided to help the reader quickly setup their system to partake in a local area network.
+For systems running OpenRC, a more detailed reference for network setup is available in the advanced network configuration section, which is covered near the end of the handbook. Systems with more specific network needs may need to skip ahead, then return here to continue with the rest of the installation.
+For more specific systemd network setup, please review see the networking portion of the systemd article.
 **** Host and domain information ****
-One of the choices the user has to make is name his/her PC. This seems to be quite easy, but lots of users are having difficulties finding the appropriate name for their Linux PC. To speed things up, know that the decision is not final - it can be changed afterwards. In the examples below, the hostname tux is used within the domain homenetwork.
+One of the choices the system administrator has to make is name their PC. This seems to be quite easy, but lots of users are having difficulties finding the appropriate name for the hostname. To speed things up, know that the decision is not final - it can be changed afterwards. In the examples below, the hostname tux is used within the domain homenetwork.
 *** OpenRC ***
 root #nano -w /etc/conf.d/hostname
 # Set the hostname variable to the selected host name
@@ -1837,12 +1823,14 @@ nis_domain_lo="my-nisdomain"
 
 For more information on configuring DNS and NIS, please read the examples provided in /usr/share/doc/netifrc-*/net.example.bz2 which can be read using bzless. Also, it might be interesting to install net-dns/openresolv to help manage the DNS/NIS setup.
 *** systemd ***
-To set the system hostname on systemd, run hostnamectl.
+To set the system hostname on systemd the hostnamectl utility is used.
 For setting the hostname to "tux", one would run:
 root #hostnamectl hostname tux
+View help by running hostnamectl --help or man 1 hostnamectl.
 **** Network ****
-*** dhcpcd (any init system) ***
-An alternative to using neticrc is dhcpcd. See Dhcpcd for more details.
+There are many options available for configuring network interfaces. This section covers a only a few methods. Choose the one which seems best suited to the setup needed.
+*** DHCP via dhcpcd (any init system) ***
+Most LAN networks operate a DHCP server. If this is the case, then using the dhcpcd program to obtain an IP address is recommended.
 To install:
 root #emerge --ask net-misc/dhcpcd
 To enable and then start the service on OpenRC systems:
@@ -1850,17 +1838,17 @@ root #rc-update add dhcpcd default
 root #rc-service dhcpcd start
 To enable and start the service on systemd systems:
 root #systemctl enable --now dhcpcd
-*** netifrc (primarily OpenRC) ***
+With these steps completed, next time the system boots, dhcpcd should obtain an IP address from the DHCP server. See the Dhcpcd article for more details.
+*** netifrc (OpenRC) ***
  Tip
 
 This is one particular way of setting up the network using Netifrc on OpenRC. Other methods exist for simpler setups like Dhcpcd.
-There are many options available for configuring network interfaces. This section covers a only a few methods. Choose the one which seems best suited to the setup needed.
 ** Configuring the network **
-During the Gentoo Linux installation, networking was already configured. However, that was for the installation CD itself and not for the installed environment. Right now, the network configuration is made for the installed Gentoo Linux system.
+During the Gentoo Linux installation, networking was already configured. However, that was for the live environment itself and not for the installed environment. Right now, the network configuration is made for the installed Gentoo Linux system.
  Note
 
-More detailed information about networking, including advanced topics like bonding, bridging, 802.1Q VLANs or wireless networking is covered in the Gentoo Network Configuration section.
-All networking information is gathered in /etc/conf.d/net. It uses a straightforward yet perhaps not intuitive syntax. But don't fear, everything is explained below. A fully commented example that covers many different configurations is available in /usr/share/doc/netifrc-*/net.example.bz2.
+More detailed information about networking, including advanced topics like bonding, bridging, 802.1Q VLANs or wireless networking is covered in the advanced network configuration section.
+All networking information is gathered in /etc/conf.d/net. It uses a straightforward - yet perhaps not intuitive - syntax. Do not fear! Everything is explained below. A fully commented example that covers many different configurations is available in /usr/share/doc/netifrc-*/net.example.bz2.
 First install net-misc/netifrc:
 root #emerge --askM-BM- --noreplace net-misc/netifrc
 DHCP is used by default. For DHCP to work, a DHCP client needs to be installed. This is described later in Installing Necessary System Tools.
@@ -1869,14 +1857,14 @@ root #nano -w /etc/conf.d/net
 Set both config_eth0 and routes_eth0 to enter IP address information and routing information:
  Note
 
-This assumes that the network interface will be called eth0. This is, however, very system dependent. It is recommended to assume that the interface is named the same as the interface name when booted from the installation media if the installation media is sufficiently recent. More information can be found in Network Interface Naming.
+This assumes that the network interface will be called eth0. This is, however, very system dependent. It is recommended to assume that the interface is named the same as the interface name when booted from the installation media if the installation media is sufficiently recent. More information can be found in the Network interface naming section.
 FILE /etc/conf.d/netStatic IP definition
 config_eth0=&quot;192.168.0.2 netmask 255.255.255.0 brd 192.168.0.255&quot;
 routes_eth0=&quot;default via 192.168.0.1&quot;
 To use DHCP, define config_eth0:
 FILE /etc/conf.d/netDHCP definition
 config_eth0=&quot;dhcp&quot;
-Please read /usr/share/doc/netifrc-*/net.example.bz2 for a list of all available options. Be sure to also read up on the DHCP client man page if specific DHCP options need to be set.
+Please read /usr/share/doc/netifrc-*/net.example.bz2 for a list of additional configuration options. Be sure to also read up on the DHCP client man page if specific DHCP options need to be set.
 If the system has several network interfaces, then repeat the above steps for config_eth1, config_eth2, etc.
 Now save the configuration and exit to continue.
 ** Automatically start networking at boot **
@@ -1885,8 +1873,8 @@ root #cd /etc/init.d
 root #ln -s net.lo net.eth0
 root #rc-update add net.eth0 default
 If the system has several network interfaces, then the appropriate net.* files need to be created just like we did with net.eth0.
-If after booting the system we find out that the assumption about the network interface name (which is currently documented as eth0) was wrong, then execute the following steps to rectify this:
-   1. Update the /etc/conf.d/net file with the correct interface name (like enp3s0 instead of eth0).
+If, after booting the system, it is discovered the network interface name (which is currently documented as eth0) was wrong, then execute the following steps to rectify:
+   1. Update the /etc/conf.d/net file with the correct interface name (like enp3s0 or enp5s0, instead of eth0).
    2. Create new symbolic link (like /etc/init.d/net.enp3s0).
    3. Remove the old symbolic link (rm /etc/init.d/net.eth0).
    4. Add the new one to the default runlevel.
@@ -1982,6 +1970,15 @@ s0:12345:respawn:/sbin/agetty 9600 ttyS0 vt100
 s1:12345:respawn:/sbin/agetty 9600 ttyS1 vt100
 On systemd, run:
 root #systemctl enable getty@tty1.service
+***** Time synchronization *****
+It is important to use some method of synchronizing the system clock. This is usually done via the NTP protocol and software. Other implementations using the NTP protocol exist, like Chrony.
+To set up Chrony, for example:
+root #emerge --ask net-misc/chrony
+On OpenRC, run:
+root #rc-update add chronyd default
+On systemd, run:
+root #systemctl enable chronyd
+systemd users may wish to use systemd-timesyncd described on the systemd article.
 ***** Filesystem tools *****
 Depending on the filesystems used, it is necessary to install the required file system utilities (for checking the filesystem integrity, creating additional file systems etc.). Note that tools for managing ext4 filesystems (sys-fs/e2fsprogs) are already installed as a part of the @system set.
 The following table lists the tools to install if a certain filesystem is used:
@@ -2127,7 +2124,7 @@ Remember sys-boot/efibootmgr application is not a bootloader; it is a tool to in
 Be sure to read through the EFI stub kernel article before continuing. The kernel must have specific options enabled to be directly bootable by the system's UEFI firmware. It might be necessary to recompile the kernel. It is also a good idea to take a look at the efibootmgr article.
  Note
 
-To reiterate, efibootmgr is not a requirement to boot an UEFI system. The Linux kernel itself can be booted immediately, and additional kernel command-line options can be built-in to the Linux kernel (there is a kernel configuration option called that allows the user to specify boot parameters as command-line options. Even an initramfs can be 'built-in' to the kernel.
+To reiterate, efibootmgr is not a requirement to boot an UEFI system. The Linux kernel itself can be booted immediately, and additional kernel command-line options can be built-in to the Linux kernel (there is a kernel configuration option called CONFIG_CMDLINE that allows the user to specify boot parameters as command-line options. Even an initramfs can be 'built-in' to the kernel.
 Those that have decided to take this approach must install the software:
 root #emerge --ask sys-boot/efibootmgr
 Then, create the /boot/efi/boot/ location, and then copy the kernel into this location, calling it bootx64.efi:
