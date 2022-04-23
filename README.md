@@ -706,10 +706,25 @@ Set aliases:
 ```bash
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
-cat <<EOF  >> /mnt/gentoo/root/.bashrc; echo $?
+cat <<'EOF'  >> /mnt/gentoo/root/.bashrc; echo $?
 alias cp="cp -i"
 alias mv="mv -i"
 alias rm="rm -i"
+
+# Raise an alert if something is wrong with btrfs or mdadm
+if  grep -q "\[[U_]*_[U_]*\]" /proc/mdstat || \
+    [[ $(find /sys/fs/btrfs -type f -name "error_stats" -exec awk '{sum += $2} END {print sum}' {} +) -ne 0 ]]; then
+echo '
+  _________________
+< Something smells! >
+  -----------------
+         \   ^__^
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+'
+fi
 EOF
 ```
 
@@ -885,21 +900,6 @@ cat <<'EOF' >> /home/david/.bashrc
 alias cp="cp -i"
 alias mv="mv -i"
 alias rm="rm -i"
-
-# Raise an alert if something is wrong with btrfs or mdadm
-if  grep -q "\[[U_]*_[U_]*\]" /proc/mdstat || \
-    [[ $(find /sys/fs/btrfs -type f -name "error_stats" -exec awk '{sum += $2} END {print sum}' {} +) -ne 0 ]]; then
-echo '
-  _________________
-< Something smells! >
-  -----------------
-         \   ^__^
-          \  (oo)\_______
-             (__)\       )\/\
-                 ||----w |
-                 ||     ||
-'
-fi
 EOF
 ) && \
 passwd david
