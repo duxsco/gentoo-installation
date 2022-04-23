@@ -1222,7 +1222,7 @@ EOF
 
 ## Kernel installation
 
-> ⚠ The config of `sys-kernel/gentoo-kernel-bin` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel-bin` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-kernel-bin-5.17.x` kernel with `=sys-kernel/gentoo-kernel-bin-5.16.x` config. ⚠
+> ⚠ The config of `sys-kernel/gentoo-kernel-bin` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel-bin` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-sources-5.17.x` kernel with `=sys-kernel/gentoo-kernel-bin-5.16.x` config. ⚠
 
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
