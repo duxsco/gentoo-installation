@@ -838,13 +838,13 @@ echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main
 
 ## System update
 
+Make portage use git+https following [this guide](https://github.com/duxsco/gentoo-git).
+
 Install `app-portage/eix`:
 
 ```bash
 emerge -at app-portage/eix
 ```
-
-Make portage use git+https following [this guide](https://github.com/duxsco/gentoo-git).
 
 Execute `eix-update`:
 
