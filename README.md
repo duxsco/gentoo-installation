@@ -1137,11 +1137,11 @@ emerge -at sys-boot/grub; echo $?
 ### Base Grub configuration
 
 ```bash
-(
-    [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
-    MDADM_MOD=" domdadm" || \
+if [[ $(lsblk -ndo type /devBoot) == raid1 ]]; then
+    MDADM_MOD=" domdadm"
+else
     MDADM_MOD=""
-) && \
+fi && \
 cat <<EOF >> /etc/default/grub; echo $?
 
 MY_CRYPT_ROOT="$(blkid -s UUID -o value /devSystem* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
