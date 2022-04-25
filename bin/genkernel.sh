@@ -6,9 +6,26 @@ unset BOOT_ENTRY CLEAR_CCACHE CONTINUE CRYPTOMOUNT EFI_MOUNTPOINT EFI_UUID GRUB_
 
 KERNEL_VERSION="$(readlink /usr/src/linux | sed 's/linux-//')"
 
-#########
-# mount #
-#########
+######################
+# luksOpen and mount #
+######################
+
+if  [[ -b /dev/md/boot3141592653md ]] && \
+    [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID /dev/md/boot3141592653md | tr -d '-')*") ]]
+then
+    cryptsetup luksOpen --key-file /key/mnt/key/key /dev/md/boot3141592653md boot3141592653md
+elif [[ -b /dev/disk/by-partlabel/boot3141592653part ]] && \
+    [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID /dev/disk/by-partlabel/boot3141592653part | tr -d '-')*") ]]
+then
+    cryptsetup luksOpen --key-file /key/mnt/key/key /dev/disk/by-partlabel/boot3141592653part boot3141592653part
+fi
+
+if  [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID /dev/md/boot3141592653md | tr -d '-')*") ]] && \
+    [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID /dev/disk/by-partlabel/boot3141592653part | tr -d '-')*") ]]
+then
+    echo 'Failed to luksOpen "/boot" device! Aborting...' >&2
+    exit 1
+fi
 
 if ! mountpoint --quiet /boot; then
     if ! mount /boot || ! mountpoint --quiet /boot; then
