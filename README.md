@@ -1205,7 +1205,7 @@ menuentry 'SystemRescueCD' {
     set root='cryptouuid/${UUID}'
     search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID}' $(blkid -s UUID -o value /mapperRescue)
     echo   'Loading Linux kernel ...'
-    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue noautologin
+    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue3141592653fs noautologin
     echo   'Loading initramfs ...'
     initrd /sysresccd/boot/x86_64/sysresccd.img
 }
@@ -1414,7 +1414,7 @@ ls -1d /efi* | while read -r I; do
         "boot/grub/grub.cfg=/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg" \
         "boot/grub/grub.cfg.sig=/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg.sig" && \
     sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
-    efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${I/efi/devEfi}")")" --part 1 --label "gentoo ${I#/}" --loader '\EFI\boot\bootx64.efi'
+    efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${I/efi/devEfi}")")" --part 1 --label "gentoo314159265efi ${I#/}" --loader '\EFI\boot\bootx64.efi'
     echo $?
 done
 ```
