@@ -1035,25 +1035,6 @@ Install `sys-fs/cryptsetup`:
 emerge -at sys-fs/cryptsetup
 ```
 
-Configure:
-
-```bash
-rsync -a /etc/conf.d/dmcrypt /etc/conf.d/._cfg0000_dmcrypt && \
-
-LAST_LINE="$(tail -n 1 /etc/conf.d/._cfg0000_dmcrypt)" && \
-sed -i '$ d' /etc/conf.d/._cfg0000_dmcrypt && \
-(
-cat <<EOF >> /etc/conf.d/._cfg0000_dmcrypt
-target='boot'
-source=UUID='$(blkid -s UUID -o value /devBoot)'
-key='/key/mnt/key/key'
-
-EOF
-) && \
-echo "${LAST_LINE}" >> /etc/conf.d/._cfg0000_dmcrypt && \
-rc-update add dmcrypt boot; echo $?
-```
-
 ## CPU, disk and kernel tools
 
 Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
