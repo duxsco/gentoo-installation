@@ -19,11 +19,13 @@ else
     exit 1
 fi
 
-if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID "${BOOT_LUKS_DEVICE}" | tr -d '-')*") ]]; then
+UUID_BOOT_LUKS_DEVICE="$(cryptsetup luksUUID "${BOOT_LUKS_DEVICE}" | tr -d '-')"
+
+if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*${UUID_BOOT_LUKS_DEVICE}*") ]]; then
     cryptsetup luksOpen --key-file /key/mnt/key/key "${BOOT_LUKS_DEVICE}" boot3141592653temp
 fi
 
-if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID "${BOOT_LUKS_DEVICE}" | tr -d '-')*") ]]; then
+if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*${UUID_BOOT_LUKS_DEVICE}*") ]]; then
     echo 'Failed to luksOpen "/boot" device! Aborting...' >&2
     exit 1
 fi
@@ -121,7 +123,6 @@ GRUB_CONFIG="$(
     grep -v -e "^[[:space:]]*if" -e "^[[:space:]]*fi" -e "^[[:space:]]*load_video" -e "^[[:space:]]*insmod"
 )"
 
-UUID_BOOT_LUKS_DEVICE="$(cryptsetup luksUUID "${BOOT_LUKS_DEVICE}" | tr -d '-')"
 UUID_BOOT_FILESYSTEM="$(sed -n 's#^UUID=\([^[:space:]]*\)[[:space:]]*/boot[[:space:]]*.*#\1#p' /etc/fstab)"
 CRYPTOMOUNT="\tcryptomount -u ${UUID_BOOT_LUKS_DEVICE}\\
 \tset root='cryptouuid/${UUID_BOOT_LUKS_DEVICE}'\\
