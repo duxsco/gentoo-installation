@@ -1027,14 +1027,6 @@ tmpfs /var/tmp/portage   tmpfs noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE}
 EOF
 ```
 
-## dmcrypt configuration
-
-Install `sys-fs/cryptsetup`:
-
-```bash
-emerge -at sys-fs/cryptsetup
-```
-
 ## CPU, disk and kernel tools
 
 Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
@@ -1051,7 +1043,7 @@ Install genkernel, filesystem and device mapper tools:
 
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge dev-util/ccache sys-fs/btrfs-progs sys-kernel/genkernel && (
+emerge dev-util/ccache sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel && (
     [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
     emerge sys-fs/mdadm || \
     true
