@@ -28,6 +28,8 @@ if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*${UUID_BOOT_LUKS_DEVICE}*") ]]
         echo 'Failed to luksOpen "/boot" device! Aborting...' >&2
         exit 1
     fi
+
+    LUKSCLOSE_BOOT="true"
 fi
 
 if ! mountpoint --quiet /boot; then
@@ -168,6 +170,10 @@ fi
 
 if [[ -n ${UMOUNT_BOOT} ]]; then
     umount /boot
+
+    if [[ -n ${LUKSCLOSE_BOOT} ]]; then
+        cryptsetup luksClose boot3141592653temp
+    fi
 fi
 
 if [[ ! -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
