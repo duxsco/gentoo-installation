@@ -10,19 +10,20 @@ KERNEL_VERSION="$(readlink /usr/src/linux | sed 's/linux-//')"
 # luksOpen and mount #
 ######################
 
-if  [[ -b /dev/md/boot3141592653md ]] && \
-    [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID /dev/md/boot3141592653md | tr -d '-')*") ]]
-then
-    cryptsetup luksOpen --key-file /key/mnt/key/key /dev/md/boot3141592653md boot3141592653md
-elif [[ -b /dev/disk/by-partlabel/boot3141592653part ]] && \
-    [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID /dev/disk/by-partlabel/boot3141592653part | tr -d '-')*") ]]
-then
-    cryptsetup luksOpen --key-file /key/mnt/key/key /dev/disk/by-partlabel/boot3141592653part boot3141592653part
+if  [[ -b /dev/md/boot3141592653md ]]; then
+    BOOT_LUKS_DEVICE="/dev/md/boot3141592653md"
+elif [[ -b /dev/disk/by-partlabel/boot3141592653part ]]; then
+    BOOT_LUKS_DEVICE="/dev/disk/by-partlabel/boot3141592653part"
+else
+    echo 'Failed to find "/boot" LUKS device! Aborting...' >&2
+    exit 1
 fi
 
-if  [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID /dev/md/boot3141592653md | tr -d '-')*") ]] && \
-    [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID /dev/disk/by-partlabel/boot3141592653part | tr -d '-')*") ]]
-then
+if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID "${BOOT_LUKS_DEVICE}" | tr -d '-')*") ]]; then
+    cryptsetup luksOpen --key-file /key/mnt/key/key "${BOOT_LUKS_DEVICE}" boot3141592653temp
+fi
+
+if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*$(cryptsetup luksUUID "${BOOT_LUKS_DEVICE}" | tr -d '-')*") ]]; then
     echo 'Failed to luksOpen "/boot" device! Aborting...' >&2
     exit 1
 fi
@@ -120,11 +121,7 @@ GRUB_CONFIG="$(
     grep -v -e "^[[:space:]]*if" -e "^[[:space:]]*fi" -e "^[[:space:]]*load_video" -e "^[[:space:]]*insmod"
 )"
 
-UUID_BOOT_LUKS_DEVICE="$(
-    sed -n "/^target='boot'/,/^$/p" /etc/conf.d/dmcrypt | \
-    sed -n "s/source=UUID='\(.*\)'/\1/p" | \
-    tr -d '-'
-)"
+UUID_BOOT_LUKS_DEVICE="$(cryptsetup luksUUID "${BOOT_LUKS_DEVICE}" | tr -d '-')"
 UUID_BOOT_FILESYSTEM="$(sed -n 's#^UUID=\([^[:space:]]*\)[[:space:]]*/boot[[:space:]]*.*#\1#p' /etc/fstab)"
 CRYPTOMOUNT="\tcryptomount -u ${UUID_BOOT_LUKS_DEVICE}\\
 \tset root='cryptouuid/${UUID_BOOT_LUKS_DEVICE}'\\
