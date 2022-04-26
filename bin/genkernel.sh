@@ -23,11 +23,11 @@ UUID_BOOT_LUKS_DEVICE="$(cryptsetup luksUUID "${BOOT_LUKS_DEVICE}" | tr -d '-')"
 
 if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*${UUID_BOOT_LUKS_DEVICE}*") ]]; then
     cryptsetup luksOpen --key-file /key/mnt/key/key "${BOOT_LUKS_DEVICE}" boot3141592653temp
-fi
 
-if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*${UUID_BOOT_LUKS_DEVICE}*") ]]; then
-    echo 'Failed to luksOpen "/boot" device! Aborting...' >&2
-    exit 1
+    if [[ ! -b $(find /dev/disk/by-id -name "dm-uuid-*${UUID_BOOT_LUKS_DEVICE}*") ]]; then
+        echo 'Failed to luksOpen "/boot" device! Aborting...' >&2
+        exit 1
+    fi
 fi
 
 if ! mountpoint --quiet /boot; then
