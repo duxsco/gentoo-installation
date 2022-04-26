@@ -30,17 +30,9 @@ grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfa
     fi
 done
 
-find /boot -type f -name "*\.sig" | while read -r BOOT_FILE; do
-    if [[ -f ${BOOT_FILE%\.sig}.old ]] && [[ ! -f "${BOOT_FILE%\.sig}.old.sig" ]]; then
-        mv "${BOOT_FILE}" "${BOOT_FILE%\.sig}.old.sig"
-    fi
-done
+find /boot -maxdepth 1 -type f -name "*\.sig" -exec rm {} +
 
-find /boot -type f ! -name "*\.sig" | while read -r BOOT_FILE; do
-    if [[ ! -f ${BOOT_FILE}.sig ]]; then
-        gpg --detach-sign "${BOOT_FILE}"
-    fi
-done
+find /boot -maxdepth 1 -type f -exec gpg --detach-sign {} \;
 
 grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r MOUNTPOINT; do
     (find /"${MOUNTPOINT}"/{"System.map-${NEW_KERNEL_VERSION}-x86_64-ssh","initramfs-${NEW_KERNEL_VERSION}-x86_64-ssh.img","vmlinuz-${NEW_KERNEL_VERSION}-x86_64-ssh"} 2>/dev/null || true) | while read -r EFI_FILE; do
@@ -60,7 +52,7 @@ find /boot /efi* -type f ! -name "*\.sig" ! -name "bootx64\.efi" | while read -r
             paste -d " " -s -
         )
     then
-        echo "GnuPG signature verification failed! Aborting..." >&2
+        echo "GnuPG signature verification failed for ${BOOT_EFI_FILE}! Aborting..." >&2
         exit 1
     fi
 done
