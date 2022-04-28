@@ -42,7 +42,10 @@ fi
 if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
     BOOT_ENTRY="$(</etc/gentoo-installation/grub_default_boot_option.conf)"
 else
-    read -r -p "Available boot options:
+    read -r -p "You can persist your choice with. e.g.:
+echo 0 > /etc/gentoo-installation/grub_default_boot_option.conf
+
+Available boot options:
   0) Remote LUKS unlock via initramfs+dropbear
   1) Local LUKS unlock via TTY/IPMI
   2) SystemRescueCD
@@ -255,13 +258,4 @@ if [[ -n ${LUKSCLOSE_BOOT} ]]; then
         echo 'Failed to luksClose "/boot" LUKS device! Aborting...' >&2
         exit 1
     fi
-fi
-
-if [[ ! -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
-    cat <<EOF
-
-You can persist your choice you have to make in GRUB's boot menu
-by storing your selection in the configuration file, e.g.:
-echo ${BOOT_ENTRY} > /etc/gentoo-installation/grub_default_boot_option.conf
-EOF
 fi
