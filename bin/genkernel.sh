@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset BOOT_ENTRY CLEAR_CCACHE CONTINUE_WITHOUT_KERNEL_CONFIG CRYPTOMOUNT EFI_MOUNTPOINT EFI_UUID FILE GRUB_CONFIG GRUB_LOCAL_CONFIG GRUB_SSH_CONFIG KERNEL_CONFIG KERNEL_VERSION_NEW KERNEL_VERSION_OLD LUKSCLOSE_BOOT LUKS_BOOT_DEVICE MOUNTPOINT NUMBER_REGEX UMOUNT UUID_BOOT_FILESYSTEM UUID_LUKS_BOOT_DEVICE
+unset DEFAULT_BOOT_ENTRY CLEAR_CCACHE CONTINUE_WITHOUT_KERNEL_CONFIG CRYPTOMOUNT EFI_MOUNTPOINT EFI_UUID FILE GRUB_CONFIG GRUB_LOCAL_CONFIG GRUB_SSH_CONFIG KERNEL_CONFIG KERNEL_VERSION_NEW KERNEL_VERSION_OLD LUKSCLOSE_BOOT LUKS_BOOT_DEVICE MOUNTPOINT NUMBER_REGEX UMOUNT UUID_BOOT_FILESYSTEM UUID_LUKS_BOOT_DEVICE
 
 KERNEL_VERSION_OLD="$(uname -r | sed "s/-$(arch)$//")"
 KERNEL_VERSION_NEW="$(readlink /usr/src/linux | sed 's/linux-//')"
@@ -40,7 +40,7 @@ Do you want to build the kernel without executing \"gkb2gs.sh\" beforehand? (y/N
 fi
 
 if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
-    BOOT_ENTRY="$(</etc/gentoo-installation/grub_default_boot_option.conf)"
+    DEFAULT_BOOT_ENTRY="$(</etc/gentoo-installation/grub_default_boot_option.conf)"
 else
     read -r -p "You can persist your choice with. e.g.:
 echo 0 > /etc/gentoo-installation/grub_default_boot_option.conf
@@ -51,12 +51,12 @@ Available boot options:
   2) SystemRescueCD
   3) Enforce manual selection upon each boot
 
-Please, select your option [0-3]: " BOOT_ENTRY
+Please, select your option [0-3]: " DEFAULT_BOOT_ENTRY
     echo ""
 fi
 
 NUMBER_REGEX='^[0-3]$'
-if ! [[ ${BOOT_ENTRY} =~ ${NUMBER_REGEX} ]]; then
+if ! [[ ${DEFAULT_BOOT_ENTRY} =~ ${NUMBER_REGEX} ]]; then
     if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
         echo "\"/etc/gentoo-installation/grub_default_boot_option.conf\" misconfigured! Aborting..."
     else
@@ -189,8 +189,8 @@ grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfa
             -e 's/root_key=key//'
     )"
 
-    if [[ ${BOOT_ENTRY} -ne 3 ]]; then
-        echo -e "set default=${BOOT_ENTRY}\nset timeout=5\n" > "/boot/grub_${EFI_MOUNTPOINT}.cfg"
+    if [[ ${DEFAULT_BOOT_ENTRY} -ne 3 ]]; then
+        echo -e "set default=${DEFAULT_BOOT_ENTRY}\nset timeout=5\n" > "/boot/grub_${EFI_MOUNTPOINT}.cfg"
     elif [[ -f /boot/grub_${EFI_MOUNTPOINT}.cfg ]]; then
         rm -f "/boot/grub_${EFI_MOUNTPOINT}.cfg"
     fi
