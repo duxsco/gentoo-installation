@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset BOOT_ENTRY CLEAR_CCACHE CONTINUE CRYPTOMOUNT EFI_MOUNTPOINT EFI_UUID FILE GRUB_CONFIG GRUB_LOCAL_CONFIG GRUB_SSH_CONFIG KERNEL_CONFIG KERNEL_VERSION_NEW KERNEL_VERSION_OLD LUKSCLOSE_BOOT LUKS_BOOT_DEVICE MOUNTPOINT NUMBER_REGEX UMOUNT UUID_BOOT_FILESYSTEM UUID_LUKS_BOOT_DEVICE
+unset BOOT_ENTRY CLEAR_CCACHE CONTINUE_WITHOUT_KERNEL_CONFIG CRYPTOMOUNT EFI_MOUNTPOINT EFI_UUID FILE GRUB_CONFIG GRUB_LOCAL_CONFIG GRUB_SSH_CONFIG KERNEL_CONFIG KERNEL_VERSION_NEW KERNEL_VERSION_OLD LUKSCLOSE_BOOT LUKS_BOOT_DEVICE MOUNTPOINT NUMBER_REGEX UMOUNT UUID_BOOT_FILESYSTEM UUID_LUKS_BOOT_DEVICE
 
 KERNEL_VERSION_OLD="$(uname -r | sed "s/-$(arch)$//")"
 KERNEL_VERSION_NEW="$(readlink /usr/src/linux | sed 's/linux-//')"
@@ -16,18 +16,20 @@ declare -a UMOUNT
 if [[ ! -f ${KERNEL_CONFIG} ]]; then
 
     if [[ -f /etc/gentoo-installation/continue_without_precreated_kernel_config.conf ]]; then
-        CONTINUE="$(</etc/gentoo-installation/continue_without_precreated_kernel_config.conf)"
+        CONTINUE_WITHOUT_KERNEL_CONFIG="$(</etc/gentoo-installation/continue_without_precreated_kernel_config.conf)"
     else
-        read -r -p "Beware that \"${KERNEL_CONFIG}\" doesn't exist!
-Do you want to build the kernel without executing \"gkb2gs.sh\" beforehand? (y/N)
-You can persist your choice by writing \"y\" or \"n\" to
-\"/etc/gentoo-installation/continue_without_precreated_kernel_config.conf\". Your answer: " CONTINUE
+        read -r -p "You can persist your choice with:
+\"echo n > /etc/gentoo-installation/continue_without_precreated_kernel_config.conf\" or
+\"echo y > /etc/gentoo-installation/continue_without_precreated_kernel_config.conf\"
+
+Beware that \"${KERNEL_CONFIG}\" doesn't exist!
+Do you want to build the kernel without executing \"gkb2gs.sh\" beforehand? (y/N) " CONTINUE_WITHOUT_KERNEL_CONFIG
     fi
 
-    if [[ ${CONTINUE} =~ ^[nN]$ ]]; then
+    if [[ ${CONTINUE_WITHOUT_KERNEL_CONFIG} =~ ^[nN]$ ]]; then
         echo "Aborting due to missing kernel config!"
         exit 0
-    elif ! [[ ${CONTINUE} =~ ^[yY]$ ]]; then
+    elif ! [[ ${CONTINUE_WITHOUT_KERNEL_CONFIG} =~ ^[yY]$ ]]; then
         if [[ -f /etc/gentoo-installation/continue_without_precreated_kernel_config.conf ]]; then
             echo "\"/etc/gentoo-installation/continue_without_precreated_kernel_config.conf\" misconfigured! Aborting..."
         else
