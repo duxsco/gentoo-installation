@@ -1739,7 +1739,7 @@ Enable SELinux via kernel command-line parameter in GRUB config:
 
 ```bash
 rsync -a /etc/default/grub /etc/default/._cfg0000_grub && \
-sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"$/GRUB_CMDLINE_LINUX_DEFAULT="\1 lsm=selinux"/' /etc/default/._cfg0000_grub
+sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"$/GRUB_CMDLINE_LINUX_DEFAULT="\1 lsm=selinux gk.preserverun.disabled=1"/' /etc/default/._cfg0000_grub
 ```
 
 Recreate `grub.conf`. Alternatively, you can follow the steps in [kernel update](#update-linux-kernel). For kernel recreation, I wouldn't delete ccache in order to speed up things. Reboot the system thereafter.
