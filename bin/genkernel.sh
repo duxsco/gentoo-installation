@@ -127,7 +127,7 @@ while read -r FILE; do
         fi
     elif  [[ ! -f ${FILE}.sig ]] || \
         ! grep -q "^GOODSIG TRUST_ULTIMATE VALIDSIG$" < <(
-            gpg --status-fd 1 --verify "${FILE}.sig" "${FILE}" 2>/dev/null | \
+            gpg --homedir /etc/gentoo-installation/gnupg --status-fd 1 --verify "${FILE}.sig" "${FILE}" 2>/dev/null | \
             grep -Po "^\[GNUPG:\][[:space:]]+\K(GOODSIG|VALIDSIG|TRUST_ULTIMATE)(?=[[:space:]])" | \
             sort | \
             paste -d " " -s -
@@ -222,7 +222,7 @@ while read -r MOUNTPOINT; do
     done < <(find /"${MOUNTPOINT}"/{"System.map-${KERNEL_VERSION_NEW}-x86_64-ssh","initramfs-${KERNEL_VERSION_NEW}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-x86_64-ssh"} 2>/dev/null || true)
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 
-find /boot /efi* -maxdepth 1 -type f -exec gpg --detach-sign {} \;
+find /boot /efi* -maxdepth 1 -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
 
 ########
 # sync #
