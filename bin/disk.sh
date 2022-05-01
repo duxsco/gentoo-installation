@@ -196,10 +196,10 @@ btrfs subvolume create /mnt/gentoo/@root; sync
 umount /mnt/gentoo
 # shellcheck disable=SC2046
 mount -o noatime,subvol=@root $(getMapperPartitions 5 | awk '{print $1}') /mnt/gentoo
-mkdir -p /mnt/gentoo/key/mnt/key
-rsync -a "${KEYFILE}" /mnt/gentoo/key/mnt/key/key
+mkdir -p /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key
+rsync -a "${KEYFILE}" /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key/key
 sync
-cmp "${KEYFILE}" /mnt/gentoo/key/mnt/key/key
+cmp "${KEYFILE}" /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key/key
 rm -f "${KEYFILE}"
 
 useradd -m -s /bin/bash meh
