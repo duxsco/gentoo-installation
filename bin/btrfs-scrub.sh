@@ -2,7 +2,7 @@
 
 # Credits: https://github.com/kdave/btrfsmaintenance
 
-sort -u -k1,1 /etc/fstab | awk '$1 ~ /^UUID=/ && $3 == "btrfs" && $4 !~ /noauto/ {print $2}' | while read -r MOUNTPOINT; do
+while read -r MOUNTPOINT; do
 
     if  mountpoint --quiet "${MOUNTPOINT}" && \
         ! grep -q -i "^status:[[:space:]]*running$" < <(btrfs scrub status "${MOUNTPOINT}") && \
@@ -13,4 +13,4 @@ sort -u -k1,1 /etc/fstab | awk '$1 ~ /^UUID=/ && $3 == "btrfs" && $4 !~ /noauto/
     then
         btrfs scrub start -c3 "${MOUNTPOINT}"
     fi
-done
+done < <(sort -u -k1,1 /etc/fstab | awk '$1 ~ /^UUID=/ && $3 == "btrfs" && $4 !~ /noauto/ {print $2}')

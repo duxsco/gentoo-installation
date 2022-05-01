@@ -119,7 +119,7 @@ done < <(
 # verify old gnupg signatures #
 ###############################
 
-find /boot /efi* -type f ! -name "*\.sig" | while read -r FILE; do
+while read -r FILE; do
     if [[ ${FILE} =~ ^.*/bootx64\.efi$ ]]; then
         if ! sbverify --cert /etc/gentoo-installation/secureboot/db.crt "${FILE}" >/dev/null; then
             echo "EFI binary signature verification failed! Aborting..." >&2
@@ -136,7 +136,7 @@ find /boot /efi* -type f ! -name "*\.sig" | while read -r FILE; do
         echo "GnuPG signature verification failed for \"${FILE}\"! Aborting..." >&2
         exit 1
     fi
-done
+done < <(find /boot /efi* -type f ! -name "*\.sig")
 
 #############
 # genkernel #
@@ -180,7 +180,7 @@ GRUB_LOCAL_CONFIG="$(
     sed "s#^[[:space:]]*search[[:space:]]*.*#${CRYPTOMOUNT}#"
 )"
 
-grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r EFI_MOUNTPOINT; do
+while read -r EFI_MOUNTPOINT; do
     EFI_UUID="$(grep -Po "(?<=^UUID=)[0-9A-F]{4}-[0-9A-F]{4}(?=[[:space:]]+/${EFI_MOUNTPOINT}[[:space:]]+vfat[[:space:]]+)" /etc/fstab)"
     GRUB_SSH_CONFIG="$(
         sed -n "/^menuentry.*${KERNEL_VERSION_NEW}-x86_64-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | \
@@ -206,7 +206,7 @@ EOF
     if [[ -f "/${EFI_MOUNTPOINT}/boot.cfg" ]] && ! cmp "/boot/grub_${EFI_MOUNTPOINT}.cfg" <(sed "s/${KERNEL_VERSION_OLD}/${KERNEL_VERSION_NEW}/g" "/${EFI_MOUNTPOINT}/boot.cfg"); then
         mv "/${EFI_MOUNTPOINT}/boot.cfg" "/${EFI_MOUNTPOINT}/boot.cfg.old"
     fi
-done
+done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 
 ###########################
 # create gnupg signatures #
@@ -214,13 +214,13 @@ done
 
 find /boot /efi* -maxdepth 1 -type f -name "*\.sig" -exec rm {} +
 
-grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r MOUNTPOINT; do
-    (find /"${MOUNTPOINT}"/{"System.map-${KERNEL_VERSION_NEW}-x86_64-ssh","initramfs-${KERNEL_VERSION_NEW}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-x86_64-ssh"} 2>/dev/null || true) | while read -r FILE; do
+while read -r MOUNTPOINT; do
+    while read -r FILE; do
         if [[ -f ${FILE} ]]; then
             mv -f "${FILE}" "${FILE}.old"
         fi
-    done
-done
+    done < <(find /"${MOUNTPOINT}"/{"System.map-${KERNEL_VERSION_NEW}-x86_64-ssh","initramfs-${KERNEL_VERSION_NEW}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-x86_64-ssh"} 2>/dev/null || true)
+done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 
 find /boot /efi* -maxdepth 1 -type f -exec gpg --detach-sign {} \;
 
@@ -228,13 +228,13 @@ find /boot /efi* -maxdepth 1 -type f -exec gpg --detach-sign {} \;
 # sync #
 ########
 
-grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab | while read -r MOUNTPOINT; do
+while read -r MOUNTPOINT; do
     rsync -a /boot/{"System.map-${KERNEL_VERSION_NEW}-x86_64-ssh","initramfs-${KERNEL_VERSION_NEW}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-x86_64-ssh"}{,.sig} "/${MOUNTPOINT}/"
     rsync -a "/boot/grub_${MOUNTPOINT}.cfg" "/${MOUNTPOINT}/grub.cfg"
     rsync -a "/boot/grub_${MOUNTPOINT}.cfg.sig" "/${MOUNTPOINT}/grub.cfg.sig"
     rm "/boot/grub_${MOUNTPOINT}.cfg" "/boot/grub_${MOUNTPOINT}.cfg.sig"
     sync
-done
+done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 
 rm -f /boot/{"System.map-${KERNEL_VERSION_NEW}-x86_64-ssh","initramfs-${KERNEL_VERSION_NEW}-x86_64-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-x86_64-ssh"}{,.sig}
 

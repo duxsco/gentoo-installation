@@ -134,7 +134,7 @@ fi
 PBKDF="--pbkdf pbkdf2"
 INDEX=0
 # shellcheck disable=SC2046
-find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartitions 5) | while read -r PARTITION; do
+while read -r PARTITION; do
     if [[ ${INDEX} -eq 2 ]]; then
         unset PBKDF
     fi
@@ -151,15 +151,15 @@ find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartition
     fi
     cryptsetup luksOpen --key-file "${KEYFILE}" "${PARTITION}" "${PARTITION##*\/}"
     INDEX=$((INDEX+1))
-done
+done < <(find "${BOOT_PARTITION}" "${RESCUE_PARTITION}" $(getPartitions 4) $(getPartitions 5))
 
 # EFI system partition
 ALPHABET=({A..Z})
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 1) | while read -r PARTITION; do
+while read -r PARTITION; do
     mkfs.vfat -n "EFI${ALPHABET[tmpCount++]}" -F 32 "${PARTITION}"
-done
+done < <(find $(getPartitions 1))
 
 # boot partition
 mkfs.btrfs --checksum blake2 --label boot3141592653fs "/dev/mapper/${BOOT_PARTITION##*\/}"
@@ -215,20 +215,20 @@ ln -s "${SWAP_PARTITION}" /mnt/gentoo/mapperSwap
 ln -s "$(getMapperPartitions 5 | awk '{print $1}')" /mnt/gentoo/mapperSystem
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 1) | while read -r PARTITION; do
+while read -r PARTITION; do
     ln -s "${PARTITION}" "/mnt/gentoo/devEfi${ALPHABET[tmpCount++]}"
-done
+done < <(find $(getPartitions 1))
 ln -s "$(awk '{print $1}' <<<"${BOOT_PARTITION}")" "/mnt/gentoo/devBoot"
 ln -s "$(awk '{print $1}' <<<"${RESCUE_PARTITION}")" "/mnt/gentoo/devRescue"
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 4) | while read -r PARTITION; do
+while read -r PARTITION; do
     ln -s "${PARTITION}" "/mnt/gentoo/devSwap${ALPHABET[tmpCount++]}"
-done
+done < <(find $(getPartitions 4))
 tmpCount=0
 # shellcheck disable=SC2046
-find $(getPartitions 5) | while read -r PARTITION; do
+while read -r PARTITION; do
     ln -s "${PARTITION}" "/mnt/gentoo/devSystem${ALPHABET[tmpCount++]}"
-done
+done < <(find $(getPartitions 5))
 
 echo $?

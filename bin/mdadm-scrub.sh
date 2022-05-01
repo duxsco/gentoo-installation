@@ -10,7 +10,7 @@ if  [[ -f /proc/mdstat ]] && \
     grep -E '^raid([1456]|10)$' /sys/block/md*/md/level >/dev/null 2>&1 && \
     ls /sys/block/md*/md/sync_action >/dev/null 2>&1
 then
-    find /sys/block/md* -exec basename {} \; | while read -r MD_DEVICE; do
+    while read -r MD_DEVICE; do
 
         LAST_RUN="$(date -u -d "$(TZ=UTC mdadm --detail "/dev/${MD_DEVICE}" | grep -Pio "^[[:space:]]*update time[[:space:]]*:[[:space:]]*\K.*")" "+%s")"
         MD_DIR="/sys/block/${MD_DEVICE}/md"
@@ -32,5 +32,5 @@ then
                 sleep 1
             done
         fi
-    done
+    done < <(find /sys/block/md* -exec basename {} \;)
 fi
