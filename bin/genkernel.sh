@@ -2,80 +2,151 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset ARCH CLEAR_CCACHE CONTINUE_WITHOUT_KERNEL_CONFIG CRYPTOMOUNT DEFAULT_BOOT_ENTRY EFI_MOUNTPOINT EFI_UUID FILE FILES_BOOT FILES_EFI FILES_OLD GRUB_CONFIG GRUB_LOCAL_CONFIG GRUB_SSH_CONFIG KERNEL_CONFIG KERNEL_VERSION_NEW KERNEL_VERSION_OLD LUKSCLOSE_BOOT LUKS_BOOT_DEVICE MOUNTPOINT NUMBER_REGEX UMOUNT UUID_BOOT_FILESYSTEM UUID_LUKS_BOOT_DEVICE
+unset ARCH BOOT_OPTIONS CLEAR_CCACHE CONTINUE_WITHOUT_KERNEL_CONFIG CONTINUE_WITH_KERNEL_CONFIG CRYPTOMOUNT DEFAULT_BOOT_ENTRY EFI_MOUNTPOINT EFI_UUID FILE FILES_BOOT FILES_EFI FILES_OLD GRUB_CONFIG GRUB_LOCAL_CONFIG GRUB_SSH_CONFIG KERNEL_CONFIG_NEW KERNEL_CONFIG_OLD KERNEL_VERSION_NEW KERNEL_VERSION_OLD LUKSCLOSE_BOOT LUKS_BOOT_DEVICE MOUNTPOINT NUMBER_REGEX REMOTE_UNLOCK UMOUNT UUID_BOOT_FILESYSTEM UUID_LUKS_BOOT_DEVICE
 
 ARCH="$(arch)"
 KERNEL_VERSION_NEW="$(readlink /usr/src/linux | sed 's/linux-//')"
 KERNEL_VERSION_OLD="$(uname -r | sed "s/-${ARCH}$//")"
-KERNEL_CONFIG="/etc/kernels/kernel-config-${KERNEL_VERSION_NEW}-${ARCH}"
+KERNEL_CONFIG_NEW="/etc/kernels/kernel-config-${KERNEL_VERSION_NEW}-${ARCH}"
+KERNEL_CONFIG_OLD="/etc/kernels/kernel-config-${KERNEL_VERSION_OLD}-${ARCH}"
 declare -a UMOUNT
 FILES_BOOT="$(mktemp --directory --suffix="_files_boot")"
 FILES_EFI="$(mktemp --directory --suffix="_files_efi")"
 FILES_OLD="$(mktemp --directory --suffix="_files_old")"
 
-##################
-# some questions #
-##################
+#######################
+# check kernel config #
+#######################
 
-if [[ ! -f ${KERNEL_CONFIG} ]]; then
+if [[ ! -f ${KERNEL_CONFIG_NEW} ]]; then
 
     if [[ -f /etc/gentoo-installation/continue_without_precreated_kernel_config.conf ]]; then
         CONTINUE_WITHOUT_KERNEL_CONFIG="$(</etc/gentoo-installation/continue_without_precreated_kernel_config.conf)"
     else
-        read -r -p "You can persist your choice with:
+        read -r -p "
+You can persist your choice with:
 \"echo n > /etc/gentoo-installation/continue_without_precreated_kernel_config.conf\" or
 \"echo y > /etc/gentoo-installation/continue_without_precreated_kernel_config.conf\"
 
-Beware that \"${KERNEL_CONFIG}\" doesn't exist!
+Beware that \"${KERNEL_CONFIG_NEW}\" doesn't exist!
 Do you want to build the kernel without executing \"gkb2gs.sh\" beforehand? (y/N) " CONTINUE_WITHOUT_KERNEL_CONFIG
     fi
 
     if [[ ${CONTINUE_WITHOUT_KERNEL_CONFIG} =~ ^[nN]$ ]]; then
-        echo "Aborting due to missing kernel config!"
+        echo -e "\nAborting due to missing kernel config!"
         exit 0
     elif ! [[ ${CONTINUE_WITHOUT_KERNEL_CONFIG} =~ ^[yY]$ ]]; then
         if [[ -f /etc/gentoo-installation/continue_without_precreated_kernel_config.conf ]]; then
-            echo "\"/etc/gentoo-installation/continue_without_precreated_kernel_config.conf\" misconfigured! Aborting..."
+            echo -e "\n\"/etc/gentoo-installation/continue_without_precreated_kernel_config.conf\" misconfigured! Aborting..."
         else
-            echo "Invalid choice! Aborting..."
+            echo -e "\nInvalid choice! Aborting..."
+        fi
+        exit 1
+    fi
+elif [ "${KERNEL_CONFIG_OLD}" != "${KERNEL_CONFIG_NEW}" ]; then
+    read -r -p "
+You'll use a kernel config that differs from the old one the following way:
+$(diff -y --suppress-common-lines "${KERNEL_CONFIG_OLD}" "${KERNEL_CONFIG_NEW}")
+
+Do you want to continue (y/n)? " CONTINUE_WITH_KERNEL_CONFIG
+
+    if [[ ${CONTINUE_WITH_KERNEL_CONFIG} =~ ^[nN]$ ]]; then
+        echo -e "\nAs you wish! Aborting..."
+        exit 0
+    elif ! [[ ${CONTINUE_WITH_KERNEL_CONFIG} =~ ^[yY]$ ]]; then
+        echo -e "\nInvalid choice! Aborting..."
+        exit 1
+    fi
+fi
+
+##################
+# remote unlock? #
+##################
+
+if [[ -f /etc/gentoo-installation/do_remote_unlock.conf ]]; then
+    REMOTE_UNLOCK="$(</etc/gentoo-installation/do_remote_unlock.conf)"
+else
+    if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
+        cat <<EOF
+
+If /etc/gentoo-installation/grub_default_boot_option.conf exists,
+/etc/gentoo-installation/do_remote_unlock.conf must exist, too!"
+EOF
+        exit 1
+    fi
+
+    read -r -p "
+You can persist your choice with:
+\"echo n > /etc/gentoo-installation/do_remote_unlock.conf\" or
+\"echo y > /etc/gentoo-installation/do_remote_unlock.conf\"
+
+Do you want to remote unlock via SSH (y/n)? " REMOTE_UNLOCK
+fi
+
+if ! [[ ${REMOTE_UNLOCK} =~ ^[nNyY]$ ]]; then
+    if [[ -f /etc/gentoo-installation/do_remote_unlock.conf ]]; then
+        echo -e "\n\"/etc/gentoo-installation/do_remote_unlock.conf\" misconfigured! Aborting..."
+    else
+        echo -e "\nInvalid choice! Aborting..."
+    fi
+    exit 1
+fi
+
+######################
+# default boot entry #
+######################
+
+if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
+    DEFAULT_BOOT_ENTRY="$(</etc/gentoo-installation/grub_default_boot_option.conf)"
+elif [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
+        BOOT_OPTIONS="  0) Remote LUKS unlock via initramfs+dropbear
+  1) Local LUKS unlock via TTY/IPMI
+  2) SystemRescueCD
+  3) Enforce manual selection upon each boot
+
+Please, select your option [0-3]: "
+else
+        BOOT_OPTIONS="  0) Gentoo Linux
+  1) SystemRescueCD
+  2) Enforce manual selection upon each boot
+
+Please, select your option [0-2]: "
+fi
+
+if [[ ! -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
+    read -r -p "
+You can persist your choice with. e.g.:
+echo 0 > /etc/gentoo-installation/grub_default_boot_option.conf
+
+Available boot options:
+${BOOT_OPTIONS}" DEFAULT_BOOT_ENTRY
+
+    if [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
+        NUMBER_REGEX='^[0-3]$'
+    else
+        NUMBER_REGEX='^[0-2]$'
+    fi
+
+    if ! [[ ${DEFAULT_BOOT_ENTRY} =~ ${NUMBER_REGEX} ]]; then
+        if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
+            echo -e "\n\"/etc/gentoo-installation/grub_default_boot_option.conf\" misconfigured! Aborting..."
+        else
+            echo -e "\nInvalid choice! Aborting..."
         fi
         exit 1
     fi
 fi
 
-if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
-    DEFAULT_BOOT_ENTRY="$(</etc/gentoo-installation/grub_default_boot_option.conf)"
-else
-    read -r -p "You can persist your choice with. e.g.:
-echo 0 > /etc/gentoo-installation/grub_default_boot_option.conf
+##########
+# ccache #
+##########
 
-Available boot options:
-  0) Remote LUKS unlock via initramfs+dropbear
-  1) Local LUKS unlock via TTY/IPMI
-  2) SystemRescueCD
-  3) Enforce manual selection upon each boot
-
-Please, select your option [0-3]: " DEFAULT_BOOT_ENTRY
-    echo ""
-fi
-
-NUMBER_REGEX='^[0-3]$'
-if ! [[ ${DEFAULT_BOOT_ENTRY} =~ ${NUMBER_REGEX} ]]; then
-    if [[ -f /etc/gentoo-installation/grub_default_boot_option.conf ]]; then
-        echo "\"/etc/gentoo-installation/grub_default_boot_option.conf\" misconfigured! Aborting..."
-    else
-        echo "Invalid choice! Aborting..."
-    fi
-    exit 1
-fi
-
-echo ""
-read -r -p "Do you want to clear ccache's cache (y/n)?
+read -r -p "
+Do you want to clear ccache's cache (y/n)?
 See \"Is it safe?\" at https://ccache.dev/. Your answer: " CLEAR_CCACHE
-echo ""
 
 if ! [[ ${CLEAR_CCACHE} =~ ^[nNyY]$ ]]; then
-    echo "No valid response given! Aborting..."
+    echo -e "\nNo valid response given! Aborting..."
     exit 1
 fi
 
@@ -88,7 +159,7 @@ if  [[ -b $(find /dev/md -maxdepth 1 -name "*:boot3141592653md") ]]; then
 elif [[ -b /dev/disk/by-partlabel/boot3141592653part ]]; then
     LUKS_BOOT_DEVICE="/dev/disk/by-partlabel/boot3141592653part"
 else
-    echo 'Failed to find "/boot" LUKS device! Aborting...' >&2
+    echo -e '\nFailed to find "/boot" LUKS device! Aborting...' >&2
     exit 1
 fi
 
@@ -98,7 +169,7 @@ if [[ ! -b $(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*${UUID_LUKS_BOOT_D
     cryptsetup luksOpen --key-file /etc/gentoo-installation/keyfile/mnt/key/key "${LUKS_BOOT_DEVICE}" boot3141592653temp
 
     if [[ ! -b $(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*${UUID_LUKS_BOOT_DEVICE}*") ]]; then
-        echo 'Failed to luksOpen "/boot" LUKS device! Aborting...' >&2
+        echo -e '\nFailed to luksOpen "/boot" LUKS device! Aborting...' >&2
         exit 1
     fi
 
@@ -108,7 +179,7 @@ fi
 while read -r MOUNTPOINT; do
     if ! mountpoint --quiet "${MOUNTPOINT}"; then
         if ! mount "${MOUNTPOINT}"; then
-            echo "Failed to mount \"${MOUNTPOINT}\"! Aborting..." >&2
+            echo -e "\nFailed to mount \"${MOUNTPOINT}\"! Aborting..." >&2
             exit 1
         fi
 
@@ -128,7 +199,7 @@ done < <(
 while read -r FILE; do
     if [[ ${FILE} =~ ^.*/bootx64\.efi$ ]]; then
         if ! sbverify --cert /etc/gentoo-installation/secureboot/db.crt "${FILE}" >/dev/null; then
-            echo "EFI binary signature verification failed! Aborting..." >&2
+            echo -e "\nEFI binary signature verification failed! Aborting..." >&2
             exit 1
         fi
     elif  [[ ! -f ${FILE}.sig ]] || \
@@ -139,7 +210,7 @@ while read -r FILE; do
             paste -d " " -s -
         )
     then
-        echo "GnuPG signature verification failed for \"${FILE}\"! Aborting..." >&2
+        echo -e "\nGnuPG signature verification failed for \"${FILE}\"! Aborting..." >&2
         exit 1
     fi
 done < <(find "${FILES_OLD}" -type f ! -name "*\.sig")
@@ -149,18 +220,21 @@ done < <(find "${FILES_OLD}" -type f ! -name "*\.sig")
 #############
 
 if [[ ${CLEAR_CCACHE} =~ ^[yY]$ ]]; then
-    echo "Clearing ccache's cache..."
+    echo -e "\nClearing ccache's cache..."
     ccache --clear
-    echo ""
 fi
 
+echo ""
 genkernel --bootdir="${FILES_BOOT}" --initramfs-overlay="/etc/gentoo-installation/keyfile" --menuconfig all
 
-# "--menuconfig" is not used, because config
-# generated by first genkernel execution in /etc/kernels is reused.
-# "--initramfs-overlay" is not used, because generated "*-ssh*" files
-# must be stored on a non-encrypted partition.
-genkernel --bootdir="${FILES_EFI}" --initramfs-filename="initramfs-%%KV%%-ssh.img" --kernel-filename="vmlinuz-%%KV%%-ssh" --systemmap-filename="System.map-%%KV%%-ssh" --ssh all
+if [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
+    # "--menuconfig" is not used, because config
+    # generated by first genkernel execution in /etc/kernels is reused.
+    # "--initramfs-overlay" is not used, because generated "*-ssh*" files
+    # must be stored on a non-encrypted partition.
+    echo ""
+    genkernel --bootdir="${FILES_EFI}" --initramfs-filename="initramfs-%%KV%%-ssh.img" --kernel-filename="vmlinuz-%%KV%%-ssh" --systemmap-filename="System.map-%%KV%%-ssh" --ssh all
+fi
 
 ###############
 # create .old #
@@ -173,21 +247,26 @@ for FILE in "/boot/System.map-${KERNEL_VERSION_NEW}-${ARCH}" "/boot/initramfs-${
     fi
 done
 
-while read -r MOUNTPOINT; do
-    for FILE in "/${MOUNTPOINT}/System.map-${KERNEL_VERSION_NEW}-${ARCH}-ssh" "/${MOUNTPOINT}/initramfs-${KERNEL_VERSION_NEW}-${ARCH}-ssh.img" "/${MOUNTPOINT}/vmlinuz-${KERNEL_VERSION_NEW}-${ARCH}-ssh"; do
-        if [[ -f ${FILE} ]]; then
-            mv "${FILE}" "${FILE}.old"
-            mv "${FILE}.sig" "${FILE}.old.sig"
-        fi
-    done
-done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+if [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
+    while read -r MOUNTPOINT; do
+        for FILE in "/${MOUNTPOINT}/System.map-${KERNEL_VERSION_NEW}-${ARCH}-ssh" "/${MOUNTPOINT}/initramfs-${KERNEL_VERSION_NEW}-${ARCH}-ssh.img" "/${MOUNTPOINT}/vmlinuz-${KERNEL_VERSION_NEW}-${ARCH}-ssh"; do
+            if [[ -f ${FILE} ]]; then
+                mv "${FILE}" "${FILE}.old"
+                mv "${FILE}.sig" "${FILE}.old.sig"
+            fi
+        done
+    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+fi
 
 ###############
 # grub config #
 ###############
 
 rsync -Ha "${FILES_BOOT}/" /boot/
-rsync -Ha "${FILES_EFI}/" /boot/
+
+if [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
+    rsync -Ha "${FILES_EFI}/" /boot/
+fi
 
 GRUB_CONFIG="$(
     grub-mkconfig 2>/dev/null | \
@@ -210,23 +289,28 @@ GRUB_LOCAL_CONFIG="$(
 )"
 
 while read -r EFI_MOUNTPOINT; do
-    EFI_UUID="$(grep -Po "(?<=^UUID=)[0-9A-F]{4}-[0-9A-F]{4}(?=[[:space:]]+/${EFI_MOUNTPOINT}[[:space:]]+vfat[[:space:]]+)" /etc/fstab)"
-    GRUB_SSH_CONFIG="$(
-        sed -n "/^menuentry.*${KERNEL_VERSION_NEW}-${ARCH}-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | \
-        sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${EFI_UUID}/" \
-            -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(</etc/gentoo-installation/dosshd.conf)|" \
-            -e 's/root_key=key//'
-    )"
 
-    if [[ ${DEFAULT_BOOT_ENTRY} -ne 3 ]]; then
+    if  { [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]] && [[ ${DEFAULT_BOOT_ENTRY} -ne 3 ]]; } || \
+        { [[ ${REMOTE_UNLOCK} =~ ^[nN]$ ]] && [[ ${DEFAULT_BOOT_ENTRY} -ne 2 ]]; }
+    then
         echo -e "set default=${DEFAULT_BOOT_ENTRY}\nset timeout=5\n" > "${FILES_EFI}/grub_${EFI_MOUNTPOINT}.cfg"
     elif [[ -f ${FILES_EFI}/grub_${EFI_MOUNTPOINT}.cfg ]]; then
         rm "${FILES_EFI}/grub_${EFI_MOUNTPOINT}.cfg"
     fi
 
-    cat <<EOF >> "${FILES_EFI}/grub_${EFI_MOUNTPOINT}.cfg"
-${GRUB_SSH_CONFIG}
+    if [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
+        EFI_UUID="$(grep -Po "(?<=^UUID=)[0-9A-F]{4}-[0-9A-F]{4}(?=[[:space:]]+/${EFI_MOUNTPOINT}[[:space:]]+vfat[[:space:]]+)" /etc/fstab)"
+        GRUB_SSH_CONFIG="$(
+            sed -n "/^menuentry.*${KERNEL_VERSION_NEW}-${ARCH}-ssh'/,/^}$/p" <<<"${GRUB_CONFIG}" | \
+            sed -e "s/^[[:space:]]*search[[:space:]]*\(.*\)/\tsearch --no-floppy --fs-uuid --set=root ${EFI_UUID}/" \
+                -e "s|^\([[:space:]]*\)linux[[:space:]]\(.*\)$|\1linux \2 $(</etc/gentoo-installation/dosshd.conf)|" \
+                -e 's/root_key=key//'
+        )"
+        echo "${GRUB_SSH_CONFIG}" >> "${FILES_EFI}/grub_${EFI_MOUNTPOINT}.cfg"
+        echo "" >> "${FILES_EFI}/grub_${EFI_MOUNTPOINT}.cfg"
+    fi
 
+    cat <<EOF >> "${FILES_EFI}/grub_${EFI_MOUNTPOINT}.cfg"
 ${GRUB_LOCAL_CONFIG}
 
 $(grep -A999 "^menuentry" /etc/grub.d/40_custom)
@@ -238,13 +322,15 @@ EOF
     fi
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 
-rm /boot/{"System.map-${KERNEL_VERSION_NEW}-${ARCH}-ssh","initramfs-${KERNEL_VERSION_NEW}-${ARCH}-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-${ARCH}-ssh"}
+if [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
+    rm /boot/{"System.map-${KERNEL_VERSION_NEW}-${ARCH}-ssh","initramfs-${KERNEL_VERSION_NEW}-${ARCH}-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-${ARCH}-ssh"}
+fi
 
 ###########################
 # create gnupg signatures #
 ###########################
 
-chcon -R -t user_tmp_t "${FILES_BOOT}" "${FILES_EFI}" "${FILES_OLD}"
+chcon -R -t user_tmp_t "${FILES_BOOT}" "${FILES_EFI}"
 
 find "${FILES_BOOT}" "${FILES_EFI}" -maxdepth 1 -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
 
@@ -255,7 +341,12 @@ find "${FILES_BOOT}" "${FILES_EFI}" -maxdepth 1 -type f -exec gpg --homedir /etc
 rsync -a "${FILES_BOOT}"/{"System.map-${KERNEL_VERSION_NEW}-${ARCH}","initramfs-${KERNEL_VERSION_NEW}-${ARCH}.img","vmlinuz-${KERNEL_VERSION_NEW}-${ARCH}"}.sig "/boot/"
 
 while read -r MOUNTPOINT; do
-    rsync -a "${FILES_EFI}"/{"System.map-${KERNEL_VERSION_NEW}-${ARCH}-ssh","initramfs-${KERNEL_VERSION_NEW}-${ARCH}-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-${ARCH}-ssh"}{,.sig} "/${MOUNTPOINT}/"
+    if [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
+        rsync -a "${FILES_EFI}"/{"System.map-${KERNEL_VERSION_NEW}-${ARCH}-ssh","initramfs-${KERNEL_VERSION_NEW}-${ARCH}-ssh.img","vmlinuz-${KERNEL_VERSION_NEW}-${ARCH}-ssh"}{,.sig} "/${MOUNTPOINT}/"
+    else
+        # shellcheck disable=SC2140
+        rm "/${MOUNTPOINT}"/{"System.map-"*"-${ARCH}-ssh","initramfs-"*"-${ARCH}-ssh.img","vmlinuz-"*"-${ARCH}-ssh"}{,.sig}
+    fi
     rsync -a "${FILES_EFI}/grub_${MOUNTPOINT}.cfg" "/${MOUNTPOINT}/grub.cfg"
     rsync -a "${FILES_EFI}/grub_${MOUNTPOINT}.cfg.sig" "/${MOUNTPOINT}/grub.cfg.sig"
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
@@ -268,7 +359,7 @@ for MOUNTPOINT in "${UMOUNT[@]}"; do
     umount "${MOUNTPOINT}"
 
     if mountpoint --quiet "${MOUNTPOINT}"; then
-        echo "Failed to umount \"${MOUNTPOINT}\"! Aborting..." >&2
+        echo -e "\nFailed to umount \"${MOUNTPOINT}\"! Aborting..." >&2
         exit 1
     fi
 done
@@ -277,7 +368,7 @@ if [[ -n ${LUKSCLOSE_BOOT} ]]; then
     cryptsetup luksClose boot3141592653temp
 
     if [[ -b $(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*${UUID_LUKS_BOOT_DEVICE}*") ]]; then
-        echo 'Failed to luksClose "/boot" LUKS device! Aborting...' >&2
+        echo -e '\nFailed to luksClose "/boot" LUKS device! Aborting...' >&2
         exit 1
     fi
 fi
