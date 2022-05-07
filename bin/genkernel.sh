@@ -43,20 +43,6 @@ Do you want to build the kernel without executing \"gkb2gs.sh\" beforehand? (y/N
         fi
         exit 1
     fi
-elif [ "${KERNEL_CONFIG_OLD}" != "${KERNEL_CONFIG_NEW}" ]; then
-    read -r -p "
-You'll use a kernel config that differs from the old one the following way:
-$(diff -y --suppress-common-lines "${KERNEL_CONFIG_OLD}" "${KERNEL_CONFIG_NEW}")
-
-Do you want to continue (y/n)? " CONTINUE_WITH_KERNEL_CONFIG
-
-    if [[ ${CONTINUE_WITH_KERNEL_CONFIG} =~ ^[nN]$ ]]; then
-        echo -e "\nAs you wish! Aborting..."
-        exit 0
-    elif ! [[ ${CONTINUE_WITH_KERNEL_CONFIG} =~ ^[yY]$ ]]; then
-        echo -e "\nInvalid choice! Aborting..."
-        exit 1
-    fi
 fi
 
 ##################
@@ -234,6 +220,22 @@ if [[ ${REMOTE_UNLOCK} =~ ^[yY]$ ]]; then
     # must be stored on a non-encrypted partition.
     echo ""
     genkernel --bootdir="${FILES_EFI}" --initramfs-filename="initramfs-%%KV%%-ssh.img" --kernel-filename="vmlinuz-%%KV%%-ssh" --systemmap-filename="System.map-%%KV%%-ssh" --ssh all
+fi
+
+if [ "${KERNEL_CONFIG_OLD}" != "${KERNEL_CONFIG_NEW}" ]; then
+    read -r -p "
+The new kernel config differs from the old one the following way:
+$(diff -y --suppress-common-lines "${KERNEL_CONFIG_OLD}" "${KERNEL_CONFIG_NEW}")
+
+Do you want to continue (y/n)? " CONTINUE_WITH_KERNEL_CONFIG
+
+    if [[ ${CONTINUE_WITH_KERNEL_CONFIG} =~ ^[nN]$ ]]; then
+        echo -e "\nAs you wish! Aborting..."
+        exit 0
+    elif ! [[ ${CONTINUE_WITH_KERNEL_CONFIG} =~ ^[yY]$ ]]; then
+        echo -e "\nInvalid choice! Aborting..."
+        exit 1
+    fi
 fi
 
 ###############
