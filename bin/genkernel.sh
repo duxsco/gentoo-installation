@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset arch boot_options clear_ccache continue_without_kernel_config continue_with_kernel_config cryptomount default_boot_entry efi_mountpoint efi_uuid file files_boot files_efi files_old grub_config grub_local_config grub_ssh_config kernel_config_new kernel_config_old kernel_version_new kernel_version_old luksclose_boot luks_boot_device mountpoint number_regex remote_unlock umount uuid_boot_filesystem uuid_luks_boot_device
+unset arch boot_options clear_ccache continue_with_kernel_config continue_without_kernel_config cryptomount default_boot_entry efi_mountpoint efi_uuid file files_boot files_efi files_old grub_config grub_local_config grub_ssh_config kernel_config_new kernel_config_old kernel_version_new kernel_version_old luks_boot_device luksclose_boot mountpoint number_regex remote_unlock umount uuid_boot_filesystem uuid_luks_boot_device
 
 arch="$(arch)"
 kernel_version_new="$(readlink /usr/src/linux | sed 's/linux-//')"
