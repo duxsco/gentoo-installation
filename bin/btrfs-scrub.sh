@@ -2,6 +2,10 @@
 
 # Credits: https://github.com/kdave/btrfsmaintenance
 
+# Prevent tainting variables via environment
+# See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
+unset mountpoint
+
 while read -r mountpoint; do
 
     if  mountpoint --quiet "${mountpoint}" && \
