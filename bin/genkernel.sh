@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset arch boot_options clear_ccache continue_with_kernel_config continue_without_gkb2gs_created_kernel_config cryptomount default_boot_entry efi_mountpoint efi_uuid file files_boot files_efi files_old grub_config grub_local_config grub_ssh_config kernel_config_new kernel_config_old kernel_version_new kernel_version_old luks_boot_device luks_boot_device_uuid luks_unlock_via_ssh luksclose_boot mountpoint number_regex umount uuid_boot_filesystem
+unset arch boot_options clear_ccache continue_with_kernel_config continue_without_gkb2gs_created_kernel_config cryptomount default_boot_entry delete_obsolete_files efi_mountpoint efi_uuid file files_boot files_efi files_old grub_config grub_local_config grub_ssh_config kernel_config_new kernel_config_old kernel_version kernel_version_new kernel_version_obsolete kernel_version_old luks_boot_device luks_boot_device_uuid luks_unlock_via_ssh luksclose_boot mountpoint number_regex obsolete_files umount uuid_boot_filesystem
 
 arch="$(arch)"
 kernel_version_new="$(readlink /usr/src/linux | sed 's/linux-//')"
@@ -184,6 +184,33 @@ while read -r file; do
         exit 1
     fi
 done < <(find "${files_old}" -type f ! -name "*\.sig")
+
+#########################
+# delete obsolete files #
+#########################
+
+kernel_version_obsolete="$(find /boot /efi* -maxdepth 1 -mindepth 1 -type f -name "vmlinuz-*" | grep -Po "[0-9]+\.[0-9]+\.[0-9]+-gentoo.*-${arch}" | sed "s/-${arch}//" | sort -u | grep -v -e "${kernel_version_new}" -e "${kernel_version_old}" | xargs)"
+
+if [[ -n ${kernel_version_obsolete} ]]; then
+    obsolete_files="$(
+        for kernel_version in ${kernel_version_obsolete}; do
+            # shellcheck disable=SC2086
+            find /{boot/{initramfs-${kernel_version}-${arch}.img,{System.map,vmlinuz}-${kernel_version}-${arch}},efi*/{initramfs-${kernel_version}-${arch}-ssh.img,{System.map,vmlinuz}-${kernel_version}-${arch}-ssh}}{,.old}{,.sig} 2>/dev/null
+            echo -e "/lib/modules/${kernel_version}-${arch}\n/usr/src/linux-${kernel_version}"
+        done | sort | xargs
+    )"
+
+    read -r -p "
+Do you want to delete following old files and folders?
+$(tr ' ' '\n' <<<"${obsolete_files}")
+
+Your answer (y/n): " delete_obsolete_files
+
+    if [[ ${delete_obsolete_files} =~ ^[yY]$ ]]; then
+        # shellcheck disable=SC2086
+        rm -rf ${obsolete_files}
+    fi
+fi
 
 #############
 # genkernel #
