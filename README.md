@@ -1183,85 +1183,6 @@ menuentry 'SystemRescueCD' {
 EOF
 ```
 
-## Kernel installation
-
-> ⚠ The config of `sys-kernel/gentoo-kernel-bin` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel-bin` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-sources-5.17.x` kernel with `=sys-kernel/gentoo-kernel-bin-5.16.x` config. ⚠
-
-Install the [kernel](https://www.kernel.org/category/releases.html):
-
-```bash
-INSTALL_LTS_KERNEL="true" && (
-cat <<EOF >> /etc/portage/package.accept_keywords/main
-sys-kernel/gentoo-kernel-bin ~amd64
-sys-kernel/gentoo-sources ~amd64
-sys-kernel/linux-headers ~amd64
-EOF
-) && (
-if [[ ${INSTALL_LTS_KERNEL} == true ]]; then
-cat <<EOF >> /etc/portage/package.mask/main
->=sys-kernel/gentoo-kernel-bin-5.16
->=sys-kernel/gentoo-sources-5.16
->=sys-kernel/linux-headers-5.16
-EOF
-fi
-) && (
-cat <<EOF >> /etc/portage/package.use/main
-sys-fs/btrfs-progs -convert
-sys-kernel/gentoo-kernel-bin -initramfs
-EOF
-) && \
-emerge -at sys-kernel/gentoo-sources && \
-eselect kernel set 1 && \
-eselect kernel list; echo $?
-```
-
-Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel-bin` with:
-
-```bash
-gkb2gs.sh -h
-gkb2gs.sh
-```
-
-Customise kernel configuration and build kernel and initramfs for local and remote (via SSH) LUKS unlock:
-
-```bash
-# I usually make following changes for systems with Intel CPU:
-#     Processor type and features  --->
-#         [ ] Support for extended (non-PC) x86 platforms
-#             Processor family (Core 2/newer Xeon)  --->
-#         <*> CPU microcode loading support
-#         [*]   Intel microcode loading support
-#         [ ]   AMD microcode loading support
-#     Binary Emulations --->
-#         [ ] IA32 Emulation
-#         [ ] x32 ABI for 64-bit mode
-#     Device Drivers  --->
-#         Generic Driver Options --->
-#             Firmware Loader --->
-#                 -*-   Firmware loading facility
-#                 [ ] Enable the firmware sysfs fallback mechanism
-#     Kernel hacking  --->
-#         Generic Kernel Debugging Instruments  --->
-#             [ ] Magic SysRq key
-#         [ ] Remote debugging over FireWire early on boot
-genkernel.sh
-```
-
-You can persist your choice you have to make in GRUB's boot menu:
-
-```bash
-# Available boot options:
-#   0) Remote LUKS unlock via initramfs+dropbear
-#   1) Local LUKS unlock via TTY/IPMI
-#   2) SystemRescueCD
-#   3) Enforce manual selection upon each boot
-echo 1 > /etc/gentoo-installation/grub_default_boot_option.conf
-```
-
-`genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
-
-For now, ignore the request to sign files. The GnuPG keypair must be created first and other files must be signed, too. This will be done in the next chapter.
-
 ## GnuPG boot file signing
 
 The whole boot process must be GnuPG signed. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
@@ -1352,6 +1273,85 @@ KEY_ID="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
 find /boot /mnt/rescue -type f -exec gpg --detach-sign --local-user "${KEY_ID}" {} \; && \
 gpgconf --kill all; echo $?
 ```
+
+## Kernel installation
+
+> ⚠ The config of `sys-kernel/gentoo-kernel-bin` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel-bin` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-sources-5.17.x` kernel with `=sys-kernel/gentoo-kernel-bin-5.16.x` config. ⚠
+
+Install the [kernel](https://www.kernel.org/category/releases.html):
+
+```bash
+INSTALL_LTS_KERNEL="true" && (
+cat <<EOF >> /etc/portage/package.accept_keywords/main
+sys-kernel/gentoo-kernel-bin ~amd64
+sys-kernel/gentoo-sources ~amd64
+sys-kernel/linux-headers ~amd64
+EOF
+) && (
+if [[ ${INSTALL_LTS_KERNEL} == true ]]; then
+cat <<EOF >> /etc/portage/package.mask/main
+>=sys-kernel/gentoo-kernel-bin-5.16
+>=sys-kernel/gentoo-sources-5.16
+>=sys-kernel/linux-headers-5.16
+EOF
+fi
+) && (
+cat <<EOF >> /etc/portage/package.use/main
+sys-fs/btrfs-progs -convert
+sys-kernel/gentoo-kernel-bin -initramfs
+EOF
+) && \
+emerge -at sys-kernel/gentoo-sources && \
+eselect kernel set 1 && \
+eselect kernel list; echo $?
+```
+
+Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel-bin` with:
+
+```bash
+gkb2gs.sh -h
+gkb2gs.sh
+```
+
+Customise kernel configuration and build kernel and initramfs for local and remote (via SSH) LUKS unlock:
+
+```bash
+# I usually make following changes for systems with Intel CPU:
+#     Processor type and features  --->
+#         [ ] Support for extended (non-PC) x86 platforms
+#             Processor family (Core 2/newer Xeon)  --->
+#         <*> CPU microcode loading support
+#         [*]   Intel microcode loading support
+#         [ ]   AMD microcode loading support
+#     Binary Emulations --->
+#         [ ] IA32 Emulation
+#         [ ] x32 ABI for 64-bit mode
+#     Device Drivers  --->
+#         Generic Driver Options --->
+#             Firmware Loader --->
+#                 -*-   Firmware loading facility
+#                 [ ] Enable the firmware sysfs fallback mechanism
+#     Kernel hacking  --->
+#         Generic Kernel Debugging Instruments  --->
+#             [ ] Magic SysRq key
+#         [ ] Remote debugging over FireWire early on boot
+genkernel.sh
+```
+
+You can persist your choice you have to make in GRUB's boot menu:
+
+```bash
+# Available boot options:
+#   0) Remote LUKS unlock via initramfs+dropbear
+#   1) Local LUKS unlock via TTY/IPMI
+#   2) SystemRescueCD
+#   3) Enforce manual selection upon each boot
+echo 1 > /etc/gentoo-installation/grub_default_boot_option.conf
+```
+
+`genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
+
+For now, ignore the request to sign files. The GnuPG keypair must be created first and other files must be signed, too. This will be done in the next chapter.
 
 ## EFI binary
 
