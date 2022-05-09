@@ -124,8 +124,8 @@ fi
 # luksOpen and mount #
 ######################
 
-if  [[ -b $(find /dev/md -maxdepth 1 -name "*:boot3141592653md") ]]; then
-    luks_boot_device="$(find /dev/md -maxdepth 1 -name "*:boot3141592653md")"
+if  [[ -b $(find /dev/disk/by-id -maxdepth 1 -name "*:boot3141592653md") ]]; then
+    luks_boot_device="$(find /dev/disk/by-id -maxdepth 1 -name "*:boot3141592653md")"
 elif [[ -b /dev/disk/by-partlabel/boot3141592653part ]]; then
     luks_boot_device="/dev/disk/by-partlabel/boot3141592653part"
 else

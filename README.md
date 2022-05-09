@@ -3,7 +3,7 @@
 > ⚠ The installation guide builds heavily on `Secure Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
 
 The following installation guide results in a **fully encrypted** (except ESP), **Secure Boot signed** (EFI binary/binaries) **and GnuPG signed** (kernel, initramfs, microcode etc.) **system** with heavy use of **RAID** (mdadm and BTRFS based) and support for **LUKS unlock**:
-- **Locally:** One-time password entry and automatic decryption of (multiple) LUKS `system` partitions in further boot process via LUKS keyfile stored in initramfs which itself is stored on LUKS encrypted partition(s)
+- **Locally:** One-time password entry and automatic decryption of (multiple) LUKS `system` and `swap` partitions in further boot process via LUKS keyfile stored in initramfs which itself is stored on LUKS encrypted partition(s)
 - **Remote:** SSH login into initramfs+dropbear system, manual decryption of LUKS partitions and resumption of Gentoo Linux boot
 - After boot into **rescue system** based upon a **customised SystemRescueCD**
 
@@ -129,7 +129,7 @@ PC∕Laptop───────────────────────
 - More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
 
 On LUKS encrypted disks except for the `rescue` partition where the SystemRescueCD files are located, LUKS passphrase slots are set as follows:
-  - 0: Keyfile (stored in initramfs to unlock `system` partitions without interaction)
+  - 0: Keyfile (stored in initramfs to unlock `system` and `swap` partitions without interaction)
   - 1: Master password (fallback password for emergency)
   - 2: Boot password
     - shorter than "master", but still secure
@@ -196,7 +196,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r bin/{boot2efi.sh,btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh} root@XXX:/tmp/
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r {bin/{btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh},conf/genkernel_sh.conf} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -338,11 +338,11 @@ Result of a single disk setup:
 
 > ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
-Extract stage3 tarball and copy `firewall.nft`, `genkernel.sh`, `btrfs-scrub.sh`, `mdadm-scrub.sh` as well as `boot2efi.sh`:
+Extract stage3 tarball and copy `firewall.nft`, `genkernel.sh`, `btrfs-scrub.sh` as well as `mdadm-scrub.sh`:
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,boot2efi.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/; echo $?
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/; echo $?
 ```
 
 Extract portage tarball:
@@ -767,6 +767,12 @@ MAKEOPTS="-j${JOBS}"
 EOF
 ```
 
+Copy and configure `genkernel.sh` configuration:
+
+```bash
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/genkernel_sh.conf /mnt/gentoo/etc/gentoo-installation/
+```
+
 ## Chrooting
 
 Chroot (copy&paste one after the other):
@@ -859,10 +865,10 @@ Install `app-portage/eix`:
 emerge -at app-portage/eix
 ```
 
-Execute `eix-update`:
+Execute `eix-sync`:
 
 ```bash
-eix-update
+eix-sync
 ```
 
 Read Gentoo news items:
@@ -1344,20 +1350,9 @@ Customise kernel configuration and build kernel and initramfs for local and remo
 genkernel.sh
 ```
 
-You can persist your choice you have to make in GRUB's boot menu:
-
-```bash
-# Available boot options:
-#   0) Remote LUKS unlock via initramfs+dropbear
-#   1) Local LUKS unlock via TTY/IPMI
-#   2) SystemRescueCD
-#   3) Enforce manual selection upon each boot
-echo 1 > /etc/gentoo-installation/grub_default_boot_option.conf
-```
+Ignore the `chcon` error messages. SELinux will be setup later on.
 
 `genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
-
-For now, ignore the request to sign files. The GnuPG keypair must be created first and other files must be signed, too. This will be done in the next chapter.
 
 ## EFI binary
 
@@ -1397,12 +1392,6 @@ done
 ```
 
 ## Boot file installation
-
-Copy relevant files from `/boot` to `/efi*/`:
-
-```bash
-boot2efi.sh
-```
 
 Result on a dual disk system:
 
@@ -1760,15 +1749,13 @@ Setup `app-admin/sudo`:
 bash -c 'echo "%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?'
 ```
 
-Edit `/etc/selinux/config` to your liking.
-
 Enable logging:
 
 ```bash
 rc-update add auditd
 ```
 
-Reboot again.
+Reboot again and continue with [gentoo-selinux](https://github.com/duxsco/gentoo-selinux).
 
 ## Update Linux kernel
 
