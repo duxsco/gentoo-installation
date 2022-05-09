@@ -1187,10 +1187,16 @@ EOF
 
 The whole boot process must be GnuPG signed. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
 
+Create GnuPG homedir:
+
+```bash
+mkdir --mode=0700 /etc/gentoo-installation/gnupg
+```
+
 Create a GnuPG keypair with `gpg --full-gen-key`, e.g.:
 
 ```bash
-➤ gpg --full-gen-key
+➤ gpg --homedir /etc/gentoo-installation/gnupg --full-gen-key
 gpg (GnuPG) 2.2.32; Copyright (C) 2021 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -1231,7 +1237,7 @@ Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
 Result:
 
 ```bash
-➤ gpg --list-keys
+➤ gpg --homedir /etc/gentoo-installation/gnupg --list-keys
 gpg: checking the trustdb
 gpg: marginals needed: 3  completes needed: 1  trust model: pgp
 gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
@@ -1249,7 +1255,7 @@ Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one af
 KEY_ID="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
 
 # Export public key
-gpg --export-options export-minimal --export "${KEY_ID}" > /etc/gentoo-installation/secureboot/gpg.pub; echo $?
+gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export "${KEY_ID}" > /etc/gentoo-installation/secureboot/gpg.pub; echo $?
 
 # If signature creation fails...
 GPG_TTY="$(tty)"
@@ -1257,21 +1263,21 @@ export GPG_TTY
 
 # Sign initial grub.cfg
 ls -1d /efi* | while read -r I; do
-    gpg --local-user "${KEY_ID}" --detach-sign "/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg"; echo $?
+    gpg --homedir /etc/gentoo-installation/gnupg --local-user "${KEY_ID}" --detach-sign "/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg"; echo $?
 done
 
 # Stop the gpg-agent
-gpgconf --kill all
+gpgconf --homedir /etc/gentoo-installation/gnupg --kill all
 ```
 
-Sign your boot files with GnuPG:
+Sign your custom SystemRescueCD files with GnuPG:
 
 ```bash
 # Change Key ID
 KEY_ID="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
 
-find /boot /mnt/rescue -type f -exec gpg --detach-sign --local-user "${KEY_ID}" {} \; && \
-gpgconf --kill all; echo $?
+find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign --local-user "${KEY_ID}" {} \; && \
+gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 ```
 
 ## Kernel installation
