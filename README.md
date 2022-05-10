@@ -1728,34 +1728,7 @@ mokutil --sb-state
 
 ## Enable SELinux
 
-Enable SELinux via kernel command-line parameter in GRUB config:
-
-```bash
-rsync -a /etc/default/grub /etc/default/._cfg0000_grub && \
-sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"$/GRUB_CMDLINE_LINUX_DEFAULT="\1 lsm=selinux gk.preserverun.disabled=1"/' /etc/default/._cfg0000_grub
-```
-
-Recreate `grub.conf`. Alternatively, you can follow the steps in [kernel update](#update-linux-kernel). For kernel recreation, I wouldn't delete ccache in order to speed up things. Reboot the system thereafter.
-
-After bootup, [relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel). But, don't forget to mount `/boot` and all `/efi*` first. Make sure to apply the `setfiles` command on `/boot`, `/var/cache/binpkgs`, `/var/cache/distfiles`, `/var/db/repos/gentoo`, `/var/tmp` and all `/efi*`.
-
-Add the initial user to the administration SELinux user, and take care of services:
-- https://wiki.gentoo.org/wiki/SELinux/Installation#Define_the_administrator_accounts
-- https://wiki.gentoo.org/wiki/SELinux/Installation#Supporting_service_administration
-
-Setup `app-admin/sudo`:
-
-```bash
-bash -c 'echo "%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?'
-```
-
-Enable logging:
-
-```bash
-rc-update add auditd
-```
-
-Reboot again and continue with [gentoo-selinux](https://github.com/duxsco/gentoo-selinux).
+Continue with [gentoo-selinux](https://github.com/duxsco/gentoo-selinux).
 
 ## Update Linux kernel
 
