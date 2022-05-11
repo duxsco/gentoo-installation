@@ -17,7 +17,7 @@ All three boot options are available in GRUB's boot menu.
 
 ## Disk layout
 
-The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions (ESP) are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signature is verified upon boot, and bootup aborts if verification fails.
+The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions (ESP) are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signatures are verified upon boot, and bootup aborts if verification fails.
 
 ESPs each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
@@ -283,10 +283,12 @@ Result of a single disk setup:
 ├── devRescue -> /dev/sda3
 ├── devSwapa -> /dev/sda4
 ├── devSystema -> /dev/sda5
-├── key
-│   └── mnt
-│       └── key
-│           └── key
+├── etc
+│   └── gentoo-installation
+│       └── keyfile
+│           └── mnt
+│               └── key
+│                   └── key
 ├── mapperBoot -> /dev/mapper/sda2
 ├── mapperRescue -> /dev/mapper/sda3
 ├── mapperSwap -> /dev/mapper/sda4
@@ -318,10 +320,12 @@ Result of a single disk setup:
 ├── devSystemb -> /dev/sdb5
 ├── devSystemc -> /dev/sdc5
 ├── devSystemd -> /dev/sdd5
-├── key
-│   └── mnt
-│       └── key
-│           └── key
+├── etc
+│   └── gentoo-installation
+│       └── keyfile
+│           └── mnt
+│               └── key
+│                   └── key
 ├── mapperBoot -> /dev/mapper/md0
 ├── mapperRescue -> /dev/mapper/md1
 ├── mapperSwap -> /dev/md2
@@ -1346,7 +1350,7 @@ Customise `/etc/gentoo-installation/genkernel_sh.conf`. Configure/build kernel a
 genkernel.sh
 ```
 
-Ignore the `chcon` error messages. SELinux will be setup later on.
+Ignore the `diff` and `chcon` error messages. SELinux will be setup later on.
 
 `genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
 
@@ -1744,9 +1748,6 @@ gkb2gs.sh
 
 # Customise kernel configuration and build kernel
 genkernel.sh
-
-# Copy files from /boot to /efi*
-boot2efi.sh
 ```
 
 ## Remote unlock
@@ -1768,7 +1769,7 @@ etc.
 If you are finished, execute to resume boot:
 
 ```bash
-touch /tmp/ROOT.opened && rm /tmp/remote-rescueshell.lock
+touch /tmp/SWAP.opened /tmp/ROOT.opened && rm /tmp/remote-rescueshell.lock
 ```
 
 ## Other Gentoo Linux repos
