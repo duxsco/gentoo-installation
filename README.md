@@ -1026,7 +1026,7 @@ TMPFS_SIZE=12G && \
 cat <<EOF | column -t >> /etc/fstab
 tmpfs /tmp               tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root,rootcontext=system_u:object_r:tmp_t:s0 0 0
 tmpfs /var/tmp           tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root,rootcontext=system_u:object_r:tmp_t:s0 0 0
-tmpfs /var/tmp/genkernel tmpfs noatime,nodev,nosuid,mode=0755,size=${TMPFS_SIZE},uid=root,gid=root,X-mount.mkdir=0755,rootcontext=system_u:object_r:tmpfs_t:s0 0 0
+tmpfs /var/tmp/genkernel tmpfs noatime,nodev,nosuid,mode=0755,size=${TMPFS_SIZE},uid=root,gid=root,X-mount.mkdir=0755,rootcontext=system_u:object_r:user_tmp_t:s0 0 0
 tmpfs /var/tmp/portage   tmpfs noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=portage,gid=portage,X-mount.mkdir=0775,rootcontext=system_u:object_r:portage_tmp_t:s0 0 0
 EOF
 ```
