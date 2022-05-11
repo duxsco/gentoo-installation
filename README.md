@@ -342,7 +342,9 @@ Extract stage3 tarball and copy `firewall.nft`, `genkernel.sh`, `btrfs-scrub.sh`
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/; echo $?
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/ && \
+mkdir -p /mnt/gentoo/etc/gentoo-installation && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/genkernel_sh.conf /mnt/gentoo/etc/gentoo-installation/; echo $?
 ```
 
 Extract portage tarball:
@@ -765,12 +767,6 @@ cat <<EOF >> /mnt/gentoo/etc/portage/make.conf; echo $?
 
 MAKEOPTS="-j${jobs}"
 EOF
-```
-
-Copy and configure `genkernel.sh` configuration:
-
-```bash
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/genkernel_sh.conf /mnt/gentoo/etc/gentoo-installation/
 ```
 
 ## Chrooting
@@ -1325,7 +1321,7 @@ gkb2gs.sh -h
 gkb2gs.sh
 ```
 
-Customise kernel configuration and build kernel and initramfs for local and remote (via SSH) LUKS unlock:
+Customise `/etc/gentoo-installation/genkernel_sh.conf`. Configure/build kernel and initramfs for local and remote (via SSH) LUKS unlock:
 
 ```bash
 # I usually make following changes for systems with Intel CPU:
