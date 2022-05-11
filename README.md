@@ -246,8 +246,8 @@ If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/
 
 ```bash
 # Change disk name to the one you want to wipe
-DISK="/dev/sda"
-lsblk -npo kname "${DISK}" | sort -r | while read -r I; do wipefs -a "$I"; done
+disk="/dev/sda"
+lsblk -npo kname "${disk}" | sort -r | while read -r i; do wipefs -a "$i"; done
 ```
 
 > ⚠ If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. https://wiki.archlinux.org/title/Securely_wipe_disk ⚠
@@ -383,16 +383,16 @@ Download [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-pat
 
 ```bash
 mkdir -p /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel && \
-GIT_TAG="$(grep -o "[^[:space:]]*.ebuild" /mnt/gentoo/var/db/repos/gentoo/sys-kernel/genkernel/Manifest | sed -e 's/\.ebuild$//' -e 's#^#/mnt/gentoo/var/db/repos/gentoo/metadata/md5-cache/sys-kernel/#' | xargs --no-run-if-empty grep --files-with-matches "^KEYWORDS=.*[^\~]amd64[[:space:]$]" | sed 's#.*/##' | sort --version-sort | tail -n 1)" && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/00_defaults_linuxrc.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch
+git_tag="$(grep -o "[^[:space:]]*.ebuild" /mnt/gentoo/var/db/repos/gentoo/sys-kernel/genkernel/Manifest | sed -e 's/\.ebuild$//' -e 's#^#/mnt/gentoo/var/db/repos/gentoo/metadata/md5-cache/sys-kernel/#' | xargs --no-run-if-empty grep --files-with-matches "^KEYWORDS=.*[^\~]amd64[[:space:]$]" | sed 's#.*/##' | sort --version-sort | tail -n 1)" && (
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/00_defaults_linuxrc.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/01_defaults_initrd.scripts.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/01_defaults_initrd.scripts.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/02_defaults_initrd.scripts_dosshd.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/02_defaults_initrd.scripts_dosshd.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/sha512.txt\"" > /tmp/genkernel_sha512.txt
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/sha512.txt\"" > /tmp/genkernel_sha512.txt
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${GIT_TAG}/sha512.txt.asc\"" > /tmp/genkernel_sha512.txt.asc
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/sha512.txt.asc\"" > /tmp/genkernel_sha512.txt.asc
 ); echo $?
 ```
 
@@ -495,10 +495,10 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all; echo $?
 Download .iso and .asc file:
 
 ```bash
-RESCUE_SYSTEM_VERSION="$(su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && (
-su -l meh -c "curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso/download?use_mirror=netcologne\""
+rescue_system_version="$(su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && (
+su -l meh -c "curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso/download?use_mirror=netcologne\""
 ) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${RESCUE_SYSTEM_VERSION}/systemrescue-${RESCUE_SYSTEM_VERSION}-amd64.iso.asc\""
+su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso.asc\""
 ); echo $?
 ```
 
@@ -566,7 +566,7 @@ Create settings YAML (copy&paste one after the other):
 # disable bash history
 set +o history
 # replace "MyPassWord123" with the password you want to use to login via TTY on SystemRescueCD
-CRYPT_PASS="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
+crypt_pass="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
 # enable bash history
 set -o history
 
@@ -582,7 +582,7 @@ global:
     dostartx: false
     dovnc: false
     rootshell: /bin/bash
-    rootcryptpass: '${CRYPT_PASS}'
+    rootcryptpass: '${crypt_pass}'
 
 autorun:
     ar_disable: false
@@ -592,7 +592,7 @@ autorun:
 EOF
 
 # Delete variable
-unset CRYPT_PASS
+unset crypt_pass
 ```
 
 Create firewall rules:
@@ -683,14 +683,14 @@ chmod u=rwx,og= /mnt/gentoo/boot; echo $?
 (Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
 
 ```bash
-# Change TMPFS_SIZE based on available RAM
-TMPFS_SIZE=12G && \
-mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
-mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root tmpfs /mnt/gentoo/var/tmp && \
-mount -t tmpfs -o noatime,nodev,nosuid,mode=0755,size=${TMPFS_SIZE},uid=root,gid=root,X-mount.mkdir=0755 tmpfs /mnt/gentoo/var/tmp/genkernel && \
+# Change tmpfs_size based on available RAM
+tmpfs_size=12G && \
+mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${tmpfs_size},uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
+mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${tmpfs_size},uid=root,gid=root tmpfs /mnt/gentoo/var/tmp && \
+mount -t tmpfs -o noatime,nodev,nosuid,mode=0755,size=${tmpfs_size},uid=root,gid=root,X-mount.mkdir=0755 tmpfs /mnt/gentoo/var/tmp/genkernel && \
 ! grep ":250:" /etc/group && \
 ! grep ":250:" /etc/passwd && \
-mount -t tmpfs -o noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=250,gid=250,X-mount.mkdir=0775 tmpfs /mnt/gentoo/var/tmp/portage; echo $?
+mount -t tmpfs -o noatime,nodev,nosuid,mode=0775,size=${tmpfs_size},uid=250,gid=250,X-mount.mkdir=0775 tmpfs /mnt/gentoo/var/tmp/portage; echo $?
 ```
 
 ## Pre-chroot configuration
@@ -758,12 +758,12 @@ chroot /mnt/gentoo /bin/bash -c "source /etc/profile && emerge --config sys-libs
 Set `MAKEOPTS`:
 
 ```bash
-RAM_SIZE="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)" && \
-NUMBER_CORES="$(nproc --all)" && \
-[[ $((NUMBER_CORES*2)) -le ${RAM_SIZE} ]] && JOBS="${NUMBER_CORES}" || JOBS="$(bc <<<"${RAM_SIZE} / 2")" && \
+ram_size="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)" && \
+number_cores="$(nproc --all)" && \
+[[ $((number_cores*2)) -le ${ram_size} ]] && jobs="${number_cores}" || jobs="$(bc <<<"${ram_size} / 2")" && \
 cat <<EOF >> /mnt/gentoo/etc/portage/make.conf; echo $?
 
-MAKEOPTS="-j${JOBS}"
+MAKEOPTS="-j${jobs}"
 EOF
 ```
 
@@ -841,12 +841,12 @@ ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq
 curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r '.mirrors.mirrorgroup[] | "\(.["@country"]) \(.["@countryname"])"' | sort -k2.2
 
 # Choose your countries the mirrors should be located in:
-COUNTRY='"AU","BE","BR","CA","CH","CL","CN","CZ","DE","DK","ES","FR","GR","HK","IL","IT","JP","KR","KZ","LU","NA","NC","NL","PH","PL","PT","RO","RU","SG","SK","TR","TW","UK","US","ZA"'
+country='"AU","BE","BR","CA","CH","CL","CN","CZ","DE","DK","ES","FR","GR","HK","IL","IT","JP","KR","KZ","LU","NA","NC","NL","PH","PL","PT","RO","RU","SG","SK","TR","TW","UK","US","ZA"'
 
 # Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support
-curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r ".mirrors.mirrorgroup[] | select([.\"@country\"] | inside([${COUNTRY}])) | .mirror | if type==\"array\" then .[] else . end | .uri | if type==\"array\" then .[] else . end | select(.\"@protocol\" == \"http\" and .\"@ipv4\" == \"y\" and .\"@ipv6\" == \"y\" and (.\"#text\" | startswith(\"https://\"))) | .\"#text\"" | while read -r I; do
-  if curl -fs --proto '=https' --tlsv1.3 -I "$I" >/dev/null; then
-    echo "$I"
+curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r ".mirrors.mirrorgroup[] | select([.\"@country\"] | inside([${country}])) | .mirror | if type==\"array\" then .[] else . end | .uri | if type==\"array\" then .[] else . end | select(.\"@protocol\" == \"http\" and .\"@ipv4\" == \"y\" and .\"@ipv6\" == \"y\" and (.\"#text\" | startswith(\"https://\"))) | .\"#text\"" | while read -r i; do
+  if curl -fs --proto '=https' --tlsv1.3 -I "${i}" >/dev/null; then
+    echo "${i}"
   fi
 done
 ```
@@ -964,10 +964,10 @@ openssl req -new -x509 -newkey rsa:2048 -subj "/CN=KEK/" -keyout KEK.key -out KE
 openssl req -new -x509 -newkey rsa:2048 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
 
 # Prepare installation in EFI
-UUID="$(uuidgen --random)" && \
-cert-to-efi-sig-list -g "${UUID}" PK.crt PK.esl && \
-cert-to-efi-sig-list -g "${UUID}" KEK.crt KEK.esl && \
-cert-to-efi-sig-list -g "${UUID}" db.crt db.esl && \
+uuid="$(uuidgen --random)" && \
+cert-to-efi-sig-list -g "${uuid}" PK.crt PK.esl && \
+cert-to-efi-sig-list -g "${uuid}" KEK.crt KEK.esl && \
+cert-to-efi-sig-list -g "${uuid}" db.crt db.esl && \
 sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
 sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
 sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
@@ -999,8 +999,8 @@ echo "" >> /etc/fstab && \
 
 (
 cat <<EOF | column -t >> /etc/fstab
-$(find /devEfi* -maxdepth 0 | while read -r I; do
-  echo "UUID=$(blkid -s UUID -o value "$I")  ${I/devE/e}          vfat  noatime,noauto,noexec,dmask=0022,fmask=0133 0 0"
+$(find /devEfi* -maxdepth 0 | while read -r i; do
+  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,noauto,noexec,dmask=0022,fmask=0133 0 0"
 done)
 UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noexec                              0 0
 UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                                          0 0
@@ -1011,9 +1011,9 @@ UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,
 UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,noexec,subvol=@ebuilds              0 0
 EOF
 ) && \
-find /devEfi* -maxdepth 0 | while read -r I; do
-  mkdir "${I/devE/e}"
-  mount "${I/devE/e}"
+find /devEfi* -maxdepth 0 | while read -r i; do
+  mkdir "${i/devE/e}"
+  mount "${i/devE/e}"
 done
 echo $?
 ```
@@ -1022,12 +1022,12 @@ echo $?
 
 ```bash
 echo "" >> /etc/fstab && \
-TMPFS_SIZE=12G && \
+tmpfs_size=12G && \
 cat <<EOF | column -t >> /etc/fstab
-tmpfs /tmp               tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root,rootcontext=system_u:object_r:tmp_t:s0 0 0
-tmpfs /var/tmp           tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${TMPFS_SIZE},uid=root,gid=root,rootcontext=system_u:object_r:tmp_t:s0 0 0
-tmpfs /var/tmp/genkernel tmpfs noatime,nodev,nosuid,mode=0755,size=${TMPFS_SIZE},uid=root,gid=root,X-mount.mkdir=0755,rootcontext=system_u:object_r:user_tmp_t:s0 0 0
-tmpfs /var/tmp/portage   tmpfs noatime,nodev,nosuid,mode=0775,size=${TMPFS_SIZE},uid=portage,gid=portage,X-mount.mkdir=0775,rootcontext=system_u:object_r:portage_tmp_t:s0 0 0
+tmpfs /tmp               tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${tmpfs_size},uid=root,gid=root,rootcontext=system_u:object_r:tmp_t:s0 0 0
+tmpfs /var/tmp           tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${tmpfs_size},uid=root,gid=root,rootcontext=system_u:object_r:tmp_t:s0 0 0
+tmpfs /var/tmp/genkernel tmpfs noatime,nodev,nosuid,mode=0755,size=${tmpfs_size},uid=root,gid=root,X-mount.mkdir=0755,rootcontext=system_u:object_r:user_tmp_t:s0 0 0
+tmpfs /var/tmp/portage   tmpfs noatime,nodev,nosuid,mode=0775,size=${tmpfs_size},uid=portage,gid=portage,X-mount.mkdir=0775,rootcontext=system_u:object_r:portage_tmp_t:s0 0 0
 EOF
 ```
 
@@ -1106,18 +1106,18 @@ emerge -at sys-boot/grub; echo $?
 
 ```bash
 if [[ $(lsblk -ndo type /devBoot) == raid1 ]]; then
-    MDADM_MOD=" domdadm"
+    mdadm_mod=" domdadm"
 else
-    MDADM_MOD=""
+    mdadm_mod=""
 fi && \
 cat <<EOF >> /etc/default/grub; echo $?
 
-MY_CRYPT_ROOT="$(blkid -s UUID -o value /devSystem* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
-MY_CRYPT_SWAP="$(blkid -s UUID -o value /devSwap* | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
-MY_FS="rootfstype=btrfs rootflags=subvol=@root"
-MY_CPU="mitigations=auto,nosmt"
-MY_MOD="dobtrfs${MDADM_MOD}"
-GRUB_CMDLINE_LINUX_DEFAULT="\${MY_CRYPT_ROOT} \${MY_CRYPT_SWAP} \${MY_FS} \${MY_CPU} \${MY_MOD} keymap=de"
+my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
+my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
+my_fs="rootfstype=btrfs rootflags=subvol=@root"
+my_cpu="mitigations=auto,nosmt"
+my_mod="dobtrfs${mdadm_mod}"
+GRUB_CMDLINE_LINUX_DEFAULT="\${my_crypt_root} \${my_crypt_swap} \${my_fs} \${my_cpu} \${my_mod} keymap=de"
 GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
 EOF
@@ -1128,10 +1128,10 @@ EOF
 In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
 
 ```bash
-ls -1d /efi* | while read -r I; do
-UUID="$(blkid -s UUID -o value "/devEfi${I#/efi}")"
+ls -1d /efi* | while read -r i; do
+uuid="$(blkid -s UUID -o value "/devEfi${i#/efi}")"
 
-cat <<EOF > "/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg"
+cat <<EOF > "/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg"
 # Enforce that all loaded files must have a valid signature.
 set check_signatures=enforce
 export check_signatures
@@ -1144,7 +1144,7 @@ password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO
 # NOTE: We export check_signatures/superusers so they are available in all
 # further contexts to ensure the password check is always enforced.
 
-search --no-floppy --fs-uuid --set=root ${UUID}
+search --no-floppy --fs-uuid --set=root ${uuid}
 
 configfile /grub.cfg
 
@@ -1174,13 +1174,13 @@ echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:
 Create the Grub config to boot into the rescue system:
 
 ```bash
-UUID="$(blkid -s UUID -o value /devRescue | tr -d '-')"
+uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
 cat <<EOF >> /etc/grub.d/40_custom; echo $?
 
 menuentry 'SystemRescueCD' {
-    cryptomount -u ${UUID}
-    set root='cryptouuid/${UUID}'
-    search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${UUID}' $(blkid -s UUID -o value /mapperRescue)
+    cryptomount -u ${uuid}
+    set root='cryptouuid/${uuid}'
+    search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${uuid}' $(blkid -s UUID -o value /mapperRescue)
     echo   'Loading Linux kernel ...'
     linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue3141592653fs noautologin
     echo   'Loading initramfs ...'
@@ -1258,18 +1258,18 @@ Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one af
 
 ```bash
 # Change Key ID
-KEY_ID="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
+key_id="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
 
 # Export public key
-gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export "${KEY_ID}" > /etc/gentoo-installation/secureboot/gpg.pub; echo $?
+gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export "${key_id}" > /etc/gentoo-installation/secureboot/gpg.pub; echo $?
 
 # If signature creation fails...
 GPG_TTY="$(tty)"
 export GPG_TTY
 
 # Sign initial grub.cfg
-ls -1d /efi* | while read -r I; do
-    gpg --homedir /etc/gentoo-installation/gnupg --local-user "${KEY_ID}" --detach-sign "/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg"; echo $?
+ls -1d /efi* | while read -r i; do
+    gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign "/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg"; echo $?
 done
 
 # Stop the gpg-agent
@@ -1280,9 +1280,9 @@ Sign your custom SystemRescueCD files with GnuPG:
 
 ```bash
 # Change Key ID
-KEY_ID="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
+key_id="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
 
-find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign --local-user "${KEY_ID}" {} \; && \
+find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign --local-user "${key_id}" {} \; && \
 gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 ```
 
@@ -1293,14 +1293,14 @@ gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
 ```bash
-INSTALL_LTS_KERNEL="true" && (
+install_lts_kernel="true" && (
 cat <<EOF >> /etc/portage/package.accept_keywords/main
 sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/gentoo-sources ~amd64
 sys-kernel/linux-headers ~amd64
 EOF
 ) && (
-if [[ ${INSTALL_LTS_KERNEL} == true ]]; then
+if [[ ${install_lts_kernel} == true ]]; then
 cat <<EOF >> /etc/portage/package.mask/main
 >=sys-kernel/gentoo-kernel-bin-5.16
 >=sys-kernel/gentoo-sources-5.16
@@ -1361,32 +1361,32 @@ Create the EFI binary/ies and Secure Boot sign them:
 ```bash
 # GRUB doesn't allow loading new modules from disk when secure boot is in
 # effect, therefore pre-load the required modules.
-MODULES=
-MODULES="${MODULES} part_gpt fat ext2"             # partition and file systems for EFI
-MODULES="${MODULES} configfile"                    # source command
-MODULES="${MODULES} verify gcry_sha512 gcry_rsa"   # signature verification
-MODULES="${MODULES} password_pbkdf2"               # hashed password
-MODULES="${MODULES} echo normal linux linuxefi"    # boot linux
-MODULES="${MODULES} all_video"                     # video output
-MODULES="${MODULES} search search_fs_uuid"         # search --fs-uuid
-MODULES="${MODULES} reboot sleep"                  # sleep, reboot
-MODULES="${MODULES} gzio part_gpt part_msdos ext2" # SystemRescueCD modules
-MODULES="${MODULES} luks2 btrfs part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 mdraid1x" # LUKS2 modules
-MODULES="${MODULES} $(grub-mkconfig | grep insmod | awk '{print $NF}' | sort -u | paste -d ' ' -s -)"
+modules=
+modules="${modules} part_gpt fat ext2"             # partition and file systems for EFI
+modules="${modules} configfile"                    # source command
+modules="${modules} verify gcry_sha512 gcry_rsa"   # signature verification
+modules="${modules} password_pbkdf2"               # hashed password
+modules="${modules} echo normal linux linuxefi"    # boot linux
+modules="${modules} all_video"                     # video output
+modules="${modules} search search_fs_uuid"         # search --fs-uuid
+modules="${modules} reboot sleep"                  # sleep, reboot
+modules="${modules} gzio part_gpt part_msdos ext2" # SystemRescueCD modules
+modules="${modules} luks2 btrfs part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 mdraid1x" # LUKS2 modules
+modules="${modules} $(grub-mkconfig | grep insmod | awk '{print $NF}' | sort -u | paste -d ' ' -s -)"
 
-ls -1d /efi* | while read -r I; do
-    mkdir -p "${I}/EFI/boot" && \
+ls -1d /efi* | while read -r i; do
+    mkdir -p "${i}/EFI/boot" && \
     grub-mkstandalone \
         --directory /usr/lib/grub/x86_64-efi \
         --disable-shim-lock \
         --format x86_64-efi \
-        --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${MODULES}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)" \
+        --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${modules}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)" \
         --pubkey /etc/gentoo-installation/secureboot/gpg.pub \
-        --output "${I}/EFI/boot/bootx64.efi" \
-        "boot/grub/grub.cfg=/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg" \
-        "boot/grub/grub.cfg.sig=/etc/gentoo-installation/secureboot/grub-initial_${I#/}.cfg.sig" && \
-    sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "${I}/EFI/boot/bootx64.efi" "${I}/EFI/boot/bootx64.efi" && \
-    efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${I/efi/devEfi}")")" --part 1 --label "gentoo314159265efi ${I#/}" --loader '\EFI\boot\bootx64.efi'
+        --output "${i}/EFI/boot/bootx64.efi" \
+        "boot/grub/grub.cfg=/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg" \
+        "boot/grub/grub.cfg.sig=/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg.sig" && \
+    sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "${i}/EFI/boot/bootx64.efi" "${i}/EFI/boot/bootx64.efi" && \
+    efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${i/efi/devEfi}")")" --part 1 --label "gentoo314159265efi ${i#/}" --loader '\EFI\boot\bootx64.efi'
     echo $?
 done
 ```
