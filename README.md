@@ -1002,7 +1002,7 @@ cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r i; do
   echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,noauto,noexec,dmask=0022,fmask=0133 0 0"
 done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noexec                              0 0
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noauto,noexec                       0 0
 UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                                          0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root                        0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,noexec,subvol=@home                 0 0
