@@ -153,6 +153,10 @@ while read -r mountpoint; do
             exit 1
         fi
 
+        if [[ ${mountpoint} == /boot ]]; then
+            restorecon -RF /boot
+        fi
+
         umount+=("${mountpoint}")
     fi
 
