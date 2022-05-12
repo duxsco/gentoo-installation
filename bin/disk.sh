@@ -231,4 +231,83 @@ while read -r partition; do
     ln -s "${partition}" "/mnt/gentoo/devSystem${alphabet[tmpCount++]}"
 done < <(find $(getPartitions 5))
 
+cat <<EOF > /tmp/chroot.sh
+#!/usr/bin/env bash
+
+function luksOpen() {
+    luks_device_name="\$1"
+    luks_device_uuid="\$2"
+
+    if [[ ! -b /dev/mapper/\${luks_device_name} ]]; then
+
+        if [[ -f /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key/key ]]; then
+            cryptsetup luksOpen --key-file /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key/key UUID="\${luks_device_uuid}" "\${luks_device_name}"
+        else
+            cryptsetup luksOpen UUID="\${luks_device_uuid}" "\${luks_device_name}"
+        fi
+
+        if [[ ! -b /dev/mapper/\${luks_device_name} ]]; then
+            echo "Failed to luksOpen device! Aborting..."
+            exit 1
+        fi
+    fi
+}
+
+$(
+    while read -r luks_device; do
+        luks_device_uuid="$(blkid -s UUID -o value "${luks_device}")"
+
+        # shellcheck disable=SC2001
+        luks_device_name="$(sed 's|/mnt/gentoo/dev||' <<<"${luks_device}" | tr '[:upper:]' '[:lower:]')"
+
+        if [[ ${luks_device_name} == boot ]]; then
+            echo "
+if [[ ! -d /mnt/gentoo ]]; then
+    mkdir /mnt/gentoo
+fi
+
+if ! mountpoint --quiet /mnt/gentoo; then
+    mount -o noatime,subvol=@root UUID=\"$(blkid -s UUID -o value /mnt/gentoo/mapperSystem)\" /mnt/gentoo/
+
+    if ! mountpoint --quiet /mnt/gentoo; then
+        echo \"Failed to mount /mnt/gentoo! Aborting...\"
+        exit 1
+    fi
+fi
+"
+        fi
+
+        echo "luksOpen \"${luks_device_name}\" \"${luks_device_uuid}\""
+    done < <(find /mnt/gentoo/devSystem* /mnt/gentoo/devBoot /mnt/gentoo/devSwap*)
+)
+
+grep -E "^(UUID|tmpfs)" /mnt/gentoo/etc/fstab | sed -e '/subvol=@root/d' -e 's|/|/mnt/gentoo/|' -e 's/,noauto//' -e 's/,rootcontext=[^[:space:]]*//' -e 's/=root/=0/g' -e 's/=portage/=250/g' | column -t > /etc/fstab
+systemctl daemon-reload
+mount -a
+swapon -a
+
+if ! mountpoint --quiet /mnt/gentoo/proc; then
+    mount --types proc /proc /mnt/gentoo/proc
+fi
+
+if ! mountpoint --quiet /mnt/gentoo/sys; then
+    mount --rbind /sys /mnt/gentoo/sys
+    mount --make-rslave /mnt/gentoo/sys
+fi
+
+if ! mountpoint --quiet /mnt/gentoo/dev; then
+    mount --rbind /dev /mnt/gentoo/dev
+    mount --make-rslave /mnt/gentoo/dev
+fi
+
+if ! mountpoint --quiet /mnt/gentoo/proc; then
+    mount --bind /run /mnt/gentoo/run
+    mount --make-slave /mnt/gentoo/run
+fi
+
+cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+
+chroot /mnt/gentoo /usr/bin/env chrooted=true bash
+EOF
+
 echo $?

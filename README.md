@@ -11,7 +11,7 @@ After completion of this installation guide, SSH connections will be possible vi
 
 - Gentoo Linux system: `ssh -p 50022 david@<IP address>`
 - Initramfs system to LUKS unlock remotely ([link](#remote-unlock)): `ssh -p 50023 root@<IP address>`
-- Customised SystemRescueCD system: `ssh -p 50024 root@<IP address>`
+- Customised SystemRescueCD system with a `chroot.sh` script to conveniently chroot into your Gentoo installation: `ssh -p 50024 root@<IP address>`
 
 All three boot options are available in GRUB's boot menu.
 
@@ -522,7 +522,7 @@ chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 Create folder structure and `authorized_keys` file (copy&paste one after the other):
 
 ```bash
-mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh}},work}
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh,usr/local/sbin}},work}
 
 # add your ssh public keys to
 # /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
@@ -564,6 +564,12 @@ Disable magic SysRq key for [security sake](https://wiki.gentoo.org/wiki/Vlock#D
 
 ```bash
 echo "kernel.sysrq = 0" > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
+```
+
+Copy `chroot.sh` created by `disk.sh`:
+
+```bash
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/
 ```
 
 Create settings YAML (copy&paste one after the other):
@@ -633,9 +639,13 @@ Result:
 │   │   │   └── ssh_host_rsa_key.pub
 │   │   └── sysctl.d
 │   │       └── 99sysrq.conf
-│   └── root
-│       └── .ssh
-│           └── authorized_keys
+│   ├── root
+│   │   └── .ssh
+│   │       └── authorized_keys
+│   └── usr
+│       └── local
+│           └── sbin
+│               └── chroot.sh
 ├── iso_add
 │   ├── autorun
 │   │   └── autorun
@@ -644,7 +654,7 @@ Result:
 ├── iso_delete
 └── iso_patch_and_script
 
-11 directories, 13 files
+14 directories, 14 files
 ```
 
 Create customised ISO:
@@ -1554,11 +1564,29 @@ rc-update add consolefont boot; echo $?
 echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
 echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/fish && (
-cat <<EOF | tee -a /root/.bashrc >> /home/david/.bashrc
+cat <<'EOF' >> /root/.bashrc
 
 # Use fish in place of bash
 # keep this line at the bottom of ~/.bashrc
-[ -x /bin/fish ] && SHELL=/bin/fish exec /bin/fish
+if [[ -z ${chrooted} ]]; then
+    if [[ -x /bin/fish ]]; then
+        SHELL=/bin/fish exec /bin/fish
+    fi
+elif [[ -z ${chrooted_su} ]]; then
+    export chrooted_su=true
+    source /etc/profile && su --login --whitelist-environment=chrooted,chrooted_su
+else
+    env-update && source /etc/profile && export PS1="(chroot) $PS1"
+fi
+EOF
+) && (
+cat <<'EOF' >> /home/david/.bashrc
+
+# Use fish in place of bash
+# keep this line at the bottom of ~/.bashrc
+if [[ -x /bin/fish ]]; then
+    SHELL=/bin/fish exec /bin/fish
+fi
 EOF
 ); echo $?
 ```
