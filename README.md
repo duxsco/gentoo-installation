@@ -728,7 +728,7 @@ alias mv="mv -i"
 alias rm="rm -i"
 
 # Raise an alert if something is wrong with btrfs or mdadm
-if  grep -q "\[[U_]*_[U_]*\]" /proc/mdstat || \
+if  { [[ -f /proc/mdstat ]] && grep -q "\[[U_]*_[U_]*\]" /proc/mdstat; } || \
     [[ $(find /sys/fs/btrfs -type f -name "error_stats" -exec awk '{sum += $2} END {print sum}' {} +) -ne 0 ]]; then
 echo '
   _________________
