@@ -5,13 +5,13 @@
 The following installation guide results in a **fully encrypted** (except ESP), **Secure Boot signed** (EFI binary/binaries) **and GnuPG signed** (kernel, initramfs, microcode etc.) **system** with heavy use of **RAID** (mdadm and BTRFS based) and support for **LUKS unlock**:
 - **Locally:** One-time password entry and automatic decryption of (multiple) LUKS `system` and `swap` partitions in further boot process via LUKS keyfile stored in initramfs which itself is stored on LUKS encrypted partition(s)
 - **Remote:** SSH login into initramfs+dropbear system, manual decryption of LUKS partitions and resumption of Gentoo Linux boot
-- After boot into **rescue system** based upon a **customised SystemRescueCD**
+- After boot into **rescue system** based upon a **customised SystemRescueCD**. It provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
 
 After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
 
 - Gentoo Linux system: `ssh -p 50022 david@<IP address>`
 - Initramfs system to LUKS unlock remotely ([link](#remote-unlock)): `ssh -p 50023 root@<IP address>`
-- Customised SystemRescueCD system with a `chroot.sh` script to conveniently chroot into your Gentoo installation: `ssh -p 50024 root@<IP address>`
+- Customised SystemRescueCD system: `ssh -p 50024 root@<IP address>`
 
 All three boot options are available in GRUB's boot menu.
 
