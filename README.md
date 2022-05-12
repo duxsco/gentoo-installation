@@ -741,6 +741,13 @@ echo '
                  ||     ||
 '
 fi
+
+if [[ -n ${chrooted} ]]; then
+    export chrooted_su=true
+    source /etc/profile && su --login --whitelist-environment=chrooted_su
+elif [[ -n ${chrooted_su} ]]; then
+    env-update && source /etc/profile && export PS1="(chroot) $PS1"
+fi
 EOF
 ```
 
@@ -1558,51 +1565,6 @@ sed -i 's/^consolefont="\(.*\)"$/consolefont="lat9w-16"/' /etc/conf.d/._cfg0000_
 rc-update add consolefont boot; echo $?
 ```
 
-  - fish shell:
-
-```bash
-echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
-echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge app-shells/fish && (
-cat <<'EOF' >> /root/.bashrc
-
-# Use fish in place of bash
-# keep this line at the bottom of ~/.bashrc
-if [[ -z ${chrooted} ]]; then
-    if [[ -x /bin/fish ]]; then
-        SHELL=/bin/fish exec /bin/fish
-    fi
-elif [[ -z ${chrooted_su} ]]; then
-    export chrooted_su=true
-    source /etc/profile && su --login --whitelist-environment=chrooted,chrooted_su
-else
-    env-update && source /etc/profile && export PS1="(chroot) $PS1"
-fi
-EOF
-) && (
-cat <<'EOF' >> /home/david/.bashrc
-
-# Use fish in place of bash
-# keep this line at the bottom of ~/.bashrc
-if [[ -x /bin/fish ]]; then
-    SHELL=/bin/fish exec /bin/fish
-fi
-EOF
-); echo $?
-```
-
-`root` setup:
-
-```bash
-/bin/fish -c 'alias cp="cp -i"; alias mv="mv -i"; alias rm="rm -i"; funcsave cp; funcsave mv; funcsave rm; fish_config prompt choose terlar; fish_config prompt save'
-```
-
-`non-root` setup:
-
-```bash
-su -l david -c "/bin/fish -c 'alias cp=\"cp -i\"; alias mv=\"mv -i\"; alias rm=\"rm -i\"; funcsave cp; funcsave mv; funcsave rm; fish_config prompt choose terlar; fish_config prompt save'"
-```
-
   - If you have `sys-fs/mdadm` installed:
 
 ```bash
@@ -1722,11 +1684,9 @@ sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_nftable
 Save firewall rules:
 
 ```bash
-bash -c '
 /usr/local/sbin/firewall.nft && \
 rc-service nftables save && \
 rc-update add nftables default; echo $?
-'
 ```
 
 ## Installation of Secure Boot files via UEFI Firmware Settings
@@ -1736,15 +1696,13 @@ If `efi-updatevar` failed in one of the previous sections, you can import Secure
 First, boot into the Gentoo Linux and save necessary files in `DER` form:
 
 ```bash
-bash -c '
 (
-! mountpoint --quiet /efia && \\
+! mountpoint --quiet /efia && \
 mount /efia || true
-) && \\
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der && \\
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der && \\
+) && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der && \
 openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /efia/PK.der; echo $?
-'
 ```
 
 Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successful boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
