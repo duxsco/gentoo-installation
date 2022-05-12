@@ -189,14 +189,14 @@ passwd root
 Print out fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
 
 ```bash
-find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
+find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
 Execute following `rsync` and `ssh` command **on your local machine** (copy&paste one after the other):
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r {bin/{btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh},conf/genkernel_sh.conf} root@XXX:/tmp/
+rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r {bin/{btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh},conf/genkernel_sh.conf} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -617,7 +617,7 @@ rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gent
 Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
 
 ```bash
-find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
+find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
 Result:
@@ -1651,7 +1651,7 @@ sshd -t; echo $?
 Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
 
 ```bash
-find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -lf {} \;
+find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
 Setup client SSH config:
@@ -1666,6 +1666,7 @@ Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 HashKnownHosts no
 StrictHostKeyChecking ask
+VisualHostKey yes
 EOF
 ) && \
 chown david:david /home/david/.ssh/config; echo $?
