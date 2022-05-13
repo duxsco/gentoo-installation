@@ -1475,21 +1475,21 @@ rsync -a /etc/hosts /etc/._cfg0000_hosts && \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
 
-Set /etc/rc.conf:
+Set `/etc/rc.conf`:
 
 ```bash
 rsync -a /etc/rc.conf /etc/._cfg0000_rc.conf && \
 sed -i 's/#rc_logger="NO"/rc_logger="YES"/' /etc/._cfg0000_rc.conf
 ```
 
-Set /etc/conf.d/keymaps:
+Set `/etc/conf.d/keymaps`:
 
 ```bash
 rsync -a /etc/conf.d/keymaps /etc/conf.d/._cfg0000_keymaps && \
 sed -i 's/keymap="us"/keymap="de-latin1-nodeadkeys"/' /etc/conf.d/._cfg0000_keymaps
 ```
 
-`clock="UTC"` should be set in /etc/conf.d/hwclock which is the default.
+`clock="UTC"` should be set in `/etc/conf.d/hwclock` which is the default.
 
 ## Tools
 
