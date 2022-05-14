@@ -1442,6 +1442,38 @@ tree -a /boot /efi*
 4 directories, 34 files
 ```
 
+Result on a dual disk system with `luks_unlock_via_ssh=n` in `genkernel_sh.conf`:
+
+```bash
+/boot
+├── System.map-5.15.23-gentoo-x86_64
+├── System.map-5.15.23-gentoo-x86_64.old
+├── System.map-5.15.23-gentoo-x86_64.old.sig
+├── System.map-5.15.23-gentoo-x86_64.sig
+├── initramfs-5.15.23-gentoo-x86_64.img
+├── initramfs-5.15.23-gentoo-x86_64.img.old
+├── initramfs-5.15.23-gentoo-x86_64.img.old.sig
+├── initramfs-5.15.23-gentoo-x86_64.img.sig
+├── vmlinuz-5.15.23-gentoo-x86_64
+├── vmlinuz-5.15.23-gentoo-x86_64.old
+├── vmlinuz-5.15.23-gentoo-x86_64.old.sig
+└── vmlinuz-5.15.23-gentoo-x86_64.sig
+/efia
+├── EFI
+│   └── boot
+│       └── bootx64.efi
+├── grub.cfg
+└── grub.cfg.sig
+/efib
+├── EFI
+│   └── boot
+│       └── bootx64.efi
+├── grub.cfg
+└── grub.cfg.sig
+
+4 directories, 18 files
+```
+
 ## Configuration
 
 Set hostname:
