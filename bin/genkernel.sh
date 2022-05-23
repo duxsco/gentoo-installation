@@ -351,6 +351,8 @@ chcon -R -t user_tmp_t "${files_boot}" "${files_efi}"
 
 find "${files_boot}" "${files_efi}" -maxdepth 1 -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
 
+gpgconf --homedir /etc/gentoo-installation/gnupg/ --kill all
+
 ########
 # sync #
 ########
