@@ -974,6 +974,8 @@ popd; echo $?
 If the following commands don't work you have to install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
 
 ```bash
+pushd /etc/gentoo-installation/secureboot && \
+
 # Make them mutable
 chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 
