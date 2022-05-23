@@ -1720,7 +1720,7 @@ echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
   - misc tools:
 
 ```bash
-emerge -at app-misc/screen app-portage/gentoolkit app-admin/eclean-kernel
+emerge -at app-misc/screen app-portage/gentoolkit
 ```
 
 ## Cleanup and reboot
