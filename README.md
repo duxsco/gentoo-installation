@@ -1258,6 +1258,12 @@ ls -1d /efi* | while read -r i; do
     gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign "/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg"; echo $?
 done
 
+# Sign microcode if existent
+if [[ -f /boot/intel-uc.img ]]; then
+  gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign /boot/intel-uc.img
+  echo $?
+fi
+
 # Stop the gpg-agent
 gpgconf --homedir /etc/gentoo-installation/gnupg --kill all
 ```
