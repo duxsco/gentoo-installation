@@ -1287,6 +1287,7 @@ Install the [kernel](https://www.kernel.org/category/releases.html):
 ```bash
 install_lts_kernel="true" && (
 cat <<EOF >> /etc/portage/package.accept_keywords/main
+sys-fs/btrfs-progs ~amd64
 sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/gentoo-sources ~amd64
 sys-kernel/linux-headers ~amd64
@@ -1294,6 +1295,7 @@ EOF
 ) && (
 if [[ ${install_lts_kernel} == true ]]; then
 cat <<EOF >> /etc/portage/package.mask/main
+>=sys-fs/btrfs-progs-5.16
 >=sys-kernel/gentoo-kernel-bin-5.16
 >=sys-kernel/gentoo-sources-5.16
 >=sys-kernel/linux-headers-5.16
@@ -1305,6 +1307,7 @@ sys-fs/btrfs-progs -convert
 sys-kernel/gentoo-kernel-bin -initramfs
 EOF
 ) && \
+emerge -atuDN @world && \
 emerge -at sys-kernel/gentoo-sources && \
 eselect kernel set 1 && \
 eselect kernel list; echo $?
