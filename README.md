@@ -1347,7 +1347,7 @@ genkernel.sh
 
 Ignore the `diff` and `chcon` error messages. SELinux will be setup later on.
 
-`genkernel.sh` prints out SSH fingerprints. Write them down to double check upon initial SSH connection to the initramfs system.
+`genkernel.sh` prints out SSH fingerprints if you have remote unlock enabled. Write them down to double check upon initial SSH connection to the initramfs system.
 
 ## EFI binary
 
@@ -1554,6 +1554,7 @@ emerge net-misc/chrony && \
 rc-update add chronyd default && \
 sed -i 's/^server/#server/' /etc/chrony/chrony.conf && \
 cat <<EOF >> /etc/chrony/chrony.conf; echo $?
+
 server ptbtime1.ptb.de       iburst nts
 server ptbtime2.ptb.de       iburst nts
 server ptbtime3.ptb.de       iburst nts
@@ -1637,7 +1638,7 @@ rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firac
 ```bash
 echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/starship && \
-echo "starship init fish | source" | tee -a /root/.config/fish/config.fish >> /home/david/.config/fish/config.fish
+echo "starship init fish | source" | tee -a /root/.config/fish/config.fish >> /home/david/.config/fish/config.fish; echo $?
 ```
 
 Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install. You proably need to remove `[c]` and `[spack]` entries.
