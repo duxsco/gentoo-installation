@@ -356,7 +356,7 @@ Extract portage tarball:
 ```bash
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
-mount -o noatime,noexec,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
+mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
 tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
@@ -667,8 +667,8 @@ Copy ISO files to the `rescue` partition:
 
 ```bash
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
-mount -o loop,noexec,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
-mount -o noatime,noexec /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
+mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
+mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ && \
 umount /mnt/iso; echo $?
 ```
@@ -684,15 +684,15 @@ mount --make-rslave /mnt/gentoo/dev && \
 mount --bind /run /mnt/gentoo/run && \
 mount --make-slave /mnt/gentoo/run && \
 
-mount -o noatime,noexec,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
+mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
 
 touch /mnt/gentoo/var/cache/binpkgs/.keep && \
-mount -o noatime,noexec,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
+mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
 
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
-mount -o noatime,noexec,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
+mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
 
-mount -o noatime,noexec /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
+mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
 chmod u=rwx,og= /mnt/gentoo/boot; echo $?
 ```
 
@@ -997,15 +997,15 @@ echo "" >> /etc/fstab && \
 (
 cat <<EOF | column -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r i; do
-  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,noauto,noexec,dmask=0022,fmask=0133 0 0"
+  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,noauto,dmask=0022,fmask=0133 0 0"
 done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noauto,noexec                       0 0
-UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                                          0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root                        0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,noexec,subvol=@home                 0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,noexec,subvol=@binpkgs              0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,noexec,subvol=@distfiles            0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,noexec,subvol=@ebuilds              0 0
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noauto                       0 0
+UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                                   0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root                 0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home                 0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs              0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles            0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds              0 0
 EOF
 ) && \
 find /devEfi* -maxdepth 0 | while read -r i; do
