@@ -300,7 +300,7 @@ if ! mountpoint --quiet /mnt/gentoo/dev; then
     mount --make-rslave /mnt/gentoo/dev
 fi
 
-if ! mountpoint --quiet /mnt/gentoo/proc; then
+if ! mountpoint --quiet /mnt/gentoo/run; then
     mount --bind /run /mnt/gentoo/run
     mount --make-slave /mnt/gentoo/run
 fi
