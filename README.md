@@ -1025,7 +1025,7 @@ Microcode updates are not necessary for virtual systems. Otherwise, install `sys
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
 echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
-echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use && \
+echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use/main && \
 emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
