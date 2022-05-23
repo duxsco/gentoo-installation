@@ -696,19 +696,6 @@ mount -o noatime,noexec /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
 chmod u=rwx,og= /mnt/gentoo/boot; echo $?
 ```
 
-(Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM.
-
-```bash
-# Change tmpfs_size based on available RAM
-tmpfs_size=12G && \
-mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${tmpfs_size},uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
-mount -t tmpfs -o noatime,nodev,nosuid,noexec,mode=1777,size=${tmpfs_size},uid=root,gid=root tmpfs /mnt/gentoo/var/tmp && \
-mount -t tmpfs -o noatime,nodev,nosuid,mode=0755,size=${tmpfs_size},uid=root,gid=root,X-mount.mkdir=0755 tmpfs /mnt/gentoo/var/tmp/genkernel && \
-! grep ":250:" /etc/group && \
-! grep ":250:" /etc/passwd && \
-mount -t tmpfs -o noatime,nodev,nosuid,mode=0775,size=${tmpfs_size},uid=250,gid=250,X-mount.mkdir=0775 tmpfs /mnt/gentoo/var/tmp/portage; echo $?
-```
-
 ## Pre-chroot configuration
 
 Set resolv.conf:
@@ -1026,19 +1013,6 @@ find /devEfi* -maxdepth 0 | while read -r i; do
   mount "${i/devE/e}"
 done
 echo $?
-```
-
-(Optional, but recommended) Use `TMPFS` to compile and for `/tmp`. This is recommended for SSDs and to speed up things, but requires sufficient amount of RAM. `rootcontext` is required for SELinux to work.
-
-```bash
-echo "" >> /etc/fstab && \
-tmpfs_size=12G && \
-cat <<EOF | column -t >> /etc/fstab
-tmpfs /tmp               tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${tmpfs_size},uid=root,gid=root,rootcontext=system_u:object_r:tmp_t:s0 0 0
-tmpfs /var/tmp           tmpfs noatime,nodev,nosuid,noexec,mode=1777,size=${tmpfs_size},uid=root,gid=root,rootcontext=system_u:object_r:tmp_t:s0 0 0
-tmpfs /var/tmp/genkernel tmpfs noatime,nodev,nosuid,mode=0755,size=${tmpfs_size},uid=root,gid=root,X-mount.mkdir=0755,rootcontext=system_u:object_r:user_tmp_t:s0 0 0
-tmpfs /var/tmp/portage   tmpfs noatime,nodev,nosuid,mode=0775,size=${tmpfs_size},uid=portage,gid=portage,X-mount.mkdir=0775,rootcontext=system_u:object_r:portage_tmp_t:s0 0 0
-EOF
 ```
 
 ## CPU, disk and kernel tools
