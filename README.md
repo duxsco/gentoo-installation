@@ -711,10 +711,9 @@ Set aliases:
 ```bash
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
+echo -e 'alias cp="cp -i"\nalias mv="mv -i"\nalias rm="rm -i"' >> /mnt/gentoo/root/.bash_aliases && \
 cat <<'EOF'  >> /mnt/gentoo/root/.bashrc; echo $?
-alias cp="cp -i"
-alias mv="mv -i"
-alias rm="rm -i"
+source "${HOME}/.bash_aliases"
 
 # Raise an alert if something is wrong with btrfs or mdadm
 if  { [[ -f /proc/mdstat ]] && grep -q "\[[U_]*_[U_]*\]" /proc/mdstat; } || \
@@ -898,13 +897,10 @@ Create user:
 
 ```bash
 useradd -m -G wheel -s /bin/bash david && \
-chmod u=rwx,og= /home/david && (
-cat <<'EOF' >> /home/david/.bashrc
-alias cp="cp -i"
-alias mv="mv -i"
-alias rm="rm -i"
-EOF
-) && \
+chmod u=rwx,og= /home/david && \
+echo -e 'alias cp="cp -i"\nalias mv="mv -i"\nalias rm="rm -i"' >> /home/david/.bash_aliases && \
+chown david:david /home/david/.bash_aliases && \
+echo 'source "${HOME}/.bash_aliases"' >> /home/david/.bashrc && \
 passwd david
 ```
 
@@ -1578,6 +1574,13 @@ sed -i 's/^consolefont="\(.*\)"$/consolefont="lat9w-16"/' /etc/conf.d/._cfg0000_
 rc-update add consolefont boot; echo $?
 ```
 
+  - starship:
+
+```bash
+echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge app-shells/starship; echo $?
+```
+
   - fish shell:
 
 ```bash
@@ -1614,13 +1617,23 @@ EOF
 `root` setup:
 
 ```bash
-/bin/fish -c 'alias cp="cp -i"; alias mv="mv -i"; alias rm="rm -i"; funcsave cp; funcsave mv; funcsave rm; fish_update_completions'
+/bin/fish -c fish_update_completions
 ```
 
 `non-root` setup:
 
 ```bash
-su -l david -c "/bin/fish -c 'alias cp=\"cp -i\"; alias mv=\"mv -i\"; alias rm=\"rm -i\"; funcsave cp; funcsave mv; funcsave rm; fish_update_completions'"
+su -l david -c fish_update_completions
+```
+
+Update `/root/.config/fish/config.fish` and `/home/david/.config/fish/config.fish` to contain:
+
+```
+if status is-interactive
+    # Commands to run in interactive sessions can go here
+    source "$HOME/.bash_aliases"
+    starship init fish | source
+end
 ```
 
   - nerd fonts:
@@ -1633,14 +1646,6 @@ unzip -d /tmp/FiraCode /tmp/FiraCode.zip && \
 rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* && \
 mkdir /usr/share/fonts/nerd-firacode && \
 rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firacode/; echo $?
-```
-
-  - starship:
-
-```bash
-echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge app-shells/starship && \
-echo "starship init fish | source" | tee -a /root/.config/fish/config.fish >> /home/david/.config/fish/config.fish; echo $?
 ```
 
 Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install. You proably need to remove `[c]` and `[spack]` entries.
