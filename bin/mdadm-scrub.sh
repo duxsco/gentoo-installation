@@ -7,7 +7,7 @@
 unset last_run md_device md_dir resync_pid
 
 if  [[ -f /proc/mdstat ]] && \
-    grep -E '^raid([1456]|10)$' /sys/block/md*/md/level >/dev/null 2>&1 && \
+    grep -q -E '^raid([1456]|10)$' /sys/block/md*/md/level && \
     ls /sys/block/md*/md/sync_action >/dev/null 2>&1
 then
     while read -r md_device; do
