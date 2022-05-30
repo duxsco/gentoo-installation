@@ -1556,7 +1556,7 @@ cat <<EOF >> /etc/chrony/chrony.conf; echo $?
 server ptbtime1.ptb.de       iburst nts
 server ptbtime2.ptb.de       iburst nts
 server ptbtime3.ptb.de       iburst nts
-server nts1.adopo.net        iburst nts
+server nts.netnod.se         iburst nts
 server www.jabber-germany.de iburst nts
 
 # NTS cookie jar to minimise NTS-KE requests upon chronyd restart
