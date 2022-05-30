@@ -349,7 +349,18 @@ fi
 
 chcon -R -t user_tmp_t "${files_boot}" "${files_efi}"
 
+tty_device="$(tty)"
+tty_owner="$(stat --format "%U" "${tty_device}")"
+
+if [[ ${tty_owner} != root ]]; then
+    chown root "${tty_device}"
+fi
+
 find "${files_boot}" "${files_efi}" -maxdepth 1 -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
+
+if [[ ${tty_owner} != root ]]; then
+    chown "${tty_owner}" "${tty_device}"
+fi
 
 gpgconf --homedir /etc/gentoo-installation/gnupg/ --kill all
 
