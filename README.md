@@ -1281,7 +1281,7 @@ gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 
 ## Kernel installation
 
-> ⚠ The config of `sys-kernel/gentoo-kernel-bin` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel-bin` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-sources-5.17.x` kernel with `=sys-kernel/gentoo-kernel-bin-5.16.x` config. ⚠
+> ⚠ The config of `sys-kernel/gentoo-kernel-bin` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel-bin` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-sources-5.17.x` kernel with `sys-kernel/gentoo-kernel-bin-5.16.x` config. ⚠
 
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
@@ -1433,16 +1433,10 @@ Result on a dual disk system with `luks_unlock_via_ssh=n` in `genkernel_sh.conf`
 ```bash
 /boot
 ├── System.map-5.15.23-gentoo-x86_64
-├── System.map-5.15.23-gentoo-x86_64.old
-├── System.map-5.15.23-gentoo-x86_64.old.sig
 ├── System.map-5.15.23-gentoo-x86_64.sig
 ├── initramfs-5.15.23-gentoo-x86_64.img
-├── initramfs-5.15.23-gentoo-x86_64.img.old
-├── initramfs-5.15.23-gentoo-x86_64.img.old.sig
 ├── initramfs-5.15.23-gentoo-x86_64.img.sig
 ├── vmlinuz-5.15.23-gentoo-x86_64
-├── vmlinuz-5.15.23-gentoo-x86_64.old
-├── vmlinuz-5.15.23-gentoo-x86_64.old.sig
 └── vmlinuz-5.15.23-gentoo-x86_64.sig
 /efia
 ├── EFI
@@ -1457,7 +1451,7 @@ Result on a dual disk system with `luks_unlock_via_ssh=n` in `genkernel_sh.conf`
 ├── grub.cfg
 └── grub.cfg.sig
 
-4 directories, 18 files
+4 directories, 12 files
 ```
 
 ## Configuration
