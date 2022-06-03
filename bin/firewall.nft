@@ -3,8 +3,8 @@
 flush ruleset
 
 table inet filter {
-	chain INPUT {
-		type filter hook input priority 0; policy drop;
+	chain input {
+		type filter hook input priority filter; policy drop;
 		ct state invalid drop
 		ct state established,related accept
 		iifname "lo" accept
@@ -18,13 +18,13 @@ table inet filter {
 		tcp dport 50022 ct state new accept
 	}
 
-	chain FORWARD {
-		type filter hook forward priority 0; policy drop;
+	chain forward {
+		type filter hook forward priority filter; policy drop;
 		ct state invalid drop
 		ct state established,related accept
 	}
 
-	chain OUTPUT {
-		type filter hook output priority 0; policy accept;
+	chain output {
+		type filter hook output priority filter; policy accept;
 	}
 }
