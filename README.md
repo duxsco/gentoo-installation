@@ -1656,14 +1656,6 @@ echo "" >> /etc/._cfg0000_mdadm.conf && \
 mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
 ```
 
-  - rng-tools:
-
-```bash
-echo "sys-apps/rng-tools jitterentropy" >> /etc/portage/package.use/main && \
-emerge sys-apps/rng-tools && \
-rc-update add rngd default; echo $?
-```
-
   - ssh:
 
 ```bash
