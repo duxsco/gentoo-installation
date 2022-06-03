@@ -809,6 +809,8 @@ rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 
 # If you use distcc, beware of:
 # https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
+#
+# You could resolve "-march=native" with app-misc/resolve-march-native
 sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/._cfg0000_make.conf
 
 cat <<'EOF' >> /etc/portage/._cfg0000_make.conf
