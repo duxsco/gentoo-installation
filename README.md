@@ -1454,11 +1454,10 @@ Result on a dual disk system with `luks_unlock_via_ssh=n` in `genkernel_sh.conf`
 
 ## Configuration
 
-Set hostname:
+Set [hostname](https://wiki.gentoo.org/wiki/Systemd#Hostname):
 
 ```bash
-rsync -a /etc/conf.d/hostname /etc/conf.d/._cfg0000_hostname && \
-sed -i 's/^hostname="localhost"/hostname="micro"/' /etc/conf.d/._cfg0000_hostname
+hostnamectl set-hostname micro
 ```
 
 Set IP address:
