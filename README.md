@@ -1621,7 +1621,7 @@ EOF
 `non-root` setup:
 
 ```bash
-su -l david -c fish_update_completions
+su -l david -c "/bin/fish -c fish_update_completions"
 ```
 
 Update `/root/.config/fish/config.fish` and `/home/david/.config/fish/config.fish` to contain:
