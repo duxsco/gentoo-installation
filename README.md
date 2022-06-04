@@ -1575,6 +1575,7 @@ rc-update add consolefont boot; echo $?
   - starship:
 
 ```bash
+# If you have insufficient ressources, you may want to "emerge -1 dev-lang/rust-bin" beforehand.
 echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/starship; echo $?
 ```
