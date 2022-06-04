@@ -1341,6 +1341,9 @@ Customise `/etc/gentoo-installation/genkernel_sh.conf`. Configure/build kernel a
 #         Generic Kernel Debugging Instruments  --->
 #             [ ] Magic SysRq key
 #         [ ] Remote debugging over FireWire early on boot
+#     Gentoo Linux  --->
+#         Support for init systems, system and service managers  --->
+#             [*] systemd
 genkernel.sh
 ```
 
