@@ -1493,13 +1493,6 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 
 ## Tools
 
-Setup system logger:
-
-```bash
-emerge -at app-admin/sysklogd && \
-rc-update add sysklogd default; echo $?
-```
-
 Setup cronie:
 
 ```bash
