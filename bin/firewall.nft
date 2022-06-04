@@ -12,7 +12,7 @@ table inet filter {
 		icmp type 8 accept
 
 		# https://datatracker.ietf.org/doc/html/rfc4890#section-4.4.1
-		icmpv6 type { 1, 2, 3, 4, 128, 133, 134, 135, 136, 141, 142, 148, 149 } accept
+		icmpv6 type { 128, 133, 134, 135, 136, 141, 142, 148, 149 } accept
 		ip6 saddr fe80::/10 icmpv6 type { 130, 131, 132, 143, 151, 152, 153 } accept
 
 		tcp dport 50022 ct state new accept

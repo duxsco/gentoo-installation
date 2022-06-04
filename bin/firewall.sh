@@ -29,10 +29,6 @@ ip6tables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
 
 # https://datatracker.ietf.org/doc/html/rfc4890#section-4.4.1
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 1   -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 2   -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 3   -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 4   -j ACCEPT
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 128 -j ACCEPT
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 133 -j ACCEPT
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 134 -j ACCEPT
