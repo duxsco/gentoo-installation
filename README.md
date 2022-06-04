@@ -892,7 +892,6 @@ emerge -atuDN @world
 Make sure that `app-editors/nano` won't be removed and remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
 ```bash
-emerge --select --noreplace app-editors/nano && \
 emerge --depclean -at
 ```
 
