@@ -1522,13 +1522,6 @@ emerge -at net-misc/dhcpcd
 
 ## Further customisations
 
-  - acpid:
-
-```bash
-emerge -at sys-power/acpid && \
-rc-update add acpid default; echo $?
-```
-
   - chrony with [NTS servers](https://netfuture.ch/2021/12/transparent-trustworthy-time-with-ntp-and-nts/#server-list):
 
 ```bash
