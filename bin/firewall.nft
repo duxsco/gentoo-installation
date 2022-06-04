@@ -15,7 +15,7 @@ table inet filter {
 		ct state vmap { invalid : drop, established : accept, related : accept, untracked : drop }
 		iifname "lo" accept
 
-		tcp dport 50022 ct state new accept
+		tcp dport 50022 accept
 	}
 
 	chain forward {
