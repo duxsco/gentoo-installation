@@ -1480,11 +1480,13 @@ rsync -a /etc/hosts /etc/._cfg0000_hosts && \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
 
-Set `/etc/conf.d/keymaps`:
+Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
 
 ```bash
-rsync -a /etc/conf.d/keymaps /etc/conf.d/._cfg0000_keymaps && \
-sed -i 's/keymap="us"/keymap="de-latin1-nodeadkeys"/' /etc/conf.d/._cfg0000_keymaps
+localectl set-locale LANG="de_DE.UTF-8" LC_COLLATE="C.UTF-8" LC_MESSAGES="en_US.UTF-8" && \
+localectl --no-convert set-keymap de-latin1-nodeadkeys && \
+localectl status && \
+env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
 `clock="UTC"` should be set in `/etc/conf.d/hwclock` which is the default.
@@ -1554,14 +1556,6 @@ ntsdumpdir /var/lib/chrony
 
 rtconutc
 EOF
-```
-
-  - consolefont:
-
-```bash
-rsync -a /etc/conf.d/consolefont /etc/conf.d/._cfg0000_consolefont && \
-sed -i 's/^consolefont="\(.*\)"$/consolefont="lat9w-16"/' /etc/conf.d/._cfg0000_consolefont && \
-rc-update add consolefont boot; echo $?
 ```
 
   - starship:
