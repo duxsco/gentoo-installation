@@ -1637,6 +1637,7 @@ end
   - nerd fonts:
 
 ```bash
+emerge media-libs/fontconfig && \
 su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip" && \
 b2sum -c <<<"81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip" && \
 mkdir /tmp/FiraCode && \
