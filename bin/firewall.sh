@@ -13,10 +13,10 @@ ip6tables -P FORWARD DROP
 ip6tables -P INPUT DROP
 ip6tables -P OUTPUT ACCEPT
 
-iptables  -A FORWARD -m conntrack --ctstate INVALID -j DROP
-iptables  -A INPUT   -m conntrack --ctstate INVALID -j DROP
-ip6tables -A FORWARD -m conntrack --ctstate INVALID -j DROP
-ip6tables -A INPUT   -m conntrack --ctstate INVALID -j DROP
+iptables  -A FORWARD -m conntrack --ctstate INVALID,UNTRACKED -j DROP
+iptables  -A INPUT   -m conntrack --ctstate INVALID,UNTRACKED -j DROP
+ip6tables -A FORWARD -m conntrack --ctstate INVALID,UNTRACKED -j DROP
+ip6tables -A INPUT   -m conntrack --ctstate INVALID,UNTRACKED -j DROP
 
 iptables  -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables  -A INPUT   -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT

@@ -5,8 +5,7 @@ flush ruleset
 table inet filter {
 	chain input {
 		type filter hook input priority filter; policy drop;
-		ct state invalid drop
-		ct state established,related accept
+		ct state vmap { invalid : drop, established : accept, related : accept, untracked : drop }
 		iifname "lo" accept
 
 		icmp type 8 accept
@@ -20,8 +19,7 @@ table inet filter {
 
 	chain forward {
 		type filter hook forward priority filter; policy drop;
-		ct state invalid drop
-		ct state established,related accept
+		ct state vmap { invalid : drop, established : accept, related : accept, untracked : drop }
 	}
 
 	chain output {
