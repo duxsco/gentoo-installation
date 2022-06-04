@@ -297,10 +297,10 @@ Result of a single disk setup:
 ├── mapperSystem -> /dev/mapper/sda5
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-hardened-nomultilib-selinux-openrc-20220217T125149Z.tar.xz
-└── stage3-amd64-hardened-nomultilib-selinux-openrc-20220217T125149Z.tar.xz.asc
+├── stage3-amd64-systemd-20220529T170531Z.tar.xz
+└── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-3 directories, 14 files
+5 directories, 14 files
 ```
 
 ... and four disk setup:
@@ -334,15 +334,15 @@ Result of a single disk setup:
 ├── mapperSystem -> /dev/mapper/sda5
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-hardened-nomultilib-selinux-openrc-20220227T170528Z.tar.xz
-└── stage3-amd64-hardened-nomultilib-selinux-openrc-20220227T170528Z.tar.xz.asc
+├── stage3-amd64-systemd-20220529T170531Z.tar.xz
+└── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-3 directories, 23 files
+5 directories, 23 files
 ```
 
 ### Extracting tarballs
 
-> ⚠ Current `stage3-amd64-hardened-nomultilib-selinux-openrc-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more! Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
+> ⚠ Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
 Extract stage3 tarball and copy `firewall.nft`, `genkernel.sh`, `btrfs-scrub.sh` as well as `mdadm-scrub.sh`:
 
@@ -1332,9 +1332,6 @@ Customise `/etc/gentoo-installation/genkernel_sh.conf`. Configure/build kernel a
 #         <*> CPU microcode loading support
 #         [*]   Intel microcode loading support
 #         [ ]   AMD microcode loading support
-#     Binary Emulations --->
-#         [ ] IA32 Emulation
-#         [ ] x32 ABI for 64-bit mode
 #     Device Drivers  --->
 #         Generic Driver Options --->
 #             Firmware Loader --->
