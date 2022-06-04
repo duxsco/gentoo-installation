@@ -1795,7 +1795,7 @@ mokutil --sb-state
 
 ## Enable SELinux
 
-Continue with [gentoo-selinux](https://github.com/duxsco/gentoo-selinux).
+This is optional! Steps are documented in the [gentoo-selinux](https://github.com/duxsco/gentoo-selinux) repo.
 
 ## Update Linux kernel
 
