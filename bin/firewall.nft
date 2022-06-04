@@ -13,7 +13,7 @@ table inet filter {
 		ip6 saddr fe80::/10 icmpv6 type { 130, 131, 132, 143, 151, 152, 153 } accept
 
 		ct state vmap { invalid : drop, established : accept, related : accept, untracked : drop }
-		iifname "lo" accept
+		iif "lo" accept
 
 		tcp dport 50022 accept
 	}
