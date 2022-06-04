@@ -1480,13 +1480,6 @@ rsync -a /etc/hosts /etc/._cfg0000_hosts && \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
 
-Set `/etc/rc.conf`:
-
-```bash
-rsync -a /etc/rc.conf /etc/._cfg0000_rc.conf && \
-sed -i 's/#rc_logger="NO"/rc_logger="YES"/' /etc/._cfg0000_rc.conf
-```
-
 Set `/etc/conf.d/keymaps`:
 
 ```bash
