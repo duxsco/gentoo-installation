@@ -1738,8 +1738,8 @@ Save firewall rules:
 ```bash
 bash -c '
 /usr/local/sbin/firewall.nft && \
-rc-service nftables save && \
-rc-update add nftables default; echo $?
+touch /var/lib/nftables/rules-save && \
+systemctl enable --now nftables-restore; echo $?
 '
 ```
 
