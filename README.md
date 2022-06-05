@@ -751,14 +751,6 @@ EOF
 chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen"; echo $?
 ```
 
-Set timezone:
-
-```bash
-echo "Europe/Berlin" > /mnt/gentoo/etc/timezone && \
-rm -fv /mnt/gentoo/etc/localtime && \
-chroot /mnt/gentoo /bin/bash -c "source /etc/profile && emerge --config sys-libs/timezone-data"; echo $?
-```
-
 Set `MAKEOPTS`:
 
 ```bash
@@ -1489,8 +1481,6 @@ localectl status && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
-`clock="UTC"` should be set in `/etc/conf.d/hwclock` which is the default.
-
 ## Tools
 
 Setup cronie:
@@ -1522,26 +1512,17 @@ emerge -at net-misc/dhcpcd
 
 ## Further customisations
 
-  - chrony with [NTS servers](https://netfuture.ch/2021/12/transparent-trustworthy-time-with-ntp-and-nts/#server-list):
+  - Setup timedatectl:
 
 ```bash
-! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
-emerge net-misc/chrony && \
-rc-update add chronyd default && \
-sed -i 's/^server/#server/' /etc/chrony/chrony.conf && \
-cat <<EOF >> /etc/chrony/chrony.conf; echo $?
-
-server ptbtime1.ptb.de       iburst nts
-server ptbtime2.ptb.de       iburst nts
-server ptbtime3.ptb.de       iburst nts
-server nts.netnod.se         iburst nts
-server www.jabber-germany.de iburst nts
-
-# NTS cookie jar to minimise NTS-KE requests upon chronyd restart
-ntsdumpdir /var/lib/chrony
-
-rtconutc
-EOF
+timedatectl set-timezone Europe/Berlin && \
+if ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo); then
+    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf && \
+    sed -i -e 's/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/' -e 's/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/' /etc/systemd/._cfg0000_timesyncd.conf && \
+    timedatectl set-ntp true
+    echo $?
+fi && \
+timedatectl; echo $?
 ```
 
   - starship:
