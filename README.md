@@ -1455,16 +1455,6 @@ Set [hostname](https://wiki.gentoo.org/wiki/Systemd#Hostname):
 hostnamectl set-hostname micro
 ```
 
-Set IP address:
-
-```bash
-# Change interface name and settings according to your requirements
-echo 'config_enp0s3="10.0.2.15 netmask 255.255.255.0 brd 10.0.2.255"
-routes_enp0s3="default via 10.0.2.2"' >> /etc/conf.d/net && \
-( cd /etc/init.d && ln -s net.lo net.enp0s3 ) && \
-rc-update add net.enp0s3 default; echo $?
-```
-
 Set `/etc/hosts`:
 
 ```bash
@@ -1683,6 +1673,29 @@ echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
 
 ```bash
 emerge -at app-misc/screen app-portage/gentoolkit
+```
+
+  - Setup [network](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
+
+```bash
+cat <<EOF >> /etc/systemd/network/50-static.network
+[Match]
+Name=enp1s0
+
+[Network]
+Address=192.168.10.2/24
+Gateway=192.168.10.1
+DNS=192.168.0.1
+# https://wiki.archlinux.org/title/IPv6#systemd-networkd_3
+LinkLocalAddressing=no
+IPv6AcceptRA=no
+EOF
+
+systemctl --no-reload enable systemd-networkd.service
+
+ln -snf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+systemctl --no-reload enable systemd-resolved.service
 ```
 
 ## Cleanup and reboot
