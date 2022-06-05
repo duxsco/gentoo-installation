@@ -1491,7 +1491,7 @@ fi
 Enable ssh service:
 
 ```bash
-rc-update add sshd default
+systemctl enable sshd.service
 ```
 
 Install DHCP client (you never know...):
