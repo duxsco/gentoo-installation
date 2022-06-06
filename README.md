@@ -198,7 +198,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r {bin/{btrfs-scrub.sh,disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh,mdadm-scrub.sh},conf/genkernel_sh.conf} root@XXX:/tmp/
+rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r {bin/{disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh},conf/genkernel_sh.conf} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -344,11 +344,11 @@ Result of a single disk setup:
 
 > ⚠ Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
-Extract stage3 tarball and copy `firewall.nft`, `genkernel.sh`, `btrfs-scrub.sh` as well as `mdadm-scrub.sh`:
+Extract stage3 tarball and copy `firewall.nft` as well as `genkernel.sh`:
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh,btrfs-scrub.sh,mdadm-scrub.sh} /mnt/gentoo/usr/local/sbin/ && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh} /mnt/gentoo/usr/local/sbin/ && \
 mkdir -p /mnt/gentoo/etc/gentoo-installation && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/genkernel_sh.conf /mnt/gentoo/etc/gentoo-installation/; echo $?
 ```
@@ -1472,21 +1472,6 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
 ## Tools
-
-Setup cronie:
-
-```bash
-emerge -at sys-process/cronie && \
-rc-update add cronie default && \
-echo "5 * * * * /usr/local/sbin/btrfs-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e && \
-(
-if [[ $(lsblk -ndo type /devBoot) == raid1 ]]; then
-    echo "35 * * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e
-else
-    echo "#35 * * * * /usr/local/sbin/mdadm-scrub.sh > /dev/null 2>&1" | EDITOR="tee -a" crontab -e
-fi
-); echo $?
-```
 
 Enable ssh service:
 
