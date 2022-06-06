@@ -1681,6 +1681,13 @@ reboot
 
 Some configuration needs to be done after systemd has been started.
 
+Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configuration) (copy&paste one after the other):
+
+```bash
+systemd-firstboot --prompt --setup-machine-id
+systemctl preset-all
+```
+
 Set [hostname](https://wiki.gentoo.org/wiki/Systemd#Hostname):
 
 ```bash
