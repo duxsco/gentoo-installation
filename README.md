@@ -1711,28 +1711,16 @@ fi && \
 timedatectl; echo $?
 ```
 
-## Firewall rules
-
-Install:
-
-```bash
-emerge -at net-firewall/nftables
-```
-
-Don't save firewall rules on shutdown:
-
-```bash
-rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables && \
-sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_nftables
-```
-
-Save firewall rules:
+Setup nftables:
 
 ```bash
 bash -c '
+emerge net-firewall/nftables && \
+rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables && \
+sed -i "s/^SAVE_ON_STOP=\"yes\"$/SAVE_ON_STOP=\"no\"/" /etc/conf.d/._cfg0000_nftables && \
 /usr/local/sbin/firewall.nft && \
-touch /var/lib/nftables/rules-save && \
-systemctl enable --now nftables-restore; echo $?
+nft list ruleset > /var/lib/nftables/rules-save && \
+systemctl enable nftables-restore; echo $?
 '
 ```
 
