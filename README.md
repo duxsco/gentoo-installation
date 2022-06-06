@@ -362,7 +362,9 @@ mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/rep
 tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
-## GnuPG homedir
+## Additional Git repos
+
+### GnuPG homedir
 
 Setup GnuPG homedir (copy&paste one after the other):
 
@@ -385,7 +387,7 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all
 exit
 ```
 
-## genkernel patches
+### genkernel patches
 
 Download [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-patches):
 
@@ -432,7 +434,7 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all
 exit
 ```
 
-## gkb2gs - gentoo-kernel-bin config to gentoo-sources
+### gkb2gs - gentoo-kernel-bin config to gentoo-sources
 
 Download [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs):
 
