@@ -1451,12 +1451,6 @@ Result on a dual disk system with `luks_unlock_via_ssh=n` in `genkernel_sh.conf`
 
 ## Configuration
 
-Set [hostname](https://wiki.gentoo.org/wiki/Systemd#Hostname):
-
-```bash
-hostnamectl set-hostname micro
-```
-
 Set `/etc/hosts`:
 
 ```bash
@@ -1464,21 +1458,12 @@ rsync -a /etc/hosts /etc/._cfg0000_hosts && \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
 
-Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
-
-```bash
-localectl set-locale LANG="de_DE.UTF-8" LC_COLLATE="C.UTF-8" LC_MESSAGES="en_US.UTF-8" && \
-localectl --no-convert set-keymap de-latin1-nodeadkeys && \
-localectl status && \
-env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
-```
-
 ## Tools
 
 Enable ssh service:
 
 ```bash
-systemctl enable sshd.service
+systemctl --no-reload enable sshd.service
 ```
 
 Install DHCP client (you never know...):
@@ -1488,19 +1473,6 @@ emerge -at net-misc/dhcpcd
 ```
 
 ## Further customisations
-
-  - Setup timedatectl:
-
-```bash
-timedatectl set-timezone Europe/Berlin && \
-if ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo); then
-    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf && \
-    sed -i -e 's/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/' -e 's/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/' /etc/systemd/._cfg0000_timesyncd.conf && \
-    timedatectl set-ntp true
-    echo $?
-fi && \
-timedatectl; echo $?
-```
 
   - starship:
 
@@ -1703,6 +1675,40 @@ cd
 umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
 reboot
+```
+
+## Systemd-specific configuration
+
+Some configuration needs to be done after systemd has been started.
+
+Set [hostname](https://wiki.gentoo.org/wiki/Systemd#Hostname):
+
+```bash
+hostnamectl set-hostname micro
+```
+
+Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
+
+```bash
+bash -c '
+localectl set-locale LANG="de_DE.UTF-8" LC_COLLATE="C.UTF-8" LC_MESSAGES="en_US.UTF-8" && \
+localectl --no-convert set-keymap de-latin1-nodeadkeys && \
+localectl status && \
+env-update && source /etc/profile; echo $?
+'
+```
+
+Setup timedatectl:
+
+```bash
+timedatectl set-timezone Europe/Berlin && \
+if ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo); then
+    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf && \
+    sed -i -e 's/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/' -e 's/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/' /etc/systemd/._cfg0000_timesyncd.conf && \
+    timedatectl set-ntp true
+    echo $?
+fi && \
+timedatectl; echo $?
 ```
 
 ## Firewall rules
