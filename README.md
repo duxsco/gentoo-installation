@@ -1577,7 +1577,16 @@ rc-update add consolefont boot; echo $?
 ```bash
 # If you have insufficient ressources, you may want to "emerge -1 dev-lang/rust-bin" beforehand.
 echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge app-shells/starship; echo $?
+emerge app-shells/starship && \
+mkdir --mode=0700 /home/david/.config /root/.config && \
+touch /home/david/.config/starship.toml && \
+chown -R david:david /home/david/.config && \
+cat <<'EOF' | tee -a /root/.config/starship.toml >> /home/david/.config/starship.toml; echo $?
+[hostname]
+ssh_only = false
+format =  "[$hostname](bold red) "
+
+EOF
 ```
 
   - fish shell:
