@@ -1466,12 +1466,6 @@ Enable ssh service:
 systemctl --no-reload enable sshd.service
 ```
 
-Install DHCP client (you never know...):
-
-```bash
-emerge -at net-misc/dhcpcd
-```
-
 ## Further customisations
 
   - starship:
