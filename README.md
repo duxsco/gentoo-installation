@@ -1685,7 +1685,7 @@ Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configurati
 
 ```bash
 systemd-firstboot --prompt --setup-machine-id
-systemctl preset-all
+systemctl --preset-mode=enable-only preset-all
 ```
 
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
