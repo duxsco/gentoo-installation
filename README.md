@@ -1688,18 +1688,11 @@ systemd-firstboot --prompt --setup-machine-id
 systemctl preset-all
 ```
 
-Set [hostname](https://wiki.gentoo.org/wiki/Systemd#Hostname):
-
-```bash
-hostnamectl set-hostname micro
-```
-
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
 
 ```bash
 bash -c '
 localectl set-locale LANG="de_DE.UTF-8" LC_COLLATE="C.UTF-8" LC_MESSAGES="en_US.UTF-8" && \
-localectl --no-convert set-keymap de-latin1-nodeadkeys && \
 localectl status && \
 env-update && source /etc/profile; echo $?
 '
