@@ -1701,14 +1701,16 @@ env-update && source /etc/profile; echo $?
 Setup timedatectl:
 
 ```bash
+bash -c '
 timedatectl set-timezone Europe/Berlin && \
 if ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo); then
     rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf && \
-    sed -i -e 's/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/' -e 's/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/' /etc/systemd/._cfg0000_timesyncd.conf && \
+    sed -i -e "s/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/" -e "s/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/" /etc/systemd/._cfg0000_timesyncd.conf && \
     timedatectl set-ntp true
     echo $?
 fi && \
 timedatectl; echo $?
+'
 ```
 
 Setup nftables:
