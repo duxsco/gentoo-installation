@@ -786,7 +786,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 
 ## Portage configuration
 
-Make `dispatch-conf` show diffs in color:
+Make `dispatch-conf` show diffs in color and use vimdiff for merging:
 
 ```bash
 rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
@@ -889,7 +889,7 @@ Update system:
 emerge -atuDN @world
 ```
 
-Make sure that `app-editors/nano` won't be removed and remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
+Remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
 ```bash
 emerge --depclean -at
@@ -1657,7 +1657,7 @@ mkdir /usr/share/fonts/nerd-firacode && \
 rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firacode/; echo $?
 ```
 
-Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install. You proably need to remove `[c]` and `[spack]` entries.
+Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install.
 
   - If you have `sys-fs/mdadm` installed:
 
