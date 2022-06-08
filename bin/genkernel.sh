@@ -35,7 +35,7 @@ Do you want to build the kernel without executing \"gkb2gs.sh\" beforehand? (y/N
     fi
 
     if [[ ${continue_without_gkb2gs_created_kernel_config} =~ ^[nN]$ ]]; then
-        echo -e "\nAs you wish! Aborting..."
+        echo -e "\nAs you wish!\nAborting due to missing gkb2gs.sh precreated kernel config..."
         exit 0
     elif ! [[ ${continue_without_gkb2gs_created_kernel_config} =~ ^[yY]$ ]]; then
         echo -e "\nInvalid choice or configuration! Aborting..."
