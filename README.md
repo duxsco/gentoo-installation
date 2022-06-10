@@ -238,7 +238,7 @@ Update hardware clock:
 hwclock --systohc --utc
 ```
 
-## Disk setup and stage3/portage tarball installation
+## Disk setup
 
 ### Wiping disks
 
@@ -254,7 +254,7 @@ lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r | while read -r i; do wip
 
 > ⚠ If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. https://wiki.archlinux.org/title/Securely_wipe_disk ⚠
 
-### Disk setup
+### Disk formating
 
 Prepare the disks (copy&paste one after the other):
 
@@ -272,8 +272,6 @@ set -o history
 ```
 
 `disk.sh` creates user "meh" which will be used later on to act as non-root.
-
-### /mnt/gentoo content
 
 Result of a single disk setup:
 
@@ -387,7 +385,7 @@ mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
 chmod u=rwx,og= /mnt/gentoo/boot; echo $?
 ```
 
-## Customise SystemRescueCD ISO
+## Rescue system
 
 While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.
 
@@ -662,7 +660,9 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 
 > ⚠ Execute `dispatch-conf` after every code block where a file with prefix `._cfg0000_` has been created. ⚠
 
-## Portage configuration
+## System
+
+### Portage
 
 Make `dispatch-conf` show diffs in color and use vimdiff for merging:
 
@@ -738,8 +738,6 @@ I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-page
 echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main
 ```
 
-## System update
-
 Install `app-portage/eix`:
 
 ```bash
@@ -773,7 +771,7 @@ Remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2
 emerge --depclean -a
 ```
 
-## Non-root user setup
+### Non-root user
 
 Create user:
 
@@ -811,7 +809,7 @@ eselect vi set vim && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
-## Secure Boot preparation
+### Secure Boot preparation
 
 Credits:
 - https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
@@ -869,7 +867,7 @@ chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
 
-## fstab configuration
+### /etc/fstab
 
 Set /etc/fstab:
 
@@ -897,7 +895,7 @@ done
 echo $?
 ```
 
-## CPU, disk and kernel tools
+### Additional packages
 
 Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
 
@@ -909,7 +907,9 @@ echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/packag
 emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
-## Grub
+## Bootup configuration
+
+### Grub
 
 Install `sys-boot/grub`:
 
@@ -917,8 +917,6 @@ Install `sys-boot/grub`:
 echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
 emerge -at sys-boot/grub; echo $?
 ```
-
-### Base Grub configuration
 
 ```bash
 cat <<EOF >> /etc/default/grub; echo $?
@@ -932,8 +930,6 @@ GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
 EOF
 ```
-
-### ESP Grub configuration
 
 In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
 
@@ -968,8 +964,6 @@ EOF
 done; echo $?
 ```
 
-### SystemRescueCD Grub configuration
-
 Credits:
 - https://www.system-rescue.org/manual/Installing_SystemRescue_on_the_disk/
 - https://www.system-rescue.org/manual/Booting_SystemRescue/
@@ -992,7 +986,7 @@ menuentry 'SystemRescueCD' {
 EOF
 ```
 
-## GnuPG boot file signing
+### GnuPG boot file signing
 
 The whole boot process must be GnuPG signed. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
 
@@ -1095,7 +1089,7 @@ find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --de
 gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 ```
 
-## Kernel installation
+### Kernel installation
 
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
@@ -1126,7 +1120,7 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 emerge -at sys-fs/btrfs-progs $([[ -e /devSwapb ]] && echo -n "sys-fs/mdadm" || true) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 ```
 
-## EFI binary
+### EFI binary
 
 Create the EFI binary/ies and Secure Boot sign them:
 
@@ -1163,7 +1157,7 @@ ls -1d /efi* | while read -r i; do
 done
 ```
 
-## Boot file installation
+### Boot file installation
 
 Result on a dual disk system:
 
@@ -1451,7 +1445,7 @@ umount -R /mnt/gentoo
 reboot
 ```
 
-## Systemd-specific configuration
+## Post-boot configuration
 
 Some configuration needs to be done after systemd has been started.
 
@@ -1500,7 +1494,9 @@ systemctl enable nftables-restore; echo $?
 '
 ```
 
-## Installation of Secure Boot files via UEFI Firmware Settings
+## Optional
+
+### Installation of Secure Boot files via UEFI Firmware Settings
 
 If `efi-updatevar` failed in one of the previous sections, you can import Secure Boot files the following way.
 
@@ -1526,11 +1522,11 @@ To check whether Secure Boot is enabled execute:
 mokutil --sb-state
 ```
 
-## Enable SELinux
+### Enable SELinux
 
 This is optional! Steps are documented in the [gentoo-selinux](https://github.com/duxsco/gentoo-selinux) repo.
 
-## Update Linux kernel
+### Update Linux kernel
 
 For every kernel update, execute:
 
