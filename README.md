@@ -911,7 +911,7 @@ emerge -at sys-firmware/intel-microcode; echo $?
 Install filesystem and device mapper tools:
 
 ```bash
-emerge sys-fs/btrfs-progs && (
+(
     [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
     emerge sys-fs/mdadm || \
     true
@@ -1132,7 +1132,7 @@ sys-fs/btrfs-progs -convert
 EOF
 ) && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge -at sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
+emerge -at sys-fs/btrfs-progs sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 ```
 
 ## EFI binary
