@@ -586,7 +586,7 @@ rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt
 umount /mnt/iso; echo $?
 ```
 
-## Pre-chroot configuration
+## Chroot
 
 Set resolv.conf:
 
@@ -650,8 +650,6 @@ cat <<EOF >> /mnt/gentoo/etc/portage/make.conf; echo $?
 MAKEOPTS="-j${jobs}"
 EOF
 ```
-
-## Chrooting
 
 Chroot (copy&paste one after the other):
 
