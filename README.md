@@ -880,6 +880,184 @@ echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/packag
 emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
+## Configuration
+
+Set `/etc/hosts`:
+
+```bash
+rsync -a /etc/hosts /etc/._cfg0000_hosts && \
+sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
+```
+
+## Tools
+
+Enable ssh service:
+
+```bash
+systemctl --no-reload enable sshd.service
+```
+
+## Further customisations
+
+  - starship:
+
+```bash
+# If you have insufficient ressources, you may want to "emerge -1 dev-lang/rust-bin" beforehand.
+echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge app-shells/starship && \
+mkdir --mode=0700 /home/david/.config /root/.config && \
+touch /home/david/.config/starship.toml && \
+chown -R david:david /home/david/.config && \
+cat <<'EOF' | tee -a /root/.config/starship.toml >> /home/david/.config/starship.toml; echo $?
+[hostname]
+ssh_only = false
+format =  "[$hostname](bold red) "
+
+EOF
+```
+
+  - fish shell:
+
+```bash
+echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
+echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge app-shells/fish && (
+cat <<'EOF' >> /root/.bashrc
+
+# Use fish in place of bash
+# keep this line at the bottom of ~/.bashrc
+if [[ -z ${chrooted} ]]; then
+    if [[ -x /bin/fish ]]; then
+        SHELL=/bin/fish exec /bin/fish
+    fi
+elif [[ -z ${chrooted_su} ]]; then
+    export chrooted_su=true
+    source /etc/profile && su --login --whitelist-environment=chrooted,chrooted_su
+else
+    env-update && source /etc/profile && export PS1="(chroot) $PS1"
+fi
+EOF
+) && (
+cat <<'EOF' >> /home/david/.bashrc
+
+# Use fish in place of bash
+# keep this line at the bottom of ~/.bashrc
+if [[ -x /bin/fish ]]; then
+    SHELL=/bin/fish exec /bin/fish
+fi
+EOF
+); echo $?
+```
+
+`root` setup:
+
+```bash
+/bin/fish -c fish_update_completions
+```
+
+`non-root` setup:
+
+```bash
+su -l david -c "/bin/fish -c fish_update_completions"
+```
+
+Update `/root/.config/fish/config.fish` and `/home/david/.config/fish/config.fish` to contain:
+
+```
+if status is-interactive
+    # Commands to run in interactive sessions can go here
+    source "$HOME/.bash_aliases"
+    starship init fish | source
+end
+```
+
+  - nerd fonts:
+
+```bash
+emerge media-libs/fontconfig && \
+su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip" && \
+b2sum -c <<<"81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip" && \
+mkdir /tmp/FiraCode && \
+unzip -d /tmp/FiraCode /tmp/FiraCode.zip && \
+rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* && \
+mkdir /usr/share/fonts/nerd-firacode && \
+rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firacode/; echo $?
+```
+
+Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install.
+
+  - If you have `sys-fs/mdadm` installed:
+
+```bash
+[[ -e /devSwapb ]] && \
+rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
+echo "" >> /etc/._cfg0000_mdadm.conf && \
+mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
+```
+
+  - ssh:
+
+```bash
+rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
+sed -i \
+-e 's/^#Port 22$/Port 50022/' \
+-e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
+-e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config && \
+grep -q "^PasswordAuthentication no$" /etc/ssh/._cfg0000_sshd_config && \
+(
+cat <<EOF >> /etc/ssh/._cfg0000_sshd_config
+
+AuthenticationMethods publickey
+
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+HostKeyAlgorithms ssh-ed25519
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+
+AllowUsers david
+EOF
+) && \
+ssh-keygen -A && \
+sshd -t; echo $?
+```
+
+Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
+
+```bash
+find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
+```
+
+Setup client SSH config:
+
+```bash
+(
+cat <<EOF > /home/david/.ssh/config
+AddKeysToAgent no
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+HostKeyAlgorithms ssh-ed25519
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+HashKnownHosts no
+StrictHostKeyChecking ask
+VisualHostKey yes
+EOF
+) && \
+chown david:david /home/david/.ssh/config; echo $?
+```
+
+  - sysrq (if you don't want to disable in kernel):
+
+```bash
+echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
+```
+
+  - misc tools:
+
+```bash
+emerge -at app-misc/screen app-portage/gentoolkit
+```
+
 ## Bootup configuration
 
 ### GnuPG boot file signing
@@ -1222,184 +1400,6 @@ Result on a dual disk system with `luks_unlock_via_ssh=n` in `genkernel_sh.conf`
 └── grub.cfg.sig
 
 4 directories, 12 files
-```
-
-## Configuration
-
-Set `/etc/hosts`:
-
-```bash
-rsync -a /etc/hosts /etc/._cfg0000_hosts && \
-sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
-```
-
-## Tools
-
-Enable ssh service:
-
-```bash
-systemctl --no-reload enable sshd.service
-```
-
-## Further customisations
-
-  - starship:
-
-```bash
-# If you have insufficient ressources, you may want to "emerge -1 dev-lang/rust-bin" beforehand.
-echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge app-shells/starship && \
-mkdir --mode=0700 /home/david/.config /root/.config && \
-touch /home/david/.config/starship.toml && \
-chown -R david:david /home/david/.config && \
-cat <<'EOF' | tee -a /root/.config/starship.toml >> /home/david/.config/starship.toml; echo $?
-[hostname]
-ssh_only = false
-format =  "[$hostname](bold red) "
-
-EOF
-```
-
-  - fish shell:
-
-```bash
-echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
-echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge app-shells/fish && (
-cat <<'EOF' >> /root/.bashrc
-
-# Use fish in place of bash
-# keep this line at the bottom of ~/.bashrc
-if [[ -z ${chrooted} ]]; then
-    if [[ -x /bin/fish ]]; then
-        SHELL=/bin/fish exec /bin/fish
-    fi
-elif [[ -z ${chrooted_su} ]]; then
-    export chrooted_su=true
-    source /etc/profile && su --login --whitelist-environment=chrooted,chrooted_su
-else
-    env-update && source /etc/profile && export PS1="(chroot) $PS1"
-fi
-EOF
-) && (
-cat <<'EOF' >> /home/david/.bashrc
-
-# Use fish in place of bash
-# keep this line at the bottom of ~/.bashrc
-if [[ -x /bin/fish ]]; then
-    SHELL=/bin/fish exec /bin/fish
-fi
-EOF
-); echo $?
-```
-
-`root` setup:
-
-```bash
-/bin/fish -c fish_update_completions
-```
-
-`non-root` setup:
-
-```bash
-su -l david -c "/bin/fish -c fish_update_completions"
-```
-
-Update `/root/.config/fish/config.fish` and `/home/david/.config/fish/config.fish` to contain:
-
-```
-if status is-interactive
-    # Commands to run in interactive sessions can go here
-    source "$HOME/.bash_aliases"
-    starship init fish | source
-end
-```
-
-  - nerd fonts:
-
-```bash
-emerge media-libs/fontconfig && \
-su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip" && \
-b2sum -c <<<"81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip" && \
-mkdir /tmp/FiraCode && \
-unzip -d /tmp/FiraCode /tmp/FiraCode.zip && \
-rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* && \
-mkdir /usr/share/fonts/nerd-firacode && \
-rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firacode/; echo $?
-```
-
-Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install.
-
-  - If you have `sys-fs/mdadm` installed:
-
-```bash
-[[ -e /devSwapb ]] && \
-rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
-echo "" >> /etc/._cfg0000_mdadm.conf && \
-mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
-```
-
-  - ssh:
-
-```bash
-rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
-sed -i \
--e 's/^#Port 22$/Port 50022/' \
--e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
--e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config && \
-grep -q "^PasswordAuthentication no$" /etc/ssh/._cfg0000_sshd_config && \
-(
-cat <<EOF >> /etc/ssh/._cfg0000_sshd_config
-
-AuthenticationMethods publickey
-
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-HostKeyAlgorithms ssh-ed25519
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
-
-AllowUsers david
-EOF
-) && \
-ssh-keygen -A && \
-sshd -t; echo $?
-```
-
-Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
-
-```bash
-find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
-```
-
-Setup client SSH config:
-
-```bash
-(
-cat <<EOF > /home/david/.ssh/config
-AddKeysToAgent no
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-HostKeyAlgorithms ssh-ed25519
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
-HashKnownHosts no
-StrictHostKeyChecking ask
-VisualHostKey yes
-EOF
-) && \
-chown david:david /home/david/.ssh/config; echo $?
-```
-
-  - sysrq (if you don't want to disable in kernel):
-
-```bash
-echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
-```
-
-  - misc tools:
-
-```bash
-emerge -at app-misc/screen app-portage/gentoolkit
 ```
 
 ## Cleanup and reboot
