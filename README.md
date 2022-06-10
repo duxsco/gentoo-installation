@@ -908,16 +908,6 @@ echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/packag
 emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
-Install filesystem and device mapper tools:
-
-```bash
-(
-    [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
-    emerge sys-fs/mdadm || \
-    true
-); echo $?
-```
-
 ## Grub
 
 Install `sys-boot/grub`:
@@ -1132,7 +1122,7 @@ sys-fs/btrfs-progs -convert
 EOF
 ) && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge -at sys-fs/btrfs-progs sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
+emerge -at sys-fs/btrfs-progs $([[ -e /devSwapb ]] && echo -n "sys-fs/mdadm" || true) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 ```
 
 ## EFI binary
