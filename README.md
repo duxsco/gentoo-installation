@@ -198,7 +198,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r {bin/{disk.sh,fetch_files.sh,firewall.nft,firewall.sh,genkernel.sh},conf/genkernel_sh.conf} root@XXX:/tmp/
+rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r bin/{disk.sh,fetch_files.sh,firewall.nft,firewall.sh} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -344,13 +344,12 @@ Result of a single disk setup:
 
 > ⚠ Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
-Extract stage3 tarball and copy `firewall.nft` as well as `genkernel.sh`:
+Extract stage3 tarball and copy `firewall.nft`:
 
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/{firewall.nft,genkernel.sh} /mnt/gentoo/usr/local/sbin/ && \
-mkdir -p /mnt/gentoo/etc/gentoo-installation && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/genkernel_sh.conf /mnt/gentoo/etc/gentoo-installation/; echo $?
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ && \
+mkdir -p /mnt/gentoo/etc/gentoo-installation; echo $?
 ```
 
 Extract portage tarball:
@@ -360,124 +359,6 @@ mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
 mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
 tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
-```
-
-## Additional Git repos
-
-### GnuPG homedir
-
-Setup GnuPG homedir (copy&paste one after the other):
-
-```bash
-# Switch to non-root user. All following commands are executed by non-root.
-su - meh
-
-# Create GnuPG homedir
-( umask 0077 && mkdir /tmp/gpgHomeDir )
-
-# Fetch the public key; ADJUST THE MAIL ADDRESS!
-gpg --homedir /tmp/gpgHomeDir --auto-key-locate clear,dane,wkd,hkps://keys.duxsco.de --locate-external-key d at "my github username" dot de
-
-# Update ownertrust
-echo "3AAE5FC903BB199165D4C02711BE5F68440E0758:6:" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust
-
-# Stop the gpg-agent
-gpgconf --homedir /tmp/gpgHomeDir --kill all
-
-exit
-```
-
-### genkernel patches
-
-Download [genkernel user patches](https://github.com/duxsco/gentoo-genkernel-patches):
-
-```bash
-mkdir -p /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel && \
-git_tag="$(grep -o "[^[:space:]]*.ebuild" /mnt/gentoo/var/db/repos/gentoo/sys-kernel/genkernel/Manifest | sed -e 's/\.ebuild$//' -e 's#^#/mnt/gentoo/var/db/repos/gentoo/metadata/md5-cache/sys-kernel/#' | xargs --no-run-if-empty grep --files-with-matches "^KEYWORDS=.*[^\~]amd64[[:space:]$]" | sed 's#.*/##' | sort --version-sort | tail -n 1)" && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/00_defaults_linuxrc.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/01_defaults_initrd.scripts.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/02_defaults_initrd.scripts_dosshd.patch\"" > /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/sha512.txt\"" > /tmp/genkernel_sha512.txt
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 \"https://raw.githubusercontent.com/duxsco/gentoo-genkernel-patches/${git_tag}/sha512.txt.asc\"" > /tmp/genkernel_sha512.txt.asc
-); echo $?
-```
-
-Verify the patches (copy&paste one after the other):
-
-```bash
-# Switch to non-root user. All following commands are executed by non-root.
-su - meh
-
-# Verify GPG signature. Btw, the GPG key is the same one I use to sign my commits:
-# https://github.com/duxsco/gentoo-genkernel-patches/commits/main
-gpg --homedir /tmp/gpgHomeDir --verify /tmp/genkernel_sha512.txt.asc /tmp/genkernel_sha512.txt
-gpg: Signature made Tue 01 Feb 2022 12:22:06 AM UTC
-gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
-gpg:                issuer "d@XXXXXX.de"
-gpg: Good signature from "David Sardari <d@XXXXXX.de>" [ultimate]
-gpg: Preferred keyserver: hkps://keys.duxsco.de
-
-# Add paths to sha512.txt and verify
-sed 's|  |  /mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/|' /tmp/genkernel_sha512.txt | sha512sum -c -
-/mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/00_defaults_linuxrc.patch: OK
-/mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/01_defaults_initrd.scripts.patch: OK
-/mnt/gentoo/etc/portage/patches/sys-kernel/genkernel/02_defaults_initrd.scripts_dosshd.patch: OK
-
-# Stop the gpg-agent
-gpgconf --homedir /tmp/gpgHomeDir --kill all
-
-# Switch back to root
-exit
-```
-
-### gkb2gs - gentoo-kernel-bin config to gentoo-sources
-
-Download [gkb2gs](https://github.com/duxsco/gentoo-gkb2gs):
-
-```bash
-(
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh" > /mnt/gentoo/usr/local/sbin/gkb2gs.sh
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha512" > /tmp/gkb2gs.sh.sha512
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://raw.githubusercontent.com/duxsco/gentoo-gkb2gs/main/gkb2gs.sh.sha512.asc" > /tmp/gkb2gs.sh.sha512.asc
-); echo $?
-```
-
-Verify gkb2gs (copy&paste one after the other):
-
-```bash
-# Switch to non-root
-su - meh
-
-# And, verify as already done above for genkernel user patches
-gpg --homedir /tmp/gpgHomeDir --verify /tmp/gkb2gs.sh.sha512.asc /tmp/gkb2gs.sh.sha512
-gpg: Signature made Sat 01 Jan 2022 01:58:07 PM UTC
-gpg:                using ECDSA key 7A16FF0E6B3B642B5C927620BFC38358839C0712
-gpg:                issuer "d@XXXXXX.de"
-gpg: Good signature from "David Sardari <d@XXXXXX.de>" [ultimate]
-gpg: Preferred keyserver: hkps://keys.duxsco.de
-
-# Add paths to sha512.txt and verify
-sed 's|  |  /mnt/gentoo/usr/local/sbin/|' /tmp/gkb2gs.sh.sha512 | sha512sum -c -
-/mnt/gentoo/usr/local/sbin/gkb2gs.sh: OK
-
-# Stop the gpg-agent
-gpgconf --homedir /tmp/gpgHomeDir --kill all
-
-# Switch back to root
-exit
-```
-
-Create kernel config directory and make script executable:
-
-```bash
-mkdir /mnt/gentoo/etc/kernels && \
-chmod u=rwx,og=r /mnt/gentoo/usr/local/sbin/gkb2gs.sh
 ```
 
 ## Customise SystemRescueCD ISO
@@ -495,6 +376,8 @@ Import Gnupg public key:
 
 ```bash
 (
+su -l meh -c "umask 0077 && mkdir /tmp/gpgHomeDir"
+) && (
 su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import"
 ) && (
 su -l meh -c "echo \"62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:\" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust"
@@ -1025,54 +908,15 @@ echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/packag
 emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
-Install genkernel, filesystem and device mapper tools:
+Install filesystem and device mapper tools:
 
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge dev-util/ccache sys-fs/btrfs-progs sys-fs/cryptsetup sys-kernel/genkernel && (
+emerge sys-fs/btrfs-progs sys-fs/cryptsetup && (
     [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
     emerge sys-fs/mdadm || \
     true
 ); echo $?
-```
-
-Configure `dev-util/ccache`, used to speed up genkernel:
-
-```bash
-mkdir -p /root/.cache/ccache /var/cache/ccache && \
-cat <<EOF > /var/cache/ccache/ccache.conf; echo $?
-compression = true
-compression_level = 1
-EOF
-```
-
-Configure genkernel:
-
-```bash
-rsync -a /etc/genkernel.conf /etc/._cfg0000_genkernel.conf && \
-(
-    [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
-    sed -i 's/^#MDADM="no"$/MDADM="yes"/' /etc/._cfg0000_genkernel.conf || \
-    true
-) && \
-sed -i \
--e 's/^#MOUNTBOOT="yes"$/MOUNTBOOT="yes"/' \
--e 's/^#SAVE_CONFIG="yes"$/SAVE_CONFIG="yes"/' \
--e 's/^#LUKS="no"$/LUKS="yes"/' \
--e 's/^#BTRFS="no"$/BTRFS="yes"/' \
--e 's/^#BOOTLOADER="no"$/BOOTLOADER="grub2"/' \
--e 's/^#MODULEREBUILD="yes"$/MODULEREBUILD="yes"/' \
--e 's|^#KERNEL_CC="gcc"$|KERNEL_CC="/usr/lib/ccache/bin/gcc"|' \
--e 's|^#UTILS_CC="gcc"$|UTILS_CC="/usr/lib/ccache/bin/gcc"|' \
--e 's|^#UTILS_CXX="g++"$|UTILS_CXX="/usr/lib/ccache/bin/g++"|' \
-/etc/._cfg0000_genkernel.conf
-```
-
-Setup `dropbear` config directory and `/etc/dropbear/authorized_keys`:
-
-```bash
-mkdir --mode=0755 /etc/dropbear && \
-rsync -a /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /etc/dropbear/; echo $?
 ```
 
 ## Grub
@@ -1145,13 +989,6 @@ done; echo $?
 Credits:
 - https://www.system-rescue.org/manual/Installing_SystemRescue_on_the_disk/
 - https://www.system-rescue.org/manual/Booting_SystemRescue/
-
-Setup remote LUKS unlocking:
-
-```bash
-# Change settings depending on your requirements; set correct MAC address for XX:XX:XX:XX:XX:XX
-echo "dosshd ip=192.168.10.2/24 gk.net.gw=192.168.10.1 gk.net.iface=XX:XX:XX:XX:XX:XX gk.sshd.port=50023" > /etc/gentoo-installation/dosshd.conf
-```
 
 Create the Grub config to boot into the rescue system:
 
@@ -1276,8 +1113,6 @@ gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 
 ## Kernel installation
 
-> ⚠ The config of `sys-kernel/gentoo-kernel-bin` will be used to build `sys-kernel/gentoo-sources`. I recommend using `sys-kernel/gentoo-sources` minor versions whose counterpart in `sys-kernel/gentoo-kernel-bin` exist. So, you shouldn't build, for example, `sys-kernel/gentoo-sources-5.17.x` kernel with `sys-kernel/gentoo-kernel-bin-5.16.x` config. ⚠
-
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
 ```bash
@@ -1308,42 +1143,6 @@ emerge -at sys-kernel/gentoo-sources && \
 eselect kernel set 1 && \
 eselect kernel list; echo $?
 ```
-
-Configure the kernel from scratch or use the configuration from `sys-kernel/gentoo-kernel-bin` with:
-
-```bash
-gkb2gs.sh -h
-gkb2gs.sh
-```
-
-Customise `/etc/gentoo-installation/genkernel_sh.conf`. Configure/build kernel and initramfs for local and remote (via SSH) LUKS unlock:
-
-```bash
-# I usually make following changes for systems with Intel CPU:
-#     Processor type and features  --->
-#         [ ] Support for extended (non-PC) x86 platforms
-#             Processor family (Core 2/newer Xeon)  --->
-#         <*> CPU microcode loading support
-#         [*]   Intel microcode loading support
-#         [ ]   AMD microcode loading support
-#     Device Drivers  --->
-#         Generic Driver Options --->
-#             Firmware Loader --->
-#                 -*-   Firmware loading facility
-#                 [ ] Enable the firmware sysfs fallback mechanism
-#     Kernel hacking  --->
-#         Generic Kernel Debugging Instruments  --->
-#             [ ] Magic SysRq key
-#         [ ] Remote debugging over FireWire early on boot
-#     Gentoo Linux  --->
-#         Support for init systems, system and service managers  --->
-#             [*] systemd
-genkernel.sh
-```
-
-Ignore the `diff` and `chcon` error messages. SELinux will be setup later on.
-
-`genkernel.sh` prints out SSH fingerprints if you have remote unlock enabled. Write them down to double check upon initial SSH connection to the initramfs system.
 
 ## EFI binary
 
@@ -1567,7 +1366,6 @@ mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
   - ssh:
 
 ```bash
-rsync -a --chown=david:david --chmod=u=rw,og= /etc/dropbear/authorized_keys /home/david/.ssh/ && \
 rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
 sed -i \
 -e 's/^#Port 22$/Port 50022/' \
@@ -1762,34 +1560,6 @@ eselect kernel list
 
 # Select the kernel of your choice with
 eselect kernel set <NUMBER>
-
-# Configure the kernel from scratch, use an old config or use the configuration from sys-kernel/gentoo-kernel-bin with
-gkb2gs.sh
-
-# Customise kernel configuration and build kernel
-genkernel.sh
-```
-
-## Remote unlock
-
-SSH into the machine, execute `cryptsetup luksOpen` for every LUKS volume you want to open. Example:
-
-```bash
-# At least luksOpen the swap and system partitions, see
-# https://github.com/duxsco/gentoo-installation#disk-layout
-#
-# Example:
-cryptsetup luksOpen /dev/sda4 sda4
-cryptsetup luksOpen /dev/sdb4 sdb4
-cryptsetup luksOpen /dev/sda5 sda5
-cryptsetup luksOpen /dev/sdb5 sdb5
-etc.
-```
-
-If you are finished, execute to resume boot:
-
-```bash
-touch /tmp/SWAP.opened /tmp/ROOT.opened && rm /tmp/remote-rescueshell.lock
 ```
 
 ## Other Gentoo Linux repos
