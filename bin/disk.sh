@@ -113,19 +113,13 @@ for disk in "${disks[@]}"; do
 done
 
 # boot partition
-if [[ ${#disks[@]} -eq 1 ]]; then
-    boot_partition="$(getPartitions 2)"
-else
-    boot_partition="/dev/md0"
-    # shellcheck disable=SC2046
-    mdadm --create "${boot_partition}" --name boot3141592653md --level=1 --raid-devices=${#disks[@]} --metadata=default $(getPartitions 2)
-fi
+boot_partition="$(getPartitions 2)"
 
 # rescue partition
 if [[ ${#disks[@]} -eq 1 ]]; then
     rescue_partition="$(getPartitions 3)"
 else
-    rescue_partition="/dev/md1"
+    rescue_partition="/dev/md0"
     # shellcheck disable=SC2046
     mdadm --create "${rescue_partition}" --name rescue3141592653md --level=1 --raid-devices=${#disks[@]} --metadata=default $(getPartitions 3)
 fi
@@ -140,7 +134,7 @@ while read -r partition; do
     fi
     # shellcheck disable=SC2086
     cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${keyfile}" --use-random ${pbkdf:---pbkdf argon2id} "${partition}"
-    if [[ ${index} -eq 1 ]]; then
+    if [[ ${index} -eq 0 ]]; then
         # shellcheck disable=SC2086
         echo -n "${rescue_password}" | cryptsetup luksAddKey --hash sha512 --key-file "${keyfile}" ${pbkdf:---pbkdf argon2id} "${partition}" -
     else
@@ -151,7 +145,7 @@ while read -r partition; do
     fi
     cryptsetup luksOpen --key-file "${keyfile}" "${partition}" "${partition##*\/}"
     index=$((index+1))
-done < <(find "${boot_partition}" "${rescue_partition}" $(getPartitions 4) $(getPartitions 5))
+done < <(find "${rescue_partition}" $(getPartitions 4) $(getPartitions 5))
 
 # EFI system partition
 alphabet=({A..Z})
@@ -162,7 +156,8 @@ while read -r partition; do
 done < <(find $(getPartitions 1))
 
 # boot partition
-mkfs.btrfs --checksum blake2 --label boot3141592653fs "/dev/mapper/${boot_partition##*\/}"
+# shellcheck disable=SC2086
+mkfs.btrfs --data "${btrfs_raid}" --metadata "${btrfs_raid}" --checksum blake2 --label boot3141592653fs ${boot_partition}
 
 # rescue partition
 mkfs.btrfs --checksum blake2 --label rescue3141592653fs "/dev/mapper/${rescue_partition##*\/}"
@@ -172,7 +167,7 @@ mkfs.btrfs --checksum blake2 --label rescue3141592653fs "/dev/mapper/${rescue_pa
 if [ ${#disks[@]} -eq 1 ]; then
     swap_partition="$(getMapperPartitions 4)"
 else
-    swap_partition="/dev/md2"
+    swap_partition="/dev/md1"
     mdadm --create "${swap_partition}" --name swap3141592653md --level="${raid:-1}" --raid-devices=${#disks[@]} --metadata=default $(getMapperPartitions 4)
 fi
 mkswap --label swap3141592653fs "${swap_partition}"
@@ -209,7 +204,7 @@ su -l meh -c /tmp/fetch_files.sh
 chown -R root: /mnt/gentoo
 
 alphabet=({a..z})
-ln -s "/dev/mapper/${boot_partition##*\/}" /mnt/gentoo/mapperBoot
+ln -s "$(getPartitions 2 | awk '{print $1}')" /mnt/gentoo/mapperBoot
 ln -s "/dev/mapper/${rescue_partition##*\/}" /mnt/gentoo/mapperRescue
 ln -s "${swap_partition}" /mnt/gentoo/mapperSwap
 ln -s "$(getMapperPartitions 5 | awk '{print $1}')" /mnt/gentoo/mapperSystem
@@ -218,7 +213,11 @@ tmpCount=0
 while read -r partition; do
     ln -s "${partition}" "/mnt/gentoo/devEfi${alphabet[tmpCount++]}"
 done < <(find $(getPartitions 1))
-ln -s "$(awk '{print $1}' <<<"${boot_partition}")" "/mnt/gentoo/devBoot"
+tmpCount=0
+# shellcheck disable=SC2046
+while read -r partition; do
+    ln -s "${partition}" "/mnt/gentoo/devBoot${alphabet[tmpCount++]}"
+done < <(find $(getPartitions 2))
 ln -s "$(awk '{print $1}' <<<"${rescue_partition}")" "/mnt/gentoo/devRescue"
 tmpCount=0
 # shellcheck disable=SC2046
@@ -260,7 +259,7 @@ $(
         # shellcheck disable=SC2001
         luks_device_name="$(sed 's|/mnt/gentoo/dev||' <<<"${luks_device}" | tr '[:upper:]' '[:lower:]')"
 
-        if [[ ${luks_device_name} == boot ]]; then
+        if [[ ${luks_device_name} =~ ^(swap|swapa)$ ]]; then
             echo "
 if [[ ! -d /mnt/gentoo ]]; then
     mkdir /mnt/gentoo
@@ -278,7 +277,7 @@ fi
         fi
 
         echo "luksOpen \"${luks_device_name}\" \"${luks_device_uuid}\""
-    done < <(find /mnt/gentoo/devSystem* /mnt/gentoo/devBoot /mnt/gentoo/devSwap*)
+    done < <(find /mnt/gentoo/devSystem* /mnt/gentoo/devSwap*)
 )
 
 grep -E "^(UUID|tmpfs)" /mnt/gentoo/etc/fstab | sed -e '/subvol=@root/d' -e 's|/|/mnt/gentoo/|' -e 's/,noauto//' -e 's/,rootcontext=[^[:space:]]*//' -e 's/=root/=0/g' -e 's/=portage/=250/g' | column -t > /etc/fstab
@@ -313,5 +312,3 @@ cp --dereference /etc/resolv.conf /run/systemd/resolve/resolv.conf
 
 chroot /mnt/gentoo /usr/bin/env chrooted=true bash
 EOF
-
-echo $?

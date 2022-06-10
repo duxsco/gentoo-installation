@@ -280,7 +280,7 @@ Result of a single disk setup:
 ```bash
 ➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
-├── devBoot -> /dev/sda2
+├── devBoota -> /dev/sda2
 ├── devEfia -> /dev/sda1
 ├── devRescue -> /dev/sda3
 ├── devSwapa -> /dev/sda4
@@ -291,7 +291,7 @@ Result of a single disk setup:
 │           └── mnt
 │               └── key
 │                   └── key
-├── mapperBoot -> /dev/mapper/sda2
+├── mapperBoot -> /dev/sda2
 ├── mapperRescue -> /dev/mapper/sda3
 ├── mapperSwap -> /dev/mapper/sda4
 ├── mapperSystem -> /dev/mapper/sda5
@@ -308,12 +308,15 @@ Result of a single disk setup:
 ```bash
 ➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
-├── devBoot -> /dev/md0
+├── devBoota -> /dev/sda2
+├── devBootb -> /dev/sdb2
+├── devBootc -> /dev/sdc2
+├── devBootd -> /dev/sdd2
 ├── devEfia -> /dev/sda1
 ├── devEfib -> /dev/sdb1
 ├── devEfic -> /dev/sdc1
 ├── devEfid -> /dev/sdd1
-├── devRescue -> /dev/md1
+├── devRescue -> /dev/md0
 ├── devSwapa -> /dev/sda4
 ├── devSwapb -> /dev/sdb4
 ├── devSwapc -> /dev/sdc4
@@ -328,16 +331,16 @@ Result of a single disk setup:
 │           └── mnt
 │               └── key
 │                   └── key
-├── mapperBoot -> /dev/mapper/md0
-├── mapperRescue -> /dev/mapper/md1
-├── mapperSwap -> /dev/md2
+├── mapperBoot -> /dev/sda2
+├── mapperRescue -> /dev/mapper/md0
+├── mapperSwap -> /dev/md1
 ├── mapperSystem -> /dev/mapper/sda5
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
 ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
 └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-5 directories, 23 files
+5 directories, 26 files
 ```
 
 ### Extracting tarballs
@@ -1338,7 +1341,7 @@ Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.ht
   - If you have `sys-fs/mdadm` installed:
 
 ```bash
-[[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
+[[ -e /devSwapb ]] && \
 rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
 echo "" >> /etc/._cfg0000_mdadm.conf && \
 mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
