@@ -364,6 +364,29 @@ mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/rep
 tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
+### Mounting
+
+```bash
+mount --types proc /proc /mnt/gentoo/proc && \
+mount --rbind /sys /mnt/gentoo/sys && \
+mount --make-rslave /mnt/gentoo/sys && \
+mount --rbind /dev /mnt/gentoo/dev && \
+mount --make-rslave /mnt/gentoo/dev && \
+mount --bind /run /mnt/gentoo/run && \
+mount --make-slave /mnt/gentoo/run && \
+
+mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
+
+touch /mnt/gentoo/var/cache/binpkgs/.keep && \
+mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
+
+touch /mnt/gentoo/var/cache/distfiles/.keep && \
+mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
+
+mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
+chmod u=rwx,og= /mnt/gentoo/boot; echo $?
+```
+
 ## Customise SystemRescueCD ISO
 
 While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.
@@ -561,29 +584,6 @@ mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue
 mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ && \
 umount /mnt/iso; echo $?
-```
-
-## Mounting
-
-```bash
-mount --types proc /proc /mnt/gentoo/proc && \
-mount --rbind /sys /mnt/gentoo/sys && \
-mount --make-rslave /mnt/gentoo/sys && \
-mount --rbind /dev /mnt/gentoo/dev && \
-mount --make-rslave /mnt/gentoo/dev && \
-mount --bind /run /mnt/gentoo/run && \
-mount --make-slave /mnt/gentoo/run && \
-
-mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
-
-touch /mnt/gentoo/var/cache/binpkgs/.keep && \
-mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
-
-touch /mnt/gentoo/var/cache/distfiles/.keep && \
-mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
-
-mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
-chmod u=rwx,og= /mnt/gentoo/boot; echo $?
 ```
 
 ## Pre-chroot configuration
