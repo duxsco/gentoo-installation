@@ -912,7 +912,7 @@ Install filesystem and device mapper tools:
 
 ```bash
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge sys-fs/btrfs-progs sys-fs/cryptsetup && (
+emerge sys-fs/btrfs-progs && (
     [[ $(lsblk -ndo type /devBoot) == raid1 ]] && \
     emerge sys-fs/mdadm || \
     true
@@ -931,19 +931,13 @@ emerge -at sys-boot/grub; echo $?
 ### Base Grub configuration
 
 ```bash
-if [[ $(lsblk -ndo type /devBoot) == raid1 ]]; then
-    mdadm_mod=" domdadm"
-else
-    mdadm_mod=""
-fi && \
 cat <<EOF >> /etc/default/grub; echo $?
 
-my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/crypt_roots=UUID=/' | paste -d " " -s -) root_key=key"
-my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/crypt_swaps=UUID=/' | paste -d " " -s -) swap_key=key"
+my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
+my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
 my_fs="rootfstype=btrfs rootflags=subvol=@root"
 my_cpu="mitigations=auto,nosmt"
-my_mod="dobtrfs${mdadm_mod}"
-GRUB_CMDLINE_LINUX_DEFAULT="\${my_crypt_root} \${my_crypt_swap} \${my_fs} \${my_cpu} \${my_mod} keymap=de"
+GRUB_CMDLINE_LINUX_DEFAULT="\${my_crypt_root} \${my_crypt_swap} \${my_fs} \${my_cpu}"
 GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
 EOF
@@ -1134,8 +1128,8 @@ EOF
 fi
 ) && (
 cat <<EOF >> /etc/portage/package.use/main
+sys-apps/systemd cryptsetup
 sys-fs/btrfs-progs -convert
-sys-kernel/gentoo-kernel-bin -initramfs
 EOF
 ) && \
 emerge -at sys-kernel/gentoo-kernel-bin; echo $?
