@@ -837,6 +837,37 @@ done
 echo $?
 ```
 
+### Kernel installation
+
+Install the [kernel](https://www.kernel.org/category/releases.html):
+
+```bash
+install_lts_kernel="true" && (
+cat <<EOF >> /etc/portage/package.accept_keywords/main
+sys-fs/btrfs-progs ~amd64
+sys-kernel/gentoo-kernel-bin ~amd64
+sys-kernel/linux-headers ~amd64
+virtual/dist-kernel ~amd64
+EOF
+) && (
+if [[ ${install_lts_kernel} == true ]]; then
+cat <<EOF >> /etc/portage/package.mask/main
+>=sys-fs/btrfs-progs-5.16
+>=sys-kernel/gentoo-kernel-bin-5.16
+>=sys-kernel/linux-headers-5.16
+>=virtual/dist-kernel-5.16
+EOF
+fi
+) && (
+cat <<EOF >> /etc/portage/package.use/main
+sys-apps/systemd cryptsetup
+sys-fs/btrfs-progs -convert
+EOF
+) && \
+echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
+emerge -at sys-fs/btrfs-progs $([[ -e /devSwapb ]] && echo -n "sys-fs/mdadm" || true) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
+```
+
 ### Additional packages
 
 Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
@@ -850,141 +881,6 @@ emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
 ## Bootup configuration
-
-### Secure Boot
-
-Credits:
-- https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
-- https://www.funtoo.org/Secure_Boot
-- https://www.rodsbooks.com/efi-bootloaders/secureboot.html
-- https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot&mobileaction=toggle_view_mobile
-- https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot
-
-In order to add your custom keys `Setup Mode` must have been enabled in your `UEFI Firmware Settings` before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling `Setup Mode`. In the following, however, you have to generate Secure Boot files either way.
-
-Install required tools on your system:
-
-```bash
-echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
-```
-
-Create Secure Boot keys and certificates:
-
-```bash
-mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
-pushd /etc/gentoo-installation/secureboot && \
-
-# Create the keys
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
-
-# Prepare installation in EFI
-uuid="$(uuidgen --random)" && \
-cert-to-efi-sig-list -g "${uuid}" PK.crt PK.esl && \
-cert-to-efi-sig-list -g "${uuid}" KEK.crt KEK.esl && \
-cert-to-efi-sig-list -g "${uuid}" db.crt db.esl && \
-sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
-sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
-sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
-popd; echo $?
-```
-
-If the following commands don't work you have to install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
-
-```bash
-pushd /etc/gentoo-installation/secureboot && \
-
-# Make them mutable
-chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
-
-# Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
-efi-updatevar -f db.auth db && \
-efi-updatevar -f KEK.auth KEK && \
-efi-updatevar -f PK.auth PK && \
-
-# Make them immutable
-chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
-popd; echo $?
-```
-
-### Grub
-
-Install `sys-boot/grub`:
-
-```bash
-echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
-emerge -at sys-boot/grub; echo $?
-```
-
-```bash
-cat <<EOF >> /etc/default/grub; echo $?
-
-my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
-my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
-my_fs="rootfstype=btrfs rootflags=subvol=@root"
-my_cpu="mitigations=auto,nosmt"
-GRUB_CMDLINE_LINUX_DEFAULT="\${my_crypt_root} \${my_crypt_swap} \${my_fs} \${my_cpu}"
-GRUB_ENABLE_CRYPTODISK="y"
-GRUB_DISABLE_OS_PROBER="y"
-EOF
-```
-
-In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
-
-```bash
-ls -1d /efi* | while read -r i; do
-uuid="$(blkid -s UUID -o value "/devEfi${i#/efi}")"
-
-cat <<EOF > "/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg"
-# Enforce that all loaded files must have a valid signature.
-set check_signatures=enforce
-export check_signatures
-
-set superusers="root"
-export superusers
-# Replace the first TODO with the result of grub-mkpasswd-pbkdf2 with your custom passphrase.
-password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO
-
-# NOTE: We export check_signatures/superusers so they are available in all
-# further contexts to ensure the password check is always enforced.
-
-search --no-floppy --fs-uuid --set=root ${uuid}
-
-configfile /grub.cfg
-
-# Without this we provide the attacker with a rescue shell if he just presses
-# <return> twice.
-echo /EFI/grub/grub.cfg did not boot the system but returned to initial.cfg.
-echo Rebooting the system in 10 seconds.
-sleep 10
-reboot
-EOF
-done; echo $?
-```
-
-Credits:
-- https://www.system-rescue.org/manual/Installing_SystemRescue_on_the_disk/
-- https://www.system-rescue.org/manual/Booting_SystemRescue/
-
-Create the Grub config to boot into the rescue system:
-
-```bash
-uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
-cat <<EOF >> /etc/grub.d/40_custom; echo $?
-
-menuentry 'SystemRescueCD' {
-    cryptomount -u ${uuid}
-    set root='cryptouuid/${uuid}'
-    search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${uuid}' $(blkid -s UUID -o value /mapperRescue)
-    echo   'Loading Linux kernel ...'
-    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue3141592653fs noautologin
-    echo   'Loading initramfs ...'
-    initrd /sysresccd/boot/x86_64/sysresccd.img
-}
-EOF
-```
 
 ### GnuPG boot file signing
 
@@ -1089,35 +985,62 @@ find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --de
 gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 ```
 
-### Kernel installation
+### Secure Boot
 
-Install the [kernel](https://www.kernel.org/category/releases.html):
+Credits:
+- https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
+- https://www.funtoo.org/Secure_Boot
+- https://www.rodsbooks.com/efi-bootloaders/secureboot.html
+- https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot&mobileaction=toggle_view_mobile
+- https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot
+
+In order to add your custom keys `Setup Mode` must have been enabled in your `UEFI Firmware Settings` before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling `Setup Mode`. In the following, however, you have to generate Secure Boot files either way.
+
+Install required tools on your system:
 
 ```bash
-install_lts_kernel="true" && (
-cat <<EOF >> /etc/portage/package.accept_keywords/main
-sys-fs/btrfs-progs ~amd64
-sys-kernel/gentoo-kernel-bin ~amd64
-sys-kernel/linux-headers ~amd64
-virtual/dist-kernel ~amd64
-EOF
-) && (
-if [[ ${install_lts_kernel} == true ]]; then
-cat <<EOF >> /etc/portage/package.mask/main
->=sys-fs/btrfs-progs-5.16
->=sys-kernel/gentoo-kernel-bin-5.16
->=sys-kernel/linux-headers-5.16
->=virtual/dist-kernel-5.16
-EOF
-fi
-) && (
-cat <<EOF >> /etc/portage/package.use/main
-sys-apps/systemd cryptsetup
-sys-fs/btrfs-progs -convert
-EOF
-) && \
-echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge -at sys-fs/btrfs-progs $([[ -e /devSwapb ]] && echo -n "sys-fs/mdadm" || true) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
+echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
+```
+
+Create Secure Boot keys and certificates:
+
+```bash
+mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
+pushd /etc/gentoo-installation/secureboot && \
+
+# Create the keys
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:2048 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
+
+# Prepare installation in EFI
+uuid="$(uuidgen --random)" && \
+cert-to-efi-sig-list -g "${uuid}" PK.crt PK.esl && \
+cert-to-efi-sig-list -g "${uuid}" KEK.crt KEK.esl && \
+cert-to-efi-sig-list -g "${uuid}" db.crt db.esl && \
+sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
+sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
+popd; echo $?
+```
+
+If the following commands don't work you have to install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
+
+```bash
+pushd /etc/gentoo-installation/secureboot && \
+
+# Make them mutable
+chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+
+# Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
+efi-updatevar -f db.auth db && \
+efi-updatevar -f KEK.auth KEK && \
+efi-updatevar -f PK.auth PK && \
+
+# Make them immutable
+chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+popd; echo $?
 ```
 
 ### EFI binary
@@ -1157,7 +1080,84 @@ ls -1d /efi* | while read -r i; do
 done
 ```
 
-### Boot file installation
+### Grub
+
+Install `sys-boot/grub`:
+
+```bash
+echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
+emerge -at sys-boot/grub; echo $?
+```
+
+```bash
+cat <<EOF >> /etc/default/grub; echo $?
+
+my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
+my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
+my_fs="rootfstype=btrfs rootflags=subvol=@root"
+my_cpu="mitigations=auto,nosmt"
+GRUB_CMDLINE_LINUX_DEFAULT="\${my_crypt_root} \${my_crypt_swap} \${my_fs} \${my_cpu}"
+GRUB_ENABLE_CRYPTODISK="y"
+GRUB_DISABLE_OS_PROBER="y"
+EOF
+```
+
+In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
+
+```bash
+ls -1d /efi* | while read -r i; do
+uuid="$(blkid -s UUID -o value "/devEfi${i#/efi}")"
+
+cat <<EOF > "/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg"
+# Enforce that all loaded files must have a valid signature.
+set check_signatures=enforce
+export check_signatures
+
+set superusers="root"
+export superusers
+# Replace the first TODO with the result of grub-mkpasswd-pbkdf2 with your custom passphrase.
+password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO
+
+# NOTE: We export check_signatures/superusers so they are available in all
+# further contexts to ensure the password check is always enforced.
+
+search --no-floppy --fs-uuid --set=root ${uuid}
+
+configfile /grub.cfg
+
+# Without this we provide the attacker with a rescue shell if he just presses
+# <return> twice.
+echo /EFI/grub/grub.cfg did not boot the system but returned to initial.cfg.
+echo Rebooting the system in 10 seconds.
+sleep 10
+reboot
+EOF
+done; echo $?
+```
+
+Credits:
+- https://www.system-rescue.org/manual/Installing_SystemRescue_on_the_disk/
+- https://www.system-rescue.org/manual/Booting_SystemRescue/
+
+Create the Grub config to boot into the rescue system:
+
+```bash
+uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
+cat <<EOF >> /etc/grub.d/40_custom; echo $?
+
+menuentry 'SystemRescueCD' {
+    cryptomount -u ${uuid}
+    set root='cryptouuid/${uuid}'
+    search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${uuid}' $(blkid -s UUID -o value /mapperRescue)
+    echo   'Loading Linux kernel ...'
+    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue3141592653fs noautologin
+    echo   'Loading initramfs ...'
+    initrd /sysresccd/boot/x86_64/sysresccd.img
+}
+EOF
+```
+
+### /boot and /efi* layout
 
 Result on a dual disk system:
 
