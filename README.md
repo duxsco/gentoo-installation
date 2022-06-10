@@ -892,7 +892,7 @@ emerge -atuDN @world
 Remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
 ```bash
-emerge --depclean -at
+emerge --depclean -a
 ```
 
 ## Non-root user setup
