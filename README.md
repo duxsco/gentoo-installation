@@ -809,7 +809,49 @@ eselect vi set vim && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
-### Secure Boot preparation
+### /etc/fstab
+
+Set /etc/fstab:
+
+```bash
+echo "" >> /etc/fstab && \
+
+(
+cat <<EOF | column -t >> /etc/fstab
+$(find /devEfi* -maxdepth 0 | while read -r i; do
+  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,noauto,dmask=0022,fmask=0133 0 0"
+done)
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noauto                       0 0
+UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                                   0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root                 0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home                 0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs              0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles            0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds              0 0
+EOF
+) && \
+find /devEfi* -maxdepth 0 | while read -r i; do
+  mkdir "${i/devE/e}"
+  mount "${i/devE/e}"
+done
+echo $?
+```
+
+### Additional packages
+
+Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
+
+```bash
+! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
+echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
+echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use/main && \
+emerge -at sys-firmware/intel-microcode; echo $?
+```
+
+## Bootup configuration
+
+### Secure Boot
 
 Credits:
 - https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
@@ -866,48 +908,6 @@ efi-updatevar -f PK.auth PK && \
 chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
-
-### /etc/fstab
-
-Set /etc/fstab:
-
-```bash
-echo "" >> /etc/fstab && \
-
-(
-cat <<EOF | column -t >> /etc/fstab
-$(find /devEfi* -maxdepth 0 | while read -r i; do
-  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,noauto,dmask=0022,fmask=0133 0 0"
-done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noauto                       0 0
-UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                                   0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root                 0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home                 0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs              0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles            0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds              0 0
-EOF
-) && \
-find /devEfi* -maxdepth 0 | while read -r i; do
-  mkdir "${i/devE/e}"
-  mount "${i/devE/e}"
-done
-echo $?
-```
-
-### Additional packages
-
-Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
-
-```bash
-! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
-grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
-echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
-echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use/main && \
-emerge -at sys-firmware/intel-microcode; echo $?
-```
-
-## Bootup configuration
 
 ### Grub
 
