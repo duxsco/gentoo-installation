@@ -1402,6 +1402,8 @@ echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
 emerge -at app-misc/screen app-portage/gentoolkit
 ```
 
+## Cleanup and reboot
+
   - Setup [network](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
 
 ```bash
@@ -1424,8 +1426,6 @@ ln -snf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 systemctl --no-reload enable systemd-resolved.service
 ```
-
-## Cleanup and reboot
 
   - stage3 and dev* files:
 
