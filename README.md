@@ -880,8 +880,6 @@ echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/packag
 emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
-## Configuration
-
 Set `/etc/hosts`:
 
 ```bash
@@ -889,15 +887,11 @@ rsync -a /etc/hosts /etc/._cfg0000_hosts && \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
 
-## Tools
-
 Enable ssh service:
 
 ```bash
 systemctl --no-reload enable sshd.service
 ```
-
-## Further customisations
 
   - starship:
 
