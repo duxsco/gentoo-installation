@@ -1203,6 +1203,15 @@ chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
 
+### Grub
+
+Install `sys-boot/grub`:
+
+```bash
+echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
+emerge -at sys-boot/grub; echo $?
+```
+
 ### EFI binary
 
 In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
@@ -1277,46 +1286,47 @@ done
 
 ### Grub
 
-Install `sys-boot/grub`:
-
 ```bash
-echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/package.use/main && \
-emerge -at sys-boot/grub; echo $?
-```
-
-```bash
-cat <<EOF >> /etc/default/grub; echo $?
-
+rescue_uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
+system_uuid="$(blkid -s UUID -o value /mapperSystem)"
 my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
 my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
-my_fs="rootfstype=btrfs rootflags=subvol=@root"
-my_cpu="mitigations=auto,nosmt"
-GRUB_CMDLINE_LINUX_DEFAULT="\${my_crypt_root} \${my_crypt_swap} \${my_fs} \${my_cpu}"
-GRUB_ENABLE_CRYPTODISK="y"
-GRUB_DISABLE_OS_PROBER="y"
-EOF
-```
 
-Credits:
-- https://www.system-rescue.org/manual/Installing_SystemRescue_on_the_disk/
-- https://www.system-rescue.org/manual/Booting_SystemRescue/
+cat <<EOF > /etc/gentoo-installation/secureboot/grub.cfg
+set default=0
+set timeout=5
 
-Create the Grub config to boot into the rescue system:
+menuentry 'Gentoo GNU/Linux' --unrestricted {
+    echo 'Loading Linux ...'
+    linux /vmlinuz ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
+    echo 'Loading initial ramdisk ...'
+    initrd /initramfs.img
+}
 
-```bash
-uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
-cat <<EOF >> /etc/grub.d/40_custom; echo $?
+menuentry 'Gentoo GNU/Linux (old)' --unrestricted {
+    echo 'Loading Linux (old) ...'
+    linux /vmlinuz-old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
+    echo 'Loading initial ramdisk ...'
+    initrd /initramfs-old.img
+}
 
 menuentry 'SystemRescueCD' {
-    cryptomount -u ${uuid}
-    set root='cryptouuid/${uuid}'
-    search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${uuid}' $(blkid -s UUID -o value /mapperRescue)
+    cryptomount -u ${rescue_uuid}
+    set root='cryptouuid/${rescue_uuid}'
+    search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${rescue_uuid}' $(blkid -s UUID -o value /mapperRescue)
     echo   'Loading Linux kernel ...'
     linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue3141592653fs noautologin
     echo   'Loading initramfs ...'
     initrd /sysresccd/boot/x86_64/sysresccd.img
 }
 EOF
+```
+
+Copy `grub.cfg` and GnuPG sign files in `/boot`:
+
+```bash
+rsync -av /etc/gentoo-installation/secureboot/grub.cfg /boot/ && \
+find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
 ```
 
 ### /boot and /efi* layout
