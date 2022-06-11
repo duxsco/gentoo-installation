@@ -1132,9 +1132,6 @@ gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --e
 GPG_TTY="$(tty)"
 export GPG_TTY
 
-# Sign initial grub.cfg
-gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign /etc/gentoo-installation/secureboot/efi.cfg
-
 # Sign microcode if existent
 if [[ -f /boot/intel-uc.img ]]; then
   gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign /boot/intel-uc.img
@@ -1215,6 +1212,41 @@ popd; echo $?
 
 ### EFI binary
 
+In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
+
+```bash
+cat <<EOF > /etc/gentoo-installation/secureboot/efi.cfg
+# Enforce that all loaded files must have a valid signature.
+set check_signatures=enforce
+export check_signatures
+
+set superusers="root"
+export superusers
+# Replace the first TODO with the result of grub-mkpasswd-pbkdf2 with your custom passphrase.
+password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO
+
+# NOTE: We export check_signatures/superusers so they are available in all
+# further contexts to ensure the password check is always enforced.
+
+search --no-floppy --fs-uuid --set=root $(blkid -s UUID -o value /mapperBoot)
+
+configfile /grub.cfg
+
+# Without this we provide the attacker with a rescue shell if he just presses
+# <return> twice.
+echo /EFI/grub/grub.cfg did not boot the system but returned to initial.cfg.
+echo Rebooting the system in 10 seconds.
+sleep 10
+reboot
+EOF
+```
+
+Sign `efi.cfg`:
+
+```bash
+gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign /etc/gentoo-installation/secureboot/efi.cfg
+```
+
 Create the EFI binary/ies and Secure Boot sign them:
 
 ```bash
@@ -1269,35 +1301,6 @@ my_cpu="mitigations=auto,nosmt"
 GRUB_CMDLINE_LINUX_DEFAULT="\${my_crypt_root} \${my_crypt_swap} \${my_fs} \${my_cpu}"
 GRUB_ENABLE_CRYPTODISK="y"
 GRUB_DISABLE_OS_PROBER="y"
-EOF
-```
-
-In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
-
-```bash
-cat <<EOF > /etc/gentoo-installation/secureboot/efi.cfg
-# Enforce that all loaded files must have a valid signature.
-set check_signatures=enforce
-export check_signatures
-
-set superusers="root"
-export superusers
-# Replace the first TODO with the result of grub-mkpasswd-pbkdf2 with your custom passphrase.
-password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO
-
-# NOTE: We export check_signatures/superusers so they are available in all
-# further contexts to ensure the password check is always enforced.
-
-search --no-floppy --fs-uuid --set=root $(blkid -s UUID -o value /mapperBoot)
-
-configfile /grub.cfg
-
-# Without this we provide the attacker with a rescue shell if he just presses
-# <return> twice.
-echo /EFI/grub/grub.cfg did not boot the system but returned to initial.cfg.
-echo Rebooting the system in 10 seconds.
-sleep 10
-reboot
 EOF
 ```
 
