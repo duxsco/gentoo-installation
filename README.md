@@ -1329,66 +1329,24 @@ find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-s
 Result on a dual disk system:
 
 ```bash
-tree -a /boot /efi*
-/boot 👈 LUKS encrypted partition
-├── initramfs-5.15.23-gentoo-x86_64.img 👈 LUKS keyfile integrated
-├── initramfs-5.15.23-gentoo-x86_64.img.sig
-├── System.map-5.15.23-gentoo-x86_64
-├── System.map-5.15.23-gentoo-x86_64.sig
-├── vmlinuz-5.15.23-gentoo-x86_64
-├── vmlinuz-5.15.23-gentoo-x86_64.sig
-/efia 👈 Not LUKS encrypted
-├── EFI
-│   └── boot
-│       └── bootx64.efi
-├── grub.cfg
-├── grub.cfg.sig
-├── initramfs-5.15.23-gentoo-x86_64-ssh.img 👈 No LUKS keyfile integrated
-├── initramfs-5.15.23-gentoo-x86_64-ssh.img.sig
-├── System.map-5.15.23-gentoo-x86_64-ssh
-├── System.map-5.15.23-gentoo-x86_64-ssh.sig
-├── vmlinuz-5.15.23-gentoo-x86_64-ssh
-└── vmlinuz-5.15.23-gentoo-x86_64-ssh.sig
-/efib
-├── EFI
-│   └── boot
-│       └── bootx64.efi
-├── grub.cfg
-├── grub.cfg.sig
-├── initramfs-5.15.23-gentoo-x86_64-ssh.img
-├── initramfs-5.15.23-gentoo-x86_64-ssh.img.sig
-├── System.map-5.15.23-gentoo-x86_64-ssh
-├── System.map-5.15.23-gentoo-x86_64-ssh.sig
-├── vmlinuz-5.15.23-gentoo-x86_64-ssh
-└── vmlinuz-5.15.23-gentoo-x86_64-ssh.sig
-
-4 directories, 34 files
-```
-
-Result on a dual disk system with `luks_unlock_via_ssh=n` in `genkernel_sh.conf`:
-
-```bash
+➤ tree -a /boot /efia
 /boot
-├── System.map-5.15.23-gentoo-x86_64
-├── System.map-5.15.23-gentoo-x86_64.sig
-├── initramfs-5.15.23-gentoo-x86_64.img
-├── initramfs-5.15.23-gentoo-x86_64.img.sig
-├── vmlinuz-5.15.23-gentoo-x86_64
-└── vmlinuz-5.15.23-gentoo-x86_64.sig
+├── config-5.15.46-gentoo-dist
+├── config-5.15.46-gentoo-dist.sig
+├── grub.cfg
+├── grub.cfg.sig
+├── initramfs-5.15.46-gentoo-dist.img
+├── initramfs-5.15.46-gentoo-dist.img.sig
+├── System.map-5.15.46-gentoo-dist
+├── System.map-5.15.46-gentoo-dist.sig
+├── vmlinuz-5.15.46-gentoo-dist
+└── vmlinuz-5.15.46-gentoo-dist.sig
 /efia
-├── EFI
-│   └── boot
-│       └── bootx64.efi
-├── grub.cfg
-└── grub.cfg.sig
-/efib
-├── EFI
-│   └── boot
-│       └── bootx64.efi
-├── grub.cfg
-└── grub.cfg.sig
+└── EFI
+    └── boot
+        └── bootx64.efi
 
-4 directories, 12 files
+2 directories, 1 file
 ```
 
 ## Cleanup and reboot
