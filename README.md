@@ -1120,6 +1120,8 @@ uid           [ultimate] grubEfi
 Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one after the other):
 
 ```bash
+mkdir --mode=0700 /etc/gentoo-installation/secureboot
+
 # Export public key
 gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export > /etc/gentoo-installation/secureboot/gpg.pub
 
@@ -1165,7 +1167,6 @@ emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
 Create Secure Boot keys and certificates:
 
 ```bash
-mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
 pushd /etc/gentoo-installation/secureboot && \
 
 # Create the keys
