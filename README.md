@@ -762,6 +762,7 @@ eselect news list
 Update system:
 
 ```bash
+echo "sys-apps/systemd cryptsetup" >> /etc/portage/package.use/main && \
 emerge -atuDN @world
 ```
 
@@ -858,12 +859,8 @@ cat <<EOF >> /etc/portage/package.mask/main
 >=virtual/dist-kernel-5.16
 EOF
 fi
-) && (
-cat <<EOF >> /etc/portage/package.use/main
-sys-apps/systemd cryptsetup
-sys-fs/btrfs-progs -convert
-EOF
 ) && \
+echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
 emerge -at sys-fs/btrfs-progs $([[ -e /devSwapb ]] && echo -n "sys-fs/mdadm" || true) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 ```
