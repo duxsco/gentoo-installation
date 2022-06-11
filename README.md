@@ -774,7 +774,7 @@ emerge --depclean -a
 
 ### Non-root user
 
-Create user:
+Create a non-root user and set a password you can use with English keyboard layout for now. The keyboard layout will be changed in a later section after reboot. Create your `authorized_keys` if needed!
 
 ```bash
 useradd -m -G wheel -s /bin/bash david && \
