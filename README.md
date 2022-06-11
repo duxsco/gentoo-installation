@@ -1120,11 +1120,8 @@ uid           [ultimate] grubEfi
 Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one after the other):
 
 ```bash
-# Change Key ID
-key_id="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
-
 # Export public key
-gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export "${key_id}" > /etc/gentoo-installation/secureboot/gpg.pub; echo $?
+gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export > /etc/gentoo-installation/secureboot/gpg.pub
 
 # If signature creation fails...
 GPG_TTY="$(tty)"
@@ -1132,7 +1129,7 @@ export GPG_TTY
 
 # Sign microcode if existent
 if [[ -f /boot/intel-uc.img ]]; then
-  gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign /boot/intel-uc.img
+  gpg --homedir /etc/gentoo-installation/gnupg --detach-sign /boot/intel-uc.img
   echo $?
 fi
 
@@ -1143,10 +1140,7 @@ gpgconf --homedir /etc/gentoo-installation/gnupg --kill all
 Sign your custom SystemRescueCD files with GnuPG:
 
 ```bash
-# Change Key ID
-key_id="0x714F5DD28AC1A31E04BCB850B158334ADAF5E3C0"
-
-find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign --local-user "${key_id}" {} \; && \
+find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \; && \
 gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 ```
 
@@ -1242,7 +1236,7 @@ EOF
 Sign `efi.cfg`:
 
 ```bash
-gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign /etc/gentoo-installation/secureboot/efi.cfg
+gpg --homedir /etc/gentoo-installation/gnupg --detach-sign /etc/gentoo-installation/secureboot/efi.cfg
 ```
 
 Create the EFI binary/ies and Secure Boot sign them:
