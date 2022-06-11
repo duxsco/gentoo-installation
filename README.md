@@ -763,7 +763,7 @@ emerge --depclean -a
 
 ### Non-root user
 
-Create a non-root user and set a password you can use with English keyboard layout for now. The keyboard layout will be changed in a later section after reboot. Create your `authorized_keys` if needed!
+Create a non-root user and set a password you can use with English keyboard layout for now. The keyboard layout will be changed in a later section after reboot.
 
 ```bash
 useradd -m -G wheel -s /bin/bash david && \
@@ -772,6 +772,12 @@ echo -e 'alias cp="cp -i"\nalias mv="mv -i"\nalias rm="rm -i"' >> /home/david/.b
 chown david:david /home/david/.bash_aliases && \
 echo 'source "${HOME}/.bash_aliases"' >> /home/david/.bashrc && \
 passwd david
+```
+
+(Optional) Create your `authorized_keys`:
+
+```bash
+rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/
 ```
 
 Setup sudo:
