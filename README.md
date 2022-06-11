@@ -1133,9 +1133,7 @@ GPG_TTY="$(tty)"
 export GPG_TTY
 
 # Sign initial grub.cfg
-ls -1d /efi* | while read -r i; do
-    gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign "/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg"; echo $?
-done
+gpg --homedir /etc/gentoo-installation/gnupg --local-user "${key_id}" --detach-sign /etc/gentoo-installation/secureboot/efi.cfg
 
 # Sign microcode if existent
 if [[ -f /boot/intel-uc.img ]]; then
@@ -1244,8 +1242,8 @@ ls -1d /efi* | while read -r i; do
         --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${modules}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)" \
         --pubkey /etc/gentoo-installation/secureboot/gpg.pub \
         --output "${i}/EFI/boot/bootx64.efi" \
-        "boot/grub/grub.cfg=/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg" \
-        "boot/grub/grub.cfg.sig=/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg.sig" && \
+        boot/grub/grub.cfg=/etc/gentoo-installation/secureboot/efi.cfg \
+        boot/grub/grub.cfg.sig=/etc/gentoo-installation/secureboot/efi.cfg.sig && \
     sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "${i}/EFI/boot/bootx64.efi" "${i}/EFI/boot/bootx64.efi" && \
     efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${i/efi/devEfi}")")" --part 1 --label "gentoo314159265efi ${i#/}" --loader '\EFI\boot\bootx64.efi'
     echo $?
@@ -1277,10 +1275,7 @@ EOF
 In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
 
 ```bash
-ls -1d /efi* | while read -r i; do
-uuid="$(blkid -s UUID -o value "/devEfi${i#/efi}")"
-
-cat <<EOF > "/etc/gentoo-installation/secureboot/grub-initial_${i#/}.cfg"
+cat <<EOF > /etc/gentoo-installation/secureboot/efi.cfg
 # Enforce that all loaded files must have a valid signature.
 set check_signatures=enforce
 export check_signatures
@@ -1293,7 +1288,7 @@ password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO
 # NOTE: We export check_signatures/superusers so they are available in all
 # further contexts to ensure the password check is always enforced.
 
-search --no-floppy --fs-uuid --set=root ${uuid}
+search --no-floppy --fs-uuid --set=root $(blkid -s UUID -o value /mapperBoot)
 
 configfile /grub.cfg
 
@@ -1304,7 +1299,6 @@ echo Rebooting the system in 10 seconds.
 sleep 10
 reboot
 EOF
-done; echo $?
 ```
 
 Credits:
