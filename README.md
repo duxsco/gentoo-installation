@@ -29,9 +29,7 @@ ESPs each with their own EFI entry are created one for each disk. Except for ESP
 PC∕Laptop
 └── ∕dev∕sda
     ├── 1. EFI System Partition
-    ├── 2. LUKS
-    │   └── Btrfs (single)
-    │       └── boot
+    ├── 2. Boot partition
     ├── 3. LUKS
     │   └── Btrfs (single)
     │       └── rescue
@@ -53,10 +51,7 @@ PC∕Laptop
 PC∕Laptop──────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb
     ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
-    │   └── LUKS                       │   └── LUKS
-    │       └── Btrfs                  │       └── Btrfs
-    │           └── boot               │           └── boot
+    ├── 2. Boot partition              ├── 2. Boot partition
     ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs
@@ -80,10 +75,7 @@ PC∕Laptop───────────────────────
 PC∕Laptop──────────────────────────┬──────────────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc
     ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
-    │   └── LUKS                       │   └── LUKS                       │   └── LUKS
-    │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
-    │           └── boot               │           └── boot               │           └── boot
+    ├── 2. Boot partition              ├── 2. Boot partition              ├── 2. Boot partition
     ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
@@ -107,10 +99,7 @@ PC∕Laptop───────────────────────
 PC∕Laptop──────────────────────────┬──────────────────────────────────┬──────────────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc                       └── ∕dev∕sdd
     ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
-    │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
-    │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
-    │           └── boot               │           └── boot               │           └── boot               │           └── boot
+    ├── 2. Boot partition              ├── 2. Boot partition              ├── 2. Boot partition              ├── 2. Boot partition
     ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
