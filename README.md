@@ -862,7 +862,8 @@ fi
 ) && \
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge -at sys-fs/btrfs-progs $([[ -e /devSwapb ]] && echo -n "sys-fs/mdadm" || true) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
+emerge sys-kernel/linux-firmware && \
+emerge -at sys-fs/btrfs-progs $([[ -e /devSwapb ]] && echo -n "sys-fs/mdadm" || true) sys-kernel/gentoo-kernel-bin; echo $?
 ```
 
 ### Additional packages
