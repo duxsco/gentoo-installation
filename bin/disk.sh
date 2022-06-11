@@ -305,7 +305,11 @@ if ! mountpoint --quiet /mnt/gentoo/run; then
     mount --make-slave /mnt/gentoo/run
 fi
 
-cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+if [[ ! -d /run/systemd/resolve ]]; then
+    mkdir /run/systemd/resolve
+fi
+
+cp --dereference /etc/resolv.conf /run/systemd/resolve/resolv.conf
 
 chroot /mnt/gentoo /usr/bin/env chrooted=true bash
 EOF
