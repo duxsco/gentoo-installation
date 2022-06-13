@@ -187,7 +187,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r bin/{disk.sh,fetch_files.sh,firewall.nft,firewall.sh} root@XXX:/tmp/
+rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 {bin/{bashrc,disk.sh,fetch_files.sh,firewall.nft,firewall.sh},localrepo} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...
@@ -339,6 +339,7 @@ Extract stage3 tarball and copy `firewall.nft`:
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ && \
+rsync -a /tmp/{bashrc,localrepo} /mnt/gentoo/root/ && \
 mkdir -p /mnt/gentoo/etc/gentoo-installation; echo $?
 ```
 
@@ -1439,6 +1440,52 @@ sed -i "s/^SAVE_ON_STOP=\"yes\"$/SAVE_ON_STOP=\"no\"/" /etc/conf.d/._cfg0000_nft
 nft list ruleset > /var/lib/nftables/rules-save && \
 systemctl enable nftables-restore; echo $?
 '
+```
+
+### Clevis
+
+Install `app-crypt/clevis`:
+
+```bash
+emerge -1 app-eselect/eselect-repository && \
+eselect repository create localrepo && \
+rsync -a /root/localrepo /var/db/repos/ && \
+rm -rf /root/localrepo && \
+echo "app-crypt/clevis ~amd64
+dev-libs/jose ~amd64
+dev-libs/luksmeta ~amd64
+app-crypt/tpm2-tools ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge -at app-crypt/clevis
+```
+
+Make sure that the PCRs you are going to use have a valid hash and don't contain only zeroes:
+
+```bash
+tpm2_pcrread sha256
+```
+
+Bind LUKS volumes:
+
+```bash
+# Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
+# Further info can be found at:
+# https://wiki.archlinux.org/title/Trusted_Platform_Module#Accessing_PCR_registers
+clevis luks bind -d /dev/vda4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/vda5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
+```
+
+Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis and GnuPG auto-sign `/boot` files:
+
+```bash
+mv /root/bashrc /etc/portage/ && \
+chown u=rw,og=r /etc/portage/bashrc && \
+emerge sys-kernel/gentoo-kernel-bin
+```
+
+Remove extraneous packages (should be only `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
+
+```bash
+emerge --depclean -a
 ```
 
 ## Optional

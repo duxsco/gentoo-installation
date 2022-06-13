@@ -1,0 +1,50 @@
+if [[ ${EBUILD} =~ ^$(portageq get_repo_path / gentoo)/sys-kernel/gentoo-kernel-bin/gentoo-kernel-bin-[0-9]+\.[0-9]+\.[0-9]+\.ebuild$ ]]; then
+
+    if [[ ${EBUILD_PHASE} =~ ^(pretend|clean)$ ]]; then
+
+        function my_cowsay() {
+cat <<'EOF' >&2
+  ____________________________
+/ GnuPG signature verification \
+\ in /boot failed! Aborting... /
+  ----------------------------
+         \   ^__^
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+EOF
+            exit 1
+        }
+
+        function my_gpg_verify() {
+            while read -r file; do
+                if [[ -f ${file}.sig ]]; then
+                    if ! gpg --homedir /etc/gentoo-installation/gnupg --verify "${file}.sig" 2>/dev/null; then
+                        my_cowsay
+                    fi
+                else
+                    my_cowsay
+                fi
+            done < <(find /boot -maxdepth 1 -type f ! -name "*\.sig")
+        }
+    fi
+
+    if [[ ${EBUILD_PHASE} == pretend ]]; then
+        my_gpg_verify
+    elif [[ ${EBUILD_PHASE} == clean ]]; then
+        gentoo_kernel_bin_version="$(grep -Po "[0-9]+\.[0-9]+\.[0-9]+" <<<"${EBUILD}")"
+
+        if [[ -f /boot/vmlinuz-${gentoo_kernel_bin_version}-gentoo-dist ]]; then
+            mv "/boot/initramfs" "/boot/initramfs.old"
+
+            for file in System.map config initramfs vmlinuz; do
+                mv "/boot/${file}.sig" "/boot/${file}.old.sig"
+                mv "/boot/${file}-${gentoo_kernel_bin_version}-gentoo-dist"* "/boot/${file}"
+                gpg --homedir /etc/gentoo-installation/gnupg --detach-sign "/boot/${file}"
+            done
+
+            my_gpg_verify
+        fi
+    fi
+fi
