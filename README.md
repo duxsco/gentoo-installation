@@ -343,6 +343,7 @@ tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/ge
 ### Mounting
 
 ```bash
+mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
 mount --types proc /proc /mnt/gentoo/proc && \
 mount --rbind /sys /mnt/gentoo/sys && \
 mount --make-rslave /mnt/gentoo/sys && \
@@ -796,17 +797,17 @@ Set /etc/fstab:
 echo "" >> /etc/fstab && \
 
 (
-cat <<EOF | column -t >> /etc/fstab
+cat <<EOF | column -o " " -t >> /etc/fstab
 $(find /devEfi* -maxdepth 0 | while read -r i; do
-  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,noauto,dmask=0022,fmask=0133 0 0"
+  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,dmask=0022,fmask=0133 0 0"
 done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime,noauto                       0 0
-UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                                   0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root                 0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home                 0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs              0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles            0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds              0 0
+UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime                       0 0
+UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                            0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root          0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home          0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0
 EOF
 ) && \
 find /devEfi* -maxdepth 0 | while read -r i; do
