@@ -2,13 +2,13 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset alphabet boot_partition boot_password btrfs_raid disk disks index keyfile luks_device luks_device_name luks_device_uuid master_password partition pbkdf raid rescue_partition rescue_password swap_partition swap_size system_size
+unset alphabet boot_partition btrfs_raid disk disks fallback_password index luks_device luks_device_name luks_device_uuid luks_password partition raid rescue_partition rescue_password swap_partition swap_size system_size
 
 function help() {
 cat <<EOF
-${0##*\/} -b BootPassword -m MasterPassword -r RescuePassword -d "/dev/sda /dev/sdb /dev/sdc" -s SwapSizeInGibibyte
+${0##*\/} -f FallbackPassword -r RescuePassword -d "/dev/sda /dev/sdb /dev/sdc" -s SwapSizeInGibibyte
 OR
-${0##*\/} -b BootPassword -m MasterPassword -r RescuePassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/nvme2n1" -s SwapSizeInGibibyte
+${0##*\/} -f FallbackPassword -r RescuePassword -d "/dev/nvme0n1 /dev/nvme1n1 /dev/nvme2n1" -s SwapSizeInGibibyte
 
 "-d" specifies the disks you want to use for installation.
 They should be of the same type and size. Don't mix HDDs with SSDs!
@@ -21,7 +21,7 @@ This can be changed for "swap" partitions:
 
 Further optional flags:
 "-e": specifies EFI System Partition size in MiB (default and recommended minimum: 260 MiB).
-"-f": specifies /boot partition size in MiB (default: 512 MiB).
+"-b": specifies /boot partition size in MiB (default: 512 MiB).
 "-i": specifies SystemRescueCD partition size in MiB (default: 2048 MiB; recommended minimum: 1024 MiB)
 EOF
 }
@@ -52,16 +52,15 @@ boot_partition_size="512"
 rescue_partition_size="2048"
 
 # shellcheck disable=SC2207
-while getopts 56b:d:e:f:i:m:r:s:th opt; do
+while getopts 56b:d:e:f:i:r:s:th opt; do
     case $opt in
         5) setRaid 5;;
         6) setRaid 6;;
-        b) boot_password="$OPTARG";;
+        b) boot_partition_size="$OPTARG";;
         d) disks=( $(xargs <<<"$OPTARG" | tr ' ' '\n' | sort | xargs) );;
         e) efi_system_partition_size="$OPTARG";;
-        f) boot_partition_size="$OPTARG";;
+        f) fallback_password="$OPTARG";;
         i) rescue_partition_size="$OPTARG";;
-        m) master_password="$OPTARG";;
         r) rescue_password="$OPTARG";;
         s) swap_size="$((OPTARG * 1024))";;
         t) setRaid 10;;
@@ -75,7 +74,7 @@ if { [[ -n ${raid} ]] && [[ ${raid} -eq 5  ]] && [[ ${#disks[@]} -lt 3 ]]; } || 
    { [[ -n ${raid} ]] && [[ ${raid} -eq 6  ]] && [[ ${#disks[@]} -lt 4 ]]; } || \
    { [[ -n ${raid} ]] && [[ ${raid} -eq 10 ]] && [[ ${#disks[@]} -lt 4 ]]; } || \
    { [[ -n ${raid} ]] && [[ ${raid} -eq 10 ]] && [[ $((${#disks[@]}%2)) -ne 0 ]]; } || \
-   [[ -z ${boot_password} ]] || [[ ${#disks[@]} -eq 0 ]] || [[ -z ${master_password} ]] || \
+   [[ -z ${fallback_password} ]] || [[ ${#disks[@]} -eq 0 ]] || \
    [[ -z ${rescue_password} ]] || [[ -z ${swap_size} ]] || ! ls ${disks[@]} >/dev/null 2>&1; then
     help
     exit 1
@@ -87,10 +86,6 @@ case ${#disks[@]} in
     3) btrfs_raid="raid1c3";;
     *) btrfs_raid="raid1c4";;
 esac
-
-# create keyfile
-keyfile="$(umask 0377 && mktemp)"
-dd bs=512 count=16384 iflag=fullblock if=/dev/random of="${keyfile}"
 
 # partition
 for disk in "${disks[@]}"; do
@@ -125,25 +120,19 @@ else
 fi
 
 # encrypting boot, swap and system partitions
-pbkdf="--pbkdf pbkdf2"
 index=0
 # shellcheck disable=SC2046
 while read -r partition; do
-    if [[ ${index} -eq 2 ]]; then
-        unset pbkdf
-    fi
-    # shellcheck disable=SC2086
-    cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --key-file "${keyfile}" --use-random ${pbkdf:---pbkdf argon2id} "${partition}"
     if [[ ${index} -eq 0 ]]; then
-        # shellcheck disable=SC2086
-        echo -n "${rescue_password}" | cryptsetup luksAddKey --hash sha512 --key-file "${keyfile}" ${pbkdf:---pbkdf argon2id} "${partition}" -
+        luks_password="${rescue_password}"
     else
-        # shellcheck disable=SC2086
-        echo -n "${master_password}" | cryptsetup luksAddKey --hash sha512 --key-file "${keyfile}" ${pbkdf:---pbkdf argon2id} "${partition}" -
-        # shellcheck disable=SC2086
-        echo -n "${boot_password}"   | cryptsetup luksAddKey --hash sha512 --key-file "${keyfile}" ${pbkdf:---pbkdf argon2id} "${partition}" -
+        luks_password"${fallback_password}"
     fi
-    cryptsetup luksOpen --key-file "${keyfile}" "${partition}" "${partition##*\/}"
+
+    # shellcheck disable=SC2086
+    echo -n "${luks_password}" | cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --use-random --pbkdf argon2id "${partition}"
+    echo -n "${luks_password}" | cryptsetup luksOpen "${partition}" "${partition##*\/}"
+
     index=$((index+1))
 done < <(find "${rescue_partition}" $(getPartitions 4) $(getPartitions 5))
 
@@ -191,11 +180,6 @@ btrfs subvolume create /mnt/gentoo/@root; sync
 umount /mnt/gentoo
 # shellcheck disable=SC2046
 mount -o noatime,subvol=@root $(getMapperPartitions 5 | awk '{print $1}') /mnt/gentoo
-mkdir -p /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key
-rsync -a "${keyfile}" /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key/key
-sync
-cmp "${keyfile}" /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key/key
-rm -f "${keyfile}"
 
 useradd -m -s /bin/bash meh
 chown meh: /mnt/gentoo /tmp/fetch_files.sh

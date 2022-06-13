@@ -254,7 +254,7 @@ bash /tmp/disk.sh -h
 set +o history
 
 # adjust to your liking
-bash /tmp/disk.sh -b bootbootboot -m mastermaster -r rescuerescue -d "/dev/sda /dev/sdb etc." -s 12
+bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d "/dev/sda /dev/sdb etc." -s 12
 
 # enable bash history
 set -o history
@@ -272,12 +272,6 @@ Result of a single disk setup:
 ├── devRescue -> /dev/sda3
 ├── devSwapa -> /dev/sda4
 ├── devSystema -> /dev/sda5
-├── etc
-│   └── gentoo-installation
-│       └── keyfile
-│           └── mnt
-│               └── key
-│                   └── key
 ├── mapperBoot -> /dev/sda2
 ├── mapperRescue -> /dev/mapper/sda3
 ├── mapperSwap -> /dev/mapper/sda4
@@ -287,7 +281,7 @@ Result of a single disk setup:
 ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
 └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-5 directories, 14 files
+0 directories, 13 files
 ```
 
 ... and four disk setup:
@@ -312,12 +306,6 @@ Result of a single disk setup:
 ├── devSystemb -> /dev/sdb5
 ├── devSystemc -> /dev/sdc5
 ├── devSystemd -> /dev/sdd5
-├── etc
-│   └── gentoo-installation
-│       └── keyfile
-│           └── mnt
-│               └── key
-│                   └── key
 ├── mapperBoot -> /dev/sda2
 ├── mapperRescue -> /dev/mapper/md0
 ├── mapperSwap -> /dev/md1
@@ -327,7 +315,7 @@ Result of a single disk setup:
 ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
 └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-5 directories, 26 files
+0 directories, 25 files
 ```
 
 ### Extracting tarballs
