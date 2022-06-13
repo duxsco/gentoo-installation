@@ -1,25 +1,24 @@
 # Gentoo Linux installation
 
-> ⚠ This installation guide was primarily written for my own use, so I don't have to reinvent the wheel over and over again. **Thus, don't blindly copy&paste the commands! Understand what you are going to do and adjust commands if required!** I point this out, even though it should go without saying... ⚠
+> ⚠ This installation guide was primarily written for my personal use to avoid reinventing the wheel over and over. **Thus, don't blindly copy&paste the commands! Understand what you are going to do and adjust commands if required!** I point this out, even though it should go without saying... ⚠
 
-> ⚠ The installation guide builds heavily on `Secure Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
+> ⚠ The installation guide builds heavily on `Secure Boot` and requires TPM 2.0 for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
 
-The following installation guide results in a **fully encrypted** (except ESP), **Secure Boot signed** (EFI binary/binaries) **and GnuPG signed** (kernel, initramfs, microcode etc.) **system** with heavy use of **RAID** (mdadm and BTRFS based) and support for **LUKS unlock**:
-- **Locally:** One-time password entry and automatic decryption of (multiple) LUKS `system` and `swap` partitions in further boot process via LUKS keyfile stored in initramfs which itself is stored on LUKS encrypted partition(s)
-- **Remote:** SSH login into initramfs+dropbear system, manual decryption of LUKS partitions and resumption of Gentoo Linux boot
-- After boot into **rescue system** based upon a **customised SystemRescueCD**. It provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
+The following installation guide results in a system that is/uses:
+- **Secure Boot**: EFI binary/binaries in ESPs are Secure Boot signed
+- **Measured Boot**: All files in `/boot`, grub.cfg, initramfs, kernel etc., are GnuPG signed. Furthermore, [clevis](https://github.com/latchset/clevis) is used to automatically decrypt LUKS volumes via [TPM2](https://github.com/latchset/clevis#pin-tpm2) or [Tang](https://github.com/latchset/clevis#pin-tang) pin. Both realise `Measured Boot`.
+- **Fully encrypted**: Except ESPs and `/boot`, all partitions are LUKS encrypted
+- **RAID**: mdadm and BTRFS based RAID are used wherever it makes sense if the number of disks is >= 2
+- **Rescue system** based on a **customised SystemRescueCD** that provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
 
 After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
 
 - Gentoo Linux system: `ssh -p 50022 david@<IP address>`
-- Initramfs system to LUKS unlock remotely ([link](#remote-unlock)): `ssh -p 50023 root@<IP address>`
-- Customised SystemRescueCD system: `ssh -p 50024 root@<IP address>`
+- Rescue system: `ssh -p 50023 root@<IP address>`
 
-All three boot options are available in GRUB's boot menu.
+Both boot options are available in GRUB's boot menu.
 
 ## Disk layout
-
-The installation steps make use of LUKS encryption wherever possible. Only the EFI System Partitions (ESP) are not encrypted, but the EFI binaries are Secure Boot signed. Other files, required for booting (e.g. kernel, initramfs), are GnuPG signed. The signatures are verified upon boot, and bootup aborts if verification fails.
 
 ESPs each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
@@ -29,7 +28,8 @@ ESPs each with their own EFI entry are created one for each disk. Except for ESP
 PC∕Laptop
 └── ∕dev∕sda
     ├── 1. EFI System Partition
-    ├── 2. Boot partition
+    ├── 2. Btrfs (single)
+    │   └── /boot
     ├── 3. LUKS
     │   └── Btrfs (single)
     │       └── rescue
@@ -51,7 +51,8 @@ PC∕Laptop
 PC∕Laptop──────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb
     ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. Boot partition              ├── 2. Boot partition
+    ├── 2. Btrfs raid1                 ├── 2. Btrfs raid1
+    │   └── /boot                      │   └── /boot
     ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs
@@ -75,7 +76,8 @@ PC∕Laptop───────────────────────
 PC∕Laptop──────────────────────────┬──────────────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc
     ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. Boot partition              ├── 2. Boot partition              ├── 2. Boot partition
+    ├── 2. Btrfs raid1c3               ├── 2. Btrfs raid1c3               ├── 2. Btrfs raid1c3
+    │   └── /boot                      │   └── /boot                      │   └── /boot
     ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
@@ -99,7 +101,8 @@ PC∕Laptop───────────────────────
 PC∕Laptop──────────────────────────┬──────────────────────────────────┬──────────────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc                       └── ∕dev∕sdd
     ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. Boot partition              ├── 2. Boot partition              ├── 2. Boot partition              ├── 2. Boot partition
+    ├── 2. Btrfs raid1c4               ├── 2. Btrfs raid1c4               ├── 2. Btrfs raid1c4               ├── 2. Btrfs raid1c4
+    │   └── /boot                      │   └── /boot                      │   └── /boot                      │   └── /boot
     ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
@@ -119,17 +122,12 @@ PC∕Laptop───────────────────────
 
 - More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
 
-On LUKS encrypted disks except for the `rescue` partition where the SystemRescueCD files are located, LUKS passphrase slots are set as follows:
-  - 0: Keyfile (stored in initramfs to unlock `system` and `swap` partitions without interaction)
-  - 1: Master password (fallback password for emergency)
-  - 2: Boot password
-    - shorter than "master", but still secure
-    - keyboard layout independent (QWERTY vs QWERTZ)
-    - used during boot to unlock `boot` partition via GRUB's password prompt
+On the `rescue` partition, LUKS key slots are set as follows:
+  - 0: Rescue password
 
-On the `rescue` partition, LUKS passphrase slots are set as follows:
-  - 0: Keyfile
-  - 1: Rescue password
+On all other LUKS volumes, LUKS key slots are set as follows:
+  - 0: Fallback password for emergency
+  - 1: TPM 2.0 or Tang pin to automatically unlock with Clevis
 
 The following steps are basically those in [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation) with some customisations added.
 
@@ -429,7 +427,7 @@ rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd
 
 # do some ssh server hardening
 sed -i \
--e 's/^#Port 22$/Port 50024/' \
+-e 's/^#Port 22$/Port 50023/' \
 -e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
 -e 's/^#X11Forwarding no$/X11Forwarding no/' /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 
@@ -1041,7 +1039,7 @@ Create GnuPG homedir:
 mkdir --mode=0700 /etc/gentoo-installation/gnupg
 ```
 
-Create a GnuPG keypair with `gpg --full-gen-key`, e.g.:
+Create a GnuPG keypair with `gpg --full-gen-key`. I personally don't set a passphrase for the keypair to allow for `sys-kernel/gentoo-kernel-bin` installation without getting prompted for the passphrase.
 
 ```bash
 ➤ gpg --homedir /etc/gentoo-installation/gnupg --full-gen-key
@@ -1384,6 +1382,8 @@ reboot
 ```
 
 ## Post-boot configuration
+
+### Systemd
 
 Some configuration needs to be done after systemd has been started.
 
