@@ -756,12 +756,6 @@ echo "sys-apps/systemd cryptsetup" >> /etc/portage/package.use/main && \
 emerge -atuDN @world
 ```
 
-Remove extraneous packages (should be only `app-misc/yq` and `app-portage/cpuid2cpuflags`):
-
-```bash
-emerge --depclean -a
-```
-
 ### Non-root user
 
 Create a non-root user and set a password you can use with English keyboard layout for now. The keyboard layout will be changed in a later section after reboot.
