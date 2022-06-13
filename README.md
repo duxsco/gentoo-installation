@@ -1270,6 +1270,12 @@ rescue_uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
 system_uuid="$(blkid -s UUID -o value /mapperSystem)"
 my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
 my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
+if [[ -f /boot/intel-uc.img ]]; then
+    my_microcode="/intel-uc.img "
+else
+    my_microcode=""
+fi
+
 
 cat <<EOF > /etc/gentoo-installation/secureboot/grub.cfg
 set default=0
@@ -1279,14 +1285,14 @@ menuentry 'Gentoo GNU/Linux' --unrestricted {
     echo 'Loading Linux ...'
     linux /vmlinuz ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
     echo 'Loading initial ramdisk ...'
-    initrd /initramfs.img
+    initrd ${my_microcode}/initramfs
 }
 
 menuentry 'Gentoo GNU/Linux (old)' --unrestricted {
     echo 'Loading Linux (old) ...'
-    linux /vmlinuz-old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
+    linux /vmlinuz.old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
     echo 'Loading initial ramdisk ...'
-    initrd /initramfs-old.img
+    initrd ${my_microcode}/initramfs.old
 }
 
 menuentry 'SystemRescueCD' {
@@ -1305,6 +1311,7 @@ Copy `grub.cfg` and GnuPG sign files in `/boot`:
 
 ```bash
 rsync -av /etc/gentoo-installation/secureboot/grub.cfg /boot/ && \
+while read -r file; do mv "${file}" "$(cut -d "-" -f1 <<<"${file}")"; done < <(find /boot -type f -name "*dist*") && \
 find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
 ```
 
@@ -1315,16 +1322,16 @@ Result on a dual disk system:
 ```bash
 ➤ tree -a /boot /efia
 /boot
-├── config-5.15.46-gentoo-dist
-├── config-5.15.46-gentoo-dist.sig
+├── config
+├── config.sig
 ├── grub.cfg
 ├── grub.cfg.sig
-├── initramfs-5.15.46-gentoo-dist.img
-├── initramfs-5.15.46-gentoo-dist.img.sig
-├── System.map-5.15.46-gentoo-dist
-├── System.map-5.15.46-gentoo-dist.sig
-├── vmlinuz-5.15.46-gentoo-dist
-└── vmlinuz-5.15.46-gentoo-dist.sig
+├── initramfs
+├── initramfs.sig
+├── System.map
+├── System.map.sig
+├── vmlinuz
+└── vmlinuz.sig
 /efia
 └── EFI
     └── boot
