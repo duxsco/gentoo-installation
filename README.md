@@ -1057,10 +1057,10 @@ uid           [ultimate] grubEfi
 Export your GnuPG public key and sign "grub-initial_efi*.cfg" (copy&paste one after the other):
 
 ```bash
-mkdir --mode=0700 /etc/gentoo-installation/secureboot
+mkdir --mode=0700 /etc/gentoo-installation/boot
 
 # Export public key
-gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export > /etc/gentoo-installation/secureboot/gpg.pub
+gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export > /etc/gentoo-installation/boot/gpg.pub
 
 # If signature creation fails...
 GPG_TTY="$(tty)"
@@ -1104,6 +1104,7 @@ emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
 Create Secure Boot keys and certificates:
 
 ```bash
+mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
 pushd /etc/gentoo-installation/secureboot && \
 
 # Create the keys
@@ -1154,7 +1155,7 @@ emerge -at sys-boot/grub; echo $?
 In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
 
 ```bash
-cat <<EOF > /etc/gentoo-installation/secureboot/efi.cfg
+cat <<EOF > /etc/gentoo-installation/boot/efi.cfg
 # Enforce that all loaded files must have a valid signature.
 set check_signatures=enforce
 export check_signatures
@@ -1183,7 +1184,7 @@ EOF
 Sign `efi.cfg`:
 
 ```bash
-gpg --homedir /etc/gentoo-installation/gnupg --detach-sign /etc/gentoo-installation/secureboot/efi.cfg
+gpg --homedir /etc/gentoo-installation/gnupg --detach-sign /etc/gentoo-installation/boot/efi.cfg
 ```
 
 Create the EFI binary/ies and Secure Boot sign them:
@@ -1211,10 +1212,10 @@ ls -1d /efi* | while read -r i; do
         --disable-shim-lock \
         --format x86_64-efi \
         --modules "$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' <<<"${modules}" | sort -u | grep -v "^$" | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)" \
-        --pubkey /etc/gentoo-installation/secureboot/gpg.pub \
+        --pubkey /etc/gentoo-installation/boot/gpg.pub \
         --output "${i}/EFI/boot/bootx64.efi" \
-        boot/grub/grub.cfg=/etc/gentoo-installation/secureboot/efi.cfg \
-        boot/grub/grub.cfg.sig=/etc/gentoo-installation/secureboot/efi.cfg.sig && \
+        boot/grub/grub.cfg=/etc/gentoo-installation/boot/efi.cfg \
+        boot/grub/grub.cfg.sig=/etc/gentoo-installation/boot/efi.cfg.sig && \
     sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "${i}/EFI/boot/bootx64.efi" "${i}/EFI/boot/bootx64.efi" && \
     efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${i/efi/devEfi}")")" --part 1 --label "gentoo314159265efi ${i#/}" --loader '\EFI\boot\bootx64.efi'
     echo $?
@@ -1234,7 +1235,7 @@ else
     my_microcode=""
 fi
 
-cat <<EOF > /etc/gentoo-installation/secureboot/grub.cfg
+cat <<EOF > /etc/gentoo-installation/boot/grub.cfg
 set default=0
 set timeout=5
 
@@ -1267,7 +1268,7 @@ EOF
 Copy `grub.cfg` and GnuPG sign files in `/boot`:
 
 ```bash
-rsync -av /etc/gentoo-installation/secureboot/grub.cfg /boot/ && \
+rsync -av /etc/gentoo-installation/boot/grub.cfg /boot/ && \
 while read -r file; do mv "${file}" "$(cut -d "-" -f1 <<<"${file}")"; done < <(find /boot -type f -name "*dist*") && \
 find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
 ```
