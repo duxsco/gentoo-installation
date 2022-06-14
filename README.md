@@ -5,10 +5,10 @@
 > ⚠ The installation guide builds heavily on `Secure Boot` and requires TPM 2.0 for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
 
 The following installation guide results in a system that is/uses:
-- **Secure Boot**: EFI binary/binaries in ESPs are Secure Boot signed
-- **Measured Boot**: All files in `/boot`, grub.cfg, initramfs, kernel etc., are GnuPG signed. Furthermore, [clevis](https://github.com/latchset/clevis) is used to automatically decrypt LUKS volumes via [TPM2](https://github.com/latchset/clevis#pin-tpm2) or [Tang](https://github.com/latchset/clevis#pin-tang) pin. Both realise `Measured Boot`.
-- **Fully encrypted**: Except ESPs and `/boot`, all partitions are LUKS encrypted
-- **RAID**: mdadm and BTRFS based RAID are used wherever it makes sense if the number of disks is >= 2
+- **Secure Boot**: EFI binary/binaries in ESP(s) are Secure Boot signed.
+- **Measured Boot**: All files in `/boot`, e.g. grub.cfg, initramfs, kernel, are GnuPG signed. Furthermore, [clevis](https://github.com/latchset/clevis) is used to automatically decrypt LUKS volumes via [TPM2](https://github.com/latchset/clevis#pin-tpm2) or [Tang](https://github.com/latchset/clevis#pin-tang) pin. Both realise `Measured Boot`.
+- **Fully encrypted**: Except ESP(s) and `/boot`, all partitions are LUKS encrypted.
+- **RAID**: mdadm and BTRFS based RAID are used wherever it makes sense if the number of disks is >= 2.
 - **Rescue system** based on a **customised SystemRescueCD** that provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
 
 After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
@@ -370,40 +370,37 @@ Prepare working directory:
 
 ```bash
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
-chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd
+chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 ```
 
 Import Gnupg public key:
 
 ```bash
-(
-su -l meh -c "umask 0077 && mkdir /tmp/gpgHomeDir"
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import"
-) && (
-su -l meh -c "echo \"62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:\" | gpg --homedir /tmp/gpgHomeDir --import-ownertrust"
-) && \
+su -l meh -c "
+mkdir --mode=0700 /tmp/gpgHomeDir && \
+curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import && \
+gpg --homedir /tmp/gpgHomeDir --import-ownertrust <<<'62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:' && \
 gpgconf --homedir /tmp/gpgHomeDir --kill all; echo $?
+"
 ```
 
 Download .iso and .asc file:
 
 ```bash
-rescue_system_version="$(su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && (
-su -l meh -c "curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso/download?use_mirror=netcologne\""
-) && (
-su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso.asc\""
-); echo $?
+rescue_system_version="$(su -l meh -c "curl -fsSL --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && \
+su -l meh -c "
+curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso/download?use_mirror=netcologne\" && \
+curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso.asc\"
+"; echo $?
 ```
 
 Verify the .iso file:
 
 ```bash
-(
-su -l meh -c "gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso"
-) && (
-su -l meh -c "gpgconf --homedir /tmp/gpgHomeDir --kill all"
-) && \
+su -l meh -c "
+gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso && \
+gpgconf --homedir /tmp/gpgHomeDir --kill all
+" && \
 chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 ```
 
@@ -432,17 +429,13 @@ sed -i \
 -e 's/^#X11Forwarding no$/X11Forwarding no/' /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 
 grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  && \
-(
-cat <<EOF >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
-
+echo "
 AuthenticationMethods publickey
 
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
-EOF
-) && \
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com" >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 # create ssh_host_* files in build_into_srm/etc/ssh/
 ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm && \
 diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
@@ -569,7 +562,7 @@ Set resolv.conf:
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 ```
 
-Set aliases:
+Set `.bashrc` etc.:
 
 ```bash
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
@@ -598,19 +591,12 @@ EOF
 Set locale:
 
 ```bash
-(
-cat <<EOF > /mnt/gentoo/etc/locale.gen
-C.UTF-8 UTF-8
+echo "C.UTF-8 UTF-8
 de_DE.UTF-8 UTF-8
-en_US.UTF-8 UTF-8
-EOF
-) && (
-cat <<EOF > /mnt/gentoo/etc/env.d/02locale
-LANG="de_DE.UTF-8"
+en_US.UTF-8 UTF-8" > /mnt/gentoo/etc/locale.gen && \
+echo 'LANG="de_DE.UTF-8"
 LC_COLLATE="C.UTF-8"
-LC_MESSAGES="en_US.UTF-8"
-EOF
-) && \
+LC_MESSAGES="en_US.UTF-8"' > /mnt/gentoo/etc/env.d/02locale && \
 chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen"; echo $?
 ```
 
@@ -657,7 +643,7 @@ Install to be able to configure `/etc/portage/make.conf`:
 ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags
 ```
 
-Configure make.conf (copy&paste one after the other):
+Configure portage (copy&paste one after the other):
 
 ```bash
 rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
@@ -678,15 +664,12 @@ GENTOO_MIRRORS="https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp
 FETCHCOMMAND="curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
 RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"
 
-EOF
-
-cpuid2cpuflags | sed -e 's/: /="/' -e 's/$/"/' >> /etc/portage/._cfg0000_make.conf
-
-cat <<'EOF' >> /etc/portage/._cfg0000_make.conf
 USE_HARDENED="pie -sslv3 -suid verify-sig"
-USE="${CPU_FLAGS_X86} ${USE_HARDENED} fish-completion"
+USE="${USE_HARDENED} fish-completion"
 
 EOF
+
+echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
 ```
 
 (Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf` (copy&paste one after the other):
@@ -792,10 +775,8 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 Set /etc/fstab:
 
 ```bash
-echo "" >> /etc/fstab && \
-
-(
-cat <<EOF | column -o " " -t >> /etc/fstab
+echo "" >> /etc/fstab
+echo "
 $(find /devEfi* -maxdepth 0 | while read -r i; do
   echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,dmask=0022,fmask=0133 0 0"
 done)
@@ -805,14 +786,11 @@ UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,
 UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home          0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0
-EOF
-) && \
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0" | column -o " " -t >> /etc/fstab && \
 find /devEfi* -maxdepth 0 | while read -r i; do
   mkdir "${i/devE/e}"
   mount "${i/devE/e}"
-done
-echo $?
+done; echo $?
 ```
 
 ### Kernel installation
@@ -820,14 +798,11 @@ echo $?
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
 ```bash
-install_lts_kernel="true" && (
-cat <<EOF >> /etc/portage/package.accept_keywords/main
-sys-fs/btrfs-progs ~amd64
+install_lts_kernel="true" && \
+echo "sys-fs/btrfs-progs ~amd64
 sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/linux-headers ~amd64
-virtual/dist-kernel ~amd64
-EOF
-) && (
+virtual/dist-kernel ~amd64" >> /etc/portage/package.accept_keywords/main && \
 if [[ ${install_lts_kernel} == true ]]; then
 cat <<EOF >> /etc/portage/package.mask/main
 >=sys-fs/btrfs-progs-5.16
@@ -835,12 +810,11 @@ cat <<EOF >> /etc/portage/package.mask/main
 >=sys-kernel/linux-headers-5.16
 >=virtual/dist-kernel-5.16
 EOF
-fi
-) && \
+fi && \
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
 emerge sys-kernel/linux-firmware && \
-emerge -at sys-fs/btrfs-progs $([[ -e /devSwapb ]] && echo -n "sys-fs/mdadm" || true) sys-kernel/gentoo-kernel-bin; echo $?
+emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/gentoo-kernel-bin; echo $?
 ```
 
 ### Additional packages
@@ -890,9 +864,8 @@ EOF
 ```bash
 echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
 echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge app-shells/fish && (
-cat <<'EOF' >> /root/.bashrc
-
+emerge app-shells/fish && \
+echo '
 # Use fish in place of bash
 # keep this line at the bottom of ~/.bashrc
 if [[ -z ${chrooted} ]]; then
@@ -904,18 +877,13 @@ elif [[ -z ${chrooted_su} ]]; then
     source /etc/profile && su --login --whitelist-environment=chrooted,chrooted_su
 else
     env-update && source /etc/profile && export PS1="(chroot) $PS1"
-fi
-EOF
-) && (
-cat <<'EOF' >> /home/david/.bashrc
-
+fi' >> /root/.bashrc && \
+echo '
 # Use fish in place of bash
 # keep this line at the bottom of ~/.bashrc
 if [[ -x /bin/fish ]]; then
     SHELL=/bin/fish exec /bin/fish
-fi
-EOF
-); echo $?
+fi' >> /home/david/.bashrc; echo $?
 ```
 
 `root` setup:
@@ -974,9 +942,7 @@ sed -i \
 -e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
 -e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config && \
 grep -q "^PasswordAuthentication no$" /etc/ssh/._cfg0000_sshd_config && \
-(
-cat <<EOF >> /etc/ssh/._cfg0000_sshd_config
-
+echo "
 AuthenticationMethods publickey
 
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
@@ -984,9 +950,7 @@ HostKeyAlgorithms ssh-ed25519
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 
-AllowUsers david
-EOF
-) && \
+AllowUsers david" >> /etc/ssh/._cfg0000_sshd_config && \
 ssh-keygen -A && \
 sshd -t; echo $?
 ```
@@ -1000,18 +964,14 @@ find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 Setup client SSH config:
 
 ```bash
-(
-cat <<EOF > /home/david/.ssh/config
-AddKeysToAgent no
+echo "AddKeysToAgent no
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 HashKnownHosts no
 StrictHostKeyChecking ask
-VisualHostKey yes
-EOF
-) && \
+VisualHostKey yes" > /home/david/.ssh/config && \
 chown david:david /home/david/.ssh/config; echo $?
 ```
 
@@ -1274,7 +1234,6 @@ else
     my_microcode=""
 fi
 
-
 cat <<EOF > /etc/gentoo-installation/secureboot/grub.cfg
 set default=0
 set timeout=5
@@ -1315,10 +1274,10 @@ find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-s
 
 ### /boot and /efi* layout
 
-Result on a dual disk system:
+Result on a single disk system:
 
 ```bash
-➤ tree -a /boot /efia
+➤ tree -a /boot /efia*
 /boot
 ├── config
 ├── config.sig
@@ -1366,7 +1325,7 @@ systemctl --no-reload enable systemd-resolved.service
   - stage3 and dev* files:
 
 ```bash
-rm -fv /stage3-* /portage-latest.tar.xz* /devBoot /devEfi* /devRescue /devSystem* /devSwap* /mapperBoot /mapperRescue /mapperSwap /mapperSystem; echo $?
+rm -fv /stage3-* /portage-latest.tar.xz* /devBoot* /devEfi* /devRescue /devSystem* /devSwap* /mapperBoot /mapperRescue /mapperSwap /mapperSystem; echo $?
 ```
 
   - exit and reboot (copy&paste one after the other):
@@ -1439,6 +1398,7 @@ Install `app-crypt/clevis`:
 ```bash
 emerge -1 app-eselect/eselect-repository && \
 eselect repository create localrepo && \
+sed -i '/^location[[:space:]]*=[[:space:]]*\/var\/db\/repos\/localrepo$/a auto-sync = false' /etc/portage/repos.conf/eselect-repo.conf && \
 rsync -a /root/localrepo /var/db/repos/ && \
 rm -rf /root/localrepo && \
 echo "app-crypt/clevis ~amd64
@@ -1468,11 +1428,11 @@ Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and rein
 
 ```bash
 mv /root/bashrc /etc/portage/ && \
-chown u=rw,og=r /etc/portage/bashrc && \
+chmod u=rw,og=r /etc/portage/bashrc && \
 emerge sys-kernel/gentoo-kernel-bin
 ```
 
-Remove extraneous packages (should be only `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
+Remove extraneous packages (should be only `app-editors/nano`, `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
 ```bash
 emerge --depclean -a
