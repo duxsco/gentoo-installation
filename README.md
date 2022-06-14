@@ -1421,8 +1421,23 @@ Bind LUKS volumes:
 # Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
 # Further info can be found at:
 # https://wiki.archlinux.org/title/Trusted_Platform_Module#Accessing_PCR_registers
-clevis luks bind -d /dev/vda4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
-clevis luks bind -d /dev/vda5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/sda4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/sda5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/sdb4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/sdb5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
+# etc.
+```
+
+Show results:
+
+```bash
+clevis luks list -d /dev/sda4
+clevis luks list -d /dev/sda5
+clevis luks list -d /dev/sdb4
+clevis luks list -d /dev/sdb5
+# etc.
+# Sample output:
+# 1: tpm2 '{"hash":"sha256","key":"ecc","pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 ```
 
 Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis and GnuPG auto-sign `/boot` files:
@@ -1432,6 +1447,35 @@ mv /root/bashrc /etc/portage/ && \
 chmod u=rw,og=r /etc/portage/bashrc && \
 emerge sys-kernel/gentoo-kernel-bin
 ```
+
+Make sure you have:
+
+```bash
+❯ ls -la /boot/
+total 125628
+drwx------ 1 root root      424 14. Jun 23:39 ./
+drwxr-xr-x 1 root root      140 14. Jun 23:13 ../
+-rw-r--r-- 1 root root  5822827 14. Jun 23:39 System.map
+-rw-r--r-- 1 root root  5822827 14. Jun 22:35 System.map.old
+-rw-r--r-- 1 root root      438 14. Jun 23:12 System.map.old.sig
+-rw-r--r-- 1 root root      438 14. Jun 23:39 System.map.sig
+-rw-r--r-- 1 root root   235283 14. Jun 23:39 config
+-rw-r--r-- 1 root root   235283 14. Jun 22:35 config.old
+-rw-r--r-- 1 root root      438 14. Jun 23:12 config.old.sig
+-rw-r--r-- 1 root root      438 14. Jun 23:39 config.sig
+-rw-r--r-- 1 root root     1390 14. Jun 23:11 grub.cfg
+-rw-r--r-- 1 root root      438 14. Jun 23:12 grub.cfg.sig
+-rw-r--r-- 1 root root 58616905 14. Jun 23:39 initramfs
+-rw-r--r-- 1 root root 36435427 14. Jun 22:35 initramfs.old
+-rw-r--r-- 1 root root      438 14. Jun 23:12 initramfs.old.sig
+-rw-r--r-- 1 root root      438 14. Jun 23:39 initramfs.sig
+-rw-r--r-- 1 root root 10698848 14. Jun 23:39 vmlinuz
+-rw-r--r-- 1 root root 10698848 14. Jun 22:35 vmlinuz.old
+-rw-r--r-- 1 root root      438 14. Jun 23:12 vmlinuz.old.sig
+-rw-r--r-- 1 root root      438 14. Jun 23:39 vmlinuz.sig
+```
+
+`.old` and `.old.sig` files are those of the initial package installation within chroot. `initramfs.old` doesn't have clevis integrated.
 
 Remove extraneous packages (should be only `app-editors/nano`, `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
