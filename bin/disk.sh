@@ -126,7 +126,7 @@ while read -r partition; do
     if [[ ${index} -eq 0 ]]; then
         luks_password="${rescue_password}"
     else
-        luks_password"${fallback_password}"
+        luks_password="${fallback_password}"
     fi
 
     # shellcheck disable=SC2086
