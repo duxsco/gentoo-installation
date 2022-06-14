@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset alphabet boot_partition btrfs_raid disk disks fallback_password index luks_device luks_device_name luks_device_uuid luks_password partition raid rescue_partition rescue_password swap_partition swap_size system_size
+unset alphabet boot_partition btrfs_raid disk disks fallback_password index luks_device luks_device_name luks_device_uuid luks_password partition pbkdf raid rescue_partition rescue_password swap_partition swap_size system_size
 
 function help() {
 cat <<EOF
@@ -127,10 +127,11 @@ while read -r partition; do
         luks_password="${rescue_password}"
     else
         luks_password="${fallback_password}"
+        pbkdf="--pbkdf argon2id"
     fi
 
     # shellcheck disable=SC2086
-    echo -n "${luks_password}" | cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --use-random --pbkdf argon2id "${partition}"
+    echo -n "${luks_password}" | cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --use-random ${pbkdf:---pbkdf pbkdf2} "${partition}"
     echo -n "${luks_password}" | cryptsetup luksOpen "${partition}" "${partition##*\/}"
 
     index=$((index+1))
