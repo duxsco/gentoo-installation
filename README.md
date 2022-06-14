@@ -403,7 +403,7 @@ chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 Create folder structure and `authorized_keys` file (copy&paste one after the other):
 
 ```bash
-mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh,usr/local/sbin}},work}
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh,usr/local/sbin}},work}
 
 # add your ssh public keys to
 # /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
@@ -497,6 +497,13 @@ Write down fingerprints to double check upon initial SSH connection to the Syste
 find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
+Integrate additional packages:
+
+```bash
+pacman -Sy clevis tpm2-tools && \
+cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm; echo $?
+```
+
 Result:
 
 ```bash
@@ -526,12 +533,14 @@ Result:
 ├── iso_add
 │   ├── autorun
 │   │   └── autorun
+│   ├── sysresccd
+│   │   └── zz_additional_packages.srm
 │   └── sysrescue.d
 │       └── 500-settings.yaml
 ├── iso_delete
 └── iso_patch_and_script
 
-14 directories, 14 files
+15 directories, 15 files
 ```
 
 Create customised ISO:
@@ -1254,7 +1263,7 @@ menuentry 'SystemRescueCD' {
     set root='cryptouuid/${rescue_uuid}'
     search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${rescue_uuid}' $(blkid -s UUID -o value /mapperRescue)
     echo   'Loading Linux kernel ...'
-    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue3141592653fs noautologin
+    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue3141592653fs noautologin loadsrm=y
     echo   'Loading initramfs ...'
     initrd /sysresccd/boot/x86_64/sysresccd.img
 }
