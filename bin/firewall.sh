@@ -46,5 +46,5 @@ ip6tables -A INPUT   -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 ip6tables -A INPUT -i lo -j ACCEPT
 
-iptables  -A INPUT -p tcp --dport 50024 -j ACCEPT
-ip6tables -A INPUT -p tcp --dport 50024 -j ACCEPT
+iptables  -A INPUT -p tcp --dport 50023 -j ACCEPT
+ip6tables -A INPUT -p tcp --dport 50023 -j ACCEPT
