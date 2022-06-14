@@ -163,10 +163,6 @@ ip a add ...
 ip r add default ...
 echo nameserver ... > /etc/resolv.conf
 
-# Make sure you have enough entropy for cryptsetup's "--use-random"
-pacman -Sy rng-tools
-systemctl start rngd
-
 # Insert iptables rules at correct place for SystemRescueCD to accept SSH clients.
 # Verify with "iptables -L -v -n"
 iptables -I INPUT 4 -p tcp --dport 22 -j ACCEPT -m conntrack --ctstate NEW
