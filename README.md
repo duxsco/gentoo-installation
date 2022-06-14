@@ -757,8 +757,8 @@ Setup vim:
 
 ```bash
 USE="-verify-sig" emerge -1 dev-libs/libsodium && \
-emerge -1 dev-libs/libsodium && \
-emerge app-editors/vim && \
+emerge -1 dev-libs/libsodium app-editors/vim && \
+emerge --select --noreplace app-editors/vim && \
 echo "filetype plugin on
 filetype indent on
 set number
@@ -814,7 +814,7 @@ fi && \
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
 emerge sys-kernel/linux-firmware && \
-emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/gentoo-kernel-bin; echo $?
+emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 ```
 
 ### Additional packages
