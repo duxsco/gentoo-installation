@@ -146,10 +146,10 @@ done < <(find $(getPartitions 1))
 
 # boot partition
 # shellcheck disable=SC2086
-mkfs.btrfs --data "${btrfs_raid}" --metadata "${btrfs_raid}" --checksum blake2 --label boot3141592653fs ${boot_partition}
+mkfs.btrfs --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label boot3141592653fs ${boot_partition}
 
 # rescue partition
-mkfs.btrfs --checksum blake2 --label rescue3141592653fs "/dev/mapper/${rescue_partition##*\/}"
+mkfs.btrfs --label rescue3141592653fs "/dev/mapper/${rescue_partition##*\/}"
 
 # swap partition
 # shellcheck disable=SC2046
@@ -164,7 +164,7 @@ swapon "${swap_partition}"
 
 # system partition
 # shellcheck disable=SC2046
-mkfs.btrfs --data "${btrfs_raid}" --metadata "${btrfs_raid}" --checksum blake2 --label system3141592653fs $(getMapperPartitions 5)
+mkfs.btrfs --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label system3141592653fs $(getMapperPartitions 5)
 
 if [ ! -d /mnt/gentoo ]; then
     mkdir /mnt/gentoo
