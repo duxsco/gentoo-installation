@@ -1301,14 +1301,14 @@ set timeout=5
 
 menuentry 'Gentoo GNU/Linux' --unrestricted {
     echo 'Loading Linux ...'
-    linux /vmlinuz ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
+    linux /vmlinuz ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
     echo 'Loading initial ramdisk ...'
     initrd ${my_microcode}/initramfs
 }
 
 menuentry 'Gentoo GNU/Linux (old)' --unrestricted {
     echo 'Loading Linux (old) ...'
-    linux /vmlinuz.old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
+    linux /vmlinuz.old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
     echo 'Loading initial ramdisk ...'
     initrd ${my_microcode}/initramfs.old
 }
@@ -1452,7 +1452,62 @@ systemctl enable nftables-restore; echo $?
 '
 ```
 
-### Clevis
+### Measured Boot - preparation
+
+You have two options for `Measured Boot`:
+- `systemd-cryptenroll`: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd 251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with `systemd-cryptenroll` than with `clevis`, and you don't have to use the `app-crypt/clevis` package from (unofficial) [guru overlay](https://wiki.gentoo.org/wiki/Project:GURU).
+- `clevis`: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via [Tang](https://github.com/latchset/tang).
+
+#### Option A: systemd-cryptenroll
+
+Install `app-crypt/tpm2-tools`:
+
+```bash
+emerge -av tpm2-tools
+```
+
+Add support for TPM to dracut and systemd:
+
+```bash
+sed -i 's/\(sys-apps\/systemd cryptsetup\)/\1 tpm/' /etc/portage/package.use/main && \
+echo 'add_dracutmodules+=" tpm2-tss "' >> /etc/dracut.conf; echo $?
+```
+
+Enable newer version with required bug fixes and features:
+
+```bash
+echo "=sys-kernel/dracut-056-r1 ~amd64
+=sys-apps/systemd-251.2 ~amd64" >> /etc/portage/package.accept_keywords/main
+```
+
+Update:
+
+```bash
+emerge -atuDN @world
+```
+
+Reboot your system!
+
+Make sure that TPM 2.0 devices (should only be one) are recognised:
+
+```bash
+systemd-cryptenroll --tpm2-device=list
+```
+
+Create new LUKS keyslots on all swap and system partitions:
+
+```bash
+# Adjust PCR IDs, e.g.: --tpm2-pcrs=1+7
+# Further info can be found at:
+# https://wiki.archlinux.org/title/Trusted_Platform_Module#Accessing_PCR_registers
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sda4
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sda5
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sdb4
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sdb5
+# etc.
+```
+
+#### Option B: Clevis
 
 Install `dev-vcs/git`:
 
@@ -1506,6 +1561,8 @@ clevis luks list -d /dev/sdb5
 # 1: tpm2 '{"hash":"sha256","key":"ecc","pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 ```
 
+### Measured Boot - initramfs rebuild
+
 Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis and GnuPG auto-sign `/boot` files:
 
 ```bash
@@ -1542,6 +1599,8 @@ drwxr-xr-x 1 root root      140 14. Jun 23:13 ../
 ```
 
 `.old` and `.old.sig` files are those of the initial package installation within chroot. `initramfs.old` doesn't have clevis integrated.
+
+### Package cleanup
 
 Remove extraneous packages (should be only `app-editors/nano`, `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
