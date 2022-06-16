@@ -289,6 +289,10 @@ if ! mountpoint --quiet /mnt/gentoo/run; then
     mount --make-slave /mnt/gentoo/run
 fi
 
+if ! mountpoint --quiet /mnt/gentoo/tmp; then
+    mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,uid=0,gid=0 tmpfs /mnt/gentoo/tmp
+fi
+
 if [[ ! -d /run/systemd/resolve ]]; then
     mkdir /run/systemd/resolve
 fi
