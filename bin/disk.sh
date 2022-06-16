@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset alphabet boot_partition btrfs_raid disk disks fallback_password index luks_device luks_device_name luks_device_uuid luks_password partition pbkdf raid rescue_partition rescue_password swap_partition swap_size system_size
+unset alphabet boot_partition btrfs_raid disk disks fallback_password index luks_device luks_password partition pbkdf raid rescue_partition rescue_password short_uuid swap_partition swap_size system_size
 
 function help() {
 cat <<EOF
@@ -219,19 +219,13 @@ cat <<EOF > /tmp/chroot.sh
 #!/usr/bin/env bash
 
 function luksOpen() {
-    luks_device_name="\$1"
-    luks_device_uuid="\$2"
+    short_uuid="\$(tr -d '-' <<<"\$1")"
 
-    if [[ ! -b /dev/mapper/\${luks_device_name} ]]; then
+    if [[ ! -e \$(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*\${short_uuid}*") ]]; then
+        clevis luks unlock -d "/dev/disk/by-uuid/\$1"
 
-        if [[ -f /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key/key ]]; then
-            cryptsetup luksOpen --key-file /mnt/gentoo/etc/gentoo-installation/keyfile/mnt/key/key UUID="\${luks_device_uuid}" "\${luks_device_name}"
-        else
-            cryptsetup luksOpen UUID="\${luks_device_uuid}" "\${luks_device_name}"
-        fi
-
-        if [[ ! -b /dev/mapper/\${luks_device_name} ]]; then
-            echo "Failed to luksOpen device! Aborting..."
+        if [[ ! -e \$(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*\${short_uuid}*") ]]; then
+            echo "Failed to open LUKS device! Aborting..."
             exit 1
         fi
     fi
@@ -239,33 +233,21 @@ function luksOpen() {
 
 $(
     while read -r luks_device; do
-        luks_device_uuid="$(blkid -s UUID -o value "${luks_device}")"
-
-        # shellcheck disable=SC2001
-        luks_device_name="$(sed 's|/mnt/gentoo/dev||' <<<"${luks_device}" | tr '[:upper:]' '[:lower:]')"
-
-        if [[ ${luks_device_name} =~ ^(swap|swapa)$ ]]; then
-            echo "
-if [[ ! -d /mnt/gentoo ]]; then
-    mkdir /mnt/gentoo
-fi
-
-if ! mountpoint --quiet /mnt/gentoo; then
-    mount -o noatime,subvol=@root UUID=\"$(blkid -s UUID -o value /mnt/gentoo/mapperSystem)\" /mnt/gentoo/
-
-    if ! mountpoint --quiet /mnt/gentoo; then
-        echo \"Failed to mount /mnt/gentoo! Aborting...\"
-        exit 1
-    fi
-fi
-"
-        fi
-
-        echo "luksOpen \"${luks_device_name}\" \"${luks_device_uuid}\""
+        echo "luksOpen \"$(blkid -s UUID -o value "${luks_device}")\""
     done < <(find /mnt/gentoo/devSystem* /mnt/gentoo/devSwap*)
 )
 
-grep -E "^(UUID|tmpfs)" /mnt/gentoo/etc/fstab | sed -e '/subvol=@root/d' -e 's|/|/mnt/gentoo/|' -e 's/,noauto//' -e 's/,rootcontext=[^[:space:]]*//' -e 's/=root/=0/g' -e 's/=portage/=250/g' | column -t > /etc/fstab
+if [[ ! -d /mnt/gentoo ]]; then
+    mkdir /mnt/gentoo
+    mount -o noatime,subvol=@root UUID="$(blkid -s UUID -o value /mnt/gentoo/mapperSystem)" /mnt/gentoo/
+
+    if ! mountpoint --quiet /mnt/gentoo; then
+        echo "Failed to mount /mnt/gentoo! Aborting..."
+        exit 1
+    fi
+fi
+
+grep -E "^(UUID|tmpfs)" /mnt/gentoo/etc/fstab | sed -e '/subvol=@root/d' -e 's|/|/mnt/gentoo/|' -e 's/,rootcontext=[^[:space:]]*//' | column -t > /etc/fstab
 systemctl daemon-reload
 mount -a
 swapon -a
