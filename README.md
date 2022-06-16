@@ -6,7 +6,7 @@
 
 The following installation guide results in a system that is/uses:
 - **Secure Boot**: EFI binary/binaries in ESP(s) are Secure Boot signed.
-- **Measured Boot**: All files in `/boot`, e.g. grub.cfg, initramfs, kernel, are GnuPG signed. Furthermore, [clevis](https://github.com/latchset/clevis) is used to automatically decrypt LUKS volumes via [TPM2](https://github.com/latchset/clevis#pin-tpm2) or [Tang](https://github.com/latchset/clevis#pin-tang) pin. Both realise `Measured Boot`.
+- **Measured Boot**: All files in `/boot`, e.g. grub.cfg, initramfs, kernel, are GnuPG signed. Furthermore, [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to automatically decrypt LUKS volumes.
 - **Fully encrypted**: Except ESP(s) and `/boot`, all partitions are LUKS encrypted.
 - **RAID**: mdadm and BTRFS based RAID are used wherever it makes sense if the number of disks is >= 2.
 - **Rescue system** based on a **customised SystemRescueCD** that provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
@@ -127,7 +127,9 @@ On the `rescue` partition, LUKS key slots are set as follows:
 
 On all other LUKS volumes, LUKS key slots are set as follows:
   - 0: Fallback password for emergency
-  - 1: TPM 2.0 or Tang pin to automatically unlock with Clevis
+  - 1: Measured Boot
+    - Option A: TPM 2.0 with optional pin to unlock with [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll)
+    - Option B: [Shamir Secret Sharing](https://github.com/latchset/clevis#pin-shamir-secret-sharing) combining [TPM2](https://github.com/latchset/clevis#pin-tpm2) and [Tang](https://github.com/latchset/clevis#pin-tang) pin ([Tang project](https://github.com/latchset/tang)) to automatically unlock with Clevis
 
 The following steps are basically those in [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation) with some customisations added.
 
@@ -1456,7 +1458,7 @@ systemctl enable nftables-restore; echo $?
 
 You have two options for `Measured Boot`:
 - `systemd-cryptenroll`: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd 251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with `systemd-cryptenroll` than with `clevis`, and you don't have to use the `app-crypt/clevis` package from (unofficial) [guru overlay](https://wiki.gentoo.org/wiki/Project:GURU).
-- `clevis`: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via [Tang](https://github.com/latchset/tang).
+- `clevis`: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.
 
 #### Option A: systemd-cryptenroll
 
@@ -1572,7 +1574,7 @@ clevis luks list -d /dev/sdb5
 
 ### Measured Boot - initramfs rebuild
 
-Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis and GnuPG auto-sign `/boot` files:
+Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis OR systemd's TPM support in initramfs and GnuPG auto-sign `/boot` files:
 
 ```bash
 mv /root/bashrc /etc/portage/ && \
@@ -1607,7 +1609,7 @@ drwxr-xr-x 1 root root      140 14. Jun 23:13 ../
 -rw-r--r-- 1 root root      438 14. Jun 23:39 vmlinuz.sig
 ```
 
-`.old` and `.old.sig` files are those of the initial package installation within chroot. `initramfs.old` doesn't have clevis integrated.
+`.old` and `.old.sig` files are those of the initial package installation within chroot. `initramfs.old` doesn't have clevis and systemd's TPM support integrated.
 
 ### Package cleanup
 
