@@ -99,11 +99,11 @@ for disk in "${disks[@]}"; do
     parted --align optimal --script "${disk}" \
         mklabel gpt \
         unit MiB \
-        "mkpart 'esp3141592653part' 1 $((1 + efi_system_partition_size))" \
-        mkpart boot3141592653part $((1 + efi_system_partition_size)) $((1 + efi_system_partition_size + boot_partition_size)) \
-        mkpart rescue3141592653part $((1 + efi_system_partition_size + boot_partition_size)) $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size)) \
-        mkpart swap3141592653part $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size)) $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size + swap_size)) \
-        "mkpart system3141592653part $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size + swap_size)) ${system_size}" \
+        "mkpart 'esp31415part' 1 $((1 + efi_system_partition_size))" \
+        mkpart boot31415part $((1 + efi_system_partition_size)) $((1 + efi_system_partition_size + boot_partition_size)) \
+        mkpart rescue31415part $((1 + efi_system_partition_size + boot_partition_size)) $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size)) \
+        mkpart swap31415part $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size)) $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size + swap_size)) \
+        "mkpart system31415part $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size + swap_size)) ${system_size}" \
         set 1 esp on
 done
 
@@ -116,7 +116,7 @@ if [[ ${#disks[@]} -eq 1 ]]; then
 else
     rescue_partition="/dev/md0"
     # shellcheck disable=SC2046
-    mdadm --create "${rescue_partition}" --name rescue3141592653md --level=1 --raid-devices=${#disks[@]} --metadata=default $(getPartitions 3)
+    mdadm --create "${rescue_partition}" --name rescue31415md --level=1 --raid-devices=${#disks[@]} --metadata=default $(getPartitions 3)
 fi
 
 # encrypting boot, swap and system partitions
@@ -147,10 +147,10 @@ done < <(find $(getPartitions 1))
 
 # boot partition
 # shellcheck disable=SC2086
-mkfs.btrfs --quiet --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label boot3141592653fs ${boot_partition}
+mkfs.btrfs --quiet --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label boot31415fs ${boot_partition}
 
 # rescue partition
-mkfs.btrfs --quiet --label rescue3141592653fs "/dev/mapper/${rescue_partition##*\/}"
+mkfs.btrfs --quiet --label rescue31415fs "/dev/mapper/${rescue_partition##*\/}"
 
 # swap partition
 # shellcheck disable=SC2046
@@ -158,14 +158,14 @@ if [ ${#disks[@]} -eq 1 ]; then
     swap_partition="$(getMapperPartitions 4)"
 else
     swap_partition="/dev/md1"
-    mdadm --create "${swap_partition}" --name swap3141592653md --level="${raid:-1}" --raid-devices=${#disks[@]} --metadata=default $(getMapperPartitions 4)
+    mdadm --create "${swap_partition}" --name swap31415md --level="${raid:-1}" --raid-devices=${#disks[@]} --metadata=default $(getMapperPartitions 4)
 fi
-mkswap --label swap3141592653fs "${swap_partition}"
+mkswap --label swap31415fs "${swap_partition}"
 swapon "${swap_partition}"
 
 # system partition
 # shellcheck disable=SC2046
-mkfs.btrfs --quiet --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label system3141592653fs $(getMapperPartitions 5)
+mkfs.btrfs --quiet --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label system31415fs $(getMapperPartitions 5)
 
 if [ ! -d /mnt/gentoo ]; then
     mkdir /mnt/gentoo

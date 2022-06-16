@@ -1222,7 +1222,7 @@ ls -1d /efi* | while read -r i; do
         boot/grub/grub.cfg=/etc/gentoo-installation/boot/efi.cfg \
         boot/grub/grub.cfg.sig=/etc/gentoo-installation/boot/efi.cfg.sig && \
     sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "${i}/EFI/boot/bootx64.efi" "${i}/EFI/boot/bootx64.efi" && \
-    efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${i/efi/devEfi}")")" --part 1 --label "gentoo314159265efi ${i#/}" --loader '\EFI\boot\bootx64.efi'
+    efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "${i/efi/devEfi}")")" --part 1 --label "gentoo31415efi ${i#/}" --loader '\EFI\boot\bootx64.efi'
     echo $?
 done
 ```
@@ -1263,7 +1263,7 @@ menuentry 'SystemRescueCD' {
     set root='cryptouuid/${rescue_uuid}'
     search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${rescue_uuid}' $(blkid -s UUID -o value /mapperRescue)
     echo   'Loading Linux kernel ...'
-    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue3141592653fs noautologin loadsrm=y
+    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y
     echo   'Loading initramfs ...'
     initrd /sysresccd/boot/x86_64/sysresccd.img
 }
