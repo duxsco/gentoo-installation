@@ -295,9 +295,8 @@ fi
 
 if [[ ! -d /run/systemd/resolve ]]; then
     mkdir /run/systemd/resolve
+    cp --dereference /etc/resolv.conf /run/systemd/resolve/resolv.conf
 fi
-
-cp --dereference /etc/resolv.conf /run/systemd/resolve/resolv.conf
 
 chroot /mnt/gentoo /usr/bin/env chrooted=true bash
 EOF
