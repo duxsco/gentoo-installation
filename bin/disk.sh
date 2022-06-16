@@ -267,7 +267,22 @@ function luksOpen() {
     short_uuid="\$(tr -d '-' <<<"\$1")"
 
     if [[ ! -e \$(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*\${short_uuid}*") ]]; then
-        clevis luks unlock -d "/dev/disk/by-uuid/\$1"
+        declare -a token_type
+        token_id=0
+
+        while cryptsetup token export --token_id "\${token_id}" "/dev/disk/by-uuid/\$1" >/dev/null 2>&1; do
+            token_type+=( "\$(cryptsetup token export --token_id "\${token_id}" "/dev/disk/by-uuid/\$1" | jq -r '.type')" )
+            ((token_id++))
+        done
+
+        if [[ " \${token_type[*]} " =~ " systemd-tpm2 " ]]; then
+            /usr/lib/systemd/systemd-cryptsetup attach "\$1" "/dev/disk/by-uuid/\$1" - tpm2-device=auto
+        fi
+
+        if  [[ ! -e \$(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*\${short_uuid}*") ]] && \
+            [[ " \${token_type[*]} " =~ " clevis " ]]; then
+            clevis luks unlock -d "/dev/disk/by-uuid/\$1"
+        fi
 
         if [[ ! -e \$(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*\${short_uuid}*") ]]; then
             echo "Failed to open LUKS device! Aborting..."
