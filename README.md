@@ -1481,7 +1481,7 @@ Make sure that the PCRs you are going to use have a valid hash and don't contain
 tpm2_pcrread sha256
 ```
 
-Bind LUKS volumes:
+Bind all swap and system LUKS volumes:
 
 ```bash
 # Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
