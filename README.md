@@ -903,14 +903,15 @@ fi' >> /home/david/.bashrc; echo $?
 su -l david -c "/bin/fish -c fish_update_completions"
 ```
 
-Update `/root/.config/fish/config.fish` and `/home/david/.config/fish/config.fish` to contain:
+Enable aliases and starship (copy&paste one after the other):
 
 ```
-if status is-interactive
-    # Commands to run in interactive sessions can go here
-    source "$HOME/.bash_aliases"
-    starship init fish | source
-end
+su -
+exit
+su - david
+exit
+sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | source\nend/' /root/.config/fish/config.fish
+sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | source\nend/' /home/david/.config/fish/config.fish
 ```
 
   - nerd fonts:
