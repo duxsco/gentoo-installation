@@ -500,7 +500,7 @@ find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/et
 Integrate additional packages:
 
 ```bash
-pacman -Sy clevis tpm2-tools && \
+pacman -Sy clevis libpwquality luksmeta tpm2-tools && \
 cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm; echo $?
 ```
 
