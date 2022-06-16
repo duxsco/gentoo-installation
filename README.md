@@ -1463,14 +1463,17 @@ You have two options for `Measured Boot`:
 Install `app-crypt/tpm2-tools`:
 
 ```bash
+echo "=app-crypt/tpm2-tools-5.2-r1 ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge -av tpm2-tools
 ```
 
 Add support for TPM to dracut and systemd:
 
 ```bash
-sed -i 's/\(sys-apps\/systemd cryptsetup\)/\1 tpm/' /etc/portage/package.use/main && \
-echo 'add_dracutmodules+=" tpm2-tss "' >> /etc/dracut.conf; echo $?
+bash -c '
+sed -i "s/\(sys-apps\/systemd cryptsetup\)/\1 tpm/" /etc/portage/package.use/main && \
+echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf; echo $?
+'
 ```
 
 Enable newer version with required bug fixes and features:
@@ -1492,6 +1495,12 @@ Make sure that TPM 2.0 devices (should only be one) are recognised:
 
 ```bash
 systemd-cryptenroll --tpm2-device=list
+```
+
+Make sure that the PCRs you are going to use have a valid hash and don't contain only zeroes:
+
+```bash
+tpm2_pcrread sha256
 ```
 
 Create new LUKS keyslots on all swap and system partitions:
