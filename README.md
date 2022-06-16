@@ -1399,6 +1399,12 @@ systemctl enable nftables-restore; echo $?
 
 ### Clevis
 
+Install `dev-vcs/git`:
+
+```bash
+emerge -at dev-vcs/git
+```
+
 Install `app-crypt/clevis`:
 
 ```bash
