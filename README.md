@@ -6,7 +6,7 @@
 
 The following installation guide results in a system that is/uses:
 - **Secure Boot**: EFI binary/binaries in ESP(s) are Secure Boot signed.
-- **Measured Boot**: All files in `/boot`, e.g. grub.cfg, initramfs, kernel, are GnuPG signed. Furthermore, [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to automatically decrypt LUKS volumes.
+- **Measured Boot**: All files in `/boot`, e.g. grub.cfg, initramfs, kernel, are GnuPG signed. Furthermore, [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to automatically decrypt LUKS volumes. You can secure the use of `systemd-cryptenroll` with a pin, though.
 - **Fully encrypted**: Except ESP(s) and `/boot`, all partitions are LUKS encrypted.
 - **RAID**: mdadm and BTRFS based RAID are used wherever it makes sense if the number of disks is >= 2.
 - **Rescue system** based on a **customised SystemRescueCD** that provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
@@ -1510,7 +1510,7 @@ Create new LUKS keyslots on all swap and system partitions:
 ```bash
 # Adjust PCR IDs, e.g.: --tpm2-pcrs=1+7
 # Further info can be found at:
-# https://wiki.archlinux.org/title/Trusted_Platform_Module#Accessing_PCR_registers
+# https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
 systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sda4
 systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sda5
 systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sdb4
@@ -1552,7 +1552,7 @@ Bind all swap and system LUKS volumes:
 ```bash
 # Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
 # Further info can be found at:
-# https://wiki.archlinux.org/title/Trusted_Platform_Module#Accessing_PCR_registers
+# https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
 clevis luks bind -d /dev/sda4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 clevis luks bind -d /dev/sda5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 clevis luks bind -d /dev/sdb4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
