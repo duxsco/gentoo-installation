@@ -3,7 +3,7 @@ site_url: https://duxsco.github.io/gentoo-installation/
 theme:
   name: material
 nav:
-  - 1. Introduction: 01_introduction.md
+  - 1. Introduction: index.md
   - 2. Live-CD Environment: 02_live-cd_environment.md
   - 3. Disk Setup: 03_disk_setup.md
   - 4. Rescue System: 04_rescue_system.md
