@@ -1,7 +1,16 @@
 site_name: Gentoo Linux Installation
 site_url: https://duxsco.github.io/gentoo-installation/
+repo_url: https://github.com/duxsco/gentoo-installation/
+repo_name: duxsco/gentoo-installation
+edit_uri: blob/main/docs/
+site_description: Gentoo installation using Measured Boot, Secure Boot, Full Disk Encryption, RAID and offering a rescue system based on customised SystemRescueCD
+site_author: David Sardari
+remote_branch: gh-pages
+remote_name: origin
 theme:
   name: material
+  locale: en
+  use_directory_urls: true
 nav:
   - 1. Introduction: index.md
   - 2. Live-CD Environment: 02_live-cd_environment.md
