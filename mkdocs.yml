@@ -1,3 +1,16 @@
 site_name: Gentoo Linux Installation
 site_url: https://duxsco.github.io/gentoo-installation/
-theme: material
+theme:
+  name: material
+nav:
+  - 1. Introduction: 01_introduction.md
+  - 2. Live-CD Environment: 02_live-cd_environment.md
+  - 3. Disk Setup: 03_disk_setup.md
+  - 4. Rescue System: 04_rescue_system.md
+  - 5. Chrooting: 05_chrooting.md
+  - 6. System Setup: 06_system_setup.md
+  - 7. Boot Setup: 07_boot_setup.md
+  - 8. Cleanup and Reboot: 08_cleanup_and_reboot.md
+  - 9. Post-Boot Configuration: 09_post_boot_configuration.md
+  - 10. Optional Steps: 10_optional_steps.md
+  - 11. Other Gentoo Linux Repos: 11_other_gentoo_linux_repos.md
