@@ -6,52 +6,52 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/02_live-cd_environment/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/boot_setup/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/03_disk_setup/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/chrooting/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/04_rescue_system/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/cleanup_and_reboot/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/05_chrooting/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/disk_setup/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/06_system_setup/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/live-cd_environment/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/07_boot_setup/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/optional_steps/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/08_cleanup_and_reboot/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/other_gentoo_linux_repos/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/09_post_boot_configuration/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/post_boot_configuration/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/10_optional_steps/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/rescue_system/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://duxsco.github.io/gentoo-installation/11_other_gentoo_linux_repos/</loc>
+         <loc>https://duxsco.github.io/gentoo-installation/system_setup/</loc>
          <lastmod>2022-06-17</lastmod>
          <changefreq>daily</changefreq>
     </url>
