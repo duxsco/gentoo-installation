@@ -1,5 +1,3 @@
-## Cleanup and reboot
-
   - Setup [network](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
 
 ```bash

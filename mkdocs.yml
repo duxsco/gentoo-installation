@@ -10,7 +10,7 @@ nav:
   - 5. Chrooting: 05_chrooting.md
   - 6. System Setup: 06_system_setup.md
   - 7. Boot Setup: 07_boot_setup.md
-  - 8. Cleanup and Reboot: 08_cleanup_and_reboot.md
+  - 8. Cleanup And Reboot: 08_cleanup_and_reboot.md
   - 9. Post-Boot Configuration: 09_post_boot_configuration.md
   - 10. Optional Steps: 10_optional_steps.md
   - 11. Other Gentoo Linux Repos: 11_other_gentoo_linux_repos.md
