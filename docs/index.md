@@ -5,6 +5,7 @@
 > ⚠ The installation guide builds heavily on `Secure Boot` and requires TPM 2.0 for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
 
 The following installation guide results in a system that is/uses:
+
 - **Secure Boot**: EFI binary/binaries in ESP(s) are Secure Boot signed.
 - **Measured Boot**: All files in `/boot`, e.g. grub.cfg, initramfs, kernel, are GnuPG signed. Furthermore, [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to automatically decrypt LUKS volumes. You can secure the use of `systemd-cryptenroll` with a pin, though.
 - **Fully encrypted**: Except ESP(s) and `/boot`, all partitions are LUKS encrypted.
@@ -123,9 +124,11 @@ PC∕Laptop───────────────────────
 - More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
 
 On the `rescue` partition, LUKS key slots are set as follows:
+
   - 0: Rescue password
 
 On all other LUKS volumes, LUKS key slots are set as follows:
+
   - 0: Fallback password for emergency
   - 1: Measured Boot
     - Option A: TPM 2.0 with optional pin to unlock with [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll)

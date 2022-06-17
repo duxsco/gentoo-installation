@@ -97,6 +97,7 @@ gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 ### Secure Boot
 
 Credits:
+
 - https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd
 - https://www.funtoo.org/Secure_Boot
 - https://www.rodsbooks.com/efi-bootloaders/secureboot.html
