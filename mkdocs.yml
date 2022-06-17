@@ -23,6 +23,6 @@ nav:
   - System Setup: system_setup.md
   - Boot Setup: boot_setup.md
   - Cleanup And Reboot: cleanup_and_reboot.md
-  - Post-Boot Configuration: post_boot_configuration.md
+  - Post-Boot Configuration: post-boot_configuration.md
   - Optional Steps: optional_steps.md
   - Other Gentoo Linux Repos: other_gentoo_linux_repos.md
