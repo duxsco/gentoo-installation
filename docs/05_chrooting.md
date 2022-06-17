@@ -1,5 +1,3 @@
-## Chroot
-
 Set resolv.conf:
 
 ```bash
