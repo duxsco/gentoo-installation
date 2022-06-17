@@ -25,7 +25,9 @@ Both boot options are available in GRUB's boot menu.
 
 ## Disk Layout
 
-ESPs each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
+ESPs each with their own EFI entry are created one for each disk. Alternatively, you can store the ESP on multiple removable drives. This scenario won't be outlined in the following codeblocks. You just need to think of `1. EFI System Partition` missing in below scenarios.
+
+Except for ESP, BTRFS/MDADM RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
 - Single disk:
 
