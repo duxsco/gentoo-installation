@@ -1,8 +1,10 @@
-# Gentoo Linux installation
+## Disclaimer
 
-> ⚠ This installation guide was primarily written for my personal use to avoid reinventing the wheel over and over. **Thus, don't blindly copy&paste the commands! Understand what you are going to do and adjust commands if required!** I point this out, even though it should go without saying... ⚠
+⚠ This installation guide was primarily written for my personal use to avoid reinventing the wheel over and over. **Thus, don't blindly copy&paste the commands! Understand what you are going to do and adjust commands if required!** I point this out, even though it should go without saying... ⚠
 
-> ⚠ The installation guide builds heavily on `Secure Boot` and requires TPM 2.0 for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
+⚠ The installation guide builds heavily on `Secure Boot` and requires TPM 2.0 for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
+
+## Technologies
 
 The following installation guide results in a system that is/uses:
 
@@ -12,6 +14,8 @@ The following installation guide results in a system that is/uses:
 - **RAID**: mdadm and BTRFS based RAID are used wherever it makes sense if the number of disks is >= 2.
 - **Rescue system** based on a **customised SystemRescueCD** that provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
 
+## SSH Connectivity
+
 After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
 
 - Gentoo Linux system: `ssh -p 50022 david@<IP address>`
@@ -19,7 +23,7 @@ After completion of this installation guide, SSH connections will be possible vi
 
 Both boot options are available in GRUB's boot menu.
 
-## Disk layout
+## Disk Layout
 
 ESPs each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
@@ -122,6 +126,8 @@ PC∕Laptop───────────────────────
 ```
 
 - More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
+
+## LUKS Key Slots
 
 On the `rescue` partition, LUKS key slots are set as follows:
 
