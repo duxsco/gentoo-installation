@@ -1,6 +1,6 @@
 While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.
 
-## Downloads And Verification
+## 4.1. Downloads And Verification
 
 Prepare working directory:
 
@@ -40,7 +40,7 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all
 chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 ```
 
-## Configuration
+## 4.2. Configuration
 
 Create folder structure and `authorized_keys` file (copy&paste one after the other):
 
@@ -146,7 +146,7 @@ pacman -Sy clevis libpwquality luksmeta tpm2-tools && \
 cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm; echo $?
 ```
 
-## Folder Structure
+## 4.3. Folder Structure
 
 ```bash
 ➤ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
@@ -185,7 +185,7 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 15 directories, 15 files
 ```
 
-## ISO And Rescue Partition
+## 4.4. ISO And Rescue Partition
 
 Create customised ISO:
 

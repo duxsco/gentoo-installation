@@ -1,10 +1,10 @@
-## Disclaimer
+## 1.1. Disclaimer
 
 ⚠ This installation guide was primarily written for my personal use to avoid reinventing the wheel over and over. **Thus, don't blindly copy&paste the commands! Understand what you are going to do and adjust commands if required!** I point this out, even though it should go without saying... ⚠
 
 ⚠ The installation guide builds heavily on `Secure Boot` and requires TPM 2.0 for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on depending on the hardware in use ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
 
-## Technologies
+## 1.2. Technologies
 
 The following installation guide results in a system that is/uses:
 
@@ -14,7 +14,7 @@ The following installation guide results in a system that is/uses:
 - **RAID**: mdadm and BTRFS based RAID are used wherever it makes sense if the number of disks is >= 2.
 - **Rescue system** based on a **customised SystemRescueCD** that provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
 
-## SSH Connectivity
+## 1.3. SSH Connectivity
 
 After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
 
@@ -23,7 +23,7 @@ After completion of this installation guide, SSH connections will be possible vi
 
 Both boot options are available in GRUB's boot menu.
 
-## Disk Layout
+## 1.4. Disk Layout
 
 ESPs each with their own EFI entry are created one for each disk. Alternatively, you can store the ESP on multiple removable drives. This scenario won't be outlined in the following codeblocks. You just need to think of `1. EFI System Partition` missing in below scenarios.
 
@@ -129,7 +129,7 @@ PC∕Laptop───────────────────────
 
 - More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
 
-## LUKS Key Slots
+## 1.5. LUKS Key Slots
 
 On the `rescue` partition, LUKS key slots are set as follows:
 

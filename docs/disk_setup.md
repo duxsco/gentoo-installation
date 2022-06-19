@@ -1,4 +1,4 @@
-## Wiping Disks
+## 3.1. Wiping Disks
 
 `disk.sh` expects the disks, where you want to install Gentoo Linux on, to be completely empty.
 
@@ -12,7 +12,7 @@ lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r | while read -r i; do wip
 
 ⚠ If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. [https://wiki.archlinux.org/title/Securely_wipe_disk](https://wiki.archlinux.org/title/Securely_wipe_disk)! ⚠
 
-## Disk Partitioning And Formating
+## 3.2. Partitioning And Formating
 
 Prepare the disks (copy&paste one after the other):
 
@@ -31,7 +31,7 @@ set -o history
 
 `disk.sh` creates user "meh" which will be used later on to act as non-root.
 
-### ESP(s) On Internal Disk(s)
+### 3.2.1. Internal ESP(s)
 
 Result of a single disk setup:
 
@@ -89,7 +89,7 @@ Result of the four disk setup:
 0 directories, 25 files
 ```
 
-### ESP(s) On Removable Media
+### 3.2.2. External ESP(s)
 
 Result of a single disk setup (`/dev/sda`) with ESP on a single removable media (`/dev/sdb`):
 
@@ -145,7 +145,7 @@ Result of a four disk setup (`/dev/sda`, `/dev/sdb`, `/dev/sdc` and `/dev/sdd`) 
 0 directories, 23 files
 ```
 
-## Tarball Extraction
+## 3.3. Tarball Extraction
 
 ⚠ Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
 
@@ -167,7 +167,7 @@ mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/rep
 tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
 ```
 
-## Mounting
+## 3.4. Mounting
 
 ```bash
 mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,uid=root,gid=root tmpfs /mnt/gentoo/tmp && \

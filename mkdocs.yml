@@ -11,18 +11,15 @@ theme:
   name: material
   locale: en
   use_directory_urls: true
-plugins:
-  - search
-  - enumerate-headings
 nav:
-  - Introduction: index.md
-  - Live-CD Environment: live-cd_environment.md
-  - Disk Setup: disk_setup.md
-  - Rescue System: rescue_system.md
-  - Chrooting: chrooting.md
-  - System Setup: system_setup.md
-  - Boot Setup: boot_setup.md
-  - Cleanup And Reboot: cleanup_and_reboot.md
-  - Post-Boot Configuration: post-boot_configuration.md
-  - Optional Steps: optional_steps.md
-  - Other Gentoo Linux Repos: other_gentoo_linux_repos.md
+  - 1. Introduction: index.md
+  - 2. Live-CD Environment: live-cd_environment.md
+  - 3. Disk Setup: disk_setup.md
+  - 4. Rescue System: rescue_system.md
+  - 5. Chrooting: chrooting.md
+  - 6. System Setup: system_setup.md
+  - 7. Boot Setup: boot_setup.md
+  - 8. Cleanup And Reboot: cleanup_and_reboot.md
+  - 9. Post-Boot Configuration: post-boot_configuration.md
+  - 10. Optional Steps: optional_steps.md
+  - 11. Other Gentoo Linux Repos: other_gentoo_linux_repos.md

@@ -1,4 +1,4 @@
-## Systemd Configuration
+## 9.1. Systemd Configuration
 
 Some configuration needs to be done after systemd has been started.
 
@@ -47,14 +47,14 @@ systemctl enable nftables-restore; echo $?
 '
 ```
 
-## Measured Boot
+## 9.2. Measured Boot
 
 You have two options for `Measured Boot`:
 
 - `systemd-cryptenroll`: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd 251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with `systemd-cryptenroll` than with `clevis`, and you don't have to use the `app-crypt/clevis` package from (unofficial) [guru overlay](https://wiki.gentoo.org/wiki/Project:GURU).
 - `clevis`: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.
 
-### Option A: systemd-cryptenroll
+### 9.2.1. a) systemd-cryptenroll
 
 Install `app-crypt/tpm2-tools`:
 
@@ -120,7 +120,7 @@ Remove overlay directory containing `app-crypt/clevis`:
 rm -rf /root/localrepo
 ```
 
-### Option B: Clevis
+### 9.2.1. b) clevis
 
 Install `dev-vcs/git`:
 
@@ -174,7 +174,7 @@ clevis luks list -d /dev/sdb5
 # 1: tpm2 '{"hash":"sha256","key":"ecc","pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 ```
 
-### Initramfs Rebuild
+### 9.2.2. Initramfs Rebuild
 
 Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis OR systemd's TPM support in initramfs and GnuPG auto-sign `/boot` files:
 
@@ -213,7 +213,7 @@ drwxr-xr-x 1 root root      140 14. Jun 23:13 ../
 
 `.old` and `.old.sig` files are those of the initial package installation within chroot. `initramfs.old` doesn't have clevis and systemd's TPM support integrated.
 
-## Package Cleanup
+## 9.4. Package Cleanup
 
 Remove extraneous packages (should be only `app-editors/nano`, `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 

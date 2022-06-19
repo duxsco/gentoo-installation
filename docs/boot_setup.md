@@ -1,4 +1,4 @@
-## GnuPG Homedir Creation
+## 7.1 GnuPG Homedir Creation
 
 The whole boot process must be GnuPG signed. You can use either RSA or some NIST-P based ECC. Unfortunately, `ed25519/cv25519` as well as `ed448/cv448` are not supported. It seems Grub builds upon [libgcrypt 1.5.3](https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14), but support for `ed25519/cv25519` has been added upstream later on in [version 1.6.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709), while [version 1.9.0](https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139) comes with `ed448/cv448` support.
 
@@ -86,7 +86,7 @@ find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --de
 gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 ```
 
-## Secure Boot
+## 7.2. Secure Boot
 
 Credits:
 
@@ -145,7 +145,7 @@ chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
 popd; echo $?
 ```
 
-## GRUB
+## 7.3. GRUB
 
 Install `sys-boot/grub`:
 
@@ -154,7 +154,7 @@ echo "sys-boot/grub -* device-mapper grub_platforms_efi-64" >> /etc/portage/pack
 emerge -at sys-boot/grub; echo $?
 ```
 
-### ESP(s)
+### 7.3.1. ESP(s)
 
 In the following, a minimal Grub config for the EFI binary is created. Take care of the line marked with `TODO`.
 
@@ -226,7 +226,7 @@ ls -1d /efi* | while read -r i; do
 done
 ```
 
-### /boot
+### 7.3.2. /boot
 
 Setup `grub.cfg` and remove `rd.luks.options=tpm2-device=auto` if you are going to use `clevis` instead of `systemd-cryptenroll`:
 
@@ -279,7 +279,7 @@ while read -r file; do mv "${file}" "$(cut -d "-" -f1 <<<"${file}")"; done < <(f
 find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
 ```
 
-## ESP(s) And /boot Layout
+## 7.4. ESP(s) And /boot Layout
 
 Result on a single disk system:
 

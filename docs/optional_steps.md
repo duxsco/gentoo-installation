@@ -1,4 +1,4 @@
-## Installation of Secure Boot files via UEFI Firmware Settings
+## 10.1. Secure Boot Setup
 
 If `efi-updatevar` failed in one of the previous sections, you can import Secure Boot files the following way.
 
@@ -24,11 +24,11 @@ To check whether Secure Boot is enabled execute:
 mokutil --sb-state
 ```
 
-## Enable SELinux
+## 10.2. Enable SELinux
 
 This is optional! Steps are documented in the [gentoo-selinux](https://github.com/duxsco/gentoo-selinux) repo.
 
-## Update Linux kernel
+## 10.3. Update Linux kernel
 
 For every kernel update, execute:
 

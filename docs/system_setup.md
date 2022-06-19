@@ -1,4 +1,4 @@
-## Portage Setup
+## 6.1. Portage Setup
 
 Make `dispatch-conf` show diffs in color and use vimdiff for merging:
 
@@ -100,7 +100,7 @@ echo "sys-apps/systemd cryptsetup" >> /etc/portage/package.use/main && \
 emerge -atuDN @world
 ```
 
-## Non-Root User Creation
+## 6.2. Non-Root User Creation
 
 Create a non-root user and set a password you can use with English keyboard layout for now. You can set a secure password after rebooting and taking care of localisation.
 
@@ -145,7 +145,7 @@ eselect vi set vim && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 ```
 
-## Configuration Of /etc/fstab
+## 6.3. Configuration Of /etc/fstab
 
 Set /etc/fstab and add `noauto` mount option to `/efi*` entries if you have ESP(s) on removable media:
 
@@ -168,7 +168,7 @@ find /devEfi* -maxdepth 0 | while read -r i; do
 done; echo $?
 ```
 
-## Kernel Installation
+## 6.4. Kernel Installation
 
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
@@ -192,7 +192,7 @@ emerge sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; 
 emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 ```
 
-## Additional Packages
+## 6.5. Additional Packages
 
 Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
 
