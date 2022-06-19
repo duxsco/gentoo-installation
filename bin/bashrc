@@ -1,7 +1,7 @@
-if [[ ${EBUILD} =~ ^$(portageq get_repo_path / gentoo)/sys-kernel/gentoo-kernel-bin/gentoo-kernel-bin-[0-9]+\.[0-9]+\.[0-9]+\.ebuild$ ]]; then
-
-    if [[ ${EBUILD_PHASE} =~ ^(pretend|clean)$ ]]; then
-
+if [[ ${EBUILD} =~ ^$(portageq get_repo_path / gentoo)/sys-kernel/gentoo-kernel-bin/gentoo-kernel-bin-[0-9]+\.[0-9]+\.[0-9]+\.ebuild$ ]] || \
+   [[ ${EBUILD} =~ ^$(portageq get_repo_path / gentoo)/sys-firmware/intel-microcode/intel-microcode-[^\.]+\.ebuild$ ]]
+then
+    if [[ ${EBUILD_PHASE} =~ ^(clean|postinst|pretend)$ ]]; then
         function my_cowsay() {
 cat <<'EOF' >&2
   ____________________________
@@ -33,17 +33,26 @@ EOF
     if [[ ${EBUILD_PHASE} == pretend ]]; then
         my_gpg_verify
     elif [[ ${EBUILD_PHASE} == clean ]]; then
-        gentoo_kernel_bin_version="$(grep -Po "[0-9]+\.[0-9]+\.[0-9]+" <<<"${EBUILD}")"
+        if  [[ ${EBUILD} =~ ^$(portageq get_repo_path / gentoo)/sys-kernel/gentoo-kernel-bin/gentoo-kernel-bin-[0-9]+\.[0-9]+\.[0-9]+\.ebuild$ ]]; then
+            gentoo_kernel_bin_version="$(grep -Po "[0-9]+\.[0-9]+\.[0-9]+" <<<"${EBUILD}")"
 
-        if [[ -f /boot/vmlinuz-${gentoo_kernel_bin_version}-gentoo-dist ]]; then
-            mv "/boot/initramfs" "/boot/initramfs.old"
+            if [[ -f /boot/vmlinuz-${gentoo_kernel_bin_version}-gentoo-dist ]]; then
+                mv "/boot/initramfs" "/boot/initramfs.old"
 
-            for file in System.map config initramfs vmlinuz; do
-                mv "/boot/${file}.sig" "/boot/${file}.old.sig"
-                mv "/boot/${file}-${gentoo_kernel_bin_version}-gentoo-dist"* "/boot/${file}"
-                gpg --homedir /etc/gentoo-installation/gnupg --detach-sign "/boot/${file}"
-            done
+                for file in System.map config initramfs vmlinuz; do
+                    mv "/boot/${file}.sig" "/boot/${file}.old.sig"
+                    mv "/boot/${file}-${gentoo_kernel_bin_version}-gentoo-dist"* "/boot/${file}"
+                    gpg --homedir /etc/gentoo-installation/gnupg --detach-sign "/boot/${file}"
+                done
 
+                my_gpg_verify
+            fi
+        fi
+    elif [[ ${EBUILD_PHASE} == postinst ]]; then
+        if [[ ${EBUILD} =~ ^$(portageq get_repo_path / gentoo)/sys-firmware/intel-microcode/intel-microcode-[^\.]+\.ebuild$ ]] && \
+           [[ -f /boot/intel-uc.img ]]
+        then
+            gpg --yes --homedir /etc/gentoo-installation/gnupg --detach-sign "/boot/intel-uc.img"
             my_gpg_verify
         fi
     fi
