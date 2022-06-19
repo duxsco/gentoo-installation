@@ -133,6 +133,7 @@ Setup vim:
 USE="-verify-sig" emerge -1 dev-libs/libsodium && \
 emerge -1 dev-libs/libsodium app-editors/vim && \
 emerge --select --noreplace app-editors/vim && \
+sed -i 's/^USE="\([^"]*\)"$/USE="\1 vim-syntax"/' /etc/portage/make.conf && \
 echo "filetype plugin on
 filetype indent on
 set number

@@ -114,6 +114,12 @@ systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-p
 # etc.
 ```
 
+Remove overlay directory containing `app-crypt/clevis`:
+
+```bash
+rm -rf /root/localrepo
+```
+
 ### Option B: Clevis
 
 Install `dev-vcs/git`:

@@ -228,6 +228,8 @@ done
 
 ### /boot
 
+Setup `grub.cfg` and remove `rd.luks.options=tpm2-device=auto` if you are going to use `clevis` instead of `systemd-cryptenroll`:
+
 ```bash
 rescue_uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
 system_uuid="$(blkid -s UUID -o value /mapperSystem)"
