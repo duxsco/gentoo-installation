@@ -75,12 +75,6 @@ gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --e
 GPG_TTY="$(tty)"
 export GPG_TTY
 
-# Sign microcode if existent
-if [[ -f /boot/intel-uc.img ]]; then
-  gpg --homedir /etc/gentoo-installation/gnupg --detach-sign /boot/intel-uc.img
-  echo $?
-fi
-
 # Stop the gpg-agent
 gpgconf --homedir /etc/gentoo-installation/gnupg --kill all
 ```
@@ -118,9 +112,9 @@ mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
 pushd /etc/gentoo-installation/secureboot && \
 
 # Create the keys
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
-openssl req -new -x509 -newkey rsa:2048 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:3072 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:3072 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:3072 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
 
 # Prepare installation in EFI
 uuid="$(uuidgen --random)" && \
@@ -162,7 +156,7 @@ emerge -at sys-boot/grub; echo $?
 
 ### ESP(s)
 
-In the following, a minimal Grub config for each ESP is created. Take care of the line marked with `TODO`.
+In the following, a minimal Grub config for the EFI binary is created. Take care of the line marked with `TODO`.
 
 ```bash
 cat <<EOF > /etc/gentoo-installation/boot/efi.cfg

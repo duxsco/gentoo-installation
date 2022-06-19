@@ -2,7 +2,7 @@
 
 ⚠ This installation guide was primarily written for my personal use to avoid reinventing the wheel over and over. **Thus, don't blindly copy&paste the commands! Understand what you are going to do and adjust commands if required!** I point this out, even though it should go without saying... ⚠
 
-⚠ The installation guide builds heavily on `Secure Boot` and requires TPM 2.0 for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
+⚠ The installation guide builds heavily on `Secure Boot` and requires TPM 2.0 for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on depending on the hardware in use ([link](#installation-of-secure-boot-files-via-uefi-firmware-settings)). ⚠
 
 ## Technologies
 

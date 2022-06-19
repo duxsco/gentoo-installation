@@ -95,13 +95,14 @@ eselect news list
 Update system:
 
 ```bash
+touch /etc/sysctl.conf && \
 echo "sys-apps/systemd cryptsetup" >> /etc/portage/package.use/main && \
 emerge -atuDN @world
 ```
 
 ## Non-Root User Creation
 
-Create a non-root user and set a password you can use with English keyboard layout for now. The keyboard layout will be changed in a later section after reboot.
+Create a non-root user and set a password you can use with English keyboard layout for now. You can set a secure password after rebooting and taking care of localisation.
 
 ```bash
 useradd -m -G wheel -s /bin/bash david && \
@@ -145,7 +146,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 
 ## Configuration Of /etc/fstab
 
-Set /etc/fstab:
+Set /etc/fstab and add `noauto` mount option to `/efi*` entries if you have ESP(s) on removable media:
 
 ```bash
 echo "" >> /etc/fstab
@@ -186,7 +187,7 @@ EOF
 fi && \
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge sys-kernel/linux-firmware && \
+emerge sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/linux-firmware && \
 emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 ```
 
@@ -209,7 +210,7 @@ rsync -a /etc/hosts /etc/._cfg0000_hosts && \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
 
-Enable ssh service:
+(Optional) Enable ssh service:
 
 ```bash
 systemctl --no-reload enable sshd.service
@@ -224,7 +225,7 @@ emerge app-shells/starship && \
 mkdir --mode=0700 /home/david/.config /root/.config && \
 touch /home/david/.config/starship.toml && \
 chown -R david:david /home/david/.config && \
-cat <<'EOF' | tee -a /root/.config/starship.toml >> /home/david/.config/starship.toml; echo $?
+cat <<'EOF' | tee /root/.config/starship.toml > /home/david/.config/starship.toml; echo $?
 [hostname]
 ssh_only = false
 format =  "[$hostname](bold red) "

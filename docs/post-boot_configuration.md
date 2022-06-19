@@ -105,10 +105,12 @@ Create new LUKS keyslots on all swap and system partitions:
 # Adjust PCR IDs, e.g.: --tpm2-pcrs=1+7
 # Further info can be found at:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sda4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sda5
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sdb4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=1+2+3+4+5+6+7 /dev/sdb5
+#
+# "--tpm2-with-pin=yes" is optional.
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sda4
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sda5
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sdb4
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sdb5
 # etc.
 ```
 
@@ -147,10 +149,10 @@ Bind all swap and system LUKS volumes:
 # Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
 # Further info can be found at:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-clevis luks bind -d /dev/sda4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
-clevis luks bind -d /dev/sda5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
-clevis luks bind -d /dev/sdb4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
-clevis luks bind -d /dev/sdb5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/sda4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/sda5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/sdb4 tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}'
+clevis luks bind -d /dev/sdb5 tpm2 '{"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}'
 # etc.
 ```
 

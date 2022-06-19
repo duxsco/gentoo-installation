@@ -6,16 +6,16 @@ Boot into SystemRescueCD and set the correct keyboard layout:
 loadkeys de-latin1-nodeadkeys
 ```
 
-Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
-
-```bash
-sysctl -w kernel.sysrq=0
-```
-
 Make sure you have booted with UEFI:
 
 ```bash
 [ -d /sys/firmware/efi ] && echo UEFI || echo BIOS
+```
+
+Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
+
+```bash
+sysctl -w kernel.sysrq=0
 ```
 
 Do initial setup (copy&paste one after the other):
