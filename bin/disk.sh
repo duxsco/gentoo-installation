@@ -270,8 +270,8 @@ function luksOpen() {
         declare -a token_type
         token_id=0
 
-        while cryptsetup token export --token_id "\${token_id}" "/dev/disk/by-uuid/\$1" >/dev/null 2>&1; do
-            token_type+=( "\$(cryptsetup token export --token_id "\${token_id}" "/dev/disk/by-uuid/\$1" | jq -r '.type')" )
+        while cryptsetup token export --token-id "\${token_id}" "/dev/disk/by-uuid/\$1" >/dev/null 2>&1; do
+            token_type+=( "\$(cryptsetup token export --token-id "\${token_id}" "/dev/disk/by-uuid/\$1" | jq -r '.type')" )
             ((token_id++))
         done
 
