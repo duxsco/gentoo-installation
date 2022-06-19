@@ -1,273 +1,521 @@
 
-<!DOCTYPE html>
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Gentoo installation using Measured Boot, Secure Boot, Full Disk Encryption, RAID and offering a rescue system based on customised SystemRescueCD">
+      
+      
+        <meta name="author" content="David Sardari">
+      
+      
+        <link rel="canonical" href="https://duxsco.github.io/gentoo-installation/system_setup/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+    
+    
+      
+        <title>6. System Setup - Gentoo Linux Installation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4a0965b7.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
 
-<html class="no-js" lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
-<meta content="Gentoo installation using Measured Boot, Secure Boot, Full Disk Encryption, RAID and offering a rescue system based on customised SystemRescueCD" name="description"/>
-<meta content="David Sardari" name="author"/>
-<link href="https://duxsco.github.io/gentoo-installation/system_setup/" rel="canonical"/>
-<link href="../assets/images/favicon.png" rel="icon"/>
-<meta content="mkdocs-1.3.0, mkdocs-material-8.3.6" name="generator"/>
-<title>System Setup - Gentoo Linux Installation</title>
-<link href="../assets/stylesheets/main.4a0965b7.min.css" rel="stylesheet"/>
-<link href="../assets/stylesheets/palette.cbb835fc.min.css" rel="stylesheet"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
-<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-<script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-</head>
-<body data-md-color-accent="none" data-md-color-primary="none" data-md-color-scheme="" dir="ltr">
-<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
-<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
-<label class="md-overlay" for="__drawer"></label>
-<div data-md-component="skip">
-<a class="md-skip" href="#portage-setup">
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#61-portage-setup" class="md-skip">
           Skip to content
         </a>
-</div>
-<div data-md-component="announce">
-</div>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
 <header class="md-header" data-md-component="header">
-<nav aria-label="Header" class="md-header__inner md-grid">
-<a aria-label="Gentoo Linux Installation" class="md-header__button md-logo" data-md-component="logo" href=".." title="Gentoo Linux Installation">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"></path></svg>
-</a>
-<label class="md-header__button md-icon" for="__drawer">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
-</label>
-<div class="md-header__title" data-md-component="header-title">
-<div class="md-header__ellipsis">
-<div class="md-header__topic">
-<span class="md-ellipsis">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Gentoo Linux Installation" class="md-header__button md-logo" aria-label="Gentoo Linux Installation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
             Gentoo Linux Installation
           </span>
-</div>
-<div class="md-header__topic" data-md-component="header-topic">
-<span class="md-ellipsis">
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
             
-              System Setup
+              6. System Setup
             
           </span>
-</div>
-</div>
-</div>
-<label class="md-header__button md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
-</label>
-<div class="md-search" data-md-component="search" role="dialog">
-<label class="md-search__overlay" for="__search"></label>
-<div class="md-search__inner" role="search">
-<form class="md-search__form" name="search">
-<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
-<label class="md-search__icon md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
-</label>
-<nav aria-label="Search" class="md-search__options">
-<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" type="reset">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
-</button>
-</nav>
-</form>
-<div class="md-search__output">
-<div class="md-search__scrollwrap" data-md-scrollfix="">
-<div class="md-search-result" data-md-component="search-result">
-<div class="md-search-result__meta">
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
             Initializing search
           </div>
-<ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-</div>
-</div>
-</div>
-</div>
-<div class="md-header__source">
-<a class="md-source" data-md-component="source" href="https://github.com/duxsco/gentoo-installation/" title="Go to repository">
-<div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
-</div>
-<div class="md-source__repository">
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/duxsco/gentoo-installation/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
     duxsco/gentoo-installation
   </div>
 </a>
-</div>
-</nav>
+      </div>
+    
+  </nav>
+  
 </header>
-<div class="md-container" data-md-component="container">
-<main class="md-main" data-md-component="main">
-<div class="md-main__inner md-grid">
-<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
-<label class="md-nav__title" for="__drawer">
-<a aria-label="Gentoo Linux Installation" class="md-nav__button md-logo" data-md-component="logo" href=".." title="Gentoo Linux Installation">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"></path></svg>
-</a>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Gentoo Linux Installation" class="md-nav__button md-logo" aria-label="Gentoo Linux Installation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
     Gentoo Linux Installation
   </label>
-<div class="md-nav__source">
-<a class="md-source" data-md-component="source" href="https://github.com/duxsco/gentoo-installation/" title="Go to repository">
-<div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
-</div>
-<div class="md-source__repository">
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/duxsco/gentoo-installation/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
     duxsco/gentoo-installation
   </div>
 </a>
-</div>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="..">
-        Introduction
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        1. Introduction
       </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../live-cd_environment/">
-        Live-CD Environment
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../live-cd_environment/" class="md-nav__link">
+        2. Live-CD Environment
       </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../disk_setup/">
-        Disk Setup
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../disk_setup/" class="md-nav__link">
+        3. Disk Setup
       </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../rescue_system/">
-        Rescue System
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rescue_system/" class="md-nav__link">
+        4. Rescue System
       </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../chrooting/">
-        Chrooting
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chrooting/" class="md-nav__link">
+        5. Chrooting
       </a>
-</li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
-          System Setup
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          6. System Setup
           <span class="md-nav__icon md-icon"></span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="./">
-        System Setup
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        6. System Setup
       </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon"></span>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#portage-setup">
-    Portage Setup
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#61-portage-setup" class="md-nav__link">
+    6.1. Portage Setup
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#non-root-user-creation">
-    Non-Root User Creation
+      
+        <li class="md-nav__item">
+  <a href="#62-non-root-user-creation" class="md-nav__link">
+    6.2. Non-Root User Creation
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#configuration-of-etcfstab">
-    Configuration Of /etc/fstab
+      
+        <li class="md-nav__item">
+  <a href="#63-configuration-of-etcfstab" class="md-nav__link">
+    6.3. Configuration Of /etc/fstab
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#kernel-installation">
-    Kernel Installation
+      
+        <li class="md-nav__item">
+  <a href="#64-kernel-installation" class="md-nav__link">
+    6.4. Kernel Installation
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#additional-packages">
-    Additional Packages
+      
+        <li class="md-nav__item">
+  <a href="#65-additional-packages" class="md-nav__link">
+    6.5. Additional Packages
   </a>
+  
 </li>
-</ul>
+      
+    </ul>
+  
 </nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../boot_setup/">
-        Boot Setup
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../boot_setup/" class="md-nav__link">
+        7. Boot Setup
       </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../cleanup_and_reboot/">
-        Cleanup And Reboot
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cleanup_and_reboot/" class="md-nav__link">
+        8. Cleanup And Reboot
       </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../post-boot_configuration/">
-        Post-Boot Configuration
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../post-boot_configuration/" class="md-nav__link">
+        9. Post-Boot Configuration
       </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../optional_steps/">
-        Optional Steps
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../optional_steps/" class="md-nav__link">
+        10. Optional Steps
       </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../other_gentoo_linux_repos/">
-        Other Gentoo Linux Repos
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../other_gentoo_linux_repos/" class="md-nav__link">
+        11. Other Gentoo Linux Repos
       </a>
-</li>
-</ul>
+    </li>
+  
+
+    
+  </ul>
 </nav>
-</div>
-</div>
-</div>
-<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon"></span>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#portage-setup">
-    Portage Setup
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#61-portage-setup" class="md-nav__link">
+    6.1. Portage Setup
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#non-root-user-creation">
-    Non-Root User Creation
+      
+        <li class="md-nav__item">
+  <a href="#62-non-root-user-creation" class="md-nav__link">
+    6.2. Non-Root User Creation
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#configuration-of-etcfstab">
-    Configuration Of /etc/fstab
+      
+        <li class="md-nav__item">
+  <a href="#63-configuration-of-etcfstab" class="md-nav__link">
+    6.3. Configuration Of /etc/fstab
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#kernel-installation">
-    Kernel Installation
+      
+        <li class="md-nav__item">
+  <a href="#64-kernel-installation" class="md-nav__link">
+    6.4. Kernel Installation
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#additional-packages">
-    Additional Packages
+      
+        <li class="md-nav__item">
+  <a href="#65-additional-packages" class="md-nav__link">
+    6.5. Additional Packages
   </a>
+  
 </li>
-</ul>
+      
+    </ul>
+  
 </nav>
-</div>
-</div>
-</div>
-<div class="md-content" data-md-component="content">
-<article class="md-content__inner md-typeset">
-<a class="md-content__button md-icon" href="https://github.com/duxsco/gentoo-installation/blob/main/docs/system_setup.md" title="Edit this page">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"></path></svg>
-</a>
-<h1><span class="enumerate-headings-plugin enumerate-heading-plugin">6.</span> System Setup</h1>
-<h2 id="portage-setup"><span class="enumerate-headings-plugin enumerate-heading-plugin">6.1</span> Portage Setup</h2>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/duxsco/gentoo-installation/blob/main/docs/system_setup.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+  <h1>6. System Setup</h1>
+
+<h2 id="61-portage-setup">6.1. Portage Setup</h2>
 <p>Make <code>dispatch-conf</code> show diffs in color and use vimdiff for merging:</p>
 <pre><code class="language-bash">rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf &amp;&amp; \
 sed -i \
--e "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" \
--e "s/merge=\"sdiff --suppress-common-lines --output='%s' '%s' '%s'\"/merge=\"vimdiff -c'saveas %s' -c next -c'setlocal noma readonly' -c prev '%s' '%s'\"/" \
+-e &quot;s/diff=\&quot;diff -Nu '%s' '%s'\&quot;/diff=\&quot;diff --color=always -Nu '%s' '%s'\&quot;/&quot; \
+-e &quot;s/merge=\&quot;sdiff --suppress-common-lines --output='%s' '%s' '%s'\&quot;/merge=\&quot;vimdiff -c'saveas %s' -c next -c'setlocal noma readonly' -c prev '%s' '%s'\&quot;/&quot; \
 /etc/._cfg0000_dispatch-conf.conf
 </code></pre>
 <p>Install to be able to configure <code>/etc/portage/make.conf</code>:</p>
@@ -279,45 +527,45 @@ sed -i \
 # If you use distcc, beware of:
 # https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
 #
-# You could resolve "-march=native" with app-misc/resolve-march-native
-sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/._cfg0000_make.conf
+# You could resolve &quot;-march=native&quot; with app-misc/resolve-march-native
+sed -i 's/COMMON_FLAGS=&quot;-O2 -pipe&quot;/COMMON_FLAGS=&quot;-march=native -O2 -pipe&quot;/' /etc/portage/._cfg0000_make.conf
 
 cat &lt;&lt;'EOF' &gt;&gt; /etc/portage/._cfg0000_make.conf
-EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '*/*-bin sys-kernel/* virtual/*' --noconfmem --with-bdeps=y --complete-graph=y"
+EMERGE_DEFAULT_OPTS=&quot;--buildpkg --buildpkg-exclude '*/*-bin sys-kernel/* virtual/*' --noconfmem --with-bdeps=y --complete-graph=y&quot;
 
-L10N="de"
-LINGUAS="${L10N}"
+L10N=&quot;de&quot;
+LINGUAS=&quot;${L10N}&quot;
 
-GENTOO_MIRRORS="https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/"
-FETCHCOMMAND="curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
-RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"
+GENTOO_MIRRORS=&quot;https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/&quot;
+FETCHCOMMAND=&quot;curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --retry 2 --connect-timeout 60 -o \&quot;\${DISTDIR}/\${FILE}\&quot; \&quot;\${URI}\&quot;&quot;
+RESUMECOMMAND=&quot;${FETCHCOMMAND} --continue-at -&quot;
 
-USE_HARDENED="pie -sslv3 -suid verify-sig"
-USE="${USE_HARDENED} fish-completion"
+USE_HARDENED=&quot;pie -sslv3 -suid verify-sig&quot;
+USE=&quot;${USE_HARDENED} fish-completion&quot;
 
 EOF
 
-echo "*/* $(cpuid2cpuflags)" &gt; /etc/portage/package.use/00cpu-flags
+echo &quot;*/* $(cpuid2cpuflags)&quot; &gt; /etc/portage/package.use/00cpu-flags
 </code></pre>
 <p>(Optional) Change <code>GENTOO_MIRRORS</code> in <code>/etc/portage/make.conf</code> (copy&amp;paste one after the other):</p>
 <pre><code class="language-bash"># Install app-misc/yq
 ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq
 
 # Get a list of country codes and names:
-curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r '.mirrors.mirrorgroup[] | "\(.["@country"]) \(.["@countryname"])"' | sort -k2.2
+curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r '.mirrors.mirrorgroup[] | &quot;\(.[&quot;@country&quot;]) \(.[&quot;@countryname&quot;])&quot;' | sort -k2.2
 
 # Choose your countries the mirrors should be located in:
-country='"AU","BE","BR","CA","CH","CL","CN","CZ","DE","DK","ES","FR","GR","HK","IL","IT","JP","KR","KZ","LU","NA","NC","NL","PH","PL","PT","RO","RU","SG","SK","TR","TW","UK","US","ZA"'
+country='&quot;AU&quot;,&quot;BE&quot;,&quot;BR&quot;,&quot;CA&quot;,&quot;CH&quot;,&quot;CL&quot;,&quot;CN&quot;,&quot;CZ&quot;,&quot;DE&quot;,&quot;DK&quot;,&quot;ES&quot;,&quot;FR&quot;,&quot;GR&quot;,&quot;HK&quot;,&quot;IL&quot;,&quot;IT&quot;,&quot;JP&quot;,&quot;KR&quot;,&quot;KZ&quot;,&quot;LU&quot;,&quot;NA&quot;,&quot;NC&quot;,&quot;NL&quot;,&quot;PH&quot;,&quot;PL&quot;,&quot;PT&quot;,&quot;RO&quot;,&quot;RU&quot;,&quot;SG&quot;,&quot;SK&quot;,&quot;TR&quot;,&quot;TW&quot;,&quot;UK&quot;,&quot;US&quot;,&quot;ZA&quot;'
 
 # Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support
-curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r ".mirrors.mirrorgroup[] | select([.\"@country\"] | inside([${country}])) | .mirror | if type==\"array\" then .[] else . end | .uri | if type==\"array\" then .[] else . end | select(.\"@protocol\" == \"http\" and .\"@ipv4\" == \"y\" and .\"@ipv6\" == \"y\" and (.\"#text\" | startswith(\"https://\"))) | .\"#text\"" | while read -r i; do
-  if curl -fs --proto '=https' --tlsv1.3 -I "${i}" &gt;/dev/null; then
-    echo "${i}"
+curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r &quot;.mirrors.mirrorgroup[] | select([.\&quot;@country\&quot;] | inside([${country}])) | .mirror | if type==\&quot;array\&quot; then .[] else . end | .uri | if type==\&quot;array\&quot; then .[] else . end | select(.\&quot;@protocol\&quot; == \&quot;http\&quot; and .\&quot;@ipv4\&quot; == \&quot;y\&quot; and .\&quot;@ipv6\&quot; == \&quot;y\&quot; and (.\&quot;#text\&quot; | startswith(\&quot;https://\&quot;))) | .\&quot;#text\&quot;&quot; | while read -r i; do
+  if curl -fs --proto '=https' --tlsv1.3 -I &quot;${i}&quot; &gt;/dev/null; then
+    echo &quot;${i}&quot;
   fi
 done
 </code></pre>
 <p>I prefer English manpages and ignore above <code>L10N</code> setting for <code>sys-apps/man-pages</code>. Makes using Stackoverflow easier 😉.</p>
-<pre><code class="language-bash">echo "sys-apps/man-pages -l10n_de" &gt;&gt; /etc/portage/package.use/main
+<pre><code class="language-bash">echo &quot;sys-apps/man-pages -l10n_de&quot; &gt;&gt; /etc/portage/package.use/main
 </code></pre>
 <p>Install <code>app-portage/eix</code>:</p>
 <pre><code class="language-bash">emerge -at app-portage/eix
@@ -332,46 +580,48 @@ done
 # etc.
 </code></pre>
 <p>Update system:</p>
-<pre><code class="language-bash">echo "sys-apps/systemd cryptsetup" &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
+<pre><code class="language-bash">touch /etc/sysctl.conf &amp;&amp; \
+echo &quot;sys-apps/systemd cryptsetup&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
 emerge -atuDN @world
 </code></pre>
-<h2 id="non-root-user-creation"><span class="enumerate-headings-plugin enumerate-heading-plugin">6.2</span> Non-Root User Creation</h2>
-<p>Create a non-root user and set a password you can use with English keyboard layout for now. The keyboard layout will be changed in a later section after reboot.</p>
+<h2 id="62-non-root-user-creation">6.2. Non-Root User Creation</h2>
+<p>Create a non-root user and set a password you can use with English keyboard layout for now. You can set a secure password after rebooting and taking care of localisation.</p>
 <pre><code class="language-bash">useradd -m -G wheel -s /bin/bash david &amp;&amp; \
 chmod u=rwx,og= /home/david &amp;&amp; \
-echo -e 'alias cp="cp -i"\nalias mv="mv -i"\nalias rm="rm -i"' &gt;&gt; /home/david/.bash_aliases &amp;&amp; \
+echo -e 'alias cp=&quot;cp -i&quot;\nalias mv=&quot;mv -i&quot;\nalias rm=&quot;rm -i&quot;' &gt;&gt; /home/david/.bash_aliases &amp;&amp; \
 chown david:david /home/david/.bash_aliases &amp;&amp; \
-echo 'source "${HOME}/.bash_aliases"' &gt;&gt; /home/david/.bashrc &amp;&amp; \
+echo 'source &quot;${HOME}/.bash_aliases&quot;' &gt;&gt; /home/david/.bashrc &amp;&amp; \
 passwd david
 </code></pre>
 <p>(Optional) Create your <code>authorized_keys</code>:</p>
 <pre><code class="language-bash">rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/
 </code></pre>
 <p>Setup sudo:</p>
-<pre><code class="language-bash">echo "app-admin/sudo -sendmail" &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
+<pre><code class="language-bash">echo &quot;app-admin/sudo -sendmail&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
 emerge app-admin/sudo &amp;&amp; \
-echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?
+echo &quot;%wheel ALL=(ALL) ALL&quot; | EDITOR=&quot;tee&quot; visudo -f /etc/sudoers.d/wheel; echo $?
 </code></pre>
 <p>Setup vim:</p>
-<pre><code class="language-bash">USE="-verify-sig" emerge -1 dev-libs/libsodium &amp;&amp; \
+<pre><code class="language-bash">USE=&quot;-verify-sig&quot; emerge -1 dev-libs/libsodium &amp;&amp; \
 emerge -1 dev-libs/libsodium app-editors/vim &amp;&amp; \
 emerge --select --noreplace app-editors/vim &amp;&amp; \
-echo "filetype plugin on
+sed -i 's/^USE=&quot;\([^&quot;]*\)&quot;$/USE=&quot;\1 vim-syntax&quot;/' /etc/portage/make.conf &amp;&amp; \
+echo &quot;filetype plugin on
 filetype indent on
 set number
 set paste
-syntax on" | tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  &amp;&amp; \
+syntax on&quot; | tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  &amp;&amp; \
 chown david:david /home/david/.vimrc &amp;&amp; \
 eselect editor set vi &amp;&amp; \
 eselect vi set vim &amp;&amp; \
-env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1="(chroot) $PS1"; echo $?
+env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $PS1&quot;; echo $?
 </code></pre>
-<h2 id="configuration-of-etcfstab"><span class="enumerate-headings-plugin enumerate-heading-plugin">6.3</span> Configuration Of /etc/fstab</h2>
-<p>Set /etc/fstab:</p>
-<pre><code class="language-bash">echo "" &gt;&gt; /etc/fstab
-echo "
+<h2 id="63-configuration-of-etcfstab">6.3. Configuration Of /etc/fstab</h2>
+<p>Set /etc/fstab and add <code>noauto</code> mount option to <code>/efi*</code> entries if you have ESP(s) on removable media:</p>
+<pre><code class="language-bash">echo &quot;&quot; &gt;&gt; /etc/fstab
+echo &quot;
 $(find /devEfi* -maxdepth 0 | while read -r i; do
-  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,dmask=0022,fmask=0133 0 0"
+  echo &quot;UUID=$(blkid -s UUID -o value &quot;$i&quot;)  ${i/devE/e}          vfat  noatime,dmask=0022,fmask=0133 0 0&quot;
 done)
 UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime                       0 0
 UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                            0 0
@@ -379,19 +629,19 @@ UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,
 UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home          0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0" | column -o " " -t &gt;&gt; /etc/fstab &amp;&amp; \
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0&quot; | column -o &quot; &quot; -t &gt;&gt; /etc/fstab &amp;&amp; \
 find /devEfi* -maxdepth 0 | while read -r i; do
-  mkdir "${i/devE/e}"
-  mount "${i/devE/e}"
+  mkdir &quot;${i/devE/e}&quot;
+  mount &quot;${i/devE/e}&quot;
 done; echo $?
 </code></pre>
-<h2 id="kernel-installation"><span class="enumerate-headings-plugin enumerate-heading-plugin">6.4</span> Kernel Installation</h2>
+<h2 id="64-kernel-installation">6.4. Kernel Installation</h2>
 <p>Install the <a href="https://www.kernel.org/category/releases.html">kernel</a>:</p>
-<pre><code class="language-bash">install_lts_kernel="true" &amp;&amp; \
-echo "sys-fs/btrfs-progs ~amd64
+<pre><code class="language-bash">install_lts_kernel=&quot;true&quot; &amp;&amp; \
+echo &quot;sys-fs/btrfs-progs ~amd64
 sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/linux-headers ~amd64
-virtual/dist-kernel ~amd64" &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
+virtual/dist-kernel ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
 if [[ ${install_lts_kernel} == true ]]; then
 cat &lt;&lt;EOF &gt;&gt; /etc/portage/package.mask/main
 &gt;=sys-fs/btrfs-progs-5.16
@@ -400,47 +650,47 @@ cat &lt;&lt;EOF &gt;&gt; /etc/portage/package.mask/main
 &gt;=virtual/dist-kernel-5.16
 EOF
 fi &amp;&amp; \
-echo "sys-fs/btrfs-progs -convert" &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
-echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" &gt;&gt; /etc/portage/package.license &amp;&amp; \
-emerge sys-kernel/linux-firmware &amp;&amp; \
-emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
+echo &quot;sys-fs/btrfs-progs -convert&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
+echo &quot;sys-kernel/linux-firmware linux-fw-redistributable no-source-code&quot; &gt;&gt; /etc/portage/package.license &amp;&amp; \
+emerge sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n &quot;sys-fs/mdadm&quot;; fi) sys-kernel/linux-firmware &amp;&amp; \
+emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n &quot;sys-fs/mdadm&quot;; fi) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 </code></pre>
-<h2 id="additional-packages"><span class="enumerate-headings-plugin enumerate-heading-plugin">6.5</span> Additional Packages</h2>
+<h2 id="65-additional-packages">6.5. Additional Packages</h2>
 <p>Microcode updates are not necessary for virtual systems. Otherwise, install <code>sys-firmware/intel-microcode</code> if you have an Intel CPU. Or, follow the <a href="https://wiki.gentoo.org/wiki/AMD_microcode">Gentoo wiki instruction</a> to update the microcode on AMD systems.</p>
-<pre><code class="language-bash">! grep -q -w "hypervisor" &lt;(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) &amp;&amp; \
-grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo &amp;&amp; \
-echo "sys-firmware/intel-microcode intel-ucode" &gt;&gt; /etc/portage/package.license &amp;&amp; \
-echo "sys-firmware/intel-microcode -* hostonly initramfs" &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
+<pre><code class="language-bash">! grep -q -w &quot;hypervisor&quot; &lt;(grep &quot;^flags[[:space:]]*:[[:space:]]*&quot; /proc/cpuinfo) &amp;&amp; \
+grep -q &quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$&quot; /proc/cpuinfo &amp;&amp; \
+echo &quot;sys-firmware/intel-microcode intel-ucode&quot; &gt;&gt; /etc/portage/package.license &amp;&amp; \
+echo &quot;sys-firmware/intel-microcode -* hostonly initramfs&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
 emerge -at sys-firmware/intel-microcode; echo $?
 </code></pre>
 <p>Set <code>/etc/hosts</code>:</p>
 <pre><code class="language-bash">rsync -a /etc/hosts /etc/._cfg0000_hosts &amp;&amp; \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 </code></pre>
-<p>Enable ssh service:</p>
+<p>(Optional) Enable ssh service:</p>
 <pre><code class="language-bash">systemctl --no-reload enable sshd.service
 </code></pre>
 <ul>
 <li>starship:</li>
 </ul>
-<pre><code class="language-bash"># If you have insufficient ressources, you may want to "emerge -1 dev-lang/rust-bin" beforehand.
-echo "app-shells/starship ~amd64" &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
+<pre><code class="language-bash"># If you have insufficient ressources, you may want to &quot;emerge -1 dev-lang/rust-bin&quot; beforehand.
+echo &quot;app-shells/starship ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
 emerge app-shells/starship &amp;&amp; \
 mkdir --mode=0700 /home/david/.config /root/.config &amp;&amp; \
 touch /home/david/.config/starship.toml &amp;&amp; \
 chown -R david:david /home/david/.config &amp;&amp; \
-cat &lt;&lt;'EOF' | tee -a /root/.config/starship.toml &gt;&gt; /home/david/.config/starship.toml; echo $?
+cat &lt;&lt;'EOF' | tee /root/.config/starship.toml &gt; /home/david/.config/starship.toml; echo $?
 [hostname]
 ssh_only = false
-format =  "[$hostname](bold red) "
+format =  &quot;[$hostname](bold red) &quot;
 
 EOF
 </code></pre>
 <ul>
 <li>fish shell:</li>
 </ul>
-<pre><code class="language-bash">echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
-echo "app-shells/fish ~amd64" &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
+<pre><code class="language-bash">echo &quot;=dev-libs/libpcre2-$(qatom -F &quot;%{PVR}&quot; &quot;$(portageq best_visible / dev-libs/libpcre2)&quot;) pcre32&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
+echo &quot;app-shells/fish ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
 emerge app-shells/fish &amp;&amp; \
 echo '
 # Use fish in place of bash
@@ -453,7 +703,7 @@ elif [[ -z ${chrooted_su} ]]; then
     export chrooted_su=true
     source /etc/profile &amp;&amp; su --login --whitelist-environment=chrooted,chrooted_su
 else
-    env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1="(chroot) $PS1"
+    env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $PS1&quot;
 fi' &gt;&gt; /root/.bashrc &amp;&amp; \
 echo '
 # Use fish in place of bash
@@ -466,22 +716,22 @@ fi' &gt;&gt; /home/david/.bashrc; echo $?
 <pre><code class="language-bash">/bin/fish -c fish_update_completions
 </code></pre>
 <p><code>non-root</code> setup:</p>
-<pre><code class="language-bash">su -l david -c "/bin/fish -c fish_update_completions"
+<pre><code class="language-bash">su -l david -c &quot;/bin/fish -c fish_update_completions&quot;
 </code></pre>
 <p>Enable aliases and starship (copy&amp;paste one after the other):</p>
 <pre><code>su -
 exit
 su - david
 exit
-sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | source\nend/' /root/.config/fish/config.fish
-sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | source\nend/' /home/david/.config/fish/config.fish
+sed -i 's/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/' /root/.config/fish/config.fish
+sed -i 's/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/' /home/david/.config/fish/config.fish
 </code></pre>
 <ul>
 <li>nerd fonts:</li>
 </ul>
 <pre><code class="language-bash">emerge media-libs/fontconfig &amp;&amp; \
-su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip" &amp;&amp; \
-b2sum -c &lt;&lt;&lt;"81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip" &amp;&amp; \
+su -l david -c &quot;curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip&quot; &amp;&amp; \
+b2sum -c &lt;&lt;&lt;&quot;81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip&quot; &amp;&amp; \
 mkdir /tmp/FiraCode &amp;&amp; \
 unzip -d /tmp/FiraCode /tmp/FiraCode.zip &amp;&amp; \
 rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* &amp;&amp; \
@@ -494,7 +744,7 @@ rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firac
 </ul>
 <pre><code class="language-bash">[[ -e /devSwapb ]] &amp;&amp; \
 rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf &amp;&amp; \
-echo "" &gt;&gt; /etc/._cfg0000_mdadm.conf &amp;&amp; \
+echo &quot;&quot; &gt;&gt; /etc/._cfg0000_mdadm.conf &amp;&amp; \
 mdadm --detail --scan &gt;&gt; /etc/._cfg0000_mdadm.conf; echo $?
 </code></pre>
 <ul>
@@ -506,8 +756,8 @@ sed -i \
 -e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
 -e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
 -e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
-grep -q "^PasswordAuthentication no$" /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
-echo "
+grep -q &quot;^PasswordAuthentication no$&quot; /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
+echo &quot;
 AuthenticationMethods publickey
 
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
@@ -515,85 +765,106 @@ HostKeyAlgorithms ssh-ed25519
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 
-AllowUsers david" &gt;&gt; /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
+AllowUsers david&quot; &gt;&gt; /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
 ssh-keygen -A &amp;&amp; \
 sshd -t; echo $?
 </code></pre>
 <p>Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:</p>
-<pre><code class="language-bash">find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
+<pre><code class="language-bash">find /etc/ssh/ -type f -name &quot;ssh_host*\.pub&quot; -exec ssh-keygen -vlf {} \;
 </code></pre>
 <p>Setup client SSH config:</p>
-<pre><code class="language-bash">echo "AddKeysToAgent no
+<pre><code class="language-bash">echo &quot;AddKeysToAgent no
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 HashKnownHosts no
 StrictHostKeyChecking ask
-VisualHostKey yes" &gt; /home/david/.ssh/config &amp;&amp; \
+VisualHostKey yes&quot; &gt; /home/david/.ssh/config &amp;&amp; \
 chown david:david /home/david/.ssh/config; echo $?
 </code></pre>
 <ul>
 <li>sysrq (if you don't want to disable in kernel):</li>
 </ul>
-<pre><code class="language-bash">echo "kernel.sysrq = 0" &gt; /etc/sysctl.d/99sysrq.conf
+<pre><code class="language-bash">echo &quot;kernel.sysrq = 0&quot; &gt; /etc/sysctl.d/99sysrq.conf
 </code></pre>
 <ul>
 <li>misc tools:</li>
 </ul>
 <pre><code class="language-bash">emerge -at app-misc/screen app-portage/gentoolkit
 </code></pre>
-</article>
-</div>
-</div>
-</main>
-<footer class="md-footer">
-<nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Chrooting" class="md-footer__link md-footer__link--prev" href="../chrooting/" rel="prev">
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
-</div>
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../chrooting/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5. Chrooting" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
                 Previous
               </span>
-              Chrooting
+              5. Chrooting
             </div>
-</div>
-</a>
-<a aria-label="Next: Boot Setup" class="md-footer__link md-footer__link--next" href="../boot_setup/" rel="next">
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
+          </div>
+        </a>
+      
+      
+        
+        <a href="../boot_setup/" class="md-footer__link md-footer__link--next" aria-label="Next: 7. Boot Setup" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
                 Next
               </span>
-              Boot Setup
+              7. Boot Setup
             </div>
-</div>
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"></path></svg>
-</div>
-</a>
-</nav>
-<div class="md-footer-meta md-typeset">
-<div class="md-footer-meta__inner md-grid">
-<div class="md-copyright">
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
   
   
     Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
       Material for MkDocs
     </a>
+  
 </div>
-</div>
-</div>
+      
+    </div>
+  </div>
 </footer>
-</div>
-<div class="md-dialog" data-md-component="dialog">
-<div class="md-dialog__inner md-typeset"></div>
-</div>
-<script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
-<script src="../assets/javascripts/bundle.a877e258.min.js"></script>
-</body>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      
+    
+  </body>
 </html>
