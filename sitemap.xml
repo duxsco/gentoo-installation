@@ -2,57 +2,57 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/boot_setup/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/chrooting/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/cleanup_and_reboot/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/disk_setup/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/live-cd_environment/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/optional_steps/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/other_gentoo_linux_repos/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/post-boot_configuration/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/rescue_system/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://duxsco.github.io/gentoo-installation/system_setup/</loc>
-         <lastmod>2022-06-19</lastmod>
+         <lastmod>2022-06-20</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
