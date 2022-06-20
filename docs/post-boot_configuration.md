@@ -54,7 +54,9 @@ You have two options for `Measured Boot`:
 - `systemd-cryptenroll`: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd 251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with `systemd-cryptenroll` than with `clevis`, and you don't have to use the `app-crypt/clevis` package from (unofficial) [guru overlay](https://wiki.gentoo.org/wiki/Project:GURU).
 - `clevis`: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.
 
-### 9.2.1. a) systemd-cryptenroll
+Use either `system-cryptenroll` or `clevis` in the following.
+
+### 9.2.1.a) systemd-cryptenroll
 
 Install `app-crypt/tpm2-tools`:
 
@@ -120,7 +122,7 @@ Remove overlay directory containing `app-crypt/clevis`:
 rm -rf /root/localrepo
 ```
 
-### 9.2.1. b) clevis
+### 9.2.1.b) clevis
 
 Install `dev-vcs/git`:
 
