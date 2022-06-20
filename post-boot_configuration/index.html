@@ -374,15 +374,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#921-a-systemd-cryptenroll" class="md-nav__link">
-    9.2.1. a) systemd-cryptenroll
+  <a href="#921a-systemd-cryptenroll" class="md-nav__link">
+    9.2.1.a) systemd-cryptenroll
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#921-b-clevis" class="md-nav__link">
-    9.2.1. b) clevis
+  <a href="#921b-clevis" class="md-nav__link">
+    9.2.1.b) clevis
   </a>
   
 </li>
@@ -484,15 +484,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#921-a-systemd-cryptenroll" class="md-nav__link">
-    9.2.1. a) systemd-cryptenroll
+  <a href="#921a-systemd-cryptenroll" class="md-nav__link">
+    9.2.1.a) systemd-cryptenroll
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#921-b-clevis" class="md-nav__link">
-    9.2.1. b) clevis
+  <a href="#921b-clevis" class="md-nav__link">
+    9.2.1.b) clevis
   </a>
   
 </li>
@@ -577,7 +577,8 @@ systemctl enable nftables-restore; echo $?
 <li><code>systemd-cryptenroll</code>: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd 251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with <code>systemd-cryptenroll</code> than with <code>clevis</code>, and you don't have to use the <code>app-crypt/clevis</code> package from (unofficial) <a href="https://wiki.gentoo.org/wiki/Project:GURU">guru overlay</a>.</li>
 <li><code>clevis</code>: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.</li>
 </ul>
-<h3 id="921-a-systemd-cryptenroll">9.2.1. a) systemd-cryptenroll</h3>
+<p>Use either <code>system-cryptenroll</code> or <code>clevis</code> in the following.</p>
+<h3 id="921a-systemd-cryptenroll">9.2.1.a) systemd-cryptenroll</h3>
 <p>Install <code>app-crypt/tpm2-tools</code>:</p>
 <pre><code class="language-bash">echo &quot;=app-crypt/tpm2-tools-5.2-r1 ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
 emerge -av tpm2-tools
@@ -617,7 +618,7 @@ systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-p
 <p>Remove overlay directory containing <code>app-crypt/clevis</code>:</p>
 <pre><code class="language-bash">rm -rf /root/localrepo
 </code></pre>
-<h3 id="921-b-clevis">9.2.1. b) clevis</h3>
+<h3 id="921b-clevis">9.2.1.b) clevis</h3>
 <p>Install <code>dev-vcs/git</code>:</p>
 <pre><code class="language-bash">emerge -at dev-vcs/git
 </code></pre>
