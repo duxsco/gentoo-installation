@@ -11,9 +11,7 @@ dev-python/mkdocs-material ~amd64" >> /etc/portage/package.accept_keywords/main
 emerge -av dev-python/mkdocs dev-python/mkdocs-material
 ```
 
-2. Install [mkdocs-enumerate-headings-plugin](https://github.com/timvink/mkdocs-enumerate-headings-plugin)
-
-3. Within the folder containing `mkdocs.yml`, execute as `non-root`:
+2. Within the folder containing `mkdocs.yml`, execute as `non-root`:
 
 ```bash
 mkdocs serve
