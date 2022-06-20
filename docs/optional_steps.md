@@ -27,17 +27,3 @@ mokutil --sb-state
 ## 10.2. Enable SELinux
 
 This is optional! Steps are documented in the [gentoo-selinux](https://github.com/duxsco/gentoo-selinux) repo.
-
-## 10.3. Update Linux kernel
-
-For every kernel update, execute:
-
-```bash
-# Install kernel update with "emerge"
-
-# List kernels
-eselect kernel list
-
-# Select the kernel of your choice with
-eselect kernel set <NUMBER>
-```
