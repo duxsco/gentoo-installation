@@ -157,10 +157,10 @@ Bind all swap and system LUKS volumes. You need to **boot with each EFI binary (
 # Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
 # Further info can be found at:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-clevis luks bind -d /dev/sda4 '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sda5 '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sdb4 '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sdb5 '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sda4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sda5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sdb4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sdb5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
 # etc.
 ```
 
