@@ -228,7 +228,7 @@ done
 
 ### 7.3.2. /boot
 
-Setup `grub.cfg` and remove `rd.luks.options=tpm2-device=auto` if you are going to use `clevis` instead of `systemd-cryptenroll`:
+Setup `grub.cfg` and replace `rd.luks.options=password-echo=no,tpm2-device=auto` with `rd.luks.options=password-echo=no` if you are going to use `clevis` instead of `systemd-cryptenroll`:
 
 ```bash
 rescue_uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
@@ -247,14 +247,14 @@ set timeout=5
 
 menuentry 'Gentoo GNU/Linux' --unrestricted {
     echo 'Loading Linux ...'
-    linux /vmlinuz ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
+    linux /vmlinuz ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=password-echo=no,tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
     echo 'Loading initial ramdisk ...'
     initrd ${my_microcode}/initramfs
 }
 
 menuentry 'Gentoo GNU/Linux (old)' --unrestricted {
     echo 'Loading Linux (old) ...'
-    linux /vmlinuz.old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
+    linux /vmlinuz.old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=password-echo=no,tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
     echo 'Loading initial ramdisk ...'
     initrd ${my_microcode}/initramfs.old
 }
