@@ -11,6 +11,11 @@ theme:
   name: material
   locale: en
   use_directory_urls: true
+  icon:
+    repo: material/github
+markdown_extensions:
+  toc:
+    permalink: True
 nav:
   - 1. Introduction: index.md
   - 2. Live-CD Environment: live-cd_environment.md
