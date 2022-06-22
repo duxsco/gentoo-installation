@@ -641,10 +641,10 @@ emerge -at app-crypt/clevis
 <pre><code class="language-bash"># Adjust PCR IDs, e.g.: &quot;pcr_ids&quot;:&quot;1,7&quot;
 # Further info can be found at:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-clevis luks bind -d /dev/sda4 '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
-clevis luks bind -d /dev/sda5 '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
-clevis luks bind -d /dev/sdb4 '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
-clevis luks bind -d /dev/sdb5 '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
+clevis luks bind -d /dev/sda4 sss '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
+clevis luks bind -d /dev/sda5 sss '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
+clevis luks bind -d /dev/sdb4 sss '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
+clevis luks bind -d /dev/sdb5 sss '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
 # etc.
 </code></pre>
 <p>Show results:</p>
