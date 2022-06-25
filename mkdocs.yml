@@ -14,8 +14,11 @@ theme:
   icon:
     repo: material/github
 markdown_extensions:
-  toc:
-    permalink: True
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - toc:
+      permalink: True
 nav:
   - 1. Introduction: index.md
   - 2. Live-CD Environment: live-cd_environment.md

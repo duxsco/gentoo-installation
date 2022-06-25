@@ -10,7 +10,8 @@ disk="/dev/sda"
 lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r | while read -r i; do wipefs -a "$i"; done
 ```
 
-⚠ If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. [https://wiki.archlinux.org/title/Securely_wipe_disk](https://wiki.archlinux.org/title/Securely_wipe_disk)! ⚠
+!!! tip
+    If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. [https://wiki.archlinux.org/title/Securely_wipe_disk](https://wiki.archlinux.org/title/Securely_wipe_disk)!
 
 ## 3.2. Partitioning And Formating
 
@@ -147,7 +148,8 @@ Result of a four disk setup (`/dev/sda`, `/dev/sdb`, `/dev/sdc` and `/dev/sdd`) 
 
 ## 3.3. Tarball Extraction
 
-⚠ Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification. ⚠
+!!! info 
+    Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification.
 
 Extract stage3 tarball and copy `firewall.nft`:
 

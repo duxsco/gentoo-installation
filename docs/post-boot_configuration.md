@@ -151,7 +151,10 @@ Make sure that the PCRs you are going to use have a valid hash and don't contain
 tpm2_pcrread sha256
 ```
 
-Bind all swap and system LUKS volumes. You need to **boot with each EFI binary (one ESP for each disk) and repeat keyslot creation** for each one, because different PCR5 values are created depending on the EFI binary you booted with. ⚠ The following clevis commands still need to get tested! ⚠
+Bind all swap and system LUKS volumes. You need to **boot with each EFI binary (one ESP for each disk) and repeat keyslot creation** for each one, because different PCR5 values are created depending on the EFI binary you booted with.
+
+!!! bug ""
+    The following clevis commands still need to get tested!
 
 ```bash
 # Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
