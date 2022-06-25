@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/cleanup_and_reboot/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -408,41 +408,41 @@
 <ul>
 <li>Setup <a href="https://wiki.gentoo.org/wiki/Systemd#Network">network</a> (copy&amp;paste one after the other):</li>
 </ul>
-<pre><code class="language-bash">cat &lt;&lt;EOF &gt;&gt; /etc/systemd/network/50-static.network
-[Match]
-Name=enp1s0
+<div class="highlight"><pre><span></span><code>cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/systemd/network/50-static.network</span>
+<span class="s">[Match]</span>
+<span class="s">Name=enp1s0</span>
 
-[Network]
-Address=192.168.10.2/24
-Gateway=192.168.10.1
-DNS=192.168.0.1
-# https://wiki.archlinux.org/title/IPv6#systemd-networkd_3
-LinkLocalAddressing=no
-IPv6AcceptRA=no
-EOF
+<span class="s">[Network]</span>
+<span class="s">Address=192.168.10.2/24</span>
+<span class="s">Gateway=192.168.10.1</span>
+<span class="s">DNS=192.168.0.1</span>
+<span class="s"># https://wiki.archlinux.org/title/IPv6#systemd-networkd_3</span>
+<span class="s">LinkLocalAddressing=no</span>
+<span class="s">IPv6AcceptRA=no</span>
+<span class="s">EOF</span>
 
-systemctl --no-reload enable systemd-networkd.service
+systemctl --no-reload <span class="nb">enable</span> systemd-networkd.service
 
 ln -snf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
-systemctl --no-reload enable systemd-resolved.service
-</code></pre>
+systemctl --no-reload <span class="nb">enable</span> systemd-resolved.service
+</code></pre></div>
 <ul>
 <li>stage3 and dev* files:</li>
 </ul>
-<pre><code class="language-bash">rm -fv /stage3-* /portage-latest.tar.xz* /devBoot* /devEfi* /devRescue /devSystem* /devSwap* /mapperBoot /mapperRescue /mapperSwap /mapperSystem; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>rm -fv /stage3-* /portage-latest.tar.xz* /devBoot* /devEfi* /devRescue /devSystem* /devSwap* /mapperBoot /mapperRescue /mapperSwap /mapperSystem<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <ul>
 <li>exit and reboot (copy&amp;paste one after the other):</li>
 </ul>
-<pre><code class="language-bash">exit
-exit
-exit
-cd
-umount -l /mnt/gentoo/dev{/shm,/pts,}
+<div class="highlight"><pre><span></span><code><span class="nb">exit</span>
+<span class="nb">exit</span>
+<span class="nb">exit</span>
+<span class="nb">cd</span>
+umount -l /mnt/gentoo/dev<span class="o">{</span>/shm,/pts,<span class="o">}</span>
 umount -R /mnt/gentoo
 reboot
-</code></pre>
+</code></pre></div>
 
               
             </article>
@@ -510,10 +510,10 @@ reboot
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>

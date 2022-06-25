@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/live-cd_environment/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -407,61 +407,61 @@
 
 <p>In the following, I am using the <a href="https://www.system-rescue.org/">SystemRescueCD</a>, <strong>not</strong> the official Gentoo Linux installation CD. If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&amp;paste the whole code block, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.</p>
 <p>Boot into SystemRescueCD and set the correct keyboard layout:</p>
-<pre><code class="language-bash">loadkeys de-latin1-nodeadkeys
-</code></pre>
+<div class="highlight"><pre><span></span><code>loadkeys de-latin1-nodeadkeys
+</code></pre></div>
 <p>Make sure you have booted with UEFI:</p>
-<pre><code class="language-bash">[ -d /sys/firmware/efi ] &amp;&amp; echo UEFI || echo BIOS
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="o">[</span> -d /sys/firmware/efi <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> UEFI <span class="o">||</span> <span class="nb">echo</span> BIOS
+</code></pre></div>
 <p>Disable <code>sysrq</code> for <a href="https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key">security sake</a>:</p>
-<pre><code class="language-bash">sysctl -w kernel.sysrq=0
-</code></pre>
+<div class="highlight"><pre><span></span><code>sysctl -w kernel.sysrq<span class="o">=</span><span class="m">0</span>
+</code></pre></div>
 <p>Do initial setup (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash">screen -S install
+<div class="highlight"><pre><span></span><code>screen -S install
 
-# If no network setup via DHCP done, use nmtui (recommended if DHCP not working) or...
+<span class="c1"># If no network setup via DHCP done, use nmtui (recommended if DHCP not working) or...</span>
 ip a add ...
 ip r add default ...
-echo nameserver ... &gt; /etc/resolv.conf
+<span class="nb">echo</span> nameserver ... &gt; /etc/resolv.conf
 
-# Insert iptables rules at correct place for SystemRescueCD to accept SSH clients.
-# Verify with &quot;iptables -L -v -n&quot;
-iptables -I INPUT 4 -p tcp --dport 22 -j ACCEPT -m conntrack --ctstate NEW
+<span class="c1"># Insert iptables rules at correct place for SystemRescueCD to accept SSH clients.</span>
+<span class="c1"># Verify with &quot;iptables -L -v -n&quot;</span>
+iptables -I INPUT <span class="m">4</span> -p tcp --dport <span class="m">22</span> -j ACCEPT -m conntrack --ctstate NEW
 
-# Alternatively, setup /root/.ssh/authorized_keys
+<span class="c1"># Alternatively, setup /root/.ssh/authorized_keys</span>
 passwd root
-</code></pre>
+</code></pre></div>
 <p>Print out fingerprints to double check upon initial SSH connection to the SystemRescueCD system:</p>
-<pre><code class="language-bash">find /etc/ssh/ -type f -name &quot;ssh_host*\.pub&quot; -exec ssh-keygen -vlf {} \;
-</code></pre>
+<div class="highlight"><pre><span></span><code>find /etc/ssh/ -type f -name <span class="s2">&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class="o">{}</span> <span class="se">\;</span>
+</code></pre></div>
 <p>Execute following <code>rsync</code> and <code>ssh</code> command <strong>on your local machine</strong> (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash"># Copy installation files to remote machine. Adjust port and IP.
-rsync -e &quot;ssh -o VisualHostKey=yes&quot; -av --numeric-ids --chown=0:0 {bin/{bashrc,disk.sh,fetch_files.sh,firewall.nft,firewall.sh},localrepo} root@XXX:/tmp/
+<div class="highlight"><pre><span></span><code><span class="c1"># Copy installation files to remote machine. Adjust port and IP.</span>
+rsync -e <span class="s2">&quot;ssh -o VisualHostKey=yes&quot;</span> -av --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 <span class="o">{</span>bin/<span class="o">{</span>bashrc,disk.sh,fetch_files.sh,firewall.nft,firewall.sh<span class="o">}</span>,localrepo<span class="o">}</span> root@XXX:/tmp/
 
-# From local machine, login into the remote machine
+<span class="c1"># From local machine, login into the remote machine</span>
 ssh root@...
-</code></pre>
+</code></pre></div>
 <p>Resume <code>screen</code>:</p>
-<pre><code class="language-bash">screen -d -r install
-</code></pre>
+<div class="highlight"><pre><span></span><code>screen -d -r install
+</code></pre></div>
 <p>(Optional) Lock the screen on the remote machine by typing the following command on its keyboard (<strong>not over SSH</strong>):</p>
-<pre><code class="language-bash"># If you have set /root/.ssh/authorized_keys in the previous step
-# and haven't executed &quot;passwd&quot; make sure to do it now for &quot;vlock&quot; to work...
+<div class="highlight"><pre><span></span><code><span class="c1"># If you have set /root/.ssh/authorized_keys in the previous step</span>
+<span class="c1"># and haven&#39;t executed &quot;passwd&quot; make sure to do it now for &quot;vlock&quot; to work...</span>
 passwd root
 
-# Execute &quot;vlock&quot; without any flags first.
-# If relogin doesn't work you can switch tty and set password again.
-# If relogin succeeds execute vlock with flag &quot;-a&quot; to lock all tty.
+<span class="c1"># Execute &quot;vlock&quot; without any flags first.</span>
+<span class="c1"># If relogin doesn&#39;t work you can switch tty and set password again.</span>
+<span class="c1"># If relogin succeeds execute vlock with flag &quot;-a&quot; to lock all tty.</span>
 vlock -a
-</code></pre>
+</code></pre></div>
 <p>Set date if system time is not correct:</p>
-<pre><code class="language-bash">! grep -q -w &quot;hypervisor&quot; &lt;(grep &quot;^flags[[:space:]]*:[[:space:]]*&quot; /proc/cpuinfo) &amp;&amp; \
-# replace &quot;MMDDhhmmYYYY&quot; with UTC time
+<div class="highlight"><pre><span></span><code>! grep -q -w <span class="s2">&quot;hypervisor&quot;</span> &lt;<span class="o">(</span>grep <span class="s2">&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="c1"># replace &quot;MMDDhhmmYYYY&quot; with UTC time</span>
 date --utc MMDDhhmmYYYY
-</code></pre>
+</code></pre></div>
 <p>Update hardware clock:</p>
-<pre><code class="language-bash">! grep -q -w &quot;hypervisor&quot; &lt;(grep &quot;^flags[[:space:]]*:[[:space:]]*&quot; /proc/cpuinfo) &amp;&amp; \
+<div class="highlight"><pre><span></span><code>! grep -q -w <span class="s2">&quot;hypervisor&quot;</span> &lt;<span class="o">(</span>grep <span class="s2">&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
 hwclock --systohc --utc
-</code></pre>
+</code></pre></div>
 
               
             </article>
@@ -529,10 +529,10 @@ hwclock --systohc --utc
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>

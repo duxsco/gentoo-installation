@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/boot_setup/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -539,35 +539,35 @@
 <h2 id="71-gnupg-homedir-creation">7.1 GnuPG Homedir Creation<a class="headerlink" href="#71-gnupg-homedir-creation" title="Permanent link">&para;</a></h2>
 <p>The whole boot process must be GnuPG signed. You can use either RSA or some NIST-P based ECC. Unfortunately, <code>ed25519/cv25519</code> as well as <code>ed448/cv448</code> are not supported. It seems Grub builds upon <a href="https://git.savannah.gnu.org/cgit/grub.git/commit/grub-core?id=d1307d873a1c18a1e4344b71c027c072311a3c14">libgcrypt 1.5.3</a>, but support for <code>ed25519/cv25519</code> has been added upstream later on in <a href="https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l709">version 1.6.0</a>, while <a href="https://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=blob;f=NEWS;h=bc70483f4376297a11ed44b40d5b8a71a478d321;hb=HEAD#l139">version 1.9.0</a> comes with <code>ed448/cv448</code> support.</p>
 <p>Create GnuPG homedir:</p>
-<pre><code class="language-bash">mkdir --mode=0700 /etc/gentoo-installation/gnupg
-</code></pre>
+<div class="highlight"><pre><span></span><code>mkdir --mode<span class="o">=</span><span class="m">0700</span> /etc/gentoo-installation/gnupg
+</code></pre></div>
 <p>Create a GnuPG keypair with <code>gpg --full-gen-key</code>. I personally don't set a passphrase for the keypair to allow for <code>sys-kernel/gentoo-kernel-bin</code> installation without getting prompted for the passphrase.</p>
-<pre><code class="language-bash">➤ gpg --homedir /etc/gentoo-installation/gnupg --full-gen-key
-gpg (GnuPG) 2.2.32; Copyright (C) 2021 Free Software Foundation, Inc.
+<div class="highlight"><pre><span></span><code>➤ gpg --homedir /etc/gentoo-installation/gnupg --full-gen-key
+gpg <span class="o">(</span>GnuPG<span class="o">)</span> <span class="m">2</span>.2.32<span class="p">;</span> Copyright <span class="o">(</span>C<span class="o">)</span> <span class="m">2021</span> Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
-gpg: directory '/root/.gnupg' created
-gpg: keybox '/root/.gnupg/pubring.kbx' created
-Please select what kind of key you want:
-   (1) RSA and RSA (default)
-   (2) DSA and Elgamal
-   (3) DSA (sign only)
-   (4) RSA (sign only)
-  (14) Existing key from card
-Your selection? 4
-RSA keys may be between 1024 and 4096 bits long.
-What keysize do you want? (3072)
-Requested keysize is 3072 bits
+gpg: directory <span class="s1">&#39;/root/.gnupg&#39;</span> created
+gpg: keybox <span class="s1">&#39;/root/.gnupg/pubring.kbx&#39;</span> created
+Please <span class="k">select</span> what kind of key you want:
+   <span class="o">(</span><span class="m">1</span><span class="o">)</span> RSA and RSA <span class="o">(</span>default<span class="o">)</span>
+   <span class="o">(</span><span class="m">2</span><span class="o">)</span> DSA and Elgamal
+   <span class="o">(</span><span class="m">3</span><span class="o">)</span> DSA <span class="o">(</span>sign only<span class="o">)</span>
+   <span class="o">(</span><span class="m">4</span><span class="o">)</span> RSA <span class="o">(</span>sign only<span class="o">)</span>
+  <span class="o">(</span><span class="m">14</span><span class="o">)</span> Existing key from card
+Your selection? <span class="m">4</span>
+RSA keys may be between <span class="m">1024</span> and <span class="m">4096</span> bits long.
+What keysize <span class="k">do</span> you want? <span class="o">(</span><span class="m">3072</span><span class="o">)</span>
+Requested keysize is <span class="m">3072</span> bits
 Please specify how long the key should be valid.
-         0 = key does not expire
-      &lt;n&gt;  = key expires in n days
-      &lt;n&gt;w = key expires in n weeks
-      &lt;n&gt;m = key expires in n months
-      &lt;n&gt;y = key expires in n years
-Key is valid for? (0)
+         <span class="nv">0</span> <span class="o">=</span> key does not expire
+      &lt;n&gt;  <span class="o">=</span> key expires <span class="k">in</span> n days
+      &lt;n&gt;w <span class="o">=</span> key expires <span class="k">in</span> n weeks
+      &lt;n&gt;m <span class="o">=</span> key expires <span class="k">in</span> n months
+      &lt;n&gt;y <span class="o">=</span> key expires <span class="k">in</span> n years
+Key is valid <span class="k">for</span>? <span class="o">(</span><span class="m">0</span><span class="o">)</span>
 Key does not expire at all
-Is this correct? (y/N) y
+Is this correct? <span class="o">(</span>y/N<span class="o">)</span> y
 
 GnuPG needs to construct a user ID to identify your key.
 
@@ -575,38 +575,38 @@ Real name: grubEfi
 Email address:
 Comment:
 You selected this USER-ID:
-    &quot;grubEfi&quot;
+    <span class="s2">&quot;grubEfi&quot;</span>
 
-Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
-</code></pre>
+Change <span class="o">(</span>N<span class="o">)</span>ame, <span class="o">(</span>C<span class="o">)</span>omment, <span class="o">(</span>E<span class="o">)</span>mail or <span class="o">(</span>O<span class="o">)</span>kay/<span class="o">(</span>Q<span class="o">)</span>uit? o
+</code></pre></div>
 <p>Result:</p>
-<pre><code class="language-bash">➤ gpg --homedir /etc/gentoo-installation/gnupg --list-keys
+<div class="highlight"><pre><span></span><code>➤ gpg --homedir /etc/gentoo-installation/gnupg --list-keys
 gpg: checking the trustdb
-gpg: marginals needed: 3  completes needed: 1  trust model: pgp
-gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: marginals needed: <span class="m">3</span>  completes needed: <span class="m">1</span>  trust model: pgp
+gpg: depth: <span class="m">0</span>  valid:   <span class="m">1</span>  signed:   <span class="m">0</span>  trust: <span class="m">0</span>-, 0q, 0n, 0m, 0f, 1u
 /root/.gnupg/pubring.kbx
 ------------------------
-pub   rsa3072 2022-02-15 [SC]
+pub   rsa3072 <span class="m">2022</span>-02-15 <span class="o">[</span>SC<span class="o">]</span>
       714F5DD28AC1A31E04BCB850B158334ADAF5E3C0
-uid           [ultimate] grubEfi
-</code></pre>
+uid           <span class="o">[</span>ultimate<span class="o">]</span> grubEfi
+</code></pre></div>
 <p>Export your GnuPG public key and sign <code>grub-initial_efi*.cfg</code> (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash">mkdir --mode=0700 /etc/gentoo-installation/boot
+<div class="highlight"><pre><span></span><code>mkdir --mode<span class="o">=</span><span class="m">0700</span> /etc/gentoo-installation/boot
 
-# Export public key
+<span class="c1"># Export public key</span>
 gpg --homedir /etc/gentoo-installation/gnupg --export-options export-minimal --export &gt; /etc/gentoo-installation/boot/gpg.pub
 
-# If signature creation fails...
-GPG_TTY=&quot;$(tty)&quot;
-export GPG_TTY
+<span class="c1"># If signature creation fails...</span>
+<span class="nv">GPG_TTY</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>tty<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">export</span> GPG_TTY
 
-# Stop the gpg-agent
+<span class="c1"># Stop the gpg-agent</span>
 gpgconf --homedir /etc/gentoo-installation/gnupg --kill all
-</code></pre>
+</code></pre></div>
 <p>Sign your custom SystemRescueCD files with GnuPG:</p>
-<pre><code class="language-bash">find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \; &amp;&amp; \
-gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>find /mnt/rescue -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign <span class="o">{}</span> <span class="se">\;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+gpgconf --homedir /etc/gentoo-installation/gnupg --kill all<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h2 id="72-secure-boot">7.2. Secure Boot<a class="headerlink" href="#72-secure-boot" title="Permanent link">&para;</a></h2>
 <p>Credits:</p>
 <ul>
@@ -618,159 +618,159 @@ gpgconf --homedir /etc/gentoo-installation/gnupg --kill all; echo $?
 </ul>
 <p>In order to add your custom keys <code>Setup Mode</code> must have been enabled in your <code>UEFI Firmware Settings</code> before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling <code>Setup Mode</code>. In the following, however, you have to generate Secure Boot files either way.</p>
 <p>Install required tools on your system:</p>
-<pre><code class="language-bash">echo &quot;sys-boot/mokutil ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;sys-boot/mokutil ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
-</code></pre>
+</code></pre></div>
 <p>Create Secure Boot keys and certificates:</p>
-<pre><code class="language-bash">mkdir --mode=0700 /etc/gentoo-installation/secureboot &amp;&amp; \
-pushd /etc/gentoo-installation/secureboot &amp;&amp; \
+<div class="highlight"><pre><span></span><code>mkdir --mode<span class="o">=</span><span class="m">0700</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">pushd</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-# Create the keys
-openssl req -new -x509 -newkey rsa:3072 -subj &quot;/CN=PK/&quot;  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 &amp;&amp; \
-openssl req -new -x509 -newkey rsa:3072 -subj &quot;/CN=KEK/&quot; -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 &amp;&amp; \
-openssl req -new -x509 -newkey rsa:3072 -subj &quot;/CN=db/&quot;  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 &amp;&amp; \
+<span class="c1"># Create the keys</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=PK/&quot;</span>  -keyout PK.key  -out PK.crt  -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=KEK/&quot;</span> -keyout KEK.key -out KEK.crt -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=db/&quot;</span>  -keyout db.key  -out db.crt  -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-# Prepare installation in EFI
-uuid=&quot;$(uuidgen --random)&quot; &amp;&amp; \
-cert-to-efi-sig-list -g &quot;${uuid}&quot; PK.crt PK.esl &amp;&amp; \
-cert-to-efi-sig-list -g &quot;${uuid}&quot; KEK.crt KEK.esl &amp;&amp; \
-cert-to-efi-sig-list -g &quot;${uuid}&quot; db.crt db.esl &amp;&amp; \
-sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth &amp;&amp; \
-sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth &amp;&amp; \
-sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth &amp;&amp; \
-popd; echo $?
-</code></pre>
+<span class="c1"># Prepare installation in EFI</span>
+<span class="nv">uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>uuidgen --random<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> PK.crt PK.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> KEK.crt KEK.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> db.crt db.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
+popd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>If the following commands don't work you have to install <code>db.auth</code>, <code>KEK.auth</code> and <code>PK.auth</code> over the <code>UEFI Firmware Settings</code> upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.</p>
-<pre><code class="language-bash">pushd /etc/gentoo-installation/secureboot &amp;&amp; \
+<div class="highlight"><pre><span></span><code><span class="nb">pushd</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-# Make them mutable
-chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* &amp;&amp; \
+<span class="c1"># Make them mutable</span>
+chattr -i /sys/firmware/efi/efivars/<span class="o">{</span>PK,KEK,db,dbx<span class="o">}</span>* <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-# Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
-efi-updatevar -f db.auth db &amp;&amp; \
-efi-updatevar -f KEK.auth KEK &amp;&amp; \
-efi-updatevar -f PK.auth PK &amp;&amp; \
+<span class="c1"># Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)</span>
+efi-updatevar -f db.auth db <span class="o">&amp;&amp;</span> <span class="se">\</span>
+efi-updatevar -f KEK.auth KEK <span class="o">&amp;&amp;</span> <span class="se">\</span>
+efi-updatevar -f PK.auth PK <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-# Make them immutable
-chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* &amp;&amp; \
-popd; echo $?
-</code></pre>
+<span class="c1"># Make them immutable</span>
+chattr +i /sys/firmware/efi/efivars/<span class="o">{</span>PK,KEK,db,dbx<span class="o">}</span>* <span class="o">&amp;&amp;</span> <span class="se">\</span>
+popd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h2 id="73-grub">7.3. GRUB<a class="headerlink" href="#73-grub" title="Permanent link">&para;</a></h2>
 <p>Install <code>sys-boot/grub</code>:</p>
-<pre><code class="language-bash">echo &quot;sys-boot/grub -* device-mapper grub_platforms_efi-64&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
-emerge -at sys-boot/grub; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;sys-boot/grub -* device-mapper grub_platforms_efi-64&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge -at sys-boot/grub<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h3 id="731-esps">7.3.1. ESP(s)<a class="headerlink" href="#731-esps" title="Permanent link">&para;</a></h3>
 <p>In the following, a minimal Grub config for the EFI binary is created. Take care of the line marked with <code>TODO</code>.</p>
-<pre><code class="language-bash">cat &lt;&lt;EOF &gt; /etc/gentoo-installation/boot/efi.cfg
-# Enforce that all loaded files must have a valid signature.
-set check_signatures=enforce
-export check_signatures
+<div class="highlight"><pre><span></span><code>cat <span class="s">&lt;&lt;EOF &gt; /etc/gentoo-installation/boot/efi.cfg</span>
+<span class="s"># Enforce that all loaded files must have a valid signature.</span>
+<span class="s">set check_signatures=enforce</span>
+<span class="s">export check_signatures</span>
 
-set superusers=&quot;root&quot;
-export superusers
-# Replace the first TODO with the result of grub-mkpasswd-pbkdf2 with your custom passphrase.
-password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO
+<span class="s">set superusers=&quot;root&quot;</span>
+<span class="s">export superusers</span>
+<span class="s"># Replace the first TODO with the result of grub-mkpasswd-pbkdf2 with your custom passphrase.</span>
+<span class="s">password_pbkdf2 root grub.pbkdf2.sha512.10000.TODO</span>
 
-# NOTE: We export check_signatures/superusers so they are available in all
-# further contexts to ensure the password check is always enforced.
+<span class="s"># NOTE: We export check_signatures/superusers so they are available in all</span>
+<span class="s"># further contexts to ensure the password check is always enforced.</span>
 
-search --no-floppy --fs-uuid --set=root $(blkid -s UUID -o value /mapperBoot)
+<span class="s">search --no-floppy --fs-uuid --set=root $(blkid -s UUID -o value /mapperBoot)</span>
 
-configfile /grub.cfg
+<span class="s">configfile /grub.cfg</span>
 
-# Without this we provide the attacker with a rescue shell if he just presses
-# &lt;return&gt; twice.
-echo /EFI/grub/grub.cfg did not boot the system but returned to initial.cfg.
-echo Rebooting the system in 10 seconds.
-sleep 10
-reboot
-EOF
-</code></pre>
+<span class="s"># Without this we provide the attacker with a rescue shell if he just presses</span>
+<span class="s"># &lt;return&gt; twice.</span>
+<span class="s">echo /EFI/grub/grub.cfg did not boot the system but returned to initial.cfg.</span>
+<span class="s">echo Rebooting the system in 10 seconds.</span>
+<span class="s">sleep 10</span>
+<span class="s">reboot</span>
+<span class="s">EOF</span>
+</code></pre></div>
 <p>Sign <code>efi.cfg</code>:</p>
-<pre><code class="language-bash">gpg --homedir /etc/gentoo-installation/gnupg --detach-sign /etc/gentoo-installation/boot/efi.cfg
-</code></pre>
+<div class="highlight"><pre><span></span><code>gpg --homedir /etc/gentoo-installation/gnupg --detach-sign /etc/gentoo-installation/boot/efi.cfg
+</code></pre></div>
 <p>Create the EFI binary/ies and Secure Boot sign them:</p>
-<pre><code class="language-bash"># GRUB doesn't allow loading new modules from disk when secure boot is in
-# effect, therefore pre-load the required modules.
-modules=
-modules=&quot;${modules} part_gpt fat ext2&quot;             # partition and file systems for EFI
-modules=&quot;${modules} configfile&quot;                    # source command
-modules=&quot;${modules} verify gcry_sha512 gcry_rsa&quot;   # signature verification
-modules=&quot;${modules} password_pbkdf2&quot;               # hashed password
-modules=&quot;${modules} echo normal linux linuxefi&quot;    # boot linux
-modules=&quot;${modules} all_video&quot;                     # video output
-modules=&quot;${modules} search search_fs_uuid&quot;         # search --fs-uuid
-modules=&quot;${modules} reboot sleep&quot;                  # sleep, reboot
-modules=&quot;${modules} gzio part_gpt part_msdos ext2&quot; # SystemRescueCD modules
-modules=&quot;${modules} luks2 btrfs part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 mdraid1x&quot; # LUKS2 modules
-modules=&quot;${modules} $(grub-mkconfig | grep insmod | awk '{print $NF}' | sort -u | paste -d ' ' -s -)&quot;
+<div class="highlight"><pre><span></span><code><span class="c1"># GRUB doesn&#39;t allow loading new modules from disk when secure boot is in</span>
+<span class="c1"># effect, therefore pre-load the required modules.</span>
+<span class="nv">modules</span><span class="o">=</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> part_gpt fat ext2&quot;</span>             <span class="c1"># partition and file systems for EFI</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> configfile&quot;</span>                    <span class="c1"># source command</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> verify gcry_sha512 gcry_rsa&quot;</span>   <span class="c1"># signature verification</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> password_pbkdf2&quot;</span>               <span class="c1"># hashed password</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> echo normal linux linuxefi&quot;</span>    <span class="c1"># boot linux</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> all_video&quot;</span>                     <span class="c1"># video output</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> search search_fs_uuid&quot;</span>         <span class="c1"># search --fs-uuid</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> reboot sleep&quot;</span>                  <span class="c1"># sleep, reboot</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> gzio part_gpt part_msdos ext2&quot;</span> <span class="c1"># SystemRescueCD modules</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> luks2 btrfs part_gpt cryptodisk gcry_rijndael pbkdf2 gcry_sha512 mdraid1x&quot;</span> <span class="c1"># LUKS2 modules</span>
+<span class="nv">modules</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2"> </span><span class="k">$(</span>grub-mkconfig <span class="p">|</span> grep insmod <span class="p">|</span> awk <span class="s1">&#39;{print $NF}&#39;</span> <span class="p">|</span> sort -u <span class="p">|</span> paste -d <span class="s1">&#39; &#39;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
 
-ls -1d /efi* | while read -r i; do
-    mkdir -p &quot;${i}/EFI/boot&quot; &amp;&amp; \
-    grub-mkstandalone \
-        --directory /usr/lib/grub/x86_64-efi \
-        --disable-shim-lock \
-        --format x86_64-efi \
-        --modules &quot;$(ls -1 /usr/lib/grub/x86_64-efi/ | grep -w $(tr ' ' '\n' &lt;&lt;&lt;&quot;${modules}&quot; | sort -u | grep -v &quot;^$&quot; | sed -e 's/^/-e /' -e 's/$/.mod/' | paste -d ' ' -s -) | paste -d ' ' -s -)&quot; \
-        --pubkey /etc/gentoo-installation/boot/gpg.pub \
-        --output &quot;${i}/EFI/boot/bootx64.efi&quot; \
-        boot/grub/grub.cfg=/etc/gentoo-installation/boot/efi.cfg \
-        boot/grub/grub.cfg.sig=/etc/gentoo-installation/boot/efi.cfg.sig &amp;&amp; \
-    sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output &quot;${i}/EFI/boot/bootx64.efi&quot; &quot;${i}/EFI/boot/bootx64.efi&quot; &amp;&amp; \
-    efibootmgr --create --disk &quot;/dev/$(lsblk -ndo pkname &quot;$(readlink -f &quot;${i/efi/devEfi}&quot;)&quot;)&quot; --part 1 --label &quot;gentoo31415efi ${i#/}&quot; --loader '\EFI\boot\bootx64.efi'
-    echo $?
-done
-</code></pre>
+ls -1d /efi* <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
+    mkdir -p <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="s2">/EFI/boot&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    grub-mkstandalone <span class="se">\</span>
+        --directory /usr/lib/grub/x86_64-efi <span class="se">\</span>
+        --disable-shim-lock <span class="se">\</span>
+        --format x86_64-efi <span class="se">\</span>
+        --modules <span class="s2">&quot;</span><span class="k">$(</span>ls -1 /usr/lib/grub/x86_64-efi/ <span class="p">|</span> grep -w <span class="k">$(</span>tr <span class="s1">&#39; &#39;</span> <span class="s1">&#39;\n&#39;</span> <span class="o">&lt;&lt;&lt;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">modules</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">|</span> sort -u <span class="p">|</span> grep -v <span class="s2">&quot;^</span>$<span class="s2">&quot;</span> <span class="p">|</span> sed -e <span class="s1">&#39;s/^/-e /&#39;</span> -e <span class="s1">&#39;s/$/.mod/&#39;</span> <span class="p">|</span> paste -d <span class="s1">&#39; &#39;</span> -s -<span class="k">)</span> <span class="p">|</span> paste -d <span class="s1">&#39; &#39;</span> -s -<span class="k">)</span><span class="s2">&quot;</span> <span class="se">\</span>
+        --pubkey /etc/gentoo-installation/boot/gpg.pub <span class="se">\</span>
+        --output <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="s2">/EFI/boot/bootx64.efi&quot;</span> <span class="se">\</span>
+        boot/grub/grub.cfg<span class="o">=</span>/etc/gentoo-installation/boot/efi.cfg <span class="se">\</span>
+        boot/grub/grub.cfg.sig<span class="o">=</span>/etc/gentoo-installation/boot/efi.cfg.sig <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="s2">/EFI/boot/bootx64.efi&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="s2">/EFI/boot/bootx64.efi&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    efibootmgr --create --disk <span class="s2">&quot;/dev/</span><span class="k">$(</span>lsblk -ndo pkname <span class="s2">&quot;</span><span class="k">$(</span>readlink -f <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="p">/efi/devEfi</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span> --part <span class="m">1</span> --label <span class="s2">&quot;gentoo31415efi </span><span class="si">${</span><span class="nv">i</span><span class="p">#/</span><span class="si">}</span><span class="s2">&quot;</span> --loader <span class="s1">&#39;\EFI\boot\bootx64.efi&#39;</span>
+    <span class="nb">echo</span> <span class="nv">$?</span>
+<span class="k">done</span>
+</code></pre></div>
 <h3 id="732-boot">7.3.2. /boot<a class="headerlink" href="#732-boot" title="Permanent link">&para;</a></h3>
 <p>Setup <code>grub.cfg</code> and replace <code>rd.luks.options=password-echo=no,tpm2-device=auto</code> with <code>rd.luks.options=password-echo=no</code> if you are going to use <code>clevis</code> instead of <code>systemd-cryptenroll</code>:</p>
-<pre><code class="language-bash">rescue_uuid=&quot;$(blkid -s UUID -o value /devRescue | tr -d '-')&quot;
-system_uuid=&quot;$(blkid -s UUID -o value /mapperSystem)&quot;
-my_crypt_root=&quot;$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d &quot; &quot; -s -)&quot;
-my_crypt_swap=&quot;$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d &quot; &quot; -s -)&quot;
-if [[ -f /boot/intel-uc.img ]]; then
-    my_microcode=&quot;/intel-uc.img &quot;
-else
-    my_microcode=&quot;&quot;
-fi
+<div class="highlight"><pre><span></span><code><span class="nv">rescue_uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devRescue <span class="p">|</span> tr -d <span class="s1">&#39;-&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">system_uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">my_crypt_root</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devSystem* <span class="p">|</span> sed <span class="s1">&#39;s/^/rd.luks.uuid=/&#39;</span> <span class="p">|</span> paste -d <span class="s2">&quot; &quot;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">my_crypt_swap</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devSwap* <span class="p">|</span> sed <span class="s1">&#39;s/^/rd.luks.uuid=/&#39;</span> <span class="p">|</span> paste -d <span class="s2">&quot; &quot;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">if</span> <span class="o">[[</span> -f /boot/intel-uc.img <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nv">my_microcode</span><span class="o">=</span><span class="s2">&quot;/intel-uc.img &quot;</span>
+<span class="k">else</span>
+    <span class="nv">my_microcode</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="k">fi</span>
 
-cat &lt;&lt;EOF &gt; /etc/gentoo-installation/boot/grub.cfg
-set default=0
-set timeout=5
+cat <span class="s">&lt;&lt;EOF &gt; /etc/gentoo-installation/boot/grub.cfg</span>
+<span class="s">set default=0</span>
+<span class="s">set timeout=5</span>
 
-menuentry 'Gentoo GNU/Linux' --unrestricted {
-    echo 'Loading Linux ...'
-    linux /vmlinuz ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=password-echo=no,tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
-    echo 'Loading initial ramdisk ...'
-    initrd ${my_microcode}/initramfs
-}
+<span class="s">menuentry &#39;Gentoo GNU/Linux&#39; --unrestricted {</span>
+<span class="s">    echo &#39;Loading Linux ...&#39;</span>
+<span class="s">    linux /vmlinuz ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=password-echo=no,tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt</span>
+<span class="s">    echo &#39;Loading initial ramdisk ...&#39;</span>
+<span class="s">    initrd ${my_microcode}/initramfs</span>
+<span class="s">}</span>
 
-menuentry 'Gentoo GNU/Linux (old)' --unrestricted {
-    echo 'Loading Linux (old) ...'
-    linux /vmlinuz.old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=password-echo=no,tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt
-    echo 'Loading initial ramdisk ...'
-    initrd ${my_microcode}/initramfs.old
-}
+<span class="s">menuentry &#39;Gentoo GNU/Linux (old)&#39; --unrestricted {</span>
+<span class="s">    echo &#39;Loading Linux (old) ...&#39;</span>
+<span class="s">    linux /vmlinuz.old ro root=UUID=${system_uuid} ${my_crypt_root} ${my_crypt_swap} rd.luks.options=password-echo=no,tpm2-device=auto rootfstype=btrfs rootflags=subvol=@root mitigations=auto,nosmt</span>
+<span class="s">    echo &#39;Loading initial ramdisk ...&#39;</span>
+<span class="s">    initrd ${my_microcode}/initramfs.old</span>
+<span class="s">}</span>
 
-menuentry 'SystemRescueCD' {
-    cryptomount -u ${rescue_uuid}
-    set root='cryptouuid/${rescue_uuid}'
-    search --no-floppy --fs-uuid --set=root --hint='cryptouuid/${rescue_uuid}' $(blkid -s UUID -o value /mapperRescue)
-    echo   'Loading Linux kernel ...'
-    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y
-    echo   'Loading initramfs ...'
-    initrd /sysresccd/boot/x86_64/sysresccd.img
-}
-EOF
-</code></pre>
+<span class="s">menuentry &#39;SystemRescueCD&#39; {</span>
+<span class="s">    cryptomount -u ${rescue_uuid}</span>
+<span class="s">    set root=&#39;cryptouuid/${rescue_uuid}&#39;</span>
+<span class="s">    search --no-floppy --fs-uuid --set=root --hint=&#39;cryptouuid/${rescue_uuid}&#39; $(blkid -s UUID -o value /mapperRescue)</span>
+<span class="s">    echo   &#39;Loading Linux kernel ...&#39;</span>
+<span class="s">    linux  /sysresccd/boot/x86_64/vmlinuz cryptdevice=UUID=$(blkid -s UUID -o value /devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y</span>
+<span class="s">    echo   &#39;Loading initramfs ...&#39;</span>
+<span class="s">    initrd /sysresccd/boot/x86_64/sysresccd.img</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</code></pre></div>
 <p>Copy <code>grub.cfg</code> and GnuPG sign files in <code>/boot</code>:</p>
-<pre><code class="language-bash">rsync -av /etc/gentoo-installation/boot/grub.cfg /boot/ &amp;&amp; \
-while read -r file; do mv &quot;${file}&quot; &quot;$(cut -d &quot;-&quot; -f1 &lt;&lt;&lt;&quot;${file}&quot;)&quot;; done &lt; &lt;(find /boot -type f -name &quot;*dist*&quot;) &amp;&amp; \
-find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign {} \;
-</code></pre>
+<div class="highlight"><pre><span></span><code>rsync -av /etc/gentoo-installation/boot/grub.cfg /boot/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="k">while</span> <span class="nb">read</span> -r file<span class="p">;</span> <span class="k">do</span> mv <span class="s2">&quot;</span><span class="si">${</span><span class="nv">file</span><span class="si">}</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="k">$(</span>cut -d <span class="s2">&quot;-&quot;</span> -f1 <span class="o">&lt;&lt;&lt;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">done</span> &lt; &lt;<span class="o">(</span>find /boot -type f -name <span class="s2">&quot;*dist*&quot;</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-sign <span class="o">{}</span> <span class="se">\;</span>
+</code></pre></div>
 <h2 id="74-esps-and-boot-layout">7.4. ESP(s) And /boot Layout<a class="headerlink" href="#74-esps-and-boot-layout" title="Permanent link">&para;</a></h2>
 <p>Result on a single disk system:</p>
-<pre><code class="language-bash">➤ tree -a /boot /efia*
+<div class="highlight"><pre><span></span><code>➤ tree -a /boot /efia*
 /boot
 ├── config
 ├── config.sig
@@ -787,8 +787,8 @@ find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-s
     └── boot
         └── bootx64.efi
 
-2 directories, 1 file
-</code></pre>
+<span class="m">2</span> directories, <span class="m">1</span> file
+</code></pre></div>
 
               
             </article>
@@ -856,10 +856,10 @@ find /boot -type f -exec gpg --homedir /etc/gentoo-installation/gnupg --detach-s
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>

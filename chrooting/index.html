@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/chrooting/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -406,56 +406,59 @@
   <h1>5. Chrooting</h1>
 
 <p>Set resolv.conf:</p>
-<pre><code class="language-bash">cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
-</code></pre>
+<div class="highlight"><pre><span></span><code>cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+</code></pre></div>
 <p>Set <code>.bashrc</code> etc.:</p>
-<pre><code class="language-bash">rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ &amp;&amp; \
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ &amp;&amp; \
-echo -e 'alias cp=&quot;cp -i&quot;\nalias mv=&quot;mv -i&quot;\nalias rm=&quot;rm -i&quot;' &gt;&gt; /mnt/gentoo/root/.bash_aliases &amp;&amp; \
-cat &lt;&lt;'EOF'  &gt;&gt; /mnt/gentoo/root/.bashrc; echo $?
-source &quot;${HOME}/.bash_aliases&quot;
+<div class="highlight"><pre><span></span><code>rsync -av --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -av --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rwX,go<span class="o">=</span> /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> -e <span class="s1">&#39;alias cp=&quot;cp -i&quot;\nalias mv=&quot;mv -i&quot;\nalias rm=&quot;rm -i&quot;&#39;</span> &gt;&gt; /mnt/gentoo/root/.bash_aliases <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cat <span class="s">&lt;&lt;&#39;EOF&#39;  &gt;&gt; /mnt/gentoo/root/.bashrc; echo $?</span>
+<span class="s">source &quot;${HOME}/.bash_aliases&quot;</span>
 
-# Raise an alert if something is wrong with btrfs or mdadm
-if  { [[ -f /proc/mdstat ]] &amp;&amp; grep -q &quot;\[[U_]*_[U_]*\]&quot; /proc/mdstat; } || \
-    [[ $(find /sys/fs/btrfs -type f -name &quot;error_stats&quot; -exec awk '{sum += $2} END {print sum}' {} +) -ne 0 ]]; then
-echo '
-  _________________
-&lt; Something smells! &gt;
-  -----------------
-         \   ^__^
-          \  (oo)\_______
-             (__)\       )\/\
-                 ||----w |
-                 ||     ||
-'
-fi
-EOF
-</code></pre>
+<span class="s"># Raise an alert if something is wrong with btrfs or mdadm</span>
+<span class="s">if  { [[ -f /proc/mdstat ]] &amp;&amp; grep -q &quot;\[[U_]*_[U_]*\]&quot; /proc/mdstat; } || \</span>
+<span class="s">    [[ $(find /sys/fs/btrfs -type f -name &quot;error_stats&quot; -exec awk &#39;{sum += $2} END {print sum}&#39; {} +) -ne 0 ]]; then</span>
+<span class="s">echo &#39;</span>
+<span class="s">  _________________</span>
+<span class="s">&lt; Something smells! &gt;</span>
+<span class="s">  -----------------</span>
+<span class="s">         \   ^__^</span>
+<span class="s">          \  (oo)\_______</span>
+<span class="s">             (__)\       )\/\</span>
+<span class="s">                 ||----w |</span>
+<span class="s">                 ||     ||</span>
+<span class="s">&#39;</span>
+<span class="s">fi</span>
+<span class="s">EOF</span>
+</code></pre></div>
 <p>Set locale:</p>
-<pre><code class="language-bash">echo &quot;C.UTF-8 UTF-8
-de_DE.UTF-8 UTF-8
-en_US.UTF-8 UTF-8&quot; &gt; /mnt/gentoo/etc/locale.gen &amp;&amp; \
-echo 'LANG=&quot;de_DE.UTF-8&quot;
-LC_COLLATE=&quot;C.UTF-8&quot;
-LC_MESSAGES=&quot;en_US.UTF-8&quot;' &gt; /mnt/gentoo/etc/env.d/02locale &amp;&amp; \
-chroot /mnt/gentoo /bin/bash -c &quot;source /etc/profile &amp;&amp; locale-gen&quot;; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;C.UTF-8 UTF-8</span>
+<span class="s2">de_DE.UTF-8 UTF-8</span>
+<span class="s2">en_US.UTF-8 UTF-8&quot;</span> &gt; /mnt/gentoo/etc/locale.gen <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s1">&#39;LANG=&quot;de_DE.UTF-8&quot;</span>
+<span class="s1">LC_COLLATE=&quot;C.UTF-8&quot;</span>
+<span class="s1">LC_MESSAGES=&quot;en_US.UTF-8&quot;&#39;</span> &gt; /mnt/gentoo/etc/env.d/02locale <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chroot /mnt/gentoo /bin/bash -c <span class="s2">&quot;source /etc/profile &amp;&amp; locale-gen&quot;</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Set <code>MAKEOPTS</code>:</p>
-<pre><code class="language-bash">ram_size=&quot;$(dmidecode -t memory | grep -Pio &quot;^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)&quot; | paste -d '+' -s - | bc)&quot; &amp;&amp; \
-number_cores=&quot;$(nproc --all)&quot; &amp;&amp; \
-[[ $((number_cores*2)) -le ${ram_size} ]] &amp;&amp; jobs=&quot;${number_cores}&quot; || jobs=&quot;$(bc &lt;&lt;&lt;&quot;${ram_size} / 2&quot;)&quot; &amp;&amp; \
-cat &lt;&lt;EOF &gt;&gt; /mnt/gentoo/etc/portage/make.conf; echo $?
+<div class="highlight"><pre><span></span><code><span class="nv">ram_size</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>dmidecode -t memory <span class="p">|</span> grep -Pio <span class="s2">&quot;^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB</span>$<span class="s2">)&quot;</span> <span class="p">|</span> paste -d <span class="s1">&#39;+&#39;</span> -s - <span class="p">|</span> bc<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nv">number_cores</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>nproc --all<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="o">[[</span> <span class="k">$((</span>number_cores*2<span class="k">))</span> -le <span class="si">${</span><span class="nv">ram_size</span><span class="si">}</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nv">jobs</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">number_cores</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">||</span> <span class="nv">jobs</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>bc <span class="o">&lt;&lt;&lt;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ram_size</span><span class="si">}</span><span class="s2"> / 2&quot;</span><span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cat <span class="s">&lt;&lt;EOF &gt;&gt; /mnt/gentoo/etc/portage/make.conf; echo $?</span>
 
-MAKEOPTS=&quot;-j${jobs}&quot;
-EOF
-</code></pre>
+<span class="s">MAKEOPTS=&quot;-j${jobs}&quot;</span>
+<span class="s">EOF</span>
+</code></pre></div>
 <p>Chroot (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash">chroot /mnt/gentoo /bin/bash
-source /etc/profile
+<div class="highlight"><pre><span></span><code>chroot /mnt/gentoo /bin/bash
+<span class="nb">source</span> /etc/profile
 su -
-env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $PS1&quot;
-</code></pre>
-<p>⚠ Execute <code>dispatch-conf</code> after every code block where a file with prefix <code>._cfg0000_</code> has been created. ⚠</p>
+env-update <span class="o">&amp;&amp;</span> <span class="nb">source</span> /etc/profile <span class="o">&amp;&amp;</span> <span class="nb">export</span> <span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;(chroot) </span><span class="nv">$PS1</span><span class="s2">&quot;</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Application of configuration changes starting with chapter 6</p>
+<p>Execute <code>dispatch-conf</code> after every code block where a file with prefix <code>._cfg0000_</code> has been created.</p>
+</div>
 
               
             </article>
@@ -523,10 +526,10 @@ env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>

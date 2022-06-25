@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/disk_setup/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -539,28 +539,31 @@
 <h2 id="31-wiping-disks">3.1. Wiping Disks<a class="headerlink" href="#31-wiping-disks" title="Permanent link">&para;</a></h2>
 <p><code>disk.sh</code> expects the disks, where you want to install Gentoo Linux on, to be completely empty.</p>
 <p>If you use SSD(s) I recommend a <a href="https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing">Secure Erase</a>. Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk:</p>
-<pre><code class="language-bash"># Change disk name to the one you want to wipe
-disk=&quot;/dev/sda&quot;
-lsblk -npo kname &quot;${disk}&quot; | grep &quot;^${disk}&quot; | sort -r | while read -r i; do wipefs -a &quot;$i&quot;; done
-</code></pre>
-<p>⚠ If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like <code>dd</code>, e.g. <a href="https://wiki.archlinux.org/title/Securely_wipe_disk">https://wiki.archlinux.org/title/Securely_wipe_disk</a>! ⚠</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Change disk name to the one you want to wipe</span>
+<span class="nv">disk</span><span class="o">=</span><span class="s2">&quot;/dev/sda&quot;</span>
+lsblk -npo kname <span class="s2">&quot;</span><span class="si">${</span><span class="nv">disk</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">|</span> grep <span class="s2">&quot;^</span><span class="si">${</span><span class="nv">disk</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">|</span> sort -r <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span> wipefs -a <span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like <code>dd</code>, e.g. <a href="https://wiki.archlinux.org/title/Securely_wipe_disk">https://wiki.archlinux.org/title/Securely_wipe_disk</a>!</p>
+</div>
 <h2 id="32-partitioning-and-formating">3.2. Partitioning And Formating<a class="headerlink" href="#32-partitioning-and-formating" title="Permanent link">&para;</a></h2>
 <p>Prepare the disks (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash">bash /tmp/disk.sh -h
+<div class="highlight"><pre><span></span><code>bash /tmp/disk.sh -h
 
-# disable bash history
-set +o history
+<span class="c1"># disable bash history</span>
+<span class="nb">set</span> +o <span class="nb">history</span>
 
-# adjust to your liking
-bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d &quot;/dev/sda /dev/sdb etc.&quot; -s 12
+<span class="c1"># adjust to your liking</span>
+bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d <span class="s2">&quot;/dev/sda /dev/sdb etc.&quot;</span> -s <span class="m">12</span>
 
-# enable bash history
-set -o history
-</code></pre>
+<span class="c1"># enable bash history</span>
+<span class="nb">set</span> -o <span class="nb">history</span>
+</code></pre></div>
 <p><code>disk.sh</code> creates user "meh" which will be used later on to act as non-root.</p>
 <h3 id="321-internal-esps">3.2.1. Internal ESP(s)<a class="headerlink" href="#321-internal-esps" title="Permanent link">&para;</a></h3>
 <p>Result of a single disk setup:</p>
-<pre><code class="language-bash">➤ tree -a /mnt/gentoo/
+<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devBoota -&gt; /dev/sda2
 ├── devEfia -&gt; /dev/sda1
@@ -576,10 +579,10 @@ set -o history
 ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
 └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-0 directories, 13 files
-</code></pre>
+<span class="m">0</span> directories, <span class="m">13</span> files
+</code></pre></div>
 <p>Result of the four disk setup:</p>
-<pre><code class="language-bash">➤ tree -a /mnt/gentoo/
+<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devBoota -&gt; /dev/sda2
 ├── devBootb -&gt; /dev/sdb2
@@ -607,11 +610,11 @@ set -o history
 ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
 └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-0 directories, 25 files
-</code></pre>
+<span class="m">0</span> directories, <span class="m">25</span> files
+</code></pre></div>
 <h3 id="322-external-esps">3.2.2. External ESP(s)<a class="headerlink" href="#322-external-esps" title="Permanent link">&para;</a></h3>
 <p>Result of a single disk setup (<code>/dev/sda</code>) with ESP on a single removable media (<code>/dev/sdb</code>):</p>
-<pre><code class="language-bash">➤ tree -a /mnt/gentoo/
+<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devBoota -&gt; /dev/sda1
 ├── devEfia -&gt; /dev/sdb1
@@ -627,10 +630,10 @@ set -o history
 ├── stage3-amd64-systemd-20220612T170541Z.tar.xz
 └── stage3-amd64-systemd-20220612T170541Z.tar.xz.asc
 
-0 directories, 13 files
-</code></pre>
+<span class="m">0</span> directories, <span class="m">13</span> files
+</code></pre></div>
 <p>Result of a four disk setup (<code>/dev/sda</code>, <code>/dev/sdb</code>, <code>/dev/sdc</code> and <code>/dev/sdd</code>) with ESP on two removable media (<code>/dev/sde</code> for daily use and <code>/dev/sdf</code> as fallback):</p>
-<pre><code class="language-bash">➤ tree -a /mnt/gentoo/
+<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devBoota -&gt; /dev/sda1
 ├── devBootb -&gt; /dev/sdb1
@@ -656,43 +659,46 @@ set -o history
 ├── stage3-amd64-systemd-20220612T170541Z.tar.xz
 └── stage3-amd64-systemd-20220612T170541Z.tar.xz.asc
 
-0 directories, 23 files
-</code></pre>
+<span class="m">0</span> directories, <span class="m">23</span> files
+</code></pre></div>
 <h2 id="33-tarball-extraction">3.3. Tarball Extraction<a class="headerlink" href="#33-tarball-extraction" title="Permanent link">&para;</a></h2>
-<p>⚠ Current <code>stage3-amd64-systemd-*.tar.xz</code> is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification. ⚠</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Current <code>stage3-amd64-systemd-*.tar.xz</code> is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification.</p>
+</div>
 <p>Extract stage3 tarball and copy <code>firewall.nft</code>:</p>
-<pre><code class="language-bash">tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner &amp;&amp; \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ &amp;&amp; \
-rsync -a /tmp/{bashrc,localrepo} /mnt/gentoo/root/ &amp;&amp; \
-mkdir -p /mnt/gentoo/etc/gentoo-installation; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include<span class="o">=</span><span class="s1">&#39;*.*&#39;</span> --numeric-owner <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rwx,go<span class="o">=</span>r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a /tmp/<span class="o">{</span>bashrc,localrepo<span class="o">}</span> /mnt/gentoo/root/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mkdir -p /mnt/gentoo/etc/gentoo-installation<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Extract portage tarball:</p>
-<pre><code class="language-bash">mkdir /mnt/gentoo/var/db/repos/gentoo &amp;&amp; \
-touch /mnt/gentoo/var/db/repos/gentoo/.keep &amp;&amp; \
-mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo &amp;&amp; \
-tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>mkdir /mnt/gentoo/var/db/repos/gentoo <span class="o">&amp;&amp;</span> <span class="se">\</span>
+touch /mnt/gentoo/var/db/repos/gentoo/.keep <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount -o noatime,subvol<span class="o">=</span>@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo <span class="o">&amp;&amp;</span> <span class="se">\</span>
+tar --transform <span class="s1">&#39;s/^portage/gentoo/&#39;</span> -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h2 id="34-mounting">3.4. Mounting<a class="headerlink" href="#34-mounting" title="Permanent link">&para;</a></h2>
-<pre><code class="language-bash">mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,uid=root,gid=root tmpfs /mnt/gentoo/tmp &amp;&amp; \
-mount --types proc /proc /mnt/gentoo/proc &amp;&amp; \
-mount --rbind /sys /mnt/gentoo/sys &amp;&amp; \
-mount --make-rslave /mnt/gentoo/sys &amp;&amp; \
-mount --rbind /dev /mnt/gentoo/dev &amp;&amp; \
-mount --make-rslave /mnt/gentoo/dev &amp;&amp; \
-mount --bind /run /mnt/gentoo/run &amp;&amp; \
-mount --make-slave /mnt/gentoo/run &amp;&amp; \
+<div class="highlight"><pre><span></span><code>mount -t tmpfs -o noatime,nodev,nosuid,mode<span class="o">=</span><span class="m">1777</span>,uid<span class="o">=</span>root,gid<span class="o">=</span>root tmpfs /mnt/gentoo/tmp <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount --types proc /proc /mnt/gentoo/proc <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount --rbind /sys /mnt/gentoo/sys <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount --make-rslave /mnt/gentoo/sys <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount --rbind /dev /mnt/gentoo/dev <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount --make-rslave /mnt/gentoo/dev <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount --bind /run /mnt/gentoo/run <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount --make-slave /mnt/gentoo/run <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home &amp;&amp; \
+mount -o noatime,subvol<span class="o">=</span>@home /mnt/gentoo/mapperSystem /mnt/gentoo/home <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-touch /mnt/gentoo/var/cache/binpkgs/.keep &amp;&amp; \
-mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs &amp;&amp; \
+touch /mnt/gentoo/var/cache/binpkgs/.keep <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount -o noatime,subvol<span class="o">=</span>@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-touch /mnt/gentoo/var/cache/distfiles/.keep &amp;&amp; \
-mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles &amp;&amp; \
+touch /mnt/gentoo/var/cache/distfiles/.keep <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount -o noatime,subvol<span class="o">=</span>@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot &amp;&amp; \
-chmod u=rwx,og= /mnt/gentoo/boot; echo $?
-</code></pre>
+mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chmod <span class="nv">u</span><span class="o">=</span>rwx,og<span class="o">=</span> /mnt/gentoo/boot<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 
               
             </article>
@@ -760,10 +766,10 @@ chmod u=rwx,og= /mnt/gentoo/boot; echo $?
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/optional_steps/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -471,20 +471,20 @@
 <h2 id="101-secure-boot-setup">10.1. Secure Boot Setup<a class="headerlink" href="#101-secure-boot-setup" title="Permanent link">&para;</a></h2>
 <p>If <code>efi-updatevar</code> failed in one of the previous sections, you can import Secure Boot files the following way.</p>
 <p>First, boot into the Gentoo Linux and save necessary files in <code>DER</code> form:</p>
-<pre><code class="language-bash">bash -c '
-(
-! mountpoint --quiet /efia &amp;&amp; \\
-mount /efia || true
-) &amp;&amp; \\
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der &amp;&amp; \\
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der &amp;&amp; \\
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /efia/PK.der; echo $?
-'
-</code></pre>
+<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
+<span class="s1">(</span>
+<span class="s1">! mountpoint --quiet /efia &amp;&amp; \\</span>
+<span class="s1">mount /efia || true</span>
+<span class="s1">) &amp;&amp; \\</span>
+<span class="s1">openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der &amp;&amp; \\</span>
+<span class="s1">openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der &amp;&amp; \\</span>
+<span class="s1">openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /efia/PK.der; echo $?</span>
+<span class="s1">&#39;</span>
+</code></pre></div>
 <p>Reboot into <code>UEFI Firmware Settings</code> and import <code>db.der</code>, <code>KEK.der</code> and <code>PK.der</code>. Thereafter, enable Secure Boot. Upon successful boot with Secure Boot enabled, you can delete <code>db.der</code>, <code>KEK.der</code> and <code>PK.der</code> in <code>/efia</code>.</p>
 <p>To check whether Secure Boot is enabled execute:</p>
-<pre><code class="language-bash">mokutil --sb-state
-</code></pre>
+<div class="highlight"><pre><span></span><code>mokutil --sb-state
+</code></pre></div>
 <h2 id="102-enable-selinux">10.2. Enable SELinux<a class="headerlink" href="#102-enable-selinux" title="Permanent link">&para;</a></h2>
 <p>This is optional! Steps are documented in the <a href="https://github.com/duxsco/gentoo-selinux">gentoo-selinux</a> repo.</p>
 
@@ -554,10 +554,10 @@ openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /e
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>

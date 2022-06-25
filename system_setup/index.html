@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/system_setup/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -512,287 +512,287 @@
 
 <h2 id="61-portage-setup">6.1. Portage Setup<a class="headerlink" href="#61-portage-setup" title="Permanent link">&para;</a></h2>
 <p>Make <code>dispatch-conf</code> show diffs in color and use vimdiff for merging:</p>
-<pre><code class="language-bash">rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf &amp;&amp; \
-sed -i \
--e &quot;s/diff=\&quot;diff -Nu '%s' '%s'\&quot;/diff=\&quot;diff --color=always -Nu '%s' '%s'\&quot;/&quot; \
--e &quot;s/merge=\&quot;sdiff --suppress-common-lines --output='%s' '%s' '%s'\&quot;/merge=\&quot;vimdiff -c'saveas %s' -c next -c'setlocal noma readonly' -c prev '%s' '%s'\&quot;/&quot; \
+<div class="highlight"><pre><span></span><code>rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sed -i <span class="se">\</span>
+-e <span class="s2">&quot;s/diff=\&quot;diff -Nu &#39;%s&#39; &#39;%s&#39;\&quot;/diff=\&quot;diff --color=always -Nu &#39;%s&#39; &#39;%s&#39;\&quot;/&quot;</span> <span class="se">\</span>
+-e <span class="s2">&quot;s/merge=\&quot;sdiff --suppress-common-lines --output=&#39;%s&#39; &#39;%s&#39; &#39;%s&#39;\&quot;/merge=\&quot;vimdiff -c&#39;saveas %s&#39; -c next -c&#39;setlocal noma readonly&#39; -c prev &#39;%s&#39; &#39;%s&#39;\&quot;/&quot;</span> <span class="se">\</span>
 /etc/._cfg0000_dispatch-conf.conf
-</code></pre>
+</code></pre></div>
 <p>Install to be able to configure <code>/etc/portage/make.conf</code>:</p>
-<pre><code class="language-bash">ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nv">ACCEPT_KEYWORDS</span><span class="o">=</span>~amd64 emerge -1 app-portage/cpuid2cpuflags
+</code></pre></div>
 <p>Configure portage (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash">rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
+<div class="highlight"><pre><span></span><code>rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 
-# If you use distcc, beware of:
-# https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
-#
-# You could resolve &quot;-march=native&quot; with app-misc/resolve-march-native
-sed -i 's/COMMON_FLAGS=&quot;-O2 -pipe&quot;/COMMON_FLAGS=&quot;-march=native -O2 -pipe&quot;/' /etc/portage/._cfg0000_make.conf
+<span class="c1"># If you use distcc, beware of:</span>
+<span class="c1"># https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative</span>
+<span class="c1">#</span>
+<span class="c1"># You could resolve &quot;-march=native&quot; with app-misc/resolve-march-native</span>
+sed -i <span class="s1">&#39;s/COMMON_FLAGS=&quot;-O2 -pipe&quot;/COMMON_FLAGS=&quot;-march=native -O2 -pipe&quot;/&#39;</span> /etc/portage/._cfg0000_make.conf
 
-cat &lt;&lt;'EOF' &gt;&gt; /etc/portage/._cfg0000_make.conf
-EMERGE_DEFAULT_OPTS=&quot;--buildpkg --buildpkg-exclude '*/*-bin sys-kernel/* virtual/*' --noconfmem --with-bdeps=y --complete-graph=y&quot;
+cat <span class="s">&lt;&lt;&#39;EOF&#39; &gt;&gt; /etc/portage/._cfg0000_make.conf</span>
+<span class="s">EMERGE_DEFAULT_OPTS=&quot;--buildpkg --buildpkg-exclude &#39;*/*-bin sys-kernel/* virtual/*&#39; --noconfmem --with-bdeps=y --complete-graph=y&quot;</span>
 
-L10N=&quot;de&quot;
-LINGUAS=&quot;${L10N}&quot;
+<span class="s">L10N=&quot;de&quot;</span>
+<span class="s">LINGUAS=&quot;${L10N}&quot;</span>
 
-GENTOO_MIRRORS=&quot;https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/&quot;
-FETCHCOMMAND=&quot;curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --retry 2 --connect-timeout 60 -o \&quot;\${DISTDIR}/\${FILE}\&quot; \&quot;\${URI}\&quot;&quot;
-RESUMECOMMAND=&quot;${FETCHCOMMAND} --continue-at -&quot;
+<span class="s">GENTOO_MIRRORS=&quot;https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/&quot;</span>
+<span class="s">FETCHCOMMAND=&quot;curl --fail --silent --show-error --location --proto &#39;=https&#39; --tlsv1.2 --ciphers &#39;ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128&#39; --retry 2 --connect-timeout 60 -o \&quot;\${DISTDIR}/\${FILE}\&quot; \&quot;\${URI}\&quot;&quot;</span>
+<span class="s">RESUMECOMMAND=&quot;${FETCHCOMMAND} --continue-at -&quot;</span>
 
-USE_HARDENED=&quot;pie -sslv3 -suid verify-sig&quot;
-USE=&quot;${USE_HARDENED} fish-completion&quot;
+<span class="s">USE_HARDENED=&quot;pie -sslv3 -suid verify-sig&quot;</span>
+<span class="s">USE=&quot;${USE_HARDENED} fish-completion&quot;</span>
 
-EOF
+<span class="s">EOF</span>
 
-echo &quot;*/* $(cpuid2cpuflags)&quot; &gt; /etc/portage/package.use/00cpu-flags
-</code></pre>
+<span class="nb">echo</span> <span class="s2">&quot;*/* </span><span class="k">$(</span>cpuid2cpuflags<span class="k">)</span><span class="s2">&quot;</span> &gt; /etc/portage/package.use/00cpu-flags
+</code></pre></div>
 <p>(Optional) Change <code>GENTOO_MIRRORS</code> in <code>/etc/portage/make.conf</code> (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash"># Install app-misc/yq
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq
+<div class="highlight"><pre><span></span><code><span class="c1"># Install app-misc/yq</span>
+<span class="nv">ACCEPT_KEYWORDS</span><span class="o">=</span>~amd64 emerge -1 app-misc/yq
 
-# Get a list of country codes and names:
-curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r '.mirrors.mirrorgroup[] | &quot;\(.[&quot;@country&quot;]) \(.[&quot;@countryname&quot;])&quot;' | sort -k2.2
+<span class="c1"># Get a list of country codes and names:</span>
+curl -fsSL --proto <span class="s1">&#39;=https&#39;</span> --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml <span class="p">|</span> xq -r <span class="s1">&#39;.mirrors.mirrorgroup[] | &quot;\(.[&quot;@country&quot;]) \(.[&quot;@countryname&quot;])&quot;&#39;</span> <span class="p">|</span> sort -k2.2
 
-# Choose your countries the mirrors should be located in:
-country='&quot;AU&quot;,&quot;BE&quot;,&quot;BR&quot;,&quot;CA&quot;,&quot;CH&quot;,&quot;CL&quot;,&quot;CN&quot;,&quot;CZ&quot;,&quot;DE&quot;,&quot;DK&quot;,&quot;ES&quot;,&quot;FR&quot;,&quot;GR&quot;,&quot;HK&quot;,&quot;IL&quot;,&quot;IT&quot;,&quot;JP&quot;,&quot;KR&quot;,&quot;KZ&quot;,&quot;LU&quot;,&quot;NA&quot;,&quot;NC&quot;,&quot;NL&quot;,&quot;PH&quot;,&quot;PL&quot;,&quot;PT&quot;,&quot;RO&quot;,&quot;RU&quot;,&quot;SG&quot;,&quot;SK&quot;,&quot;TR&quot;,&quot;TW&quot;,&quot;UK&quot;,&quot;US&quot;,&quot;ZA&quot;'
+<span class="c1"># Choose your countries the mirrors should be located in:</span>
+<span class="nv">country</span><span class="o">=</span><span class="s1">&#39;&quot;AU&quot;,&quot;BE&quot;,&quot;BR&quot;,&quot;CA&quot;,&quot;CH&quot;,&quot;CL&quot;,&quot;CN&quot;,&quot;CZ&quot;,&quot;DE&quot;,&quot;DK&quot;,&quot;ES&quot;,&quot;FR&quot;,&quot;GR&quot;,&quot;HK&quot;,&quot;IL&quot;,&quot;IT&quot;,&quot;JP&quot;,&quot;KR&quot;,&quot;KZ&quot;,&quot;LU&quot;,&quot;NA&quot;,&quot;NC&quot;,&quot;NL&quot;,&quot;PH&quot;,&quot;PL&quot;,&quot;PT&quot;,&quot;RO&quot;,&quot;RU&quot;,&quot;SG&quot;,&quot;SK&quot;,&quot;TR&quot;,&quot;TW&quot;,&quot;UK&quot;,&quot;US&quot;,&quot;ZA&quot;&#39;</span>
 
-# Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support
-curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r &quot;.mirrors.mirrorgroup[] | select([.\&quot;@country\&quot;] | inside([${country}])) | .mirror | if type==\&quot;array\&quot; then .[] else . end | .uri | if type==\&quot;array\&quot; then .[] else . end | select(.\&quot;@protocol\&quot; == \&quot;http\&quot; and .\&quot;@ipv4\&quot; == \&quot;y\&quot; and .\&quot;@ipv6\&quot; == \&quot;y\&quot; and (.\&quot;#text\&quot; | startswith(\&quot;https://\&quot;))) | .\&quot;#text\&quot;&quot; | while read -r i; do
-  if curl -fs --proto '=https' --tlsv1.3 -I &quot;${i}&quot; &gt;/dev/null; then
-    echo &quot;${i}&quot;
-  fi
-done
-</code></pre>
+<span class="c1"># Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support</span>
+curl -fsSL --proto <span class="s1">&#39;=https&#39;</span> --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml <span class="p">|</span> xq -r <span class="s2">&quot;.mirrors.mirrorgroup[] | select([.\&quot;@country\&quot;] | inside([</span><span class="si">${</span><span class="nv">country</span><span class="si">}</span><span class="s2">])) | .mirror | if type==\&quot;array\&quot; then .[] else . end | .uri | if type==\&quot;array\&quot; then .[] else . end | select(.\&quot;@protocol\&quot; == \&quot;http\&quot; and .\&quot;@ipv4\&quot; == \&quot;y\&quot; and .\&quot;@ipv6\&quot; == \&quot;y\&quot; and (.\&quot;#text\&quot; | startswith(\&quot;https://\&quot;))) | .\&quot;#text\&quot;&quot;</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
+  <span class="k">if</span> curl -fs --proto <span class="s1">&#39;=https&#39;</span> --tlsv1.3 -I <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="s2">&quot;</span> &gt;/dev/null<span class="p">;</span> <span class="k">then</span>
+    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="s2">&quot;</span>
+  <span class="k">fi</span>
+<span class="k">done</span>
+</code></pre></div>
 <p>I prefer English manpages and ignore above <code>L10N</code> setting for <code>sys-apps/man-pages</code>. Makes using Stackoverflow easier 😉.</p>
-<pre><code class="language-bash">echo &quot;sys-apps/man-pages -l10n_de&quot; &gt;&gt; /etc/portage/package.use/main
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;sys-apps/man-pages -l10n_de&quot;</span> &gt;&gt; /etc/portage/package.use/main
+</code></pre></div>
 <p>Install <code>app-portage/eix</code>:</p>
-<pre><code class="language-bash">emerge -at app-portage/eix
-</code></pre>
+<div class="highlight"><pre><span></span><code>emerge -at app-portage/eix
+</code></pre></div>
 <p>Execute <code>eix-sync</code>:</p>
-<pre><code class="language-bash">eix-sync
-</code></pre>
+<div class="highlight"><pre><span></span><code>eix-sync
+</code></pre></div>
 <p>Read Gentoo news items:</p>
-<pre><code>eselect news list
+<div class="highlight"><pre><span></span><code>eselect news list
 # eselect news read 1
 # eselect news read 2
 # etc.
-</code></pre>
+</code></pre></div>
 <p>Update system:</p>
-<pre><code class="language-bash">touch /etc/sysctl.conf &amp;&amp; \
-echo &quot;sys-apps/systemd cryptsetup&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
+<div class="highlight"><pre><span></span><code>touch /etc/sysctl.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-apps/systemd cryptsetup&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge -atuDN @world
-</code></pre>
+</code></pre></div>
 <h2 id="62-non-root-user-creation">6.2. Non-Root User Creation<a class="headerlink" href="#62-non-root-user-creation" title="Permanent link">&para;</a></h2>
 <p>Create a non-root user and set a password you can use with English keyboard layout for now. You can set a secure password after rebooting and taking care of localisation.</p>
-<pre><code class="language-bash">useradd -m -G wheel -s /bin/bash david &amp;&amp; \
-chmod u=rwx,og= /home/david &amp;&amp; \
-echo -e 'alias cp=&quot;cp -i&quot;\nalias mv=&quot;mv -i&quot;\nalias rm=&quot;rm -i&quot;' &gt;&gt; /home/david/.bash_aliases &amp;&amp; \
-chown david:david /home/david/.bash_aliases &amp;&amp; \
-echo 'source &quot;${HOME}/.bash_aliases&quot;' &gt;&gt; /home/david/.bashrc &amp;&amp; \
+<div class="highlight"><pre><span></span><code>useradd -m -G wheel -s /bin/bash david <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chmod <span class="nv">u</span><span class="o">=</span>rwx,og<span class="o">=</span> /home/david <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> -e <span class="s1">&#39;alias cp=&quot;cp -i&quot;\nalias mv=&quot;mv -i&quot;\nalias rm=&quot;rm -i&quot;&#39;</span> &gt;&gt; /home/david/.bash_aliases <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chown david:david /home/david/.bash_aliases <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s1">&#39;source &quot;${HOME}/.bash_aliases&quot;&#39;</span> &gt;&gt; /home/david/.bashrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
 passwd david
-</code></pre>
+</code></pre></div>
 <p>(Optional) Create your <code>authorized_keys</code>:</p>
-<pre><code class="language-bash">rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/
-</code></pre>
+<div class="highlight"><pre><span></span><code>rsync -av --chown<span class="o">=</span>david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/
+</code></pre></div>
 <p>Setup sudo:</p>
-<pre><code class="language-bash">echo &quot;app-admin/sudo -sendmail&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
-emerge app-admin/sudo &amp;&amp; \
-echo &quot;%wheel ALL=(ALL) ALL&quot; | EDITOR=&quot;tee&quot; visudo -f /etc/sudoers.d/wheel; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;app-admin/sudo -sendmail&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge app-admin/sudo <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;%wheel ALL=(ALL) ALL&quot;</span> <span class="p">|</span> <span class="nv">EDITOR</span><span class="o">=</span><span class="s2">&quot;tee&quot;</span> visudo -f /etc/sudoers.d/wheel<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Setup vim:</p>
-<pre><code class="language-bash">USE=&quot;-verify-sig&quot; emerge -1 dev-libs/libsodium &amp;&amp; \
-emerge -1 dev-libs/libsodium app-editors/vim &amp;&amp; \
-emerge --select --noreplace app-editors/vim &amp;&amp; \
-sed -i 's/^USE=&quot;\([^&quot;]*\)&quot;$/USE=&quot;\1 vim-syntax&quot;/' /etc/portage/make.conf &amp;&amp; \
-echo &quot;filetype plugin on
-filetype indent on
-set number
-set paste
-syntax on&quot; | tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  &amp;&amp; \
-chown david:david /home/david/.vimrc &amp;&amp; \
-eselect editor set vi &amp;&amp; \
-eselect vi set vim &amp;&amp; \
-env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $PS1&quot;; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nv">USE</span><span class="o">=</span><span class="s2">&quot;-verify-sig&quot;</span> emerge -1 dev-libs/libsodium <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge -1 dev-libs/libsodium app-editors/vim <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge --select --noreplace app-editors/vim <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sed -i <span class="s1">&#39;s/^USE=&quot;\([^&quot;]*\)&quot;$/USE=&quot;\1 vim-syntax&quot;/&#39;</span> /etc/portage/make.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;filetype plugin on</span>
+<span class="s2">filetype indent on</span>
+<span class="s2">set number</span>
+<span class="s2">set paste</span>
+<span class="s2">syntax on&quot;</span> <span class="p">|</span> tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chown david:david /home/david/.vimrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
+eselect editor <span class="nb">set</span> vi <span class="o">&amp;&amp;</span> <span class="se">\</span>
+eselect vi <span class="nb">set</span> vim <span class="o">&amp;&amp;</span> <span class="se">\</span>
+env-update <span class="o">&amp;&amp;</span> <span class="nb">source</span> /etc/profile <span class="o">&amp;&amp;</span> <span class="nb">export</span> <span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;(chroot) </span><span class="nv">$PS1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h2 id="63-configuration-of-etcfstab">6.3. Configuration Of /etc/fstab<a class="headerlink" href="#63-configuration-of-etcfstab" title="Permanent link">&para;</a></h2>
 <p>Set /etc/fstab and add <code>noauto</code> mount option to <code>/efi*</code> entries if you have ESP(s) on removable media:</p>
-<pre><code class="language-bash">echo &quot;&quot; &gt;&gt; /etc/fstab
-echo &quot;
-$(find /devEfi* -maxdepth 0 | while read -r i; do
-  echo &quot;UUID=$(blkid -s UUID -o value &quot;$i&quot;)  ${i/devE/e}          vfat  noatime,dmask=0022,fmask=0133 0 0&quot;
-done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime                       0 0
-UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                            0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root          0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home          0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0&quot; | column -o &quot; &quot; -t &gt;&gt; /etc/fstab &amp;&amp; \
-find /devEfi* -maxdepth 0 | while read -r i; do
-  mkdir &quot;${i/devE/e}&quot;
-  mount &quot;${i/devE/e}&quot;
-done; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;&quot;</span> &gt;&gt; /etc/fstab
+<span class="nb">echo</span> <span class="s2">&quot;</span>
+<span class="k">$(</span>find /devEfi* -maxdepth <span class="m">0</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
+  <span class="nb">echo</span> <span class="s2">&quot;UUID=</span><span class="k">$(</span>blkid -s UUID -o value <span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">  </span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">          vfat  noatime,dmask=0022,fmask=0133 0 0&quot;</span>
+<span class="k">done)</span><span class="s2"></span>
+<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperBoot<span class="k">)</span><span class="s2">   /boot                btrfs noatime                       0 0</span>
+<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSwap<span class="k">)</span><span class="s2">   none                 swap  sw                            0 0</span>
+<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /                    btrfs noatime,subvol=@root          0 0</span>
+<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /home                btrfs noatime,subvol=@home          0 0</span>
+<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0</span>
+<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0</span>
+<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0&quot;</span> <span class="p">|</span> column -o <span class="s2">&quot; &quot;</span> -t &gt;&gt; /etc/fstab <span class="o">&amp;&amp;</span> <span class="se">\</span>
+find /devEfi* -maxdepth <span class="m">0</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
+  mkdir <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span>
+  mount <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">done</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h2 id="64-kernel-installation">6.4. Kernel Installation<a class="headerlink" href="#64-kernel-installation" title="Permanent link">&para;</a></h2>
 <p>Install the <a href="https://www.kernel.org/category/releases.html">kernel</a>:</p>
-<pre><code class="language-bash">install_lts_kernel=&quot;true&quot; &amp;&amp; \
-echo &quot;sys-fs/btrfs-progs ~amd64
-sys-kernel/gentoo-kernel-bin ~amd64
-sys-kernel/linux-headers ~amd64
-virtual/dist-kernel ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
-if [[ ${install_lts_kernel} == true ]]; then
-cat &lt;&lt;EOF &gt;&gt; /etc/portage/package.mask/main
-&gt;=sys-fs/btrfs-progs-5.16
-&gt;=sys-kernel/gentoo-kernel-bin-5.16
-&gt;=sys-kernel/linux-headers-5.16
-&gt;=virtual/dist-kernel-5.16
-EOF
-fi &amp;&amp; \
-echo &quot;sys-fs/btrfs-progs -convert&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
-echo &quot;sys-kernel/linux-firmware linux-fw-redistributable no-source-code&quot; &gt;&gt; /etc/portage/package.license &amp;&amp; \
-emerge sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n &quot;sys-fs/mdadm&quot;; fi) sys-kernel/linux-firmware &amp;&amp; \
-emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n &quot;sys-fs/mdadm&quot;; fi) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nv">install_lts_kernel</span><span class="o">=</span><span class="s2">&quot;true&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-fs/btrfs-progs ~amd64</span>
+<span class="s2">sys-kernel/gentoo-kernel-bin ~amd64</span>
+<span class="s2">sys-kernel/linux-headers ~amd64</span>
+<span class="s2">virtual/dist-kernel ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="k">if</span> <span class="o">[[</span> <span class="si">${</span><span class="nv">install_lts_kernel</span><span class="si">}</span> <span class="o">==</span> <span class="nb">true</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/portage/package.mask/main</span>
+<span class="s">&gt;=sys-fs/btrfs-progs-5.16</span>
+<span class="s">&gt;=sys-kernel/gentoo-kernel-bin-5.16</span>
+<span class="s">&gt;=sys-kernel/linux-headers-5.16</span>
+<span class="s">&gt;=virtual/dist-kernel-5.16</span>
+<span class="s">EOF</span>
+<span class="k">fi</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-fs/btrfs-progs -convert&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-kernel/linux-firmware linux-fw-redistributable no-source-code&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge sys-fs/btrfs-progs <span class="k">$(if</span> <span class="o">[[</span> -e /devSwapb <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> -n <span class="s2">&quot;sys-fs/mdadm&quot;</span><span class="p">;</span> <span class="k">fi)</span> sys-kernel/linux-firmware <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge -at sys-fs/btrfs-progs <span class="k">$(if</span> <span class="o">[[</span> -e /devSwapb <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> -n <span class="s2">&quot;sys-fs/mdadm&quot;</span><span class="p">;</span> <span class="k">fi)</span> sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h2 id="65-additional-packages">6.5. Additional Packages<a class="headerlink" href="#65-additional-packages" title="Permanent link">&para;</a></h2>
 <p>Microcode updates are not necessary for virtual systems. Otherwise, install <code>sys-firmware/intel-microcode</code> if you have an Intel CPU. Or, follow the <a href="https://wiki.gentoo.org/wiki/AMD_microcode">Gentoo wiki instruction</a> to update the microcode on AMD systems.</p>
-<pre><code class="language-bash">! grep -q -w &quot;hypervisor&quot; &lt;(grep &quot;^flags[[:space:]]*:[[:space:]]*&quot; /proc/cpuinfo) &amp;&amp; \
-grep -q &quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$&quot; /proc/cpuinfo &amp;&amp; \
-echo &quot;sys-firmware/intel-microcode intel-ucode&quot; &gt;&gt; /etc/portage/package.license &amp;&amp; \
-echo &quot;sys-firmware/intel-microcode -* hostonly initramfs&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
-emerge -at sys-firmware/intel-microcode; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>! grep -q -w <span class="s2">&quot;hypervisor&quot;</span> &lt;<span class="o">(</span>grep <span class="s2">&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+grep -q <span class="s2">&quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel</span>$<span class="s2">&quot;</span> /proc/cpuinfo <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode intel-ucode&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode -* hostonly initramfs&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge -at sys-firmware/intel-microcode<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Set <code>/etc/hosts</code>:</p>
-<pre><code class="language-bash">rsync -a /etc/hosts /etc/._cfg0000_hosts &amp;&amp; \
-sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
-</code></pre>
+<div class="highlight"><pre><span></span><code>rsync -a /etc/hosts /etc/._cfg0000_hosts <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sed -i <span class="s1">&#39;s/localhost$/localhost micro/&#39;</span> /etc/._cfg0000_hosts
+</code></pre></div>
 <p>(Optional) Enable ssh service:</p>
-<pre><code class="language-bash">systemctl --no-reload enable sshd.service
-</code></pre>
+<div class="highlight"><pre><span></span><code>systemctl --no-reload <span class="nb">enable</span> sshd.service
+</code></pre></div>
 <ul>
 <li>starship:</li>
 </ul>
-<pre><code class="language-bash"># If you have insufficient ressources, you may want to &quot;emerge -1 dev-lang/rust-bin&quot; beforehand.
-echo &quot;app-shells/starship ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
-emerge app-shells/starship &amp;&amp; \
-mkdir --mode=0700 /home/david/.config /root/.config &amp;&amp; \
-touch /home/david/.config/starship.toml &amp;&amp; \
-chown -R david:david /home/david/.config &amp;&amp; \
-cat &lt;&lt;'EOF' | tee /root/.config/starship.toml &gt; /home/david/.config/starship.toml; echo $?
-[hostname]
-ssh_only = false
-format =  &quot;[$hostname](bold red) &quot;
+<div class="highlight"><pre><span></span><code><span class="c1"># If you have insufficient ressources, you may want to &quot;emerge -1 dev-lang/rust-bin&quot; beforehand.</span>
+<span class="nb">echo</span> <span class="s2">&quot;app-shells/starship ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge app-shells/starship <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mkdir --mode<span class="o">=</span><span class="m">0700</span> /home/david/.config /root/.config <span class="o">&amp;&amp;</span> <span class="se">\</span>
+touch /home/david/.config/starship.toml <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chown -R david:david /home/david/.config <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cat <span class="s">&lt;&lt;&#39;EOF&#39; | tee /root/.config/starship.toml &gt; /home/david/.config/starship.toml; echo $?</span>
+<span class="s">[hostname]</span>
+<span class="s">ssh_only = false</span>
+<span class="s">format =  &quot;[$hostname](bold red) &quot;</span>
 
-EOF
-</code></pre>
+<span class="s">EOF</span>
+</code></pre></div>
 <ul>
 <li>fish shell:</li>
 </ul>
-<pre><code class="language-bash">echo &quot;=dev-libs/libpcre2-$(qatom -F &quot;%{PVR}&quot; &quot;$(portageq best_visible / dev-libs/libpcre2)&quot;) pcre32&quot; &gt;&gt; /etc/portage/package.use/main &amp;&amp; \
-echo &quot;app-shells/fish ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
-emerge app-shells/fish &amp;&amp; \
-echo '
-# Use fish in place of bash
-# keep this line at the bottom of ~/.bashrc
-if [[ -z ${chrooted} ]]; then
-    if [[ -x /bin/fish ]]; then
-        SHELL=/bin/fish exec /bin/fish
-    fi
-elif [[ -z ${chrooted_su} ]]; then
-    export chrooted_su=true
-    source /etc/profile &amp;&amp; su --login --whitelist-environment=chrooted,chrooted_su
-else
-    env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $PS1&quot;
-fi' &gt;&gt; /root/.bashrc &amp;&amp; \
-echo '
-# Use fish in place of bash
-# keep this line at the bottom of ~/.bashrc
-if [[ -x /bin/fish ]]; then
-    SHELL=/bin/fish exec /bin/fish
-fi' &gt;&gt; /home/david/.bashrc; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=dev-libs/libpcre2-</span><span class="k">$(</span>qatom -F <span class="s2">&quot;%{PVR}&quot;</span> <span class="s2">&quot;</span><span class="k">$(</span>portageq best_visible / dev-libs/libpcre2<span class="k">)</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2"> pcre32&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;app-shells/fish ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge app-shells/fish <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s1">&#39;</span>
+<span class="s1"># Use fish in place of bash</span>
+<span class="s1"># keep this line at the bottom of ~/.bashrc</span>
+<span class="s1">if [[ -z ${chrooted} ]]; then</span>
+<span class="s1">    if [[ -x /bin/fish ]]; then</span>
+<span class="s1">        SHELL=/bin/fish exec /bin/fish</span>
+<span class="s1">    fi</span>
+<span class="s1">elif [[ -z ${chrooted_su} ]]; then</span>
+<span class="s1">    export chrooted_su=true</span>
+<span class="s1">    source /etc/profile &amp;&amp; su --login --whitelist-environment=chrooted,chrooted_su</span>
+<span class="s1">else</span>
+<span class="s1">    env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $PS1&quot;</span>
+<span class="s1">fi&#39;</span> &gt;&gt; /root/.bashrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s1">&#39;</span>
+<span class="s1"># Use fish in place of bash</span>
+<span class="s1"># keep this line at the bottom of ~/.bashrc</span>
+<span class="s1">if [[ -x /bin/fish ]]; then</span>
+<span class="s1">    SHELL=/bin/fish exec /bin/fish</span>
+<span class="s1">fi&#39;</span> &gt;&gt; /home/david/.bashrc<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p><code>root</code> setup:</p>
-<pre><code class="language-bash">/bin/fish -c fish_update_completions
-</code></pre>
+<div class="highlight"><pre><span></span><code>/bin/fish -c fish_update_completions
+</code></pre></div>
 <p><code>non-root</code> setup:</p>
-<pre><code class="language-bash">su -l david -c &quot;/bin/fish -c fish_update_completions&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>su -l david -c <span class="s2">&quot;/bin/fish -c fish_update_completions&quot;</span>
+</code></pre></div>
 <p>Enable aliases and starship (copy&amp;paste one after the other):</p>
-<pre><code>su -
+<div class="highlight"><pre><span></span><code>su -
 exit
 su - david
 exit
-sed -i 's/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/' /root/.config/fish/config.fish
-sed -i 's/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/' /home/david/.config/fish/config.fish
-</code></pre>
+sed -i &#39;s/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/&#39; /root/.config/fish/config.fish
+sed -i &#39;s/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/&#39; /home/david/.config/fish/config.fish
+</code></pre></div>
 <ul>
 <li>nerd fonts:</li>
 </ul>
-<pre><code class="language-bash">emerge media-libs/fontconfig &amp;&amp; \
-su -l david -c &quot;curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip&quot; &amp;&amp; \
-b2sum -c &lt;&lt;&lt;&quot;81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip&quot; &amp;&amp; \
-mkdir /tmp/FiraCode &amp;&amp; \
-unzip -d /tmp/FiraCode /tmp/FiraCode.zip &amp;&amp; \
-rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* &amp;&amp; \
-mkdir /usr/share/fonts/nerd-firacode &amp;&amp; \
-rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firacode/; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>emerge media-libs/fontconfig <span class="o">&amp;&amp;</span> <span class="se">\</span>
+su -l david -c <span class="s2">&quot;curl --proto &#39;=https&#39; --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+b2sum -c <span class="o">&lt;&lt;&lt;</span><span class="s2">&quot;81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mkdir /tmp/FiraCode <span class="o">&amp;&amp;</span> <span class="se">\</span>
+unzip -d /tmp/FiraCode /tmp/FiraCode.zip <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mkdir /usr/share/fonts/nerd-firacode <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">a</span><span class="o">=</span>r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firacode/<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Download the <a href="https://starship.rs/presets/nerd-font.html">Nerd Font Symbols Preset</a>, verify the content and install.</p>
 <ul>
 <li>If you have <code>sys-fs/mdadm</code> installed:</li>
 </ul>
-<pre><code class="language-bash">[[ -e /devSwapb ]] &amp;&amp; \
-rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf &amp;&amp; \
-echo &quot;&quot; &gt;&gt; /etc/._cfg0000_mdadm.conf &amp;&amp; \
-mdadm --detail --scan &gt;&gt; /etc/._cfg0000_mdadm.conf; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="o">[[</span> -e /devSwapb <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;&quot;</span> &gt;&gt; /etc/._cfg0000_mdadm.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mdadm --detail --scan &gt;&gt; /etc/._cfg0000_mdadm.conf<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <ul>
 <li>ssh:</li>
 </ul>
-<pre><code class="language-bash">rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
-sed -i \
--e 's/^#Port 22$/Port 50022/' \
--e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
--e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
-grep -q &quot;^PasswordAuthentication no$&quot; /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
-echo &quot;
-AuthenticationMethods publickey
+<div class="highlight"><pre><span></span><code>rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sed -i <span class="se">\</span>
+-e <span class="s1">&#39;s/^#Port 22$/Port 50022/&#39;</span> <span class="se">\</span>
+-e <span class="s1">&#39;s/^#PermitRootLogin prohibit-password$/PermitRootLogin no/&#39;</span> <span class="se">\</span>
+-e <span class="s1">&#39;s/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/&#39;</span> <span class="se">\</span>
+-e <span class="s1">&#39;s/^#X11Forwarding no$/X11Forwarding no/&#39;</span> /etc/ssh/._cfg0000_sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
+grep -q <span class="s2">&quot;^PasswordAuthentication no</span>$<span class="s2">&quot;</span> /etc/ssh/._cfg0000_sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;</span>
+<span class="s2">AuthenticationMethods publickey</span>
 
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-HostKeyAlgorithms ssh-ed25519
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+<span class="s2">KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
+<span class="s2">HostKeyAlgorithms ssh-ed25519</span>
+<span class="s2">Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>
+<span class="s2">MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com</span>
 
-AllowUsers david&quot; &gt;&gt; /etc/ssh/._cfg0000_sshd_config &amp;&amp; \
-ssh-keygen -A &amp;&amp; \
-sshd -t; echo $?
-</code></pre>
+<span class="s2">AllowUsers david&quot;</span> &gt;&gt; /etc/ssh/._cfg0000_sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
+ssh-keygen -A <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sshd -t<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:</p>
-<pre><code class="language-bash">find /etc/ssh/ -type f -name &quot;ssh_host*\.pub&quot; -exec ssh-keygen -vlf {} \;
-</code></pre>
+<div class="highlight"><pre><span></span><code>find /etc/ssh/ -type f -name <span class="s2">&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class="o">{}</span> <span class="se">\;</span>
+</code></pre></div>
 <p>Setup client SSH config:</p>
-<pre><code class="language-bash">echo &quot;AddKeysToAgent no
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-HostKeyAlgorithms ssh-ed25519
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
-HashKnownHosts no
-StrictHostKeyChecking ask
-VisualHostKey yes&quot; &gt; /home/david/.ssh/config &amp;&amp; \
-chown david:david /home/david/.ssh/config; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;AddKeysToAgent no</span>
+<span class="s2">KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
+<span class="s2">HostKeyAlgorithms ssh-ed25519</span>
+<span class="s2">Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>
+<span class="s2">MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com</span>
+<span class="s2">HashKnownHosts no</span>
+<span class="s2">StrictHostKeyChecking ask</span>
+<span class="s2">VisualHostKey yes&quot;</span> &gt; /home/david/.ssh/config <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chown david:david /home/david/.ssh/config<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <ul>
 <li>sysrq (if you don't want to disable in kernel):</li>
 </ul>
-<pre><code class="language-bash">echo &quot;kernel.sysrq = 0&quot; &gt; /etc/sysctl.d/99sysrq.conf
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;kernel.sysrq = 0&quot;</span> &gt; /etc/sysctl.d/99sysrq.conf
+</code></pre></div>
 <ul>
 <li>misc tools:</li>
 </ul>
-<pre><code class="language-bash">emerge -at app-misc/screen app-portage/gentoolkit
-</code></pre>
+<div class="highlight"><pre><span></span><code>emerge -at app-misc/screen app-portage/gentoolkit
+</code></pre></div>
 
               
             </article>
@@ -860,10 +860,10 @@ chown david:david /home/david/.ssh/config; echo $?
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/post-boot_configuration/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -539,38 +539,38 @@
 <h2 id="91-systemd-configuration">9.1. Systemd Configuration<a class="headerlink" href="#91-systemd-configuration" title="Permanent link">&para;</a></h2>
 <p>Some configuration needs to be done after systemd has been started.</p>
 <p>Do some <a href="https://wiki.gentoo.org/wiki/Systemd#Configuration">initial configuration</a> (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash">systemd-firstboot --prompt --setup-machine-id
-systemctl --preset-mode=enable-only preset-all
-</code></pre>
+<div class="highlight"><pre><span></span><code>systemd-firstboot --prompt --setup-machine-id
+systemctl --preset-mode<span class="o">=</span>enable-only preset-all
+</code></pre></div>
 <p>Setup <a href="https://wiki.gentoo.org/wiki/Systemd#Locale">localisation</a>:</p>
-<pre><code class="language-bash">bash -c '
-localectl set-locale LANG=&quot;de_DE.UTF-8&quot; LC_COLLATE=&quot;C.UTF-8&quot; LC_MESSAGES=&quot;en_US.UTF-8&quot; &amp;&amp; \
-localectl status &amp;&amp; \
-env-update &amp;&amp; source /etc/profile; echo $?
-'
-</code></pre>
+<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
+<span class="s1">localectl set-locale LANG=&quot;de_DE.UTF-8&quot; LC_COLLATE=&quot;C.UTF-8&quot; LC_MESSAGES=&quot;en_US.UTF-8&quot; &amp;&amp; \</span>
+<span class="s1">localectl status &amp;&amp; \</span>
+<span class="s1">env-update &amp;&amp; source /etc/profile; echo $?</span>
+<span class="s1">&#39;</span>
+</code></pre></div>
 <p>Setup timedatectl:</p>
-<pre><code class="language-bash">bash -c '
-timedatectl set-timezone Europe/Berlin &amp;&amp; \
-if ! grep -q -w &quot;hypervisor&quot; &lt;(grep &quot;^flags[[:space:]]*:[[:space:]]*&quot; /proc/cpuinfo); then
-    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \
-    sed -i -e &quot;s/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/&quot; -e &quot;s/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/&quot; /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \
-    timedatectl set-ntp true
-    echo $?
-fi &amp;&amp; \
-timedatectl; echo $?
-'
-</code></pre>
+<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
+<span class="s1">timedatectl set-timezone Europe/Berlin &amp;&amp; \</span>
+<span class="s1">if ! grep -q -w &quot;hypervisor&quot; &lt;(grep &quot;^flags[[:space:]]*:[[:space:]]*&quot; /proc/cpuinfo); then</span>
+<span class="s1">    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
+<span class="s1">    sed -i -e &quot;s/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/&quot; -e &quot;s/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/&quot; /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
+<span class="s1">    timedatectl set-ntp true</span>
+<span class="s1">    echo $?</span>
+<span class="s1">fi &amp;&amp; \</span>
+<span class="s1">timedatectl; echo $?</span>
+<span class="s1">&#39;</span>
+</code></pre></div>
 <p>Setup nftables:</p>
-<pre><code class="language-bash">bash -c '
-emerge net-firewall/nftables &amp;&amp; \
-rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables &amp;&amp; \
-sed -i &quot;s/^SAVE_ON_STOP=\&quot;yes\&quot;$/SAVE_ON_STOP=\&quot;no\&quot;/&quot; /etc/conf.d/._cfg0000_nftables &amp;&amp; \
-/usr/local/sbin/firewall.nft &amp;&amp; \
-nft list ruleset &gt; /var/lib/nftables/rules-save &amp;&amp; \
-systemctl enable nftables-restore; echo $?
-'
-</code></pre>
+<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
+<span class="s1">emerge net-firewall/nftables &amp;&amp; \</span>
+<span class="s1">rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables &amp;&amp; \</span>
+<span class="s1">sed -i &quot;s/^SAVE_ON_STOP=\&quot;yes\&quot;$/SAVE_ON_STOP=\&quot;no\&quot;/&quot; /etc/conf.d/._cfg0000_nftables &amp;&amp; \</span>
+<span class="s1">/usr/local/sbin/firewall.nft &amp;&amp; \</span>
+<span class="s1">nft list ruleset &gt; /var/lib/nftables/rules-save &amp;&amp; \</span>
+<span class="s1">systemctl enable nftables-restore; echo $?</span>
+<span class="s1">&#39;</span>
+</code></pre></div>
 <h2 id="92-measured-boot">9.2. Measured Boot<a class="headerlink" href="#92-measured-boot" title="Permanent link">&para;</a></h2>
 <p>You have two options for <code>Measured Boot</code>:</p>
 <ul>
@@ -580,117 +580,120 @@ systemctl enable nftables-restore; echo $?
 <p>Use either <code>systemd-cryptenroll</code> or <code>clevis</code> in the following.</p>
 <h3 id="921a-systemd-cryptenroll">9.2.1.a) systemd-cryptenroll<a class="headerlink" href="#921a-systemd-cryptenroll" title="Permanent link">&para;</a></h3>
 <p>Install <code>app-crypt/tpm2-tools</code>:</p>
-<pre><code class="language-bash">echo &quot;=app-crypt/tpm2-tools-5.2-r1 ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=app-crypt/tpm2-tools-5.2-r1 ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge -av tpm2-tools
-</code></pre>
+</code></pre></div>
 <p>Add support for TPM to dracut and systemd:</p>
-<pre><code class="language-bash">bash -c '
-sed -i &quot;s/\(sys-apps\/systemd cryptsetup\)/\1 tpm/&quot; /etc/portage/package.use/main &amp;&amp; \
-echo \'add_dracutmodules+=&quot; tpm2-tss &quot;\' &gt;&gt; /etc/dracut.conf; echo $?
-'
-</code></pre>
+<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
+<span class="s1">sed -i &quot;s/\(sys-apps\/systemd cryptsetup\)/\1 tpm/&quot; /etc/portage/package.use/main &amp;&amp; \</span>
+<span class="s1">echo \&#39;</span><span class="nv">add_dracutmodules</span><span class="o">+=</span><span class="s2">&quot; tpm2-tss &quot;</span><span class="se">\&#39;</span> &gt;&gt; /etc/dracut.conf<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+<span class="err">&#39;</span>
+</code></pre></div>
 <p>Enable newer version with required bug fixes and features:</p>
-<pre><code class="language-bash">echo &quot;=sys-kernel/dracut-056-r1 ~amd64
-=sys-apps/systemd-251.2 ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=sys-kernel/dracut-056-r1 ~amd64</span>
+<span class="s2">=sys-apps/systemd-251.2 ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main
+</code></pre></div>
 <p>Update:</p>
-<pre><code class="language-bash">emerge -atuDN @world
-</code></pre>
+<div class="highlight"><pre><span></span><code>emerge -atuDN @world
+</code></pre></div>
 <p>Reboot your system!</p>
 <p>Make sure that TPM 2.0 devices (should only be one) are recognised:</p>
-<pre><code class="language-bash">systemd-cryptenroll --tpm2-device=list
-</code></pre>
+<div class="highlight"><pre><span></span><code>systemd-cryptenroll --tpm2-device<span class="o">=</span>list
+</code></pre></div>
 <p>Make sure that the PCRs you are going to use have a valid hash and don't contain only zeroes:</p>
-<pre><code class="language-bash">tpm2_pcrread sha256
-</code></pre>
+<div class="highlight"><pre><span></span><code>tpm2_pcrread sha256
+</code></pre></div>
 <p>Create new LUKS keyslots on all swap and system partitions. You need to <strong>boot with each EFI binary (one ESP for each disk) and repeat keyslot creation</strong> for each one, because different PCR5 values are created depending on the EFI binary you booted with.</p>
-<pre><code class="language-bash"># Adjust PCR IDs, e.g.: --tpm2-pcrs=1+7
-# Further info can be found at:
-# https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-#
-# &quot;--tpm2-with-pin=yes&quot; is optional.
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sda4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sda5
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sdb4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sdb5
-# etc.
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="c1"># Adjust PCR IDs, e.g.: --tpm2-pcrs=1+7</span>
+<span class="c1"># Further info can be found at:</span>
+<span class="c1"># https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2</span>
+<span class="c1">#</span>
+<span class="c1"># &quot;--tpm2-with-pin=yes&quot; is optional.</span>
+systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+5+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sda4
+systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+5+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sda5
+systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+5+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sdb4
+systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+5+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sdb5
+<span class="c1"># etc.</span>
+</code></pre></div>
 <p>Remove overlay directory containing <code>app-crypt/clevis</code>:</p>
-<pre><code class="language-bash">rm -rf /root/localrepo
-</code></pre>
+<div class="highlight"><pre><span></span><code>rm -rf /root/localrepo
+</code></pre></div>
 <h3 id="921b-clevis">9.2.1.b) clevis<a class="headerlink" href="#921b-clevis" title="Permanent link">&para;</a></h3>
 <p>Install <code>dev-vcs/git</code>:</p>
-<pre><code class="language-bash">emerge -at dev-vcs/git
-</code></pre>
+<div class="highlight"><pre><span></span><code>emerge -at dev-vcs/git
+</code></pre></div>
 <p>Install <code>app-crypt/clevis</code>:</p>
-<pre><code class="language-bash">emerge -1 app-eselect/eselect-repository &amp;&amp; \
-eselect repository create localrepo &amp;&amp; \
-sed -i '/^location[[:space:]]*=[[:space:]]*\/var\/db\/repos\/localrepo$/a auto-sync = false' /etc/portage/repos.conf/eselect-repo.conf &amp;&amp; \
-rsync -a /root/localrepo /var/db/repos/ &amp;&amp; \
-rm -rf /root/localrepo &amp;&amp; \
-echo &quot;app-crypt/clevis ~amd64
-dev-libs/jose ~amd64
-dev-libs/luksmeta ~amd64
-app-crypt/tpm2-tools ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \
+<div class="highlight"><pre><span></span><code>emerge -1 app-eselect/eselect-repository <span class="o">&amp;&amp;</span> <span class="se">\</span>
+eselect repository create localrepo <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sed -i <span class="s1">&#39;/^location[[:space:]]*=[[:space:]]*\/var\/db\/repos\/localrepo$/a auto-sync = false&#39;</span> /etc/portage/repos.conf/eselect-repo.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a /root/localrepo /var/db/repos/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rm -rf /root/localrepo <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;app-crypt/clevis ~amd64</span>
+<span class="s2">dev-libs/jose ~amd64</span>
+<span class="s2">dev-libs/luksmeta ~amd64</span>
+<span class="s2">app-crypt/tpm2-tools ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge -at app-crypt/clevis
-</code></pre>
+</code></pre></div>
 <p>Make sure that the PCRs you are going to use have a valid hash and don't contain only zeroes:</p>
-<pre><code class="language-bash">tpm2_pcrread sha256
-</code></pre>
-<p>Bind all swap and system LUKS volumes. You need to <strong>boot with each EFI binary (one ESP for each disk) and repeat keyslot creation</strong> for each one, because different PCR5 values are created depending on the EFI binary you booted with. ⚠ The following clevis commands still need to get tested! ⚠</p>
-<pre><code class="language-bash"># Adjust PCR IDs, e.g.: &quot;pcr_ids&quot;:&quot;1,7&quot;
-# Further info can be found at:
-# https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-clevis luks bind -d /dev/sda4 sss '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
-clevis luks bind -d /dev/sda5 sss '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
-clevis luks bind -d /dev/sdb4 sss '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
-clevis luks bind -d /dev/sdb5 sss '{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}'
-# etc.
-</code></pre>
+<div class="highlight"><pre><span></span><code>tpm2_pcrread sha256
+</code></pre></div>
+<p>Bind all swap and system LUKS volumes. You need to <strong>boot with each EFI binary (one ESP for each disk) and repeat keyslot creation</strong> for each one, because different PCR5 values are created depending on the EFI binary you booted with.</p>
+<div class="admonition bug">
+<p>The following clevis commands still need to get tested!</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Adjust PCR IDs, e.g.: &quot;pcr_ids&quot;:&quot;1,7&quot;</span>
+<span class="c1"># Further info can be found at:</span>
+<span class="c1"># https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2</span>
+clevis luks <span class="nb">bind</span> -d /dev/sda4 sss <span class="s1">&#39;{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}&#39;</span>
+clevis luks <span class="nb">bind</span> -d /dev/sda5 sss <span class="s1">&#39;{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}&#39;</span>
+clevis luks <span class="nb">bind</span> -d /dev/sdb4 sss <span class="s1">&#39;{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}&#39;</span>
+clevis luks <span class="nb">bind</span> -d /dev/sdb5 sss <span class="s1">&#39;{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;0,1,2,3,4,5,6,7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}&#39;</span>
+<span class="c1"># etc.</span>
+</code></pre></div>
 <p>Show results:</p>
-<pre><code class="language-bash">clevis luks list -d /dev/sda4
+<div class="highlight"><pre><span></span><code>clevis luks list -d /dev/sda4
 clevis luks list -d /dev/sda5
 clevis luks list -d /dev/sdb4
 clevis luks list -d /dev/sdb5
-# etc.
-# Sample output:
-# 1: tpm2 '{&quot;hash&quot;:&quot;sha256&quot;,&quot;key&quot;:&quot;ecc&quot;,&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;1,2,3,4,5,6,7&quot;}'
-</code></pre>
+<span class="c1"># etc.</span>
+<span class="c1"># Sample output:</span>
+<span class="c1"># 1: tpm2 &#39;{&quot;hash&quot;:&quot;sha256&quot;,&quot;key&quot;:&quot;ecc&quot;,&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;1,2,3,4,5,6,7&quot;}&#39;</span>
+</code></pre></div>
 <h3 id="922-initramfs-rebuild">9.2.2. Initramfs Rebuild<a class="headerlink" href="#922-initramfs-rebuild" title="Permanent link">&para;</a></h3>
 <p>Enable <a href="https://wiki.gentoo.org/wiki//etc/portage/bashrc">portage hook</a> and reinstall <code>sys-kernel/gentoo-kernel-bin</code> to integrate clevis OR systemd's TPM support in initramfs and GnuPG auto-sign <code>/boot</code> files:</p>
-<pre><code class="language-bash">mv /root/bashrc /etc/portage/ &amp;&amp; \
-chmod u=rw,og=r /etc/portage/bashrc &amp;&amp; \
+<div class="highlight"><pre><span></span><code>mv /root/bashrc /etc/portage/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chmod <span class="nv">u</span><span class="o">=</span>rw,og<span class="o">=</span>r /etc/portage/bashrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge sys-kernel/gentoo-kernel-bin
-</code></pre>
+</code></pre></div>
 <p>Make sure you have:</p>
-<pre><code class="language-bash">❯ ls -la /boot/
-total 125628
-drwx------ 1 root root      424 14. Jun 23:39 ./
-drwxr-xr-x 1 root root      140 14. Jun 23:13 ../
--rw-r--r-- 1 root root  5822827 14. Jun 23:39 System.map
--rw-r--r-- 1 root root  5822827 14. Jun 22:35 System.map.old
--rw-r--r-- 1 root root      438 14. Jun 23:12 System.map.old.sig
--rw-r--r-- 1 root root      438 14. Jun 23:39 System.map.sig
--rw-r--r-- 1 root root   235283 14. Jun 23:39 config
--rw-r--r-- 1 root root   235283 14. Jun 22:35 config.old
--rw-r--r-- 1 root root      438 14. Jun 23:12 config.old.sig
--rw-r--r-- 1 root root      438 14. Jun 23:39 config.sig
--rw-r--r-- 1 root root     1390 14. Jun 23:11 grub.cfg
--rw-r--r-- 1 root root      438 14. Jun 23:12 grub.cfg.sig
--rw-r--r-- 1 root root 58616905 14. Jun 23:39 initramfs
--rw-r--r-- 1 root root 36435427 14. Jun 22:35 initramfs.old
--rw-r--r-- 1 root root      438 14. Jun 23:12 initramfs.old.sig
--rw-r--r-- 1 root root      438 14. Jun 23:39 initramfs.sig
--rw-r--r-- 1 root root 10698848 14. Jun 23:39 vmlinuz
--rw-r--r-- 1 root root 10698848 14. Jun 22:35 vmlinuz.old
--rw-r--r-- 1 root root      438 14. Jun 23:12 vmlinuz.old.sig
--rw-r--r-- 1 root root      438 14. Jun 23:39 vmlinuz.sig
-</code></pre>
+<div class="highlight"><pre><span></span><code>❯ ls -la /boot/
+total <span class="m">125628</span>
+drwx------ <span class="m">1</span> root root      <span class="m">424</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 ./
+drwxr-xr-x <span class="m">1</span> root root      <span class="m">140</span> <span class="m">14</span>. Jun <span class="m">23</span>:13 ../
+-rw-r--r-- <span class="m">1</span> root root  <span class="m">5822827</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 System.map
+-rw-r--r-- <span class="m">1</span> root root  <span class="m">5822827</span> <span class="m">14</span>. Jun <span class="m">22</span>:35 System.map.old
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 System.map.old.sig
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 System.map.sig
+-rw-r--r-- <span class="m">1</span> root root   <span class="m">235283</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 config
+-rw-r--r-- <span class="m">1</span> root root   <span class="m">235283</span> <span class="m">14</span>. Jun <span class="m">22</span>:35 config.old
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 config.old.sig
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 config.sig
+-rw-r--r-- <span class="m">1</span> root root     <span class="m">1390</span> <span class="m">14</span>. Jun <span class="m">23</span>:11 grub.cfg
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 grub.cfg.sig
+-rw-r--r-- <span class="m">1</span> root root <span class="m">58616905</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 initramfs
+-rw-r--r-- <span class="m">1</span> root root <span class="m">36435427</span> <span class="m">14</span>. Jun <span class="m">22</span>:35 initramfs.old
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 initramfs.old.sig
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 initramfs.sig
+-rw-r--r-- <span class="m">1</span> root root <span class="m">10698848</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 vmlinuz
+-rw-r--r-- <span class="m">1</span> root root <span class="m">10698848</span> <span class="m">14</span>. Jun <span class="m">22</span>:35 vmlinuz.old
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 vmlinuz.old.sig
+-rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 vmlinuz.sig
+</code></pre></div>
 <p><code>.old</code> and <code>.old.sig</code> files are those of the initial package installation within chroot. <code>initramfs.old</code> doesn't have clevis and systemd's TPM support integrated.</p>
 <h2 id="94-package-cleanup">9.4. Package Cleanup<a class="headerlink" href="#94-package-cleanup" title="Permanent link">&para;</a></h2>
 <p>Remove extraneous packages (should be only <code>app-editors/nano</code>, <code>app-eselect/eselect-repository</code>, <code>app-misc/yq</code> and <code>app-portage/cpuid2cpuflags</code>):</p>
-<pre><code class="language-bash">emerge --depclean -a
-</code></pre>
+<div class="highlight"><pre><span></span><code>emerge --depclean -a
+</code></pre></div>
 
               
             </article>
@@ -758,10 +761,10 @@ drwxr-xr-x 1 root root      140 14. Jun 23:13 ../
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>

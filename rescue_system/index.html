@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/rescue_system/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
     
     
       
@@ -499,114 +499,114 @@
 <p>While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.</p>
 <h2 id="41-downloads-and-verification">4.1. Downloads And Verification<a class="headerlink" href="#41-downloads-and-verification" title="Permanent link">&para;</a></h2>
 <p>Prepare working directory:</p>
-<pre><code class="language-bash">mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd &amp;&amp; \
-chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Import Gnupg public key:</p>
-<pre><code class="language-bash">su -l meh -c &quot;
-mkdir --mode=0700 /tmp/gpgHomeDir &amp;&amp; \
-curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import &amp;&amp; \
-gpg --homedir /tmp/gpgHomeDir --import-ownertrust &lt;&lt;&lt;'62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:' &amp;&amp; \
-gpgconf --homedir /tmp/gpgHomeDir --kill all; echo $?
-&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>su -l meh -c <span class="s2">&quot;</span>
+<span class="s2">mkdir --mode=0700 /tmp/gpgHomeDir &amp;&amp; \</span>
+<span class="s2">curl -fsSL --proto &#39;=https&#39; --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import &amp;&amp; \</span>
+<span class="s2">gpg --homedir /tmp/gpgHomeDir --import-ownertrust &lt;&lt;&lt;&#39;62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:&#39; &amp;&amp; \</span>
+<span class="s2">gpgconf --homedir /tmp/gpgHomeDir --kill all; echo </span><span class="nv">$?</span><span class="s2"></span>
+<span class="s2">&quot;</span>
+</code></pre></div>
 <p>Download .iso and .asc file:</p>
-<pre><code class="language-bash">rescue_system_version=&quot;$(su -l meh -c &quot;curl -fsSL --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION&quot;)&quot; &amp;&amp; \
-su -l meh -c &quot;
-curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \&quot;https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso/download?use_mirror=netcologne\&quot; &amp;&amp; \
-curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \&quot;https://www.system-rescue.org/releases/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso.asc\&quot;
-&quot;; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nv">rescue_system_version</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>su -l meh -c <span class="s2">&quot;curl -fsSL --proto &#39;=https&#39; --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION&quot;</span><span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+su -l meh -c <span class="s2">&quot;</span>
+<span class="s2">curl --continue-at - -L --proto &#39;=https&#39; --tlsv1.2 --ciphers &#39;ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128&#39; --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \&quot;https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/</span><span class="si">${</span><span class="nv">rescue_system_version</span><span class="si">}</span><span class="s2">/systemrescue-</span><span class="si">${</span><span class="nv">rescue_system_version</span><span class="si">}</span><span class="s2">-amd64.iso/download?use_mirror=netcologne\&quot; &amp;&amp; \</span>
+<span class="s2">curl -fsSL --proto &#39;=https&#39; --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \&quot;https://www.system-rescue.org/releases/</span><span class="si">${</span><span class="nv">rescue_system_version</span><span class="si">}</span><span class="s2">/systemrescue-</span><span class="si">${</span><span class="nv">rescue_system_version</span><span class="si">}</span><span class="s2">-amd64.iso.asc\&quot;</span>
+<span class="s2">&quot;</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Verify the .iso file:</p>
-<pre><code class="language-bash">su -l meh -c &quot;
-gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso &amp;&amp; \
-gpgconf --homedir /tmp/gpgHomeDir --kill all
-&quot; &amp;&amp; \
-chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>su -l meh -c <span class="s2">&quot;</span>
+<span class="s2">gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso &amp;&amp; \</span>
+<span class="s2">gpgconf --homedir /tmp/gpgHomeDir --kill all</span>
+<span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chown -R <span class="m">0</span>:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h2 id="42-configuration">4.2. Configuration<a class="headerlink" href="#42-configuration" title="Permanent link">&para;</a></h2>
 <p>Create folder structure and <code>authorized_keys</code> file (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash">mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh,usr/local/sbin}},work}
+<div class="highlight"><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/<span class="o">{</span>recipe/<span class="o">{</span>iso_delete,iso_add/<span class="o">{</span>autorun,sysresccd,sysrescue.d<span class="o">}</span>,iso_patch_and_script,build_into_srm/<span class="o">{</span>etc/<span class="o">{</span>ssh,sysctl.d<span class="o">}</span>,root/.ssh,usr/local/sbin<span class="o">}}</span>,work<span class="o">}</span>
 
-# add your ssh public keys to
-# /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
+<span class="c1"># add your ssh public keys to</span>
+<span class="c1"># /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys</span>
 
-# set correct modes
-chmod u=rwx,g=rx,o= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
-chmod -R u=rwX,go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
-</code></pre>
+<span class="c1"># set correct modes</span>
+chmod <span class="nv">u</span><span class="o">=</span>rwx,g<span class="o">=</span>rx,o<span class="o">=</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
+chmod -R <span class="nv">u</span><span class="o">=</span>rwX,go<span class="o">=</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
+</code></pre></div>
 <p>Configure OpenSSH:</p>
-<pre><code class="language-bash">rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config &amp;&amp; \
+<div class="highlight"><pre><span></span><code>rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-# do some ssh server hardening
-sed -i \
--e 's/^#Port 22$/Port 50023/' \
--e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config &amp;&amp; \
+<span class="c1"># do some ssh server hardening</span>
+sed -i <span class="se">\</span>
+-e <span class="s1">&#39;s/^#Port 22$/Port 50023/&#39;</span> <span class="se">\</span>
+-e <span class="s1">&#39;s/^#PasswordAuthentication yes/PasswordAuthentication no/&#39;</span> <span class="se">\</span>
+-e <span class="s1">&#39;s/^#X11Forwarding no$/X11Forwarding no/&#39;</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-grep -q &quot;^KbdInteractiveAuthentication no$&quot; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  &amp;&amp; \
-echo &quot;
-AuthenticationMethods publickey
+grep -q <span class="s2">&quot;^KbdInteractiveAuthentication no</span>$<span class="s2">&quot;</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;</span>
+<span class="s2">AuthenticationMethods publickey</span>
 
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-HostKeyAlgorithms ssh-ed25519
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com&quot; &gt;&gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config &amp;&amp; \
-# create ssh_host_* files in build_into_srm/etc/ssh/
-ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm &amp;&amp; \
+<span class="s2">KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
+<span class="s2">HostKeyAlgorithms ssh-ed25519</span>
+<span class="s2">Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>
+<span class="s2">MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com&quot;</span> &gt;&gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="c1"># create ssh_host_* files in build_into_srm/etc/ssh/</span>
+ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm <span class="o">&amp;&amp;</span> <span class="se">\</span>
 diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
-</code></pre>
+</code></pre></div>
 <p>Disable magic SysRq key for <a href="https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key">security sake</a>:</p>
-<pre><code class="language-bash">echo &quot;kernel.sysrq = 0&quot; &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;kernel.sysrq = 0&quot;</span> &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
+</code></pre></div>
 <p>Copy <code>chroot.sh</code> created by <code>disk.sh</code>:</p>
-<pre><code class="language-bash">rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/
-</code></pre>
+<div class="highlight"><pre><span></span><code>rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rwx,go<span class="o">=</span>r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/
+</code></pre></div>
 <p>Create settings YAML (copy&amp;paste one after the other):</p>
-<pre><code class="language-bash"># disable bash history
-set +o history
-# replace &quot;MyPassWord123&quot; with the password you want to use to login via TTY on SystemRescueCD
-crypt_pass=&quot;$(python3 -c 'import crypt; print(crypt.crypt(&quot;MyPassWord123&quot;, crypt.mksalt(crypt.METHOD_SHA512)))')&quot;
-# enable bash history
-set -o history
+<div class="highlight"><pre><span></span><code><span class="c1"># disable bash history</span>
+<span class="nb">set</span> +o <span class="nb">history</span>
+<span class="c1"># replace &quot;MyPassWord123&quot; with the password you want to use to login via TTY on SystemRescueCD</span>
+<span class="nv">crypt_pass</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>python3 -c <span class="s1">&#39;import crypt; print(crypt.crypt(&quot;MyPassWord123&quot;, crypt.mksalt(crypt.METHOD_SHA512)))&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="c1"># enable bash history</span>
+<span class="nb">set</span> -o <span class="nb">history</span>
 
-# set default settings
-cat &lt;&lt;EOF &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml
----
-global:
-    copytoram: true
-    checksum: true
-    nofirewall: true
-    loadsrm: true
-    setkmap: de-latin1-nodeadkeys
-    dostartx: false
-    dovnc: false
-    rootshell: /bin/bash
-    rootcryptpass: '${crypt_pass}'
+<span class="c1"># set default settings</span>
+cat <span class="s">&lt;&lt;EOF &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml</span>
+<span class="s">---</span>
+<span class="s">global:</span>
+<span class="s">    copytoram: true</span>
+<span class="s">    checksum: true</span>
+<span class="s">    nofirewall: true</span>
+<span class="s">    loadsrm: true</span>
+<span class="s">    setkmap: de-latin1-nodeadkeys</span>
+<span class="s">    dostartx: false</span>
+<span class="s">    dovnc: false</span>
+<span class="s">    rootshell: /bin/bash</span>
+<span class="s">    rootcryptpass: &#39;${crypt_pass}&#39;</span>
 
-autorun:
-    ar_disable: false
-    ar_nowait: true
-    ar_nodel: false
-    ar_ignorefail: false
-EOF
+<span class="s">autorun:</span>
+<span class="s">    ar_disable: false</span>
+<span class="s">    ar_nowait: true</span>
+<span class="s">    ar_nodel: false</span>
+<span class="s">    ar_ignorefail: false</span>
+<span class="s">EOF</span>
 
-# Delete variable
-unset crypt_pass
-</code></pre>
+<span class="c1"># Delete variable</span>
+<span class="nb">unset</span> crypt_pass
+</code></pre></div>
 <p>Create firewall rules:</p>
-<pre><code class="language-bash"># set firewall rules upon bootup.
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="c1"># set firewall rules upon bootup.</span>
+rsync -av --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
+</code></pre></div>
 <p>Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:</p>
-<pre><code class="language-bash">find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name &quot;ssh_host*\.pub&quot; -exec ssh-keygen -vlf {} \;
-</code></pre>
+<div class="highlight"><pre><span></span><code>find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name <span class="s2">&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class="o">{}</span> <span class="se">\;</span>
+</code></pre></div>
 <p>Integrate additional packages:</p>
-<pre><code class="language-bash">pacman -Sy clevis libpwquality luksmeta tpm2-tools &amp;&amp; \
-cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>pacman -Sy clevis libpwquality luksmeta tpm2-tools <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <h2 id="43-folder-structure">4.3. Folder Structure<a class="headerlink" href="#43-folder-structure" title="Permanent link">&para;</a></h2>
-<pre><code class="language-bash">➤ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├── build_into_srm
 │   ├── etc
@@ -626,7 +626,7 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 │   │   └── .ssh
 │   │       └── authorized_keys
 │   └── usr
-│       └── local
+│       └── <span class="nb">local</span>
 │           └── sbin
 │               └── chroot.sh
 ├── iso_add
@@ -635,23 +635,23 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 │   ├── sysresccd
 │   │   └── zz_additional_packages.srm
 │   └── sysrescue.d
-│       └── 500-settings.yaml
+│       └── <span class="m">500</span>-settings.yaml
 ├── iso_delete
 └── iso_patch_and_script
 
-15 directories, 15 files
-</code></pre>
+<span class="m">15</span> directories, <span class="m">15</span> files
+</code></pre></div>
 <h2 id="44-iso-and-rescue-partition">4.4. ISO And Rescue Partition<a class="headerlink" href="#44-iso-and-rescue-partition" title="Permanent link">&para;</a></h2>
 <p>Create customised ISO:</p>
-<pre><code class="language-bash">sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work
-</code></pre>
+<div class="highlight"><pre><span></span><code>sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work
+</code></pre></div>
 <p>Copy ISO files to the <code>rescue</code> partition:</p>
-<pre><code class="language-bash">mkdir /mnt/iso /mnt/gentoo/mnt/rescue &amp;&amp; \
-mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso &amp;&amp; \
-mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue &amp;&amp; \
-rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ &amp;&amp; \
-umount /mnt/iso; echo $?
-</code></pre>
+<div class="highlight"><pre><span></span><code>mkdir /mnt/iso /mnt/gentoo/mnt/rescue <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -HAXSacv --delete /mnt/iso/<span class="o">{</span>autorun,sysresccd,sysrescue.d<span class="o">}</span> /mnt/gentoo/mnt/rescue/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+umount /mnt/iso<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 
               
             </article>
@@ -719,10 +719,10 @@ umount /mnt/iso; echo $?
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
       
     
   </body>
