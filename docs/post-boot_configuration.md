@@ -101,7 +101,7 @@ Make sure that the PCRs you are going to use have a valid hash and don't contain
 tpm2_pcrread sha256
 ```
 
-Create new LUKS keyslots on all swap and system partitions. You need to **boot with each EFI binary (one ESP for each disk) and repeat keyslot creation** for each one, because different PCR5 values are created depending on the EFI binary you booted with.
+Create new LUKS keyslots on all swap and system partitions.
 
 ```bash
 # Adjust PCR IDs, e.g.: --tpm2-pcrs=1+7
@@ -109,10 +109,10 @@ Create new LUKS keyslots on all swap and system partitions. You need to **boot w
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
 #
 # "--tpm2-with-pin=yes" is optional.
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sda4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sda5
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sdb4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+5+6+7 --tpm2-with-pin=yes /dev/sdb5
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sda4
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sda5
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sdb4
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sdb5
 # etc.
 ```
 
@@ -151,7 +151,7 @@ Make sure that the PCRs you are going to use have a valid hash and don't contain
 tpm2_pcrread sha256
 ```
 
-Bind all swap and system LUKS volumes. You need to **boot with each EFI binary (one ESP for each disk) and repeat keyslot creation** for each one, because different PCR5 values are created depending on the EFI binary you booted with.
+Bind all swap and system LUKS volumes.
 
 !!! bug ""
     The following clevis commands still need to get tested!
@@ -160,10 +160,10 @@ Bind all swap and system LUKS volumes. You need to **boot with each EFI binary (
 # Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
 # Further info can be found at:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-clevis luks bind -d /dev/sda4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sda5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sdb4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sdb5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,5,6,7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sda4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,6,7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sda5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,6,7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sdb4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,6,7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sdb5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,6,7"}, "tang": {"url": "http://tang.local"}}}'
 # etc.
 ```
 
