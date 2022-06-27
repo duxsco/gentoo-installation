@@ -189,6 +189,5 @@ mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
 mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
 
-mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot && \
-chmod u=rwx,og= /mnt/gentoo/boot; echo $?
+mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot; echo $?
 ```
