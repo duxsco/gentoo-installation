@@ -696,8 +696,7 @@ mount -o noatime,subvol<span class="o">=</span>@binpkgs /mnt/gentoo/mapperSystem
 touch /mnt/gentoo/var/cache/distfiles/.keep <span class="o">&amp;&amp;</span> <span class="se">\</span>
 mount -o noatime,subvol<span class="o">=</span>@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
-mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot <span class="o">&amp;&amp;</span> <span class="se">\</span>
-chmod <span class="nv">u</span><span class="o">=</span>rwx,og<span class="o">=</span> /mnt/gentoo/boot<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 
               
