@@ -571,6 +571,105 @@ systemctl --preset-mode<span class="o">=</span>enable-only preset-all
 <span class="s1">systemctl enable nftables-restore; echo $?</span>
 <span class="s1">&#39;</span>
 </code></pre></div>
+<p>Setup unbound:</p>
+<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
+<span class="s1">echo &quot;net-dns/unbound ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \</span>
+<span class="s1">emerge net-dns/unbound &amp;&amp; \</span>
+<span class="s1">su -s /bin/sh -c &quot;/usr/sbin/unbound-anchor -a /etc/unbound/var/root-anchors.txt&quot; unbound &amp;&amp; \</span>
+<span class="s1">rsync -a /etc/unbound/unbound.conf /etc/unbound/._cfg0000_unbound.conf &amp;&amp; \</span>
+<span class="s1">sed -i \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(hide-identity: \)no|\1\2yes|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(hide-version: \)no|\1\2yes|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-short-bufsize: yes\)|\1\2|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-large-queries: \)no|\1\2yes|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-glue: yes\)|\1\2|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-dnssec-stripped: yes\)|\1\2|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-below-nxdomain: yes\)|\1\2|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-referral-path: \)no|\1\2yes|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(qname-minimisation: yes\)|\1\2|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(qname-minimisation-strict: no\)|\1\2|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(use-caps-for-id: \)no|\1\2yes|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(minimal-responses: yes\)|\1\2|&quot; \</span>
+<span class="s1">-e &quot;s|\([[:space:]]*\)# \(auto-trust-anchor-file: \&quot;/etc/unbound/var/root-anchors.txt\&quot;\)|\1\2|&quot; \</span>
+<span class="s1">/etc/unbound/._cfg0000_unbound.conf; echo $?</span>
+<span class="s1">&#39;</span>
+</code></pre></div>
+<p>(Optional) Use DNS-over-TLS (<a href="https://www.kuketz-blog.de/empfehlungsecke/#dns">recommended DNS servers</a>):</p>
+<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
+<span class="s1">rsync -a /etc/unbound/unbound.conf /etc/unbound/._cfg0000_unbound.conf &amp;&amp; \</span>
+<span class="s1">sed -i &quot;s|\([[:space:]]*\)# \(tls-cert-bundle: \)\&quot;\&quot;|\1\2\&quot;/etc/ssl/certs/4042bcee.0\&quot;|&quot; /etc/unbound/._cfg0000_unbound.conf &amp;&amp; \</span>
+<span class="s1">cat &lt;&lt;EOF &gt;&gt; /etc/unbound/._cfg0000_unbound.conf; echo $?</span>
+
+<span class="s1">forward-zone:</span>
+<span class="s1">    name: &quot;.&quot;</span>
+<span class="s1">    forward-tls-upstream: yes</span>
+<span class="s1">    forward-first: no</span>
+<span class="s1">    forward-addr: 2001:678:e68:f000::@853#dot.ffmuc.net</span>
+<span class="s1">    forward-addr: 2001:678:ed0:f000::@853#dot.ffmuc.net</span>
+<span class="s1">    forward-addr: 5.1.66.255@853#dot.ffmuc.net</span>
+<span class="s1">    forward-addr: 185.150.99.255@853#dot.ffmuc.net</span>
+
+<span class="s1">EOF</span>
+<span class="s1">&#39;</span>
+</code></pre></div>
+<p>I assume that certificates used for DNS-over-TLS are issued by <a href="https://letsencrypt.org/certificates/">Let's Encrypt</a>. Thus, I only allow this single root CA:</p>
+<div class="highlight"><pre><span></span><code>➤ echo | openssl s_client -servername dot.ffmuc.net dot.ffmuc.net:853 2&gt;&amp;1 | sed -n &#39;/^Certificate chain/,/^---/p&#39;
+Certificate chain
+ 0 s:CN = ffmuc.net
+   i:C = US, O = Let&#39;s Encrypt, CN = R3
+ 1 s:C = US, O = Let&#39;s Encrypt, CN = R3
+   i:C = US, O = Internet Security Research Group, CN = ISRG Root X1
+ 2 s:C = US, O = Internet Security Research Group, CN = ISRG Root X1
+   i:O = Digital Signature Trust Co., CN = DST Root CA X3
+---
+
+➤ openssl x509 -noout -hash -subject -issuer -in /etc/ssl/certs/4042bcee.0
+4042bcee
+subject=C = US, O = Internet Security Research Group, CN = ISRG Root X1
+issuer=C = US, O = Internet Security Research Group, CN = ISRG Root X1
+</code></pre></div>
+<p>Sample configuration:</p>
+<div class="highlight"><pre><span></span><code>❯ bash -c <span class="s1">&#39;grep -v -e &quot;^[[:space:]]*#&quot; -e &quot;^[[:space:]]*$&quot; /etc/unbound/unbound.conf&#39;</span>
+server:
+    verbosity: <span class="m">1</span>
+    hide-identity: yes
+    hide-version: yes
+    harden-short-bufsize: yes
+    harden-large-queries: yes
+    harden-glue: yes
+    harden-dnssec-stripped: yes
+    harden-below-nxdomain: yes
+    harden-referral-path: yes
+    qname-minimisation: yes
+    qname-minimisation-strict: no
+    use-caps-for-id: yes
+    minimal-responses: yes
+    auto-trust-anchor-file: <span class="s2">&quot;/etc/unbound/var/root-anchors.txt&quot;</span>
+    tls-cert-bundle: <span class="s2">&quot;/etc/ssl/certs/4042bcee.0&quot;</span>
+python:
+dynlib:
+remote-control:
+forward-zone:
+    name: <span class="s2">&quot;.&quot;</span>
+    forward-tls-upstream: yes
+    forward-first: no
+    forward-addr: <span class="m">2001</span>:678:e68:f000::@853#dot.ffmuc.net
+    forward-addr: <span class="m">2001</span>:678:ed0:f000::@853#dot.ffmuc.net
+    forward-addr: <span class="m">5</span>.1.66.255@853#dot.ffmuc.net
+    forward-addr: <span class="m">185</span>.150.99.255@853#dot.ffmuc.net
+</code></pre></div>
+<p>Enable and start unbound service:</p>
+<div class="highlight"><pre><span></span><code>bash <span class="s1">&#39;</span>
+<span class="s1">systemctl disable systemd-resolved.service &amp;&amp; \</span>
+<span class="s1">systemctl stop systemd-resolved.service &amp;&amp; \</span>
+<span class="s1">systemctl enable unbound.service &amp;&amp; \</span>
+<span class="s1">sleep 20s &amp;&amp; \</span>
+<span class="s1">rm -f /etc/resolv.conf &amp;&amp; \</span>
+<span class="s1">echo -e &quot;nameserver ::1\nnameserver 127.0.0.1&quot; &gt; /etc/resolv.conf &amp;&amp; \</span>
+<span class="s1">systemctl start unbound.service; echo $?</span>
+<span class="s1">&#39;</span>
+</code></pre></div>
+<p>Test DNS resolving (<a href="https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing">link</a>).</p>
 <h2 id="92-measured-boot">9.2. Measured Boot<a class="headerlink" href="#92-measured-boot" title="Permanent link">&para;</a></h2>
 <p>You have two options for <code>Measured Boot</code>:</p>
 <ul>
