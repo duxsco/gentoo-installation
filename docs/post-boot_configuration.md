@@ -47,6 +47,121 @@ systemctl enable nftables-restore; echo $?
 '
 ```
 
+Setup unbound:
+
+```bash
+bash -c '
+echo "net-dns/unbound ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge net-dns/unbound && \
+su -s /bin/sh -c "/usr/sbin/unbound-anchor -a /etc/unbound/var/root-anchors.txt" unbound && \
+rsync -a /etc/unbound/unbound.conf /etc/unbound/._cfg0000_unbound.conf && \
+sed -i \
+-e "s|\([[:space:]]*\)# \(hide-identity: \)no|\1\2yes|" \
+-e "s|\([[:space:]]*\)# \(hide-version: \)no|\1\2yes|" \
+-e "s|\([[:space:]]*\)# \(harden-short-bufsize: yes\)|\1\2|" \
+-e "s|\([[:space:]]*\)# \(harden-large-queries: \)no|\1\2yes|" \
+-e "s|\([[:space:]]*\)# \(harden-glue: yes\)|\1\2|" \
+-e "s|\([[:space:]]*\)# \(harden-dnssec-stripped: yes\)|\1\2|" \
+-e "s|\([[:space:]]*\)# \(harden-below-nxdomain: yes\)|\1\2|" \
+-e "s|\([[:space:]]*\)# \(harden-referral-path: \)no|\1\2yes|" \
+-e "s|\([[:space:]]*\)# \(qname-minimisation: yes\)|\1\2|" \
+-e "s|\([[:space:]]*\)# \(qname-minimisation-strict: no\)|\1\2|" \
+-e "s|\([[:space:]]*\)# \(use-caps-for-id: \)no|\1\2yes|" \
+-e "s|\([[:space:]]*\)# \(minimal-responses: yes\)|\1\2|" \
+-e "s|\([[:space:]]*\)# \(auto-trust-anchor-file: \"/etc/unbound/var/root-anchors.txt\"\)|\1\2|" \
+/etc/unbound/._cfg0000_unbound.conf; echo $?
+'
+```
+
+(Optional) Use DNS-over-TLS ([recommended DNS servers](https://www.kuketz-blog.de/empfehlungsecke/#dns)):
+
+```bash
+bash -c '
+rsync -a /etc/unbound/unbound.conf /etc/unbound/._cfg0000_unbound.conf && \
+sed -i "s|\([[:space:]]*\)# \(tls-cert-bundle: \)\"\"|\1\2\"/etc/ssl/certs/4042bcee.0\"|" /etc/unbound/._cfg0000_unbound.conf && \
+cat <<EOF >> /etc/unbound/._cfg0000_unbound.conf; echo $?
+
+forward-zone:
+    name: "."
+    forward-tls-upstream: yes
+    forward-first: no
+    forward-addr: 2001:678:e68:f000::@853#dot.ffmuc.net
+    forward-addr: 2001:678:ed0:f000::@853#dot.ffmuc.net
+    forward-addr: 5.1.66.255@853#dot.ffmuc.net
+    forward-addr: 185.150.99.255@853#dot.ffmuc.net
+
+EOF
+'
+```
+
+I assume that certificates used for DNS-over-TLS are issued by [Let's Encrypt](https://letsencrypt.org/certificates/). Thus, I only allow this single root CA:
+
+```
+➤ echo | openssl s_client -servername dot.ffmuc.net dot.ffmuc.net:853 2>&1 | sed -n '/^Certificate chain/,/^---/p'
+Certificate chain
+ 0 s:CN = ffmuc.net
+   i:C = US, O = Let's Encrypt, CN = R3
+ 1 s:C = US, O = Let's Encrypt, CN = R3
+   i:C = US, O = Internet Security Research Group, CN = ISRG Root X1
+ 2 s:C = US, O = Internet Security Research Group, CN = ISRG Root X1
+   i:O = Digital Signature Trust Co., CN = DST Root CA X3
+---
+
+➤ openssl x509 -noout -hash -subject -issuer -in /etc/ssl/certs/4042bcee.0
+4042bcee
+subject=C = US, O = Internet Security Research Group, CN = ISRG Root X1
+issuer=C = US, O = Internet Security Research Group, CN = ISRG Root X1
+```
+
+Sample configuration:
+
+```bash
+❯ bash -c 'grep -v -e "^[[:space:]]*#" -e "^[[:space:]]*$" /etc/unbound/unbound.conf'
+server:
+	verbosity: 1
+	hide-identity: yes
+	hide-version: yes
+	harden-short-bufsize: yes
+	harden-large-queries: yes
+	harden-glue: yes
+	harden-dnssec-stripped: yes
+	harden-below-nxdomain: yes
+	harden-referral-path: yes
+	qname-minimisation: yes
+	qname-minimisation-strict: no
+	use-caps-for-id: yes
+	minimal-responses: yes
+	auto-trust-anchor-file: "/etc/unbound/var/root-anchors.txt"
+	tls-cert-bundle: "/etc/ssl/certs/4042bcee.0"
+python:
+dynlib:
+remote-control:
+forward-zone:
+    name: "."
+    forward-tls-upstream: yes
+    forward-first: no
+    forward-addr: 2001:678:e68:f000::@853#dot.ffmuc.net
+    forward-addr: 2001:678:ed0:f000::@853#dot.ffmuc.net
+    forward-addr: 5.1.66.255@853#dot.ffmuc.net
+    forward-addr: 185.150.99.255@853#dot.ffmuc.net
+```
+
+Enable and start unbound service:
+
+```bash
+bash '
+systemctl disable systemd-resolved.service && \
+systemctl stop systemd-resolved.service && \
+systemctl enable unbound.service && \
+sleep 20s && \
+rm -f /etc/resolv.conf && \
+echo -e "nameserver ::1\nnameserver 127.0.0.1" > /etc/resolv.conf && \
+systemctl start unbound.service; echo $?
+'
+```
+
+Test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)).
+
 ## 9.2. Measured Boot
 
 You have two options for `Measured Boot`:
