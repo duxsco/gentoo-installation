@@ -366,30 +366,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#92-measured-boot" class="md-nav__link">
-    9.2. Measured Boot
+  <a href="#92-unbound" class="md-nav__link">
+    9.2. Unbound
   </a>
   
-    <nav class="md-nav" aria-label="9.2. Measured Boot">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#93-measured-boot" class="md-nav__link">
+    9.3. Measured Boot
+  </a>
+  
+    <nav class="md-nav" aria-label="9.3. Measured Boot">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#921a-systemd-cryptenroll" class="md-nav__link">
-    9.2.1.a) systemd-cryptenroll
+  <a href="#931a-systemd-cryptenroll" class="md-nav__link">
+    9.3.1.a) systemd-cryptenroll
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#921b-clevis" class="md-nav__link">
-    9.2.1.b) clevis
+  <a href="#931b-clevis" class="md-nav__link">
+    9.3.1.b) clevis
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#922-initramfs-rebuild" class="md-nav__link">
-    9.2.2. Initramfs Rebuild
+  <a href="#932-initramfs-rebuild" class="md-nav__link">
+    9.3.2. Initramfs Rebuild
   </a>
   
 </li>
@@ -476,30 +483,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#92-measured-boot" class="md-nav__link">
-    9.2. Measured Boot
+  <a href="#92-unbound" class="md-nav__link">
+    9.2. Unbound
   </a>
   
-    <nav class="md-nav" aria-label="9.2. Measured Boot">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#93-measured-boot" class="md-nav__link">
+    9.3. Measured Boot
+  </a>
+  
+    <nav class="md-nav" aria-label="9.3. Measured Boot">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#921a-systemd-cryptenroll" class="md-nav__link">
-    9.2.1.a) systemd-cryptenroll
+  <a href="#931a-systemd-cryptenroll" class="md-nav__link">
+    9.3.1.a) systemd-cryptenroll
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#921b-clevis" class="md-nav__link">
-    9.2.1.b) clevis
+  <a href="#931b-clevis" class="md-nav__link">
+    9.3.1.b) clevis
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#922-initramfs-rebuild" class="md-nav__link">
-    9.2.2. Initramfs Rebuild
+  <a href="#932-initramfs-rebuild" class="md-nav__link">
+    9.3.2. Initramfs Rebuild
   </a>
   
 </li>
@@ -571,6 +585,7 @@ systemctl --preset-mode<span class="o">=</span>enable-only preset-all
 <span class="s1">systemctl enable nftables-restore; echo $?</span>
 <span class="s1">&#39;</span>
 </code></pre></div>
+<h2 id="92-unbound">9.2. Unbound<a class="headerlink" href="#92-unbound" title="Permanent link">&para;</a></h2>
 <p>Setup unbound:</p>
 <div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
 <span class="s1">echo &quot;net-dns/unbound ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \</span>
@@ -670,14 +685,14 @@ forward-zone:
 <span class="s1">&#39;</span>
 </code></pre></div>
 <p>Test DNS resolving (<a href="https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing">link</a>).</p>
-<h2 id="92-measured-boot">9.2. Measured Boot<a class="headerlink" href="#92-measured-boot" title="Permanent link">&para;</a></h2>
+<h2 id="93-measured-boot">9.3. Measured Boot<a class="headerlink" href="#93-measured-boot" title="Permanent link">&para;</a></h2>
 <p>You have two options for <code>Measured Boot</code>:</p>
 <ul>
 <li><code>systemd-cryptenroll</code>: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd 251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with <code>systemd-cryptenroll</code> than with <code>clevis</code>, and you don't have to use the <code>app-crypt/clevis</code> package from (unofficial) <a href="https://wiki.gentoo.org/wiki/Project:GURU">guru overlay</a>.</li>
 <li><code>clevis</code>: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.</li>
 </ul>
 <p>Use either <code>systemd-cryptenroll</code> or <code>clevis</code> in the following.</p>
-<h3 id="921a-systemd-cryptenroll">9.2.1.a) systemd-cryptenroll<a class="headerlink" href="#921a-systemd-cryptenroll" title="Permanent link">&para;</a></h3>
+<h3 id="931a-systemd-cryptenroll">9.3.1.a) systemd-cryptenroll<a class="headerlink" href="#931a-systemd-cryptenroll" title="Permanent link">&para;</a></h3>
 <p>Install <code>app-crypt/tpm2-tools</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=app-crypt/tpm2-tools-5.2-r1 ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge -av tpm2-tools
@@ -717,7 +732,7 @@ systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span c
 <p>Remove overlay directory containing <code>app-crypt/clevis</code>:</p>
 <div class="highlight"><pre><span></span><code>rm -rf /root/localrepo
 </code></pre></div>
-<h3 id="921b-clevis">9.2.1.b) clevis<a class="headerlink" href="#921b-clevis" title="Permanent link">&para;</a></h3>
+<h3 id="931b-clevis">9.3.1.b) clevis<a class="headerlink" href="#931b-clevis" title="Permanent link">&para;</a></h3>
 <p>Install <code>dev-vcs/git</code>:</p>
 <div class="highlight"><pre><span></span><code>emerge -at dev-vcs/git
 </code></pre></div>
@@ -758,7 +773,7 @@ clevis luks list -d /dev/sdb5
 <span class="c1"># Sample output:</span>
 <span class="c1"># 1: tpm2 &#39;{&quot;hash&quot;:&quot;sha256&quot;,&quot;key&quot;:&quot;ecc&quot;,&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;1,2,3,4,5,6,7&quot;}&#39;</span>
 </code></pre></div>
-<h3 id="922-initramfs-rebuild">9.2.2. Initramfs Rebuild<a class="headerlink" href="#922-initramfs-rebuild" title="Permanent link">&para;</a></h3>
+<h3 id="932-initramfs-rebuild">9.3.2. Initramfs Rebuild<a class="headerlink" href="#932-initramfs-rebuild" title="Permanent link">&para;</a></h3>
 <p>Enable <a href="https://wiki.gentoo.org/wiki//etc/portage/bashrc">portage hook</a> and reinstall <code>sys-kernel/gentoo-kernel-bin</code> to integrate clevis OR systemd's TPM support in initramfs and GnuPG auto-sign <code>/boot</code> files:</p>
 <div class="highlight"><pre><span></span><code>mv /root/bashrc /etc/portage/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
 chmod <span class="nv">u</span><span class="o">=</span>rw,og<span class="o">=</span>r /etc/portage/bashrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
