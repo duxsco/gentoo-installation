@@ -47,6 +47,8 @@ systemctl enable nftables-restore; echo $?
 '
 ```
 
+## 9.2. Unbound
+
 Setup unbound:
 
 ```bash
@@ -162,7 +164,7 @@ systemctl start unbound.service; echo $?
 
 Test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)).
 
-## 9.2. Measured Boot
+## 9.3. Measured Boot
 
 You have two options for `Measured Boot`:
 
@@ -171,7 +173,7 @@ You have two options for `Measured Boot`:
 
 Use either `systemd-cryptenroll` or `clevis` in the following.
 
-### 9.2.1.a) systemd-cryptenroll
+### 9.3.1.a) systemd-cryptenroll
 
 Install `app-crypt/tpm2-tools`:
 
@@ -237,7 +239,7 @@ Remove overlay directory containing `app-crypt/clevis`:
 rm -rf /root/localrepo
 ```
 
-### 9.2.1.b) clevis
+### 9.3.1.b) clevis
 
 Install `dev-vcs/git`:
 
@@ -294,7 +296,7 @@ clevis luks list -d /dev/sdb5
 # 1: tpm2 '{"hash":"sha256","key":"ecc","pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 ```
 
-### 9.2.2. Initramfs Rebuild
+### 9.3.2. Initramfs Rebuild
 
 Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis OR systemd's TPM support in initramfs and GnuPG auto-sign `/boot` files:
 
