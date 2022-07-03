@@ -7,11 +7,11 @@ First, boot into the Gentoo Linux and save necessary files in `DER` form:
 ```bash
 /bin/bash -c '
 (
-! mountpoint --quiet /efia && \\
+! mountpoint --quiet /efia && \
 mount /efia || true
-) && \\
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der && \\
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der && \\
+) && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der && \
 openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /efia/PK.der; echo $?
 '
 ```

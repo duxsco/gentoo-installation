@@ -57,7 +57,7 @@ Setup unbound:
 /bin/bash -c '
 echo "net-dns/unbound ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge net-dns/unbound && \
-su -s /bin/sh -c "/usr/sbin/unbound-anchor -a /etc/unbound/var/root-anchors.txt" unbound && \
+( su -s /bin/sh -c "/usr/sbin/unbound-anchor -a /etc/unbound/var/root-anchors.txt" unbound || true ) && \
 rsync -a /etc/unbound/unbound.conf /etc/unbound/._cfg0000_unbound.conf && \
 sed -i \
 -e "s|\([[:space:]]*\)# \(hide-identity: \)no|\1\2yes|" \
