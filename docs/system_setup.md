@@ -351,7 +351,7 @@ VisualHostKey yes" > /home/david/.ssh/config && \
 chown david:david /home/david/.ssh/config; echo $?
 ```
 
-  - sysrq (if you don't want to disable in kernel):
+  - Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
 ```bash
 echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf

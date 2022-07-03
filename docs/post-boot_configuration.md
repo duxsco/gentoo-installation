@@ -6,8 +6,10 @@ Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configurati
 
 ```bash
 systemd-firstboot --prompt --setup-machine-id
-systemctl --preset-mode=enable-only preset-all
+systemctl preset-all
 ```
+
+Re-enable services you need if they have been disabled by above second command.
 
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
 
@@ -168,7 +170,7 @@ Test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_
 
 You have two options for `Measured Boot`:
 
-- `systemd-cryptenroll`: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd 251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with `systemd-cryptenroll` than with `clevis`, and you don't have to use the `app-crypt/clevis` package from (unofficial) [guru overlay](https://wiki.gentoo.org/wiki/Project:GURU).
+- `systemd-cryptenroll`: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd >=251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with `systemd-cryptenroll` than with `clevis` due to the use of PBKDF2 (with secure keys), and you don't have to use the `app-crypt/clevis` package from (unofficial) [guru overlay](https://wiki.gentoo.org/wiki/Project:GURU).
 - `clevis`: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.
 
 Use either `systemd-cryptenroll` or `clevis` in the following.
