@@ -12,7 +12,7 @@ systemctl --preset-mode=enable-only preset-all
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
 
 ```bash
-bash -c '
+/bin/bash -c '
 localectl set-locale LANG="de_DE.UTF-8" LC_COLLATE="C.UTF-8" LC_MESSAGES="en_US.UTF-8" && \
 localectl status && \
 env-update && source /etc/profile; echo $?
@@ -22,7 +22,7 @@ env-update && source /etc/profile; echo $?
 Setup timedatectl:
 
 ```bash
-bash -c '
+/bin/bash -c '
 timedatectl set-timezone Europe/Berlin && \
 if ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo); then
     rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf && \
@@ -37,7 +37,7 @@ timedatectl; echo $?
 Setup nftables:
 
 ```bash
-bash -c '
+/bin/bash -c '
 emerge net-firewall/nftables && \
 rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables && \
 sed -i "s/^SAVE_ON_STOP=\"yes\"$/SAVE_ON_STOP=\"no\"/" /etc/conf.d/._cfg0000_nftables && \
@@ -52,7 +52,7 @@ systemctl enable nftables-restore; echo $?
 Setup unbound:
 
 ```bash
-bash -c '
+/bin/bash -c '
 echo "net-dns/unbound ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge net-dns/unbound && \
 su -s /bin/sh -c "/usr/sbin/unbound-anchor -a /etc/unbound/var/root-anchors.txt" unbound && \
@@ -78,7 +78,7 @@ sed -i \
 (Optional) Use DNS-over-TLS ([recommended DNS servers](https://www.kuketz-blog.de/empfehlungsecke/#dns)):
 
 ```bash
-bash -c '
+/bin/bash -c '
 rsync -a /etc/unbound/unbound.conf /etc/unbound/._cfg0000_unbound.conf && \
 sed -i "s|\([[:space:]]*\)# \(tls-cert-bundle: \)\"\"|\1\2\"/etc/ssl/certs/4042bcee.0\"|" /etc/unbound/._cfg0000_unbound.conf && \
 cat <<EOF >> /etc/unbound/._cfg0000_unbound.conf; echo $?
@@ -151,7 +151,7 @@ forward-zone:
 Enable and start unbound service:
 
 ```bash
-bash '
+/bin/bash -c '
 systemctl disable systemd-resolved.service && \
 systemctl stop systemd-resolved.service && \
 systemctl enable unbound.service && \
@@ -185,7 +185,7 @@ emerge -av tpm2-tools
 Add support for TPM to dracut and systemd:
 
 ```bash
-bash -c '
+/bin/bash -c '
 sed -i "s/\(sys-apps\/systemd cryptsetup\)/\1 tpm/" /etc/portage/package.use/main && \
 echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf; echo $?
 '

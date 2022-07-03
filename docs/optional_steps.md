@@ -5,7 +5,7 @@ If `efi-updatevar` failed in one of the previous sections, you can import Secure
 First, boot into the Gentoo Linux and save necessary files in `DER` form:
 
 ```bash
-bash -c '
+/bin/bash -c '
 (
 ! mountpoint --quiet /efia && \\
 mount /efia || true
