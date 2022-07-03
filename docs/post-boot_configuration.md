@@ -269,6 +269,12 @@ rm -rf /root/localrepo
 
 ### 9.4.1.b) clevis
 
+If you don't have a DHCP server running append the following to the [kernel commandline parameters](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) of the Gentoo Linux entries in `/boot/grub.cfg` and GnuPG sign the file:
+
+```
+ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
+```
+
 Install `dev-vcs/git`:
 
 ```bash
