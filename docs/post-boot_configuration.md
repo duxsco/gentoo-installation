@@ -304,9 +304,6 @@ tpm2_pcrread sha256
 
 Bind all swap and system LUKS volumes.
 
-!!! bug ""
-    The following clevis commands still need to get tested!
-
 ```bash
 # Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
 # Further info can be found at:
