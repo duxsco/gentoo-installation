@@ -166,7 +166,33 @@ systemctl start unbound.service; echo $?
 
 Test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)).
 
-## 9.3. Measured Boot
+## 9.3. Secure Boot Setup
+
+If `efi-updatevar` failed in one of the previous sections, you can import Secure Boot files the following way.
+
+First, boot into the Gentoo Linux and save necessary files in `DER` form:
+
+```bash
+/bin/bash -c '
+(
+! mountpoint --quiet /efia && \
+mount /efia || true
+) && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /efia/PK.der; echo $?
+'
+```
+
+Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successful boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
+
+To check whether Secure Boot is enabled execute:
+
+```bash
+mokutil --sb-state
+```
+
+## 9.4. Measured Boot
 
 You have two options for `Measured Boot`:
 
@@ -175,7 +201,7 @@ You have two options for `Measured Boot`:
 
 Use either `systemd-cryptenroll` or `clevis` in the following.
 
-### 9.3.1.a) systemd-cryptenroll
+### 9.4.1.a) systemd-cryptenroll
 
 Install `app-crypt/tpm2-tools`:
 
@@ -241,7 +267,7 @@ Remove overlay directory containing `app-crypt/clevis`:
 rm -rf /root/localrepo
 ```
 
-### 9.3.1.b) clevis
+### 9.4.1.b) clevis
 
 Install `dev-vcs/git`:
 
@@ -298,7 +324,7 @@ clevis luks list -d /dev/sdb5
 # 1: tpm2 '{"hash":"sha256","key":"ecc","pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 ```
 
-### 9.3.2. Initramfs Rebuild
+### 9.4.2. Initramfs Rebuild
 
 Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis OR systemd's TPM support in initramfs and GnuPG auto-sign `/boot` files:
 
@@ -337,7 +363,7 @@ drwxr-xr-x 1 root root      140 14. Jun 23:13 ../
 
 `.old` and `.old.sig` files are those of the initial package installation within chroot. `initramfs.old` doesn't have clevis and systemd's TPM support integrated.
 
-## 9.4. Package Cleanup
+## 9.5. Package Cleanup
 
 Remove extraneous packages (should be only `app-editors/nano`, `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
