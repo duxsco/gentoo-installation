@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#101-secure-boot-setup" class="md-skip">
+        <a href="#101-enable-selinux" class="md-skip">
           Skip to content
         </a>
       
@@ -374,15 +374,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#101-secure-boot-setup" class="md-nav__link">
-    10.1. Secure Boot Setup
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#102-enable-selinux" class="md-nav__link">
-    10.2. Enable SELinux
+  <a href="#101-enable-selinux" class="md-nav__link">
+    10.1. Enable SELinux
   </a>
   
 </li>
@@ -435,15 +428,8 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#101-secure-boot-setup" class="md-nav__link">
-    10.1. Secure Boot Setup
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#102-enable-selinux" class="md-nav__link">
-    10.2. Enable SELinux
+  <a href="#101-enable-selinux" class="md-nav__link">
+    10.1. Enable SELinux
   </a>
   
 </li>
@@ -468,24 +454,7 @@
 
   <h1>10. Optional Steps</h1>
 
-<h2 id="101-secure-boot-setup">10.1. Secure Boot Setup<a class="headerlink" href="#101-secure-boot-setup" title="Permanent link">&para;</a></h2>
-<p>If <code>efi-updatevar</code> failed in one of the previous sections, you can import Secure Boot files the following way.</p>
-<p>First, boot into the Gentoo Linux and save necessary files in <code>DER</code> form:</p>
-<div class="highlight"><pre><span></span><code>bash -c <span class="s1">&#39;</span>
-<span class="s1">(</span>
-<span class="s1">! mountpoint --quiet /efia &amp;&amp; \\</span>
-<span class="s1">mount /efia || true</span>
-<span class="s1">) &amp;&amp; \\</span>
-<span class="s1">openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der &amp;&amp; \\</span>
-<span class="s1">openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der &amp;&amp; \\</span>
-<span class="s1">openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /efia/PK.der; echo $?</span>
-<span class="s1">&#39;</span>
-</code></pre></div>
-<p>Reboot into <code>UEFI Firmware Settings</code> and import <code>db.der</code>, <code>KEK.der</code> and <code>PK.der</code>. Thereafter, enable Secure Boot. Upon successful boot with Secure Boot enabled, you can delete <code>db.der</code>, <code>KEK.der</code> and <code>PK.der</code> in <code>/efia</code>.</p>
-<p>To check whether Secure Boot is enabled execute:</p>
-<div class="highlight"><pre><span></span><code>mokutil --sb-state
-</code></pre></div>
-<h2 id="102-enable-selinux">10.2. Enable SELinux<a class="headerlink" href="#102-enable-selinux" title="Permanent link">&para;</a></h2>
+<h2 id="101-enable-selinux">10.1. Enable SELinux<a class="headerlink" href="#101-enable-selinux" title="Permanent link">&para;</a></h2>
 <p>This is optional! Steps are documented in the <a href="https://github.com/duxsco/gentoo-selinux">gentoo-selinux</a> repo.</p>
 
               

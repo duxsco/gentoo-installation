@@ -784,7 +784,7 @@ sshd -t<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?
 chown david:david /home/david/.ssh/config<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <ul>
-<li>sysrq (if you don't want to disable in kernel):</li>
+<li>Disable <code>sysrq</code> for <a href="https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key">security sake</a>:</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;kernel.sysrq = 0&quot;</span> &gt; /etc/sysctl.d/99sysrq.conf
 </code></pre></div>
