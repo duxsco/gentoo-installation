@@ -147,7 +147,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 
 ## 6.3. Configuration Of /etc/fstab
 
-Set /etc/fstab and add `noauto` mount option to `/efi*` entries if you have ESP(s) on removable media:
+Setup /etc/fstab:
 
 ```bash
 echo "" >> /etc/fstab

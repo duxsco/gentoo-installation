@@ -32,7 +32,7 @@ set -o history
 
 `disk.sh` creates user "meh" which will be used later on to act as non-root.
 
-### 3.2.1. Internal ESP(s)
+### 3.2. /mnt/gentoo Content
 
 Result of a single disk setup:
 
@@ -88,62 +88,6 @@ Result of the four disk setup:
 └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
 0 directories, 25 files
-```
-
-### 3.2.2. External ESP(s)
-
-Result of a single disk setup (`/dev/sda`) with ESP on a single removable media (`/dev/sdb`):
-
-```bash
-➤ tree -a /mnt/gentoo/
-/mnt/gentoo/
-├── devBoota -> /dev/sda1
-├── devEfia -> /dev/sdb1
-├── devRescue -> /dev/sda2
-├── devSwapa -> /dev/sda3
-├── devSystema -> /dev/sda4
-├── mapperBoot -> /dev/sda1
-├── mapperRescue -> /dev/mapper/sda2
-├── mapperSwap -> /dev/mapper/sda3
-├── mapperSystem -> /dev/mapper/sda4
-├── portage-latest.tar.xz
-├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-systemd-20220612T170541Z.tar.xz
-└── stage3-amd64-systemd-20220612T170541Z.tar.xz.asc
-
-0 directories, 13 files
-```
-
-Result of a four disk setup (`/dev/sda`, `/dev/sdb`, `/dev/sdc` and `/dev/sdd`) with ESP on two removable media (`/dev/sde` for daily use and `/dev/sdf` as fallback):
-
-```bash
-➤ tree -a /mnt/gentoo/
-/mnt/gentoo/
-├── devBoota -> /dev/sda1
-├── devBootb -> /dev/sdb1
-├── devBootc -> /dev/sdc1
-├── devBootd -> /dev/sdd1
-├── devEfia -> /dev/sde1
-├── devEfib -> /dev/sdf1
-├── devRescue -> /dev/md0
-├── devSwapa -> /dev/sda3
-├── devSwapb -> /dev/sdb3
-├── devSwapc -> /dev/sdc3
-├── devSwapd -> /dev/sdd3
-├── devSystema -> /dev/sda4
-├── devSystemb -> /dev/sdb4
-├── devSystemc -> /dev/sdc4
-├── devSystemd -> /dev/sdd4
-├── mapperBoot -> /dev/sda1
-├── mapperRescue -> /dev/mapper/md0
-├── mapperSwap -> /dev/md1
-├── mapperSystem -> /dev/mapper/sda4
-├── portage-latest.tar.xz
-├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-systemd-20220612T170541Z.tar.xz
-└── stage3-amd64-systemd-20220612T170541Z.tar.xz.asc
-
-0 directories, 23 files
 ```
 
 ## 3.3. Tarball Extraction
