@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset alphabet btrfs_raid disk disks fallback_password index luks_device luks_password partition pbkdf raid rescue_partition rescue_password short_uuid swap_partition swap_size system_size
+unset alphabet btrfs_raid disk disks fallback_password index luks_device luks_password partition pbkdf raid rescue_partition rescue_password short_uuid swap_partition swap_size system_size token_id token_type
 
 function help() {
 cat <<EOF
