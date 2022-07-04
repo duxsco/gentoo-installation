@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset alphabet boot_partition btrfs_raid disk disks fallback_password index luks_device luks_password partition pbkdf raid rescue_partition rescue_password short_uuid swap_partition swap_size system_size
+unset alphabet btrfs_raid disk disks fallback_password index luks_device luks_password partition pbkdf raid rescue_partition rescue_password short_uuid swap_partition swap_size system_size
 
 function help() {
 cat <<EOF
@@ -20,8 +20,7 @@ This can be changed for "swap" partitions:
 "-t": Create RAID 10 devices which require >=4+2*x disks with x being a non-negative integer.
 
 Further optional flags:
-"-e": specifies EFI System Partition size in MiB (default and recommended minimum: 260 MiB).
-"-b": specifies /boot partition size in MiB (default: 512 MiB).
+"-e": specifies EFI System Partition size in MiB (default: 512 MiB; recommended minimum: 260 MiB).
 "-i": specifies SystemRescueCD partition size in MiB (default: 2048 MiB; recommended minimum: 1024 MiB)
 EOF
 }
@@ -47,8 +46,7 @@ function setRaid() {
     fi
 }
 
-efi_system_partition_size="260"
-boot_partition_size="512"
+efi_system_partition_size="512"
 rescue_partition_size="2048"
 
 # shellcheck disable=SC2207
@@ -56,7 +54,6 @@ while getopts 56b:d:e:f:i:r:s:th opt; do
     case $opt in
         5) setRaid 5;;
         6) setRaid 6;;
-        b) boot_partition_size="$OPTARG";;
         d) disks=( $(xargs <<<"$OPTARG" | tr ' ' '\n' | sort | xargs) );;
         e) efi_system_partition_size="$OPTARG";;
         f) fallback_password="$OPTARG";;
@@ -100,26 +97,22 @@ for disk in "${disks[@]}"; do
         "mklabel gpt" \
         "unit MiB" \
         "mkpart esp31415part 1 $((1 + efi_system_partition_size))" \
-        "mkpart boot31415part $((1 + efi_system_partition_size)) $((1 + efi_system_partition_size + boot_partition_size))" \
-        "mkpart rescue31415part $((1 + efi_system_partition_size + boot_partition_size)) $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size))" \
-        "mkpart swap31415part $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size)) $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size + swap_size))" \
-        "mkpart system31415part $((1 + efi_system_partition_size + boot_partition_size + rescue_partition_size + swap_size)) ${system_size}" \
+        "mkpart rescue31415part $((1 + efi_system_partition_size)) $((1 + efi_system_partition_size + rescue_partition_size))" \
+        "mkpart swap31415part $((1 + efi_system_partition_size + rescue_partition_size)) $((1 + efi_system_partition_size + rescue_partition_size + swap_size))" \
+        "mkpart system31415part $((1 + efi_system_partition_size + rescue_partition_size + swap_size)) ${system_size}" \
         "set 1 esp on"
 done
 
-# boot partition
-boot_partition="$(getPartitions 2)"
-
 # rescue partition
 if [[ ${#disks[@]} -eq 1 ]]; then
-    rescue_partition="$(getPartitions 3)"
+    rescue_partition="$(getPartitions 2)"
 else
     rescue_partition="/dev/md0"
     # shellcheck disable=SC2046
-    mdadm --create "${rescue_partition}" --name rescue31415md --level=1 --raid-devices=${#disks[@]} --metadata=default $(getPartitions 3)
+    mdadm --create "${rescue_partition}" --name rescue31415md --level=1 --raid-devices=${#disks[@]} --metadata=default $(getPartitions 2)
 fi
 
-# encrypting boot, swap and system partitions
+# encrypt rescue, swap and system partitions
 index=0
 # shellcheck disable=SC2046
 while read -r partition; do
@@ -135,7 +128,7 @@ while read -r partition; do
     echo -n "${luks_password}" | cryptsetup luksOpen "${partition}" "${partition##*\/}"
 
     index=$((index+1))
-done < <(find "${rescue_partition}" $(getPartitions 4) $(getPartitions 5))
+done < <(find "${rescue_partition}" $(getPartitions 3) $(getPartitions 4))
 
 # EFI system partition
 alphabet=({A..Z})
@@ -145,34 +138,30 @@ while read -r partition; do
     mkfs.vfat -n "EFI${alphabet[tmpCount++]}" -F 32 "${partition}"
 done < <(find $(getPartitions 1))
 
-# boot partition
-# shellcheck disable=SC2086
-mkfs.btrfs --quiet --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label boot31415fs ${boot_partition}
-
 # rescue partition
 mkfs.btrfs --quiet --label rescue31415fs "/dev/mapper/${rescue_partition##*\/}"
 
 # swap partition
 # shellcheck disable=SC2046
 if [ ${#disks[@]} -eq 1 ]; then
-    swap_partition="$(getMapperPartitions 4)"
+    swap_partition="$(getMapperPartitions 3)"
 else
     swap_partition="/dev/md1"
-    mdadm --create "${swap_partition}" --name swap31415md --level="${raid:-1}" --raid-devices=${#disks[@]} --metadata=default $(getMapperPartitions 4)
+    mdadm --create "${swap_partition}" --name swap31415md --level="${raid:-1}" --raid-devices=${#disks[@]} --metadata=default $(getMapperPartitions 3)
 fi
 mkswap --label swap31415fs "${swap_partition}"
 swapon "${swap_partition}"
 
 # system partition
 # shellcheck disable=SC2046
-mkfs.btrfs --quiet --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label system31415fs $(getMapperPartitions 5)
+mkfs.btrfs --quiet --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label system31415fs $(getMapperPartitions 4)
 
 if [ ! -d /mnt/gentoo ]; then
     mkdir /mnt/gentoo
 fi
 
 # shellcheck disable=SC2046
-mount -o noatime $(getMapperPartitions 5 | awk '{print $1}') /mnt/gentoo
+mount -o noatime $(getMapperPartitions 4 | awk '{print $1}') /mnt/gentoo
 btrfs subvolume create /mnt/gentoo/@binpkgs; sync
 btrfs subvolume create /mnt/gentoo/@distfiles; sync
 btrfs subvolume create /mnt/gentoo/@home; sync
@@ -180,7 +169,7 @@ btrfs subvolume create /mnt/gentoo/@ebuilds; sync
 btrfs subvolume create /mnt/gentoo/@root; sync
 umount /mnt/gentoo
 # shellcheck disable=SC2046
-mount -o noatime,subvol=@root $(getMapperPartitions 5 | awk '{print $1}') /mnt/gentoo
+mount -o noatime,subvol=@root $(getMapperPartitions 4 | awk '{print $1}') /mnt/gentoo
 
 useradd -m -s /bin/bash meh
 chown meh: /mnt/gentoo /tmp/fetch_files.sh
@@ -189,31 +178,25 @@ su -l meh -c /tmp/fetch_files.sh
 chown -R root: /mnt/gentoo
 
 alphabet=({a..z})
-ln -s "$(getPartitions 2 | awk '{print $1}')" /mnt/gentoo/mapperBoot
 ln -s "/dev/mapper/${rescue_partition##*\/}" /mnt/gentoo/mapperRescue
 ln -s "${swap_partition}" /mnt/gentoo/mapperSwap
-ln -s "$(getMapperPartitions 5 | awk '{print $1}')" /mnt/gentoo/mapperSystem
+ln -s "$(getMapperPartitions 4 | awk '{print $1}')" /mnt/gentoo/mapperSystem
 tmpCount=0
 # shellcheck disable=SC2046
 while read -r partition; do
     ln -s "${partition}" "/mnt/gentoo/devEfi${alphabet[tmpCount++]}"
 done < <(find $(getPartitions 1))
-tmpCount=0
-# shellcheck disable=SC2046
-while read -r partition; do
-    ln -s "${partition}" "/mnt/gentoo/devBoot${alphabet[tmpCount++]}"
-done < <(find $(getPartitions 2))
 ln -s "$(awk '{print $1}' <<<"${rescue_partition}")" "/mnt/gentoo/devRescue"
 tmpCount=0
 # shellcheck disable=SC2046
 while read -r partition; do
     ln -s "${partition}" "/mnt/gentoo/devSwap${alphabet[tmpCount++]}"
-done < <(find $(getPartitions 4))
+done < <(find $(getPartitions 3))
 tmpCount=0
 # shellcheck disable=SC2046
 while read -r partition; do
     ln -s "${partition}" "/mnt/gentoo/devSystem${alphabet[tmpCount++]}"
-done < <(find $(getPartitions 5))
+done < <(find $(getPartitions 4))
 
 cat <<EOF > /tmp/chroot.sh
 #!/usr/bin/env bash
