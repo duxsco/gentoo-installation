@@ -13,12 +13,12 @@ The following installation guide results in a system that is/uses:
 - **Secure Boot**: EFI binary/binaries in ESP(s) are Secure Boot signed.
 - **Measured Boot**: [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to check the system for manipulations via TPM2 PCRs (Platform Configuration Registers).
 - **Fully encrypted**: Except ESP(s), all partitions are LUKS encrypted.
-- **RAID**: If the number of disks is >=2, mdadm and BTRFS based RAID are used for all partition other than ESP(s).
+- **RAID**: If the number of disks is >=2, mdadm and Btrfs based RAID are used for all partitions other than ESP(s).
 - **Rescue system** based on a **customised SystemRescueCD** that provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
 
 ## 1.3. SSH Connectivity
 
-After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:
+After completion of this installation guide, SSH connections will be (optionally) possible via SSH public key authentication to the:
 
 - Gentoo Linux system: `ssh -p 50022 david@<IP address>`
 - Rescue system: `ssh -p 50023 root@<IP address>`
@@ -27,7 +27,7 @@ Both boot options are available in the boot menu.
 
 ## 1.4. Disk Layout
 
-ESPs each with their own EFI entry are created one for each disk. Except for ESP, BTRFS/MDADM RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
+ESPs each with their own EFI entry are created one for each disk. Except for ESP, Btrfs/mdadm RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
 - Single disk:
 
@@ -64,7 +64,7 @@ PC∕Laptop───────────────────────
     │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP
     └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
-        └── BTRFS raid1                    └── BTRFS raid1
+        └── Btrfs raid1                    └── Btrfs raid1
             └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles
@@ -87,7 +87,7 @@ PC∕Laptop───────────────────────
     │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP
     └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
-        └── BTRFS raid1c3                  └── BTRFS raid1c3                  └── BTRFS raid1c3
+        └── Btrfs raid1c3                  └── Btrfs raid1c3                  └── Btrfs raid1c3
             └── subvolume                      └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
@@ -110,7 +110,7 @@ PC∕Laptop───────────────────────
     │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
     └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
-        └── BTRFS raid1c4                  └── BTRFS raid1c4                  └── BTRFS raid1c4                  └── BTRFS raid1c4
+        └── Btrfs raid1c4                  └── Btrfs raid1c4                  └── Btrfs raid1c4                  └── Btrfs raid1c4
             └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles

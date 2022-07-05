@@ -242,7 +242,7 @@ while read -r my_esp; do
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 ```
 
-Setup portage hook (copy&paste one after the other):
+Setup portage hook:
 
 ```bash
 mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel && \
@@ -250,15 +250,28 @@ rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/linux-firmware && \
 rm -f /root/portage_hook_kernel && \
-cat <<'EOF' >> /etc/portage/env/sys-apps/systemd; echo $?
-if [[ ${EBUILD_PHASE} == postinst ]]; then
+echo 'if [[ ${EBUILD_PHASE} == postinst ]]; then
     while read -r my_esp; do
         bootctl --esp-path="/${my_esp}" --no-variables --graceful update && \
         sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
         sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/${my_esp}/EFI/BOOT/BOOTX64.EFI"
-    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
-fi
+
+        if [[ $? -ne 0 ]]; then
+cat <<EOF
+
+  ___________________________
+< Failed to Secure Boot sign! >
+  ---------------------------
+         \   ^__^ 
+          \  (oo)\_______
+             (__)\       )\/\\
+                 ||----w |
+                 ||     ||
+
 EOF
+        fi
+    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+fi' > /etc/portage/env/sys-apps/systemd; echo $?
 ```
 
 Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
@@ -312,7 +325,7 @@ unset CMDLINE
 EOF
 ```
 
-Install the [kernel](https://www.kernel.org/category/releases.html):
+Install tools required for booting:
 
 ```bash
 install_lts_kernel="true" && \
@@ -331,8 +344,13 @@ fi && \
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
 echo "sys-kernel/gentoo-kernel-bin -initramfs" >> /etc/portage/package.use/main && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/linux-firmware && \
-emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
+emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/linux-firmware
+```
+
+Install the [kernel](https://www.kernel.org/category/releases.html):
+
+```bash
+emerge -at sys-kernel/gentoo-kernel-bin
 ```
 
 ## 6.6. Additional Packages

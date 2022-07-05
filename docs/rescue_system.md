@@ -2,7 +2,7 @@ While we are still on SystemRescueCD and not in chroot, download and customise t
 
 ## 4.1. Downloads And Verification
 
-Prepare working directory:
+Prepare the working directory:
 
 ```bash
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
