@@ -28,5 +28,4 @@ nav:
   - 6. System Setup: system_setup.md
   - 7. Cleanup And Reboot: cleanup_and_reboot.md
   - 8. Post-Boot Configuration: post-boot_configuration.md
-  - 9. Optional Steps: optional_steps.md
-  - 10. Other Gentoo Linux Repos: other_gentoo_linux_repos.md
+  - 9. Where to go from here: where_to_go_from_here.md
