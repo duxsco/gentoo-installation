@@ -1,4 +1,4 @@
-## 9.1. Systemd Configuration
+## 8.1. Systemd Configuration
 
 Some configuration needs to be done after systemd has been started.
 
@@ -49,7 +49,7 @@ systemctl enable nftables-restore; echo $?
 '
 ```
 
-## 9.2. Unbound
+## 8.2. Unbound
 
 Setup unbound:
 
@@ -165,7 +165,7 @@ systemctl start unbound.service; echo $?
 
 Test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)).
 
-## 9.3. Secure Boot Setup
+## 8.3. Secure Boot Setup
 
 If `efi-updatevar` failed in one of the previous sections, you can import Secure Boot files the following way.
 
@@ -191,7 +191,7 @@ To check whether Secure Boot is enabled execute:
 mokutil --sb-state
 ```
 
-## 9.4. Measured Boot
+## 8.4. Measured Boot
 
 You have two options for `Measured Boot`:
 
@@ -200,7 +200,7 @@ You have two options for `Measured Boot`:
 
 Use either `systemd-cryptenroll` or `clevis` in the following.
 
-### 9.4.1.a) systemd-cryptenroll
+### 8.4.1.a) systemd-cryptenroll
 
 Install `app-crypt/tpm2-tools`:
 
@@ -266,7 +266,7 @@ Remove overlay directory containing `app-crypt/clevis`:
 rm -rf /root/localrepo
 ```
 
-### 9.4.1.b) clevis
+### 8.4.1.b) clevis
 
 If you don't have a DHCP server running the new system has access to, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the `CMDLINE` array variable in `/etc/dracut.conf`:
 
@@ -326,7 +326,7 @@ clevis luks list -d /dev/sdb5
 # 1: tpm2 '{"hash":"sha256","key":"ecc","pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 ```
 
-### 9.4.2. Rebuild Unified Kernel Image
+### 8.4.2. Rebuild Unified Kernel Image
 
 Rebuild the unified kernel image:
 
@@ -334,7 +334,7 @@ Rebuild the unified kernel image:
 emerge -at sys-kernel/gentoo-kernel-bin
 ```
 
-## 9.5. Package Cleanup
+## 8.5. Package Cleanup
 
 Remove extraneous packages (should be only `app-editors/nano`, `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 

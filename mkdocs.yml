@@ -26,8 +26,7 @@ nav:
   - 4. Rescue System: rescue_system.md
   - 5. Chrooting: chrooting.md
   - 6. System Setup: system_setup.md
-  - 7. Boot Setup: boot_setup.md
-  - 8. Cleanup And Reboot: cleanup_and_reboot.md
-  - 9. Post-Boot Configuration: post-boot_configuration.md
-  - 10. Optional Steps: optional_steps.md
-  - 11. Other Gentoo Linux Repos: other_gentoo_linux_repos.md
+  - 7. Cleanup And Reboot: cleanup_and_reboot.md
+  - 8. Post-Boot Configuration: post-boot_configuration.md
+  - 9. Optional Steps: optional_steps.md
+  - 10. Other Gentoo Linux Repos: other_gentoo_linux_repos.md
