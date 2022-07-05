@@ -96,7 +96,7 @@ Update system:
 
 ```bash
 touch /etc/sysctl.conf && \
-echo "sys-apps/systemd cryptsetup" >> /etc/portage/package.use/main && \
+echo "sys-apps/systemd cryptsetup gnuefi" >> /etc/portage/package.use/main && \
 emerge -atuDN @world
 ```
 
@@ -155,7 +155,6 @@ echo "
 $(find /devEfi* -maxdepth 0 | while read -r i; do
   echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,dmask=0022,fmask=0133 0 0"
 done)
-UUID=$(blkid -s UUID -o value /mapperBoot)   /boot                btrfs noatime                       0 0
 UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                            0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root          0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home          0 0
@@ -168,7 +167,150 @@ find /devEfi* -maxdepth 0 | while read -r i; do
 done; echo $?
 ```
 
-## 6.4. Kernel Installation
+## 6.4. Secure Boot
+
+Credits:
+
+- [https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd](https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd)
+- [https://www.funtoo.org/Secure_Boot](https://www.funtoo.org/Secure_Boot)
+- [https://www.rodsbooks.com/efi-bootloaders/secureboot.html](https://www.rodsbooks.com/efi-bootloaders/secureboot.html)
+- [https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot](https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot)
+- [https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot)
+
+In order to add your custom keys `Setup Mode` must have been enabled in your `UEFI Firmware Settings` before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling `Setup Mode`. In the following, however, you have to generate Secure Boot files either way.
+
+Install required tools on your system:
+
+```bash
+echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
+emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
+```
+
+Create Secure Boot keys and certificates:
+
+```bash
+mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
+pushd /etc/gentoo-installation/secureboot && \
+
+# Create the keys
+openssl req -new -x509 -newkey rsa:3072 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:3072 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
+openssl req -new -x509 -newkey rsa:3072 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
+
+# Prepare installation in EFI
+uuid="$(uuidgen --random)" && \
+cert-to-efi-sig-list -g "${uuid}" PK.crt PK.esl && \
+cert-to-efi-sig-list -g "${uuid}" KEK.crt KEK.esl && \
+cert-to-efi-sig-list -g "${uuid}" db.crt db.esl && \
+sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
+sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
+popd; echo $?
+```
+
+If the following commands don't work you have to install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
+
+```bash
+pushd /etc/gentoo-installation/secureboot && \
+
+# Make them mutable
+chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+
+# Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
+efi-updatevar -f db.auth db && \
+efi-updatevar -f KEK.auth KEK && \
+efi-updatevar -f PK.auth PK && \
+
+# Make them immutable
+chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+popd; echo $?
+```
+
+## 6.5. Kernel Installation
+
+Setup ESP(s):
+
+```bash
+while read -r my_esp; do
+  bootctl --esp-path="/${my_esp}" install && \
+  efibootmgr -b "$(efibootmgr -v | grep -Po "^Boot\K[0-9]+(?=\*[[:space:]]+Linux Boot Manager[[:space:]]+)")" -B && \
+  efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "/${my_esp/efi/devEfi}")")" --part 1 --label "gentoo31415efi ${my_esp}" --loader '\EFI\systemd\systemd-bootx64.efi' && \
+  echo -e "timeout 10\neditor no" > "/${my_esp}/loader/loader.conf" && \
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/${my_esp}/EFI/BOOT/BOOTX64.EFI"
+  echo $?
+done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+```
+
+Setup portage hook (copy&paste one after the other):
+
+```bash
+mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/linux-firmware && \
+rm -f /root/portage_hook_kernel && \
+cat <<'EOF' >> /etc/portage/env/sys-apps/systemd; echo $?
+if [[ ${EBUILD_PHASE} == postinst ]]; then
+    while read -r my_esp; do
+        bootctl --esp-path="/${my_esp}" --no-variables --graceful update && \
+        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
+        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/${my_esp}/EFI/BOOT/BOOTX64.EFI"
+    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+fi
+EOF
+```
+
+Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
+
+```bash
+! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
+echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
+echo "sys-firmware/intel-microcode hostonly" >> /etc/portage/package.use/main && \
+emerge -at sys-firmware/intel-microcode; echo $?
+```
+
+Setup `sys-kernel/dracut` (copy&paste one after the other):
+
+```bash
+emerge -at sys-kernel/dracut
+
+rescue_uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
+system_uuid="$(blkid -s UUID -o value /mapperSystem)"
+my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
+my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
+
+# If you intend to use systemd-cryptenroll, define this variable:
+# my_systemd_cryptenroll=",tpm2-device=auto"
+
+cat <<EOF >> /etc/dracut.conf
+
+hostonly=no
+hostonly_cmdline=yes
+use_fstab=yes
+#compress=xz
+show_modules=yes
+
+uefi=yes
+early_microcode=yes
+uefi_stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub
+uefi_secureboot_cert=/etc/gentoo-installation/secureboot/db.crt
+uefi_secureboot_key=/etc/gentoo-installation/secureboot/db.key
+CMDLINE=(
+  ro
+  root=UUID=${system_uuid}
+  ${my_crypt_root}
+  ${my_crypt_swap}
+  rd.luks.options=password-echo=no${my_systemd_cryptenroll}
+  rootfstype=btrfs
+  rootflags=subvol=@root
+  mitigations=auto,nosmt
+)
+kernel_cmdline="\${CMDLINE[*]}"
+unset CMDLINE
+EOF
+```
 
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
@@ -187,22 +329,13 @@ cat <<EOF >> /etc/portage/package.mask/main
 EOF
 fi && \
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
+echo "sys-kernel/gentoo-kernel-bin -initramfs" >> /etc/portage/package.use/main && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
 emerge sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/linux-firmware && \
 emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware; echo $?
 ```
 
-## 6.5. Additional Packages
-
-Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
-
-```bash
-! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
-grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
-echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
-echo "sys-firmware/intel-microcode -* hostonly initramfs" >> /etc/portage/package.use/main && \
-emerge -at sys-firmware/intel-microcode; echo $?
-```
+## 6.6. Additional Packages
 
 Set `/etc/hosts`:
 

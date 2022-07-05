@@ -46,7 +46,7 @@ Execute following `rsync` and `ssh` command **on your local machine** (copy&past
 
 ```bash
 # Copy installation files to remote machine. Adjust port and IP.
-rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 {bin/{bashrc,disk.sh,fetch_files.sh,firewall.nft,firewall.sh},localrepo} root@XXX:/tmp/
+rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 {bin/{portage_hook_kernel,disk.sh,fetch_files.sh,firewall.nft,firewall.sh},localrepo} root@XXX:/tmp/
 
 # From local machine, login into the remote machine
 ssh root@...

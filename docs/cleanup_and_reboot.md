@@ -24,7 +24,7 @@ systemctl --no-reload enable systemd-resolved.service
   - stage3 and dev* files:
 
 ```bash
-rm -fv /stage3-* /portage-latest.tar.xz* /devBoot* /devEfi* /devRescue /devSystem* /devSwap* /mapperBoot /mapperRescue /mapperSwap /mapperSystem; echo $?
+rm -fv /stage3-* /portage-latest.tar.xz* /devEfi* /devRescue /devSystem* /devSwap* /mapperRescue /mapperSwap /mapperSystem; echo $?
 ```
 
   - exit and reboot (copy&paste one after the other):

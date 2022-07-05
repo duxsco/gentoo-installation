@@ -157,7 +157,6 @@ Enable and start unbound service:
 systemctl disable systemd-resolved.service && \
 systemctl stop systemd-resolved.service && \
 systemctl enable unbound.service && \
-sleep 20s && \
 rm -f /etc/resolv.conf && \
 echo -e "nameserver ::1\nnameserver 127.0.0.1" > /etc/resolv.conf && \
 systemctl start unbound.service; echo $?
@@ -214,7 +213,7 @@ Add support for TPM to dracut and systemd:
 
 ```bash
 /bin/bash -c '
-sed -i "s/\(sys-apps\/systemd cryptsetup\)/\1 tpm/" /etc/portage/package.use/main && \
+sed -i "s/\(sys-apps\/systemd \)/\1 tpm /" /etc/portage/package.use/main && \
 echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf; echo $?
 '
 ```
@@ -226,7 +225,7 @@ echo "=sys-kernel/dracut-056-r1 ~amd64
 =sys-apps/systemd-251.2 ~amd64" >> /etc/portage/package.accept_keywords/main
 ```
 
-Update:
+Update and make sure `sys-kernel/dracut` as well as `sys-apps/systemd` got updated:
 
 ```bash
 emerge -atuDN @world
@@ -269,7 +268,7 @@ rm -rf /root/localrepo
 
 ### 9.4.1.b) clevis
 
-If you don't have a DHCP server running append the following to the [kernel commandline parameters](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) of the Gentoo Linux entries in `/boot/grub.cfg` and GnuPG sign the file:
+If you don't have a DHCP server running the new system has access to, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the `CMDLINE` array variable in `/etc/dracut.conf`:
 
 ```
 ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
@@ -327,44 +326,13 @@ clevis luks list -d /dev/sdb5
 # 1: tpm2 '{"hash":"sha256","key":"ecc","pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 ```
 
-### 9.4.2. Initramfs Rebuild
+### 9.4.2. Rebuild Unified Kernel Image
 
-Enable [portage hook](https://wiki.gentoo.org/wiki//etc/portage/bashrc) and reinstall `sys-kernel/gentoo-kernel-bin` to integrate clevis OR systemd's TPM support in initramfs and GnuPG auto-sign `/boot` files:
-
-```bash
-mv /root/bashrc /etc/portage/ && \
-chmod u=rw,og=r /etc/portage/bashrc && \
-emerge sys-kernel/gentoo-kernel-bin
-```
-
-Make sure you have:
+Rebuild the unified kernel image:
 
 ```bash
-❯ ls -la /boot/
-total 125628
-drwx------ 1 root root      424 14. Jun 23:39 ./
-drwxr-xr-x 1 root root      140 14. Jun 23:13 ../
--rw-r--r-- 1 root root  5822827 14. Jun 23:39 System.map
--rw-r--r-- 1 root root  5822827 14. Jun 22:35 System.map.old
--rw-r--r-- 1 root root      438 14. Jun 23:12 System.map.old.sig
--rw-r--r-- 1 root root      438 14. Jun 23:39 System.map.sig
--rw-r--r-- 1 root root   235283 14. Jun 23:39 config
--rw-r--r-- 1 root root   235283 14. Jun 22:35 config.old
--rw-r--r-- 1 root root      438 14. Jun 23:12 config.old.sig
--rw-r--r-- 1 root root      438 14. Jun 23:39 config.sig
--rw-r--r-- 1 root root     1390 14. Jun 23:11 grub.cfg
--rw-r--r-- 1 root root      438 14. Jun 23:12 grub.cfg.sig
--rw-r--r-- 1 root root 58616905 14. Jun 23:39 initramfs
--rw-r--r-- 1 root root 36435427 14. Jun 22:35 initramfs.old
--rw-r--r-- 1 root root      438 14. Jun 23:12 initramfs.old.sig
--rw-r--r-- 1 root root      438 14. Jun 23:39 initramfs.sig
--rw-r--r-- 1 root root 10698848 14. Jun 23:39 vmlinuz
--rw-r--r-- 1 root root 10698848 14. Jun 22:35 vmlinuz.old
--rw-r--r-- 1 root root      438 14. Jun 23:12 vmlinuz.old.sig
--rw-r--r-- 1 root root      438 14. Jun 23:39 vmlinuz.sig
+emerge -at sys-kernel/gentoo-kernel-bin
 ```
-
-`.old` and `.old.sig` files are those of the initial package installation within chroot. `initramfs.old` doesn't have clevis and systemd's TPM support integrated.
 
 ## 9.5. Package Cleanup
 

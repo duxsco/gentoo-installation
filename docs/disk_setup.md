@@ -39,15 +39,13 @@ Result of a single disk setup:
 ```bash
 ➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
-├── devBoota -> /dev/sda2
 ├── devEfia -> /dev/sda1
-├── devRescue -> /dev/sda3
-├── devSwapa -> /dev/sda4
-├── devSystema -> /dev/sda5
-├── mapperBoot -> /dev/sda2
-├── mapperRescue -> /dev/mapper/sda3
-├── mapperSwap -> /dev/mapper/sda4
-├── mapperSystem -> /dev/mapper/sda5
+├── devRescue -> /dev/sda2
+├── devSwapa -> /dev/sda3
+├── devSystema -> /dev/sda4
+├── mapperRescue -> /dev/mapper/sda2
+├── mapperSwap -> /dev/mapper/sda3
+├── mapperSystem -> /dev/mapper/sda4
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
 ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
@@ -61,27 +59,22 @@ Result of the four disk setup:
 ```bash
 ➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
-├── devBoota -> /dev/sda2
-├── devBootb -> /dev/sdb2
-├── devBootc -> /dev/sdc2
-├── devBootd -> /dev/sdd2
 ├── devEfia -> /dev/sda1
 ├── devEfib -> /dev/sdb1
 ├── devEfic -> /dev/sdc1
 ├── devEfid -> /dev/sdd1
 ├── devRescue -> /dev/md0
-├── devSwapa -> /dev/sda4
-├── devSwapb -> /dev/sdb4
-├── devSwapc -> /dev/sdc4
-├── devSwapd -> /dev/sdd4
-├── devSystema -> /dev/sda5
-├── devSystemb -> /dev/sdb5
-├── devSystemc -> /dev/sdc5
-├── devSystemd -> /dev/sdd5
-├── mapperBoot -> /dev/sda2
+├── devSwapa -> /dev/sda3
+├── devSwapb -> /dev/sdb3
+├── devSwapc -> /dev/sdc3
+├── devSwapd -> /dev/sdd3
+├── devSystema -> /dev/sda4
+├── devSystemb -> /dev/sdb4
+├── devSystemc -> /dev/sdc4
+├── devSystemd -> /dev/sdd4
 ├── mapperRescue -> /dev/mapper/md0
 ├── mapperSwap -> /dev/md1
-├── mapperSystem -> /dev/mapper/sda5
+├── mapperSystem -> /dev/mapper/sda4
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
 ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
@@ -100,7 +93,7 @@ Extract stage3 tarball and copy `firewall.nft`:
 ```bash
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ && \
-rsync -a /tmp/{bashrc,localrepo} /mnt/gentoo/root/ && \
+rsync -a /tmp/{portage_hook_kernel,localrepo} /mnt/gentoo/root/ && \
 mkdir -p /mnt/gentoo/etc/gentoo-installation; echo $?
 ```
 
@@ -131,7 +124,5 @@ touch /mnt/gentoo/var/cache/binpkgs/.keep && \
 mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
 
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
-mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
-
-mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot; echo $?
+mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles; echo $?
 ```
