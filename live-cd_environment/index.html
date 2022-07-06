@@ -375,10 +375,6 @@
 
   <h1>2. Live-CD Environment</h1>
 
-<div class="admonition bug">
-<p class="admonition-title">TODO: Rescue systemd currently not usable</p>
-<p>Currently, the rescue system is not usable. Some changes are required for the rescue system to boot with systemd-boot. These changes will follow soon.</p>
-</div>
 <p>In the following, I am using the <a href="https://www.system-rescue.org/">SystemRescueCD</a>, <strong>not</strong> the official Gentoo Linux installation CD. If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&amp;paste the whole code block, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.</p>
 <p>Boot into SystemRescueCD and set the correct keyboard layout:</p>
 <div class="highlight"><pre><span></span><code>loadkeys de-latin1-nodeadkeys
