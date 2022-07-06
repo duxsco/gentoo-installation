@@ -15,11 +15,11 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/post-boot_configuration/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.8">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
     
     
       
-        <title>9. Post-Boot Configuration - Gentoo Linux Installation</title>
+        <title>8. Post-Boot Configuration - Gentoo Linux Installation</title>
       
     
     
@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#91-systemd-configuration" class="md-skip">
+        <a href="#81-systemd-configuration" class="md-skip">
           Skip to content
         </a>
       
@@ -99,7 +99,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              9. Post-Boot Configuration
+              8. Post-Boot Configuration
             
           </span>
         </div>
@@ -299,23 +299,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../boot_setup/" class="md-nav__link">
-        7. Boot Setup
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cleanup_and_reboot/" class="md-nav__link">
-        8. Cleanup And Reboot
+        7. Cleanup And Reboot
       </a>
     </li>
   
@@ -337,12 +322,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          9. Post-Boot Configuration
+          8. Post-Boot Configuration
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        9. Post-Boot Configuration
+        8. Post-Boot Configuration
       </a>
       
         
@@ -359,51 +344,51 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#91-systemd-configuration" class="md-nav__link">
-    9.1. Systemd Configuration
+  <a href="#81-systemd-configuration" class="md-nav__link">
+    8.1. Systemd Configuration
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#92-unbound" class="md-nav__link">
-    9.2. Unbound
+  <a href="#82-unbound" class="md-nav__link">
+    8.2. Unbound
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#93-secure-boot-setup" class="md-nav__link">
-    9.3. Secure Boot Setup
+  <a href="#83-secure-boot-setup" class="md-nav__link">
+    8.3. Secure Boot Setup
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#94-measured-boot" class="md-nav__link">
-    9.4. Measured Boot
+  <a href="#84-measured-boot" class="md-nav__link">
+    8.4. Measured Boot
   </a>
   
-    <nav class="md-nav" aria-label="9.4. Measured Boot">
+    <nav class="md-nav" aria-label="8.4. Measured Boot">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#941a-systemd-cryptenroll" class="md-nav__link">
-    9.4.1.a) systemd-cryptenroll
+  <a href="#841a-systemd-cryptenroll" class="md-nav__link">
+    8.4.1.a) systemd-cryptenroll
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#941b-clevis" class="md-nav__link">
-    9.4.1.b) clevis
+  <a href="#841b-clevis" class="md-nav__link">
+    8.4.1.b) clevis
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#942-initramfs-rebuild" class="md-nav__link">
-    9.4.2. Initramfs Rebuild
+  <a href="#842-rebuild-unified-kernel-image" class="md-nav__link">
+    8.4.2. Rebuild Unified Kernel Image
   </a>
   
 </li>
@@ -414,8 +399,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#95-package-cleanup" class="md-nav__link">
-    9.5. Package Cleanup
+  <a href="#85-package-cleanup" class="md-nav__link">
+    8.5. Package Cleanup
   </a>
   
 </li>
@@ -436,23 +421,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../optional_steps/" class="md-nav__link">
-        10. Optional Steps
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../other_gentoo_linux_repos/" class="md-nav__link">
-        11. Other Gentoo Linux Repos
+      <a href="../where_to_go_from_here/" class="md-nav__link">
+        9. Where to go from here
       </a>
     </li>
   
@@ -483,51 +453,51 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#91-systemd-configuration" class="md-nav__link">
-    9.1. Systemd Configuration
+  <a href="#81-systemd-configuration" class="md-nav__link">
+    8.1. Systemd Configuration
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#92-unbound" class="md-nav__link">
-    9.2. Unbound
+  <a href="#82-unbound" class="md-nav__link">
+    8.2. Unbound
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#93-secure-boot-setup" class="md-nav__link">
-    9.3. Secure Boot Setup
+  <a href="#83-secure-boot-setup" class="md-nav__link">
+    8.3. Secure Boot Setup
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#94-measured-boot" class="md-nav__link">
-    9.4. Measured Boot
+  <a href="#84-measured-boot" class="md-nav__link">
+    8.4. Measured Boot
   </a>
   
-    <nav class="md-nav" aria-label="9.4. Measured Boot">
+    <nav class="md-nav" aria-label="8.4. Measured Boot">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#941a-systemd-cryptenroll" class="md-nav__link">
-    9.4.1.a) systemd-cryptenroll
+  <a href="#841a-systemd-cryptenroll" class="md-nav__link">
+    8.4.1.a) systemd-cryptenroll
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#941b-clevis" class="md-nav__link">
-    9.4.1.b) clevis
+  <a href="#841b-clevis" class="md-nav__link">
+    8.4.1.b) clevis
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#942-initramfs-rebuild" class="md-nav__link">
-    9.4.2. Initramfs Rebuild
+  <a href="#842-rebuild-unified-kernel-image" class="md-nav__link">
+    8.4.2. Rebuild Unified Kernel Image
   </a>
   
 </li>
@@ -538,8 +508,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#95-package-cleanup" class="md-nav__link">
-    9.5. Package Cleanup
+  <a href="#85-package-cleanup" class="md-nav__link">
+    8.5. Package Cleanup
   </a>
   
 </li>
@@ -562,9 +532,9 @@
 
 
 
-  <h1>9. Post-Boot Configuration</h1>
+  <h1>8. Post-Boot Configuration</h1>
 
-<h2 id="91-systemd-configuration">9.1. Systemd Configuration<a class="headerlink" href="#91-systemd-configuration" title="Permanent link">&para;</a></h2>
+<h2 id="81-systemd-configuration">8.1. Systemd Configuration<a class="headerlink" href="#81-systemd-configuration" title="Permanent link">&para;</a></h2>
 <p>Some configuration needs to be done after systemd has been started.</p>
 <p>Do some <a href="https://wiki.gentoo.org/wiki/Systemd#Configuration">initial configuration</a> (copy&amp;paste one after the other):</p>
 <div class="highlight"><pre><span></span><code>systemd-firstboot --prompt --setup-machine-id
@@ -600,7 +570,7 @@ systemctl preset-all
 <span class="s1">systemctl enable nftables-restore; echo $?</span>
 <span class="s1">&#39;</span>
 </code></pre></div>
-<h2 id="92-unbound">9.2. Unbound<a class="headerlink" href="#92-unbound" title="Permanent link">&para;</a></h2>
+<h2 id="82-unbound">8.2. Unbound<a class="headerlink" href="#82-unbound" title="Permanent link">&para;</a></h2>
 <p>Setup unbound:</p>
 <div class="highlight"><pre><span></span><code>/bin/bash -c <span class="s1">&#39;</span>
 <span class="s1">echo &quot;net-dns/unbound ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \</span>
@@ -693,14 +663,13 @@ forward-zone:
 <span class="s1">systemctl disable systemd-resolved.service &amp;&amp; \</span>
 <span class="s1">systemctl stop systemd-resolved.service &amp;&amp; \</span>
 <span class="s1">systemctl enable unbound.service &amp;&amp; \</span>
-<span class="s1">sleep 20s &amp;&amp; \</span>
 <span class="s1">rm -f /etc/resolv.conf &amp;&amp; \</span>
 <span class="s1">echo -e &quot;nameserver ::1\nnameserver 127.0.0.1&quot; &gt; /etc/resolv.conf &amp;&amp; \</span>
 <span class="s1">systemctl start unbound.service; echo $?</span>
 <span class="s1">&#39;</span>
 </code></pre></div>
 <p>Test DNS resolving (<a href="https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing">link</a>).</p>
-<h2 id="93-secure-boot-setup">9.3. Secure Boot Setup<a class="headerlink" href="#93-secure-boot-setup" title="Permanent link">&para;</a></h2>
+<h2 id="83-secure-boot-setup">8.3. Secure Boot Setup<a class="headerlink" href="#83-secure-boot-setup" title="Permanent link">&para;</a></h2>
 <p>If <code>efi-updatevar</code> failed in one of the previous sections, you can import Secure Boot files the following way.</p>
 <p>First, boot into the Gentoo Linux and save necessary files in <code>DER</code> form:</p>
 <div class="highlight"><pre><span></span><code>/bin/bash -c <span class="s1">&#39;</span>
@@ -717,21 +686,21 @@ forward-zone:
 <p>To check whether Secure Boot is enabled execute:</p>
 <div class="highlight"><pre><span></span><code>mokutil --sb-state
 </code></pre></div>
-<h2 id="94-measured-boot">9.4. Measured Boot<a class="headerlink" href="#94-measured-boot" title="Permanent link">&para;</a></h2>
+<h2 id="84-measured-boot">8.4. Measured Boot<a class="headerlink" href="#84-measured-boot" title="Permanent link">&para;</a></h2>
 <p>You have two options for <code>Measured Boot</code>:</p>
 <ul>
 <li><code>systemd-cryptenroll</code>: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd &gt;=251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with <code>systemd-cryptenroll</code> than with <code>clevis</code> due to the use of PBKDF2 (with secure keys), and you don't have to use the <code>app-crypt/clevis</code> package from (unofficial) <a href="https://wiki.gentoo.org/wiki/Project:GURU">guru overlay</a>.</li>
 <li><code>clevis</code>: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.</li>
 </ul>
 <p>Use either <code>systemd-cryptenroll</code> or <code>clevis</code> in the following.</p>
-<h3 id="941a-systemd-cryptenroll">9.4.1.a) systemd-cryptenroll<a class="headerlink" href="#941a-systemd-cryptenroll" title="Permanent link">&para;</a></h3>
+<h3 id="841a-systemd-cryptenroll">8.4.1.a) systemd-cryptenroll<a class="headerlink" href="#841a-systemd-cryptenroll" title="Permanent link">&para;</a></h3>
 <p>Install <code>app-crypt/tpm2-tools</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=app-crypt/tpm2-tools-5.2-r1 ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge -av tpm2-tools
 </code></pre></div>
 <p>Add support for TPM to dracut and systemd:</p>
 <div class="highlight"><pre><span></span><code>/bin/bash -c <span class="s1">&#39;</span>
-<span class="s1">sed -i &quot;s/\(sys-apps\/systemd cryptsetup\)/\1 tpm/&quot; /etc/portage/package.use/main &amp;&amp; \</span>
+<span class="s1">sed -i &quot;s/\(sys-apps\/systemd \)/\1 tpm /&quot; /etc/portage/package.use/main &amp;&amp; \</span>
 <span class="s1">echo \&#39;</span><span class="nv">add_dracutmodules</span><span class="o">+=</span><span class="s2">&quot; tpm2-tss &quot;</span><span class="se">\&#39;</span> &gt;&gt; /etc/dracut.conf<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 <span class="err">&#39;</span>
 </code></pre></div>
@@ -739,7 +708,7 @@ emerge -av tpm2-tools
 <div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=sys-kernel/dracut-056-r1 ~amd64</span>
 <span class="s2">=sys-apps/systemd-251.2 ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main
 </code></pre></div>
-<p>Update:</p>
+<p>Update and make sure <code>sys-kernel/dracut</code> as well as <code>sys-apps/systemd</code> got updated:</p>
 <div class="highlight"><pre><span></span><code>emerge -atuDN @world
 </code></pre></div>
 <p>Reboot your system!</p>
@@ -764,8 +733,8 @@ systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span c
 <p>Remove overlay directory containing <code>app-crypt/clevis</code>:</p>
 <div class="highlight"><pre><span></span><code>rm -rf /root/localrepo
 </code></pre></div>
-<h3 id="941b-clevis">9.4.1.b) clevis<a class="headerlink" href="#941b-clevis" title="Permanent link">&para;</a></h3>
-<p>If you don't have a DHCP server running append the following to the <a href="https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN">kernel commandline parameters</a> of the Gentoo Linux entries in <code>/boot/grub.cfg</code> and GnuPG sign the file:</p>
+<h3 id="841b-clevis">8.4.1.b) clevis<a class="headerlink" href="#841b-clevis" title="Permanent link">&para;</a></h3>
+<p>If you don't have a DHCP server running the new system has access to, add <a href="https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN">the following network settings</a> to the <code>CMDLINE</code> array variable in <code>/etc/dracut.conf</code>:</p>
 <div class="highlight"><pre><span></span><code>ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
 </code></pre></div>
 <p>Install <code>dev-vcs/git</code>:</p>
@@ -805,38 +774,11 @@ clevis luks list -d /dev/sdb5
 <span class="c1"># Sample output:</span>
 <span class="c1"># 1: tpm2 &#39;{&quot;hash&quot;:&quot;sha256&quot;,&quot;key&quot;:&quot;ecc&quot;,&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;1,2,3,4,5,6,7&quot;}&#39;</span>
 </code></pre></div>
-<h3 id="942-initramfs-rebuild">9.4.2. Initramfs Rebuild<a class="headerlink" href="#942-initramfs-rebuild" title="Permanent link">&para;</a></h3>
-<p>Enable <a href="https://wiki.gentoo.org/wiki//etc/portage/bashrc">portage hook</a> and reinstall <code>sys-kernel/gentoo-kernel-bin</code> to integrate clevis OR systemd's TPM support in initramfs and GnuPG auto-sign <code>/boot</code> files:</p>
-<div class="highlight"><pre><span></span><code>mv /root/bashrc /etc/portage/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
-chmod <span class="nv">u</span><span class="o">=</span>rw,og<span class="o">=</span>r /etc/portage/bashrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge sys-kernel/gentoo-kernel-bin
+<h3 id="842-rebuild-unified-kernel-image">8.4.2. Rebuild Unified Kernel Image<a class="headerlink" href="#842-rebuild-unified-kernel-image" title="Permanent link">&para;</a></h3>
+<p>Rebuild the unified kernel image:</p>
+<div class="highlight"><pre><span></span><code>emerge -at sys-kernel/gentoo-kernel-bin
 </code></pre></div>
-<p>Make sure you have:</p>
-<div class="highlight"><pre><span></span><code>❯ ls -la /boot/
-total <span class="m">125628</span>
-drwx------ <span class="m">1</span> root root      <span class="m">424</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 ./
-drwxr-xr-x <span class="m">1</span> root root      <span class="m">140</span> <span class="m">14</span>. Jun <span class="m">23</span>:13 ../
--rw-r--r-- <span class="m">1</span> root root  <span class="m">5822827</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 System.map
--rw-r--r-- <span class="m">1</span> root root  <span class="m">5822827</span> <span class="m">14</span>. Jun <span class="m">22</span>:35 System.map.old
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 System.map.old.sig
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 System.map.sig
--rw-r--r-- <span class="m">1</span> root root   <span class="m">235283</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 config
--rw-r--r-- <span class="m">1</span> root root   <span class="m">235283</span> <span class="m">14</span>. Jun <span class="m">22</span>:35 config.old
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 config.old.sig
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 config.sig
--rw-r--r-- <span class="m">1</span> root root     <span class="m">1390</span> <span class="m">14</span>. Jun <span class="m">23</span>:11 grub.cfg
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 grub.cfg.sig
--rw-r--r-- <span class="m">1</span> root root <span class="m">58616905</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 initramfs
--rw-r--r-- <span class="m">1</span> root root <span class="m">36435427</span> <span class="m">14</span>. Jun <span class="m">22</span>:35 initramfs.old
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 initramfs.old.sig
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 initramfs.sig
--rw-r--r-- <span class="m">1</span> root root <span class="m">10698848</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 vmlinuz
--rw-r--r-- <span class="m">1</span> root root <span class="m">10698848</span> <span class="m">14</span>. Jun <span class="m">22</span>:35 vmlinuz.old
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:12 vmlinuz.old.sig
--rw-r--r-- <span class="m">1</span> root root      <span class="m">438</span> <span class="m">14</span>. Jun <span class="m">23</span>:39 vmlinuz.sig
-</code></pre></div>
-<p><code>.old</code> and <code>.old.sig</code> files are those of the initial package installation within chroot. <code>initramfs.old</code> doesn't have clevis and systemd's TPM support integrated.</p>
-<h2 id="95-package-cleanup">9.5. Package Cleanup<a class="headerlink" href="#95-package-cleanup" title="Permanent link">&para;</a></h2>
+<h2 id="85-package-cleanup">8.5. Package Cleanup<a class="headerlink" href="#85-package-cleanup" title="Permanent link">&para;</a></h2>
 <p>Remove extraneous packages (should be only <code>app-editors/nano</code>, <code>app-eselect/eselect-repository</code>, <code>app-misc/yq</code> and <code>app-portage/cpuid2cpuflags</code>):</p>
 <div class="highlight"><pre><span></span><code>emerge --depclean -a
 </code></pre></div>
@@ -855,7 +797,7 @@ drwxr-xr-x <span class="m">1</span> root root      <span class="m">140</span> <s
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../cleanup_and_reboot/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 8. Cleanup And Reboot" rel="prev">
+        <a href="../cleanup_and_reboot/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 7. Cleanup And Reboot" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -864,20 +806,20 @@ drwxr-xr-x <span class="m">1</span> root root      <span class="m">140</span> <s
               <span class="md-footer__direction">
                 Previous
               </span>
-              8. Cleanup And Reboot
+              7. Cleanup And Reboot
             </div>
           </div>
         </a>
       
       
         
-        <a href="../optional_steps/" class="md-footer__link md-footer__link--next" aria-label="Next: 10. Optional Steps" rel="next">
+        <a href="../where_to_go_from_here/" class="md-footer__link md-footer__link--next" aria-label="Next: 9. Where to go from here" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              10. Optional Steps
+              9. Where to go from here
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -910,7 +852,7 @@ drwxr-xr-x <span class="m">1</span> root root      <span class="m">140</span> <s
     <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
       
     
   </body>

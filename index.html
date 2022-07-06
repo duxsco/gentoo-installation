@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/">
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.8">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
     
     
       
@@ -364,23 +364,8 @@
   
   
     <li class="md-nav__item">
-      <a href="boot_setup/" class="md-nav__link">
-        7. Boot Setup
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="cleanup_and_reboot/" class="md-nav__link">
-        8. Cleanup And Reboot
+        7. Cleanup And Reboot
       </a>
     </li>
   
@@ -395,7 +380,7 @@
   
     <li class="md-nav__item">
       <a href="post-boot_configuration/" class="md-nav__link">
-        9. Post-Boot Configuration
+        8. Post-Boot Configuration
       </a>
     </li>
   
@@ -409,23 +394,8 @@
   
   
     <li class="md-nav__item">
-      <a href="optional_steps/" class="md-nav__link">
-        10. Optional Steps
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="other_gentoo_linux_repos/" class="md-nav__link">
-        11. Other Gentoo Linux Repos
+      <a href="where_to_go_from_here/" class="md-nav__link">
+        9. Where to go from here
       </a>
     </li>
   
@@ -523,35 +493,32 @@
 <p>The following installation guide results in a system that is/uses:</p>
 <ul>
 <li><strong>Secure Boot</strong>: EFI binary/binaries in ESP(s) are Secure Boot signed.</li>
-<li><strong>Measured Boot</strong>: All files in <code>/boot</code>, e.g. grub.cfg, initramfs, kernel, are GnuPG signed. Furthermore, <a href="https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll">systemd-cryptenroll</a> or <a href="https://github.com/latchset/clevis">clevis</a> is used to automatically decrypt LUKS volumes. You can secure the use of <code>systemd-cryptenroll</code> with a pin, though.</li>
-<li><strong>Fully encrypted</strong>: Except ESP(s) and <code>/boot</code>, all partitions are LUKS encrypted.</li>
-<li><strong>RAID</strong>: mdadm and BTRFS based RAID are used wherever it makes sense if the number of disks is &gt;= 2.</li>
+<li><strong>Measured Boot</strong>: <a href="https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll">systemd-cryptenroll</a> or <a href="https://github.com/latchset/clevis">clevis</a> is used to check the system for manipulations via TPM2 PCRs (Platform Configuration Registers).</li>
+<li><strong>Fully encrypted</strong>: Except ESP(s), all partitions are LUKS encrypted.</li>
+<li><strong>RAID</strong>: If the number of disks is &gt;=2, mdadm and Btrfs based RAID are used for all partitions other than ESP(s).</li>
 <li><strong>Rescue system</strong> based on a <strong>customised SystemRescueCD</strong> that provides the <code>chroot.sh</code> script to conveniently chroot into your Gentoo installation.</li>
 </ul>
 <h2 id="13-ssh-connectivity">1.3. SSH Connectivity<a class="headerlink" href="#13-ssh-connectivity" title="Permanent link">&para;</a></h2>
-<p>After completion of this installation guide, SSH connections will be possible via SSH public key authentication to the:</p>
+<p>After completion of this installation guide, SSH connections will be (optionally) possible via SSH public key authentication to the:</p>
 <ul>
 <li>Gentoo Linux system: <code>ssh -p 50022 david@&lt;IP address&gt;</code></li>
 <li>Rescue system: <code>ssh -p 50023 root@&lt;IP address&gt;</code></li>
 </ul>
-<p>Both boot options are available in GRUB's boot menu.</p>
+<p>Both boot options are available in the boot menu.</p>
 <h2 id="14-disk-layout">1.4. Disk Layout<a class="headerlink" href="#14-disk-layout" title="Permanent link">&para;</a></h2>
-<p>ESPs each with their own EFI entry are created one for each disk. Alternatively, you can store the ESP on multiple removable drives. This scenario won't be outlined in the following codeblocks. You just need to think of <code>1. EFI System Partition</code> missing in below scenarios.</p>
-<p>Except for ESP, BTRFS/MDADM RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for <code>swap</code>.</p>
+<p>ESPs each with their own EFI entry are created one for each disk. Except for ESP, Btrfs/mdadm RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for <code>swap</code>.</p>
 <ul>
 <li>Single disk:</li>
 </ul>
 <div class="highlight"><pre><span></span><code>PC∕Laptop
 └── ∕dev∕sda
     ├── 1. EFI System Partition
-    ├── 2. Btrfs (single)
-    │   └── /boot
-    ├── 3. LUKS
+    ├── 2. LUKS
     │   └── Btrfs (single)
     │       └── rescue
-    ├── 4. LUKS
+    ├── 3. LUKS
     │   └── SWAP
-    └── 5. LUKS (&quot;system&quot; partition)
+    └── 4. LUKS (&quot;system&quot; partition)
         └── Btrfs (single)
             └── subvolumes
                 ├── @binpkgs
@@ -566,17 +533,15 @@
 <div class="highlight"><pre><span></span><code>PC∕Laptop──────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb
     ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. Btrfs raid1                 ├── 2. Btrfs raid1
-    │   └── /boot                      │   └── /boot
-    ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
+    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs
     │           └── rescue             │           └── rescue
-    ├── 4. LUKS                        ├── 4. LUKS
+    ├── 3. LUKS                        ├── 3. LUKS
     │   └── MDADM RAID 1               │   └── MDADM RAID 1
     │       └── SWAP                   │       └── SWAP
-    └── 5. LUKS (&quot;system&quot; partition)   └── 5. LUKS (&quot;system&quot; partition)
-        └── BTRFS raid1                    └── BTRFS raid1
+    └── 4. LUKS (&quot;system&quot; partition)   └── 4. LUKS (&quot;system&quot; partition)
+        └── Btrfs raid1                    └── Btrfs raid1
             └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles
@@ -590,17 +555,15 @@
 <div class="highlight"><pre><span></span><code>PC∕Laptop──────────────────────────┬──────────────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc
     ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. Btrfs raid1c3               ├── 2. Btrfs raid1c3               ├── 2. Btrfs raid1c3
-    │   └── /boot                      │   └── /boot                      │   └── /boot
-    ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
+    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
     │           └── rescue             │           └── rescue             │           └── rescue
-    ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS
+    ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
     │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP
-    └── 5. LUKS (&quot;system&quot; partition)   └── 5. LUKS (&quot;system&quot; partition)   └── 5. LUKS (&quot;system&quot; partition)
-        └── BTRFS raid1c3                  └── BTRFS raid1c3                  └── BTRFS raid1c3
+    └── 4. LUKS (&quot;system&quot; partition)   └── 4. LUKS (&quot;system&quot; partition)   └── 4. LUKS (&quot;system&quot; partition)
+        └── Btrfs raid1c3                  └── Btrfs raid1c3                  └── Btrfs raid1c3
             └── subvolume                      └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
@@ -614,17 +577,15 @@
 <div class="highlight"><pre><span></span><code>PC∕Laptop──────────────────────────┬──────────────────────────────────┬──────────────────────────────────┐
 └── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc                       └── ∕dev∕sdd
     ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. Btrfs raid1c4               ├── 2. Btrfs raid1c4               ├── 2. Btrfs raid1c4               ├── 2. Btrfs raid1c4
-    │   └── /boot                      │   └── /boot                      │   └── /boot                      │   └── /boot
-    ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1                ├── 3. MDADM RAID 1
+    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
     │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
     │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
     │           └── rescue             │           └── rescue             │           └── rescue             │           └── rescue
-    ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS                        ├── 4. LUKS
+    ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
     │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10
     │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
-    └── 5. LUKS (&quot;system&quot; partition)   └── 5. LUKS (&quot;system&quot; partition)   └── 5. LUKS (&quot;system&quot; partition)   └── 5. LUKS (&quot;system&quot; partition)
-        └── BTRFS raid1c4                  └── BTRFS raid1c4                  └── BTRFS raid1c4                  └── BTRFS raid1c4
+    └── 4. LUKS (&quot;system&quot; partition)   └── 4. LUKS (&quot;system&quot; partition)   └── 4. LUKS (&quot;system&quot; partition)   └── 4. LUKS (&quot;system&quot; partition)
+        └── Btrfs raid1c4                  └── Btrfs raid1c4                  └── Btrfs raid1c4                  └── Btrfs raid1c4
             └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
                 ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
@@ -705,7 +666,7 @@
     <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.0238f547.min.js"></script>
+      <script src="assets/javascripts/bundle.6c7ad80a.min.js"></script>
       
     
   </body>

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/disk_setup/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.8">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
     
     
       
@@ -280,38 +280,25 @@
     3.2. Partitioning And Formating
   </a>
   
-    <nav class="md-nav" aria-label="3.2. Partitioning And Formating">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#321-internal-esps" class="md-nav__link">
-    3.2.1. Internal ESP(s)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#322-external-esps" class="md-nav__link">
-    3.2.2. External ESP(s)
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#33-tarball-extraction" class="md-nav__link">
-    3.3. Tarball Extraction
+  <a href="#33-mntgentoo-content" class="md-nav__link">
+    3.3. /mnt/gentoo Content
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#34-mounting" class="md-nav__link">
-    3.4. Mounting
+  <a href="#34-tarball-extraction" class="md-nav__link">
+    3.4. Tarball Extraction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#35-mounting" class="md-nav__link">
+    3.5. Mounting
   </a>
   
 </li>
@@ -377,23 +364,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../boot_setup/" class="md-nav__link">
-        7. Boot Setup
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cleanup_and_reboot/" class="md-nav__link">
-        8. Cleanup And Reboot
+        7. Cleanup And Reboot
       </a>
     </li>
   
@@ -408,7 +380,7 @@
   
     <li class="md-nav__item">
       <a href="../post-boot_configuration/" class="md-nav__link">
-        9. Post-Boot Configuration
+        8. Post-Boot Configuration
       </a>
     </li>
   
@@ -422,23 +394,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../optional_steps/" class="md-nav__link">
-        10. Optional Steps
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../other_gentoo_linux_repos/" class="md-nav__link">
-        11. Other Gentoo Linux Repos
+      <a href="../where_to_go_from_here/" class="md-nav__link">
+        9. Where to go from here
       </a>
     </li>
   
@@ -480,38 +437,25 @@
     3.2. Partitioning And Formating
   </a>
   
-    <nav class="md-nav" aria-label="3.2. Partitioning And Formating">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#321-internal-esps" class="md-nav__link">
-    3.2.1. Internal ESP(s)
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#322-external-esps" class="md-nav__link">
-    3.2.2. External ESP(s)
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
-  <a href="#33-tarball-extraction" class="md-nav__link">
-    3.3. Tarball Extraction
+  <a href="#33-mntgentoo-content" class="md-nav__link">
+    3.3. /mnt/gentoo Content
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#34-mounting" class="md-nav__link">
-    3.4. Mounting
+  <a href="#34-tarball-extraction" class="md-nav__link">
+    3.4. Tarball Extraction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#35-mounting" class="md-nav__link">
+    3.5. Mounting
   </a>
   
 </li>
@@ -561,19 +505,17 @@ bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d <span class="s2">&quot;
 <span class="nb">set</span> -o <span class="nb">history</span>
 </code></pre></div>
 <p><code>disk.sh</code> creates user "meh" which will be used later on to act as non-root.</p>
-<h3 id="321-internal-esps">3.2.1. Internal ESP(s)<a class="headerlink" href="#321-internal-esps" title="Permanent link">&para;</a></h3>
+<h2 id="33-mntgentoo-content">3.3. /mnt/gentoo Content<a class="headerlink" href="#33-mntgentoo-content" title="Permanent link">&para;</a></h2>
 <p>Result of a single disk setup:</p>
 <div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
-├── devBoota -&gt; /dev/sda2
 ├── devEfia -&gt; /dev/sda1
-├── devRescue -&gt; /dev/sda3
-├── devSwapa -&gt; /dev/sda4
-├── devSystema -&gt; /dev/sda5
-├── mapperBoot -&gt; /dev/sda2
-├── mapperRescue -&gt; /dev/mapper/sda3
-├── mapperSwap -&gt; /dev/mapper/sda4
-├── mapperSystem -&gt; /dev/mapper/sda5
+├── devRescue -&gt; /dev/sda2
+├── devSwapa -&gt; /dev/sda3
+├── devSystema -&gt; /dev/sda4
+├── mapperRescue -&gt; /dev/mapper/sda2
+├── mapperSwap -&gt; /dev/mapper/sda3
+├── mapperSystem -&gt; /dev/mapper/sda4
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
 ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
@@ -584,63 +526,10 @@ bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d <span class="s2">&quot;
 <p>Result of the four disk setup:</p>
 <div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
 /mnt/gentoo/
-├── devBoota -&gt; /dev/sda2
-├── devBootb -&gt; /dev/sdb2
-├── devBootc -&gt; /dev/sdc2
-├── devBootd -&gt; /dev/sdd2
 ├── devEfia -&gt; /dev/sda1
 ├── devEfib -&gt; /dev/sdb1
 ├── devEfic -&gt; /dev/sdc1
 ├── devEfid -&gt; /dev/sdd1
-├── devRescue -&gt; /dev/md0
-├── devSwapa -&gt; /dev/sda4
-├── devSwapb -&gt; /dev/sdb4
-├── devSwapc -&gt; /dev/sdc4
-├── devSwapd -&gt; /dev/sdd4
-├── devSystema -&gt; /dev/sda5
-├── devSystemb -&gt; /dev/sdb5
-├── devSystemc -&gt; /dev/sdc5
-├── devSystemd -&gt; /dev/sdd5
-├── mapperBoot -&gt; /dev/sda2
-├── mapperRescue -&gt; /dev/mapper/md0
-├── mapperSwap -&gt; /dev/md1
-├── mapperSystem -&gt; /dev/mapper/sda5
-├── portage-latest.tar.xz
-├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-systemd-20220529T170531Z.tar.xz
-└── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
-
-<span class="m">0</span> directories, <span class="m">25</span> files
-</code></pre></div>
-<h3 id="322-external-esps">3.2.2. External ESP(s)<a class="headerlink" href="#322-external-esps" title="Permanent link">&para;</a></h3>
-<p>Result of a single disk setup (<code>/dev/sda</code>) with ESP on a single removable media (<code>/dev/sdb</code>):</p>
-<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
-/mnt/gentoo/
-├── devBoota -&gt; /dev/sda1
-├── devEfia -&gt; /dev/sdb1
-├── devRescue -&gt; /dev/sda2
-├── devSwapa -&gt; /dev/sda3
-├── devSystema -&gt; /dev/sda4
-├── mapperBoot -&gt; /dev/sda1
-├── mapperRescue -&gt; /dev/mapper/sda2
-├── mapperSwap -&gt; /dev/mapper/sda3
-├── mapperSystem -&gt; /dev/mapper/sda4
-├── portage-latest.tar.xz
-├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-systemd-20220612T170541Z.tar.xz
-└── stage3-amd64-systemd-20220612T170541Z.tar.xz.asc
-
-<span class="m">0</span> directories, <span class="m">13</span> files
-</code></pre></div>
-<p>Result of a four disk setup (<code>/dev/sda</code>, <code>/dev/sdb</code>, <code>/dev/sdc</code> and <code>/dev/sdd</code>) with ESP on two removable media (<code>/dev/sde</code> for daily use and <code>/dev/sdf</code> as fallback):</p>
-<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
-/mnt/gentoo/
-├── devBoota -&gt; /dev/sda1
-├── devBootb -&gt; /dev/sdb1
-├── devBootc -&gt; /dev/sdc1
-├── devBootd -&gt; /dev/sdd1
-├── devEfia -&gt; /dev/sde1
-├── devEfib -&gt; /dev/sdf1
 ├── devRescue -&gt; /dev/md0
 ├── devSwapa -&gt; /dev/sda3
 ├── devSwapb -&gt; /dev/sdb3
@@ -650,18 +539,17 @@ bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d <span class="s2">&quot;
 ├── devSystemb -&gt; /dev/sdb4
 ├── devSystemc -&gt; /dev/sdc4
 ├── devSystemd -&gt; /dev/sdd4
-├── mapperBoot -&gt; /dev/sda1
 ├── mapperRescue -&gt; /dev/mapper/md0
 ├── mapperSwap -&gt; /dev/md1
 ├── mapperSystem -&gt; /dev/mapper/sda4
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-systemd-20220612T170541Z.tar.xz
-└── stage3-amd64-systemd-20220612T170541Z.tar.xz.asc
+├── stage3-amd64-systemd-20220529T170531Z.tar.xz
+└── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-<span class="m">0</span> directories, <span class="m">23</span> files
+<span class="m">0</span> directories, <span class="m">25</span> files
 </code></pre></div>
-<h2 id="33-tarball-extraction">3.3. Tarball Extraction<a class="headerlink" href="#33-tarball-extraction" title="Permanent link">&para;</a></h2>
+<h2 id="34-tarball-extraction">3.4. Tarball Extraction<a class="headerlink" href="#34-tarball-extraction" title="Permanent link">&para;</a></h2>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>Current <code>stage3-amd64-systemd-*.tar.xz</code> is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification.</p>
@@ -669,7 +557,7 @@ bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d <span class="s2">&quot;
 <p>Extract stage3 tarball and copy <code>firewall.nft</code>:</p>
 <div class="highlight"><pre><span></span><code>tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include<span class="o">=</span><span class="s1">&#39;*.*&#39;</span> --numeric-owner <span class="o">&amp;&amp;</span> <span class="se">\</span>
 rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rwx,go<span class="o">=</span>r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
-rsync -a /tmp/<span class="o">{</span>bashrc,localrepo<span class="o">}</span> /mnt/gentoo/root/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a /tmp/<span class="o">{</span>portage_hook_kernel,localrepo<span class="o">}</span> /mnt/gentoo/root/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
 mkdir -p /mnt/gentoo/etc/gentoo-installation<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <p>Extract portage tarball:</p>
@@ -678,7 +566,7 @@ touch /mnt/gentoo/var/db/repos/gentoo/.keep <span class="o">&amp;&amp;</span> <s
 mount -o noatime,subvol<span class="o">=</span>@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo <span class="o">&amp;&amp;</span> <span class="se">\</span>
 tar --transform <span class="s1">&#39;s/^portage/gentoo/&#39;</span> -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
-<h2 id="34-mounting">3.4. Mounting<a class="headerlink" href="#34-mounting" title="Permanent link">&para;</a></h2>
+<h2 id="35-mounting">3.5. Mounting<a class="headerlink" href="#35-mounting" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>mount -t tmpfs -o noatime,nodev,nosuid,mode<span class="o">=</span><span class="m">1777</span>,uid<span class="o">=</span>root,gid<span class="o">=</span>root tmpfs /mnt/gentoo/tmp <span class="o">&amp;&amp;</span> <span class="se">\</span>
 mount --types proc /proc /mnt/gentoo/proc <span class="o">&amp;&amp;</span> <span class="se">\</span>
 mount --rbind /sys /mnt/gentoo/sys <span class="o">&amp;&amp;</span> <span class="se">\</span>
@@ -694,9 +582,7 @@ touch /mnt/gentoo/var/cache/binpkgs/.keep <span class="o">&amp;&amp;</span> <spa
 mount -o noatime,subvol<span class="o">=</span>@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
 touch /mnt/gentoo/var/cache/distfiles/.keep <span class="o">&amp;&amp;</span> <span class="se">\</span>
-mount -o noatime,subvol<span class="o">=</span>@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles <span class="o">&amp;&amp;</span> <span class="se">\</span>
-
-mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+mount -o noatime,subvol<span class="o">=</span>@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 
               
@@ -768,7 +654,7 @@ mount -o noatime /mnt/gentoo/mapperBoot /mnt/gentoo/boot<span class="p">;</span>
     <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
       
     
   </body>

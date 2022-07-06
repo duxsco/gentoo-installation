@@ -2,57 +2,47 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://gentoo.duxsco.de/</loc>
-         <lastmod>2022-07-03</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://gentoo.duxsco.de/boot_setup/</loc>
-         <lastmod>2022-07-03</lastmod>
+         <lastmod>2022-07-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/chrooting/</loc>
-         <lastmod>2022-07-03</lastmod>
+         <lastmod>2022-07-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/cleanup_and_reboot/</loc>
-         <lastmod>2022-07-03</lastmod>
+         <lastmod>2022-07-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/disk_setup/</loc>
-         <lastmod>2022-07-03</lastmod>
+         <lastmod>2022-07-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/live-cd_environment/</loc>
-         <lastmod>2022-07-03</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://gentoo.duxsco.de/optional_steps/</loc>
-         <lastmod>2022-07-03</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://gentoo.duxsco.de/other_gentoo_linux_repos/</loc>
-         <lastmod>2022-07-03</lastmod>
+         <lastmod>2022-07-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/post-boot_configuration/</loc>
-         <lastmod>2022-07-03</lastmod>
+         <lastmod>2022-07-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/rescue_system/</loc>
-         <lastmod>2022-07-03</lastmod>
+         <lastmod>2022-07-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/system_setup/</loc>
-         <lastmod>2022-07-03</lastmod>
+         <lastmod>2022-07-06</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://gentoo.duxsco.de/where_to_go_from_here/</loc>
+         <lastmod>2022-07-06</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

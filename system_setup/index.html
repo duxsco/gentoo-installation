@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/system_setup/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.8">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
     
     
       
@@ -335,15 +335,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#64-kernel-installation" class="md-nav__link">
-    6.4. Kernel Installation
+  <a href="#64-secure-boot" class="md-nav__link">
+    6.4. Secure Boot
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#65-additional-packages" class="md-nav__link">
-    6.5. Additional Packages
+  <a href="#65-kernel-installation" class="md-nav__link">
+    6.5. Kernel Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#66-additional-packages" class="md-nav__link">
+    6.6. Additional Packages
   </a>
   
 </li>
@@ -364,23 +371,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../boot_setup/" class="md-nav__link">
-        7. Boot Setup
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cleanup_and_reboot/" class="md-nav__link">
-        8. Cleanup And Reboot
+        7. Cleanup And Reboot
       </a>
     </li>
   
@@ -395,7 +387,7 @@
   
     <li class="md-nav__item">
       <a href="../post-boot_configuration/" class="md-nav__link">
-        9. Post-Boot Configuration
+        8. Post-Boot Configuration
       </a>
     </li>
   
@@ -409,23 +401,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../optional_steps/" class="md-nav__link">
-        10. Optional Steps
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../other_gentoo_linux_repos/" class="md-nav__link">
-        11. Other Gentoo Linux Repos
+      <a href="../where_to_go_from_here/" class="md-nav__link">
+        9. Where to go from here
       </a>
     </li>
   
@@ -477,15 +454,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#64-kernel-installation" class="md-nav__link">
-    6.4. Kernel Installation
+  <a href="#64-secure-boot" class="md-nav__link">
+    6.4. Secure Boot
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#65-additional-packages" class="md-nav__link">
-    6.5. Additional Packages
+  <a href="#65-kernel-installation" class="md-nav__link">
+    6.5. Kernel Installation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#66-additional-packages" class="md-nav__link">
+    6.6. Additional Packages
   </a>
   
 </li>
@@ -581,7 +565,7 @@ curl -fsSL --proto <span class="s1">&#39;=https&#39;</span> --tlsv1.3 https://ap
 </code></pre></div>
 <p>Update system:</p>
 <div class="highlight"><pre><span></span><code>touch /etc/sysctl.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-apps/systemd cryptsetup&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-apps/systemd cryptsetup gnuefi&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge -atuDN @world
 </code></pre></div>
 <h2 id="62-non-root-user-creation">6.2. Non-Root User Creation<a class="headerlink" href="#62-non-root-user-creation" title="Permanent link">&para;</a></h2>
@@ -617,13 +601,12 @@ eselect vi <span class="nb">set</span> vim <span class="o">&amp;&amp;</span> <sp
 env-update <span class="o">&amp;&amp;</span> <span class="nb">source</span> /etc/profile <span class="o">&amp;&amp;</span> <span class="nb">export</span> <span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;(chroot) </span><span class="nv">$PS1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <h2 id="63-configuration-of-etcfstab">6.3. Configuration Of /etc/fstab<a class="headerlink" href="#63-configuration-of-etcfstab" title="Permanent link">&para;</a></h2>
-<p>Set /etc/fstab and add <code>noauto</code> mount option to <code>/efi*</code> entries if you have ESP(s) on removable media:</p>
+<p>Setup /etc/fstab:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;&quot;</span> &gt;&gt; /etc/fstab
 <span class="nb">echo</span> <span class="s2">&quot;</span>
 <span class="k">$(</span>find /devEfi* -maxdepth <span class="m">0</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
   <span class="nb">echo</span> <span class="s2">&quot;UUID=</span><span class="k">$(</span>blkid -s UUID -o value <span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">  </span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">          vfat  noatime,dmask=0022,fmask=0133 0 0&quot;</span>
 <span class="k">done)</span><span class="s2"></span>
-<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperBoot<span class="k">)</span><span class="s2">   /boot                btrfs noatime                       0 0</span>
 <span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSwap<span class="k">)</span><span class="s2">   none                 swap  sw                            0 0</span>
 <span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /                    btrfs noatime,subvol=@root          0 0</span>
 <span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /home                btrfs noatime,subvol=@home          0 0</span>
@@ -635,8 +618,141 @@ find /devEfi* -maxdepth <span class="m">0</span> <span class="p">|</span> <span 
   mount <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="k">done</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
-<h2 id="64-kernel-installation">6.4. Kernel Installation<a class="headerlink" href="#64-kernel-installation" title="Permanent link">&para;</a></h2>
-<p>Install the <a href="https://www.kernel.org/category/releases.html">kernel</a>:</p>
+<h2 id="64-secure-boot">6.4. Secure Boot<a class="headerlink" href="#64-secure-boot" title="Permanent link">&para;</a></h2>
+<p>Credits:</p>
+<ul>
+<li><a href="https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd">https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd</a></li>
+<li><a href="https://www.funtoo.org/Secure_Boot">https://www.funtoo.org/Secure_Boot</a></li>
+<li><a href="https://www.rodsbooks.com/efi-bootloaders/secureboot.html">https://www.rodsbooks.com/efi-bootloaders/secureboot.html</a></li>
+<li><a href="https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot">https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot</a></li>
+<li><a href="https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot">https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot</a></li>
+</ul>
+<p>In order to add your custom keys <code>Setup Mode</code> must have been enabled in your <code>UEFI Firmware Settings</code> before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling <code>Setup Mode</code>. In the following, however, you have to generate Secure Boot files either way.</p>
+<p>Install required tools on your system:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;sys-boot/mokutil ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
+</code></pre></div>
+<p>Create Secure Boot keys and certificates:</p>
+<div class="highlight"><pre><span></span><code>mkdir --mode<span class="o">=</span><span class="m">0700</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">pushd</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+<span class="c1"># Create the keys</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=PK/&quot;</span>  -keyout PK.key  -out PK.crt  -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=KEK/&quot;</span> -keyout KEK.key -out KEK.crt -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=db/&quot;</span>  -keyout db.key  -out db.crt  -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+<span class="c1"># Prepare installation in EFI</span>
+<span class="nv">uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>uuidgen --random<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> PK.crt PK.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> KEK.crt KEK.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> db.crt db.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
+popd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
+<p>If the following commands don't work you have to install <code>db.auth</code>, <code>KEK.auth</code> and <code>PK.auth</code> over the <code>UEFI Firmware Settings</code> upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">pushd</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+<span class="c1"># Make them mutable</span>
+chattr -i /sys/firmware/efi/efivars/<span class="o">{</span>PK,KEK,db,dbx<span class="o">}</span>* <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+<span class="c1"># Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)</span>
+efi-updatevar -f db.auth db <span class="o">&amp;&amp;</span> <span class="se">\</span>
+efi-updatevar -f KEK.auth KEK <span class="o">&amp;&amp;</span> <span class="se">\</span>
+efi-updatevar -f PK.auth PK <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+<span class="c1"># Make them immutable</span>
+chattr +i /sys/firmware/efi/efivars/<span class="o">{</span>PK,KEK,db,dbx<span class="o">}</span>* <span class="o">&amp;&amp;</span> <span class="se">\</span>
+popd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
+<h2 id="65-kernel-installation">6.5. Kernel Installation<a class="headerlink" href="#65-kernel-installation" title="Permanent link">&para;</a></h2>
+<p>Setup ESP(s):</p>
+<div class="highlight"><pre><span></span><code><span class="k">while</span> <span class="nb">read</span> -r my_esp<span class="p">;</span> <span class="k">do</span>
+  bootctl --esp-path<span class="o">=</span><span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> install <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  efibootmgr -b <span class="s2">&quot;</span><span class="k">$(</span>efibootmgr -v <span class="p">|</span> grep -Po <span class="s2">&quot;^Boot\K[0-9]+(?=\*[[:space:]]+Linux Boot Manager[[:space:]]+)&quot;</span><span class="k">)</span><span class="s2">&quot;</span> -B <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  efibootmgr --create --disk <span class="s2">&quot;/dev/</span><span class="k">$(</span>lsblk -ndo pkname <span class="s2">&quot;</span><span class="k">$(</span>readlink -f <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/efi/devEfi</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span> --part <span class="m">1</span> --label <span class="s2">&quot;gentoo31415efi </span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> --loader <span class="s1">&#39;\EFI\systemd\systemd-bootx64.efi&#39;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  <span class="nb">echo</span> -e <span class="s2">&quot;timeout 10\neditor no&quot;</span> &gt; <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/loader/loader.conf&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/systemd/systemd-bootx64.efi&quot;</span> <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/systemd/systemd-bootx64.efi&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/BOOT/BOOTX64.EFI&quot;</span> <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/BOOT/BOOTX64.EFI&quot;</span>
+  <span class="nb">echo</span> <span class="nv">$?</span>
+<span class="k">done</span> &lt; &lt;<span class="o">(</span>grep -Po <span class="s2">&quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot;</span> /etc/fstab<span class="o">)</span>
+</code></pre></div>
+<p>Setup portage hook:</p>
+<div class="highlight"><pre><span></span><code>mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /root/portage_hook_kernel /etc/portage/env/sys-kernel/linux-firmware <span class="o">&amp;&amp;</span> <span class="se">\</span>
+rm -f /root/portage_hook_kernel <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s1">&#39;if [[ ${EBUILD_PHASE} == postinst ]]; then</span>
+<span class="s1">    while read -r my_esp; do</span>
+<span class="s1">        bootctl --esp-path=&quot;/${my_esp}&quot; --no-variables --graceful update &amp;&amp; \</span>
+<span class="s1">        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output &quot;/${my_esp}/EFI/systemd/systemd-bootx64.efi&quot; &quot;/${my_esp}/EFI/systemd/systemd-bootx64.efi&quot; &amp;&amp; \</span>
+<span class="s1">        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output &quot;/${my_esp}/EFI/BOOT/BOOTX64.EFI&quot; &quot;/${my_esp}/EFI/BOOT/BOOTX64.EFI&quot;</span>
+
+<span class="s1">        if [[ $? -ne 0 ]]; then</span>
+<span class="s1">cat &lt;&lt;EOF</span>
+
+<span class="s1">  ___________________________</span>
+<span class="s1">&lt; Failed to Secure Boot sign! &gt;</span>
+<span class="s1">  ---------------------------</span>
+<span class="s1">         \   ^__^ </span>
+<span class="s1">          \  (oo)\_______</span>
+<span class="s1">             (__)\       )\/\\</span>
+<span class="s1">                 ||----w |</span>
+<span class="s1">                 ||     ||</span>
+
+<span class="s1">EOF</span>
+<span class="s1">        fi</span>
+<span class="s1">    done &lt; &lt;(grep -Po &quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot; /etc/fstab)</span>
+<span class="s1">fi&#39;</span> &gt; /etc/portage/env/sys-apps/systemd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
+<p>Microcode updates are not necessary for virtual systems. Otherwise, install <code>sys-firmware/intel-microcode</code> if you have an Intel CPU. Or, follow the <a href="https://wiki.gentoo.org/wiki/AMD_microcode">Gentoo wiki instruction</a> to update the microcode on AMD systems.</p>
+<div class="highlight"><pre><span></span><code>! grep -q -w <span class="s2">&quot;hypervisor&quot;</span> &lt;<span class="o">(</span>grep <span class="s2">&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+grep -q <span class="s2">&quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel</span>$<span class="s2">&quot;</span> /proc/cpuinfo <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode intel-ucode&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode hostonly&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge -at sys-firmware/intel-microcode<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
+<p>Setup <code>sys-kernel/dracut</code> (copy&amp;paste one after the other):</p>
+<div class="highlight"><pre><span></span><code>emerge -at sys-kernel/dracut
+
+<span class="nv">rescue_uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devRescue <span class="p">|</span> tr -d <span class="s1">&#39;-&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">system_uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">my_crypt_root</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devSystem* <span class="p">|</span> sed <span class="s1">&#39;s/^/rd.luks.uuid=/&#39;</span> <span class="p">|</span> paste -d <span class="s2">&quot; &quot;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nv">my_crypt_swap</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devSwap* <span class="p">|</span> sed <span class="s1">&#39;s/^/rd.luks.uuid=/&#39;</span> <span class="p">|</span> paste -d <span class="s2">&quot; &quot;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># If you intend to use systemd-cryptenroll, define this variable:</span>
+<span class="c1"># my_systemd_cryptenroll=&quot;,tpm2-device=auto&quot;</span>
+
+cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/dracut.conf</span>
+
+<span class="s">hostonly=no</span>
+<span class="s">hostonly_cmdline=yes</span>
+<span class="s">use_fstab=yes</span>
+<span class="s">#compress=xz</span>
+<span class="s">show_modules=yes</span>
+
+<span class="s">uefi=yes</span>
+<span class="s">early_microcode=yes</span>
+<span class="s">uefi_stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub</span>
+<span class="s">uefi_secureboot_cert=/etc/gentoo-installation/secureboot/db.crt</span>
+<span class="s">uefi_secureboot_key=/etc/gentoo-installation/secureboot/db.key</span>
+<span class="s">CMDLINE=(</span>
+<span class="s">  ro</span>
+<span class="s">  root=UUID=${system_uuid}</span>
+<span class="s">  ${my_crypt_root}</span>
+<span class="s">  ${my_crypt_swap}</span>
+<span class="s">  rd.luks.options=password-echo=no${my_systemd_cryptenroll}</span>
+<span class="s">  rootfstype=btrfs</span>
+<span class="s">  rootflags=subvol=@root</span>
+<span class="s">  mitigations=auto,nosmt</span>
+<span class="s">)</span>
+<span class="s">kernel_cmdline=&quot;\${CMDLINE[*]}&quot;</span>
+<span class="s">unset CMDLINE</span>
+<span class="s">EOF</span>
+</code></pre></div>
+<p>Install tools required for booting:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">install_lts_kernel</span><span class="o">=</span><span class="s2">&quot;true&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
 <span class="nb">echo</span> <span class="s2">&quot;sys-fs/btrfs-progs ~amd64</span>
 <span class="s2">sys-kernel/gentoo-kernel-bin ~amd64</span>
@@ -651,18 +767,14 @@ cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/portage/package.mask/main</span>
 <span class="s">EOF</span>
 <span class="k">fi</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
 <span class="nb">echo</span> <span class="s2">&quot;sys-fs/btrfs-progs -convert&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-kernel/gentoo-kernel-bin -initramfs&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 <span class="nb">echo</span> <span class="s2">&quot;sys-kernel/linux-firmware linux-fw-redistributable no-source-code&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge sys-fs/btrfs-progs <span class="k">$(if</span> <span class="o">[[</span> -e /devSwapb <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> -n <span class="s2">&quot;sys-fs/mdadm&quot;</span><span class="p">;</span> <span class="k">fi)</span> sys-kernel/linux-firmware <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge -at sys-fs/btrfs-progs <span class="k">$(if</span> <span class="o">[[</span> -e /devSwapb <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> -n <span class="s2">&quot;sys-fs/mdadm&quot;</span><span class="p">;</span> <span class="k">fi)</span> sys-kernel/gentoo-kernel-bin sys-kernel/linux-firmware<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+emerge -at sys-fs/btrfs-progs <span class="k">$(if</span> <span class="o">[[</span> -e /devSwapb <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> -n <span class="s2">&quot;sys-fs/mdadm&quot;</span><span class="p">;</span> <span class="k">fi)</span> sys-kernel/linux-firmware
 </code></pre></div>
-<h2 id="65-additional-packages">6.5. Additional Packages<a class="headerlink" href="#65-additional-packages" title="Permanent link">&para;</a></h2>
-<p>Microcode updates are not necessary for virtual systems. Otherwise, install <code>sys-firmware/intel-microcode</code> if you have an Intel CPU. Or, follow the <a href="https://wiki.gentoo.org/wiki/AMD_microcode">Gentoo wiki instruction</a> to update the microcode on AMD systems.</p>
-<div class="highlight"><pre><span></span><code>! grep -q -w <span class="s2">&quot;hypervisor&quot;</span> &lt;<span class="o">(</span>grep <span class="s2">&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-grep -q <span class="s2">&quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel</span>$<span class="s2">&quot;</span> /proc/cpuinfo <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode intel-ucode&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode -* hostonly initramfs&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge -at sys-firmware/intel-microcode<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+<p>Install the <a href="https://www.kernel.org/category/releases.html">kernel</a>:</p>
+<div class="highlight"><pre><span></span><code>emerge -at sys-kernel/gentoo-kernel-bin
 </code></pre></div>
+<h2 id="66-additional-packages">6.6. Additional Packages<a class="headerlink" href="#66-additional-packages" title="Permanent link">&para;</a></h2>
 <p>Set <code>/etc/hosts</code>:</p>
 <div class="highlight"><pre><span></span><code>rsync -a /etc/hosts /etc/._cfg0000_hosts <span class="o">&amp;&amp;</span> <span class="se">\</span>
 sed -i <span class="s1">&#39;s/localhost$/localhost micro/&#39;</span> /etc/._cfg0000_hosts
@@ -824,13 +936,13 @@ chown david:david /home/david/.ssh/config<span class="p">;</span> <span class="n
       
       
         
-        <a href="../boot_setup/" class="md-footer__link md-footer__link--next" aria-label="Next: 7. Boot Setup" rel="next">
+        <a href="../cleanup_and_reboot/" class="md-footer__link md-footer__link--next" aria-label="Next: 7. Cleanup And Reboot" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              7. Boot Setup
+              7. Cleanup And Reboot
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -863,7 +975,7 @@ chown david:david /home/david/.ssh/config<span class="p">;</span> <span class="n
     <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
       
     
   </body>
