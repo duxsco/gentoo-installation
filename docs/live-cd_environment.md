@@ -1,7 +1,3 @@
-!!! bug "TODO: Rescue systemd currently not usable"
-    Currently, the rescue system is not usable. Some changes are required for the rescue system to boot with systemd-boot. These changes will follow soon.
-
-
 In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/), **not** the official Gentoo Linux installation CD. If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole code block, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
 
 Boot into SystemRescueCD and set the correct keyboard layout:

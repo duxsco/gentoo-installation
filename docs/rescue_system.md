@@ -1,3 +1,6 @@
+!!! bug "TODO: Rescue systemd currently not usable"
+    Currently, the rescue system is not usable. Some changes are required for the rescue system to boot with systemd-boot. These changes will follow soon.
+
 While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.
 
 ## 4.1. Downloads And Verification
