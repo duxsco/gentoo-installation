@@ -1,5 +1,5 @@
-!!! bug "TODO: Rescue systemd currently not usable"
-    Currently, the rescue system is not usable. Some changes are required for the rescue system to boot with systemd-boot. These changes will follow soon.
+!!! info
+    A [feature request](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292) has been opened to get the rescue system support "measured boot".
 
 While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.
 
@@ -210,4 +210,25 @@ mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue
 mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ && \
 umount /mnt/iso; echo $?
+```
+
+## 4.5 Kernel Installation
+
+Setup the unified kernel image:
+
+```bash
+# FYI, rd.luks.options=... currently doesn't take effect due to missing sd-encrypt.
+echo "cryptdevice=UUID=$(blkid -s UUID -o value /mnt/gentoo/devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y rd.luks.options=password-echo=no,tpm2-device=auto" > /tmp/my_cmdline && \
+objcopy \
+  --add-section .osrel="/usr/lib/os-release" --change-section-vma .osrel=0x20000 \
+  --add-section .cmdline="/tmp/my_cmdline" --change-section-vma .cmdline=0x30000 \
+  --add-section .linux="/mnt/gentoo/mnt/rescue/sysresccd/boot/x86_64/vmlinuz" --change-section-vma .linux=0x2000000 \
+  --add-section .initrd="/mnt/gentoo/mnt/rescue/sysresccd/boot/x86_64/sysresccd.img" --change-section-vma .initrd=0x3000000 \
+  "/usr/lib/systemd/boot/efi/linuxx64.efi.stub" "/tmp/systemrescuecd.efi" && \
+while read -r my_esp; do
+  mkdir "${my_esp/devE/e}" && \
+  mount -o noatime,dmask=0022,fmask=0133 "${my_esp}" "${my_esp/devE/e}" && \
+  rsync -av "/tmp/systemrescuecd.efi" "${my_esp/devE/e}/"
+  echo $?
+done < <(find /mnt/gentoo/devEfi* -maxdepth 0)
 ```

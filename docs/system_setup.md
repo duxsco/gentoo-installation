@@ -160,11 +160,7 @@ UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,
 UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home          0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0
 UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0" | column -o " " -t >> /etc/fstab && \
-find /devEfi* -maxdepth 0 | while read -r i; do
-  mkdir "${i/devE/e}"
-  mount "${i/devE/e}"
-done; echo $?
+UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0" | column -o " " -t >> /etc/fstab; echo $?
 ```
 
 ## 6.4. Secure Boot
@@ -228,6 +224,12 @@ popd; echo $?
 
 ## 6.5. Kernel Installation
 
+Install `sys-boot/efibootmgr`:
+
+```bash
+emerge -at sys-boot/efibootmgr
+```
+
 Setup ESP(s):
 
 ```bash
@@ -236,8 +238,10 @@ while read -r my_esp; do
   efibootmgr -b "$(efibootmgr -v | grep -Po "^Boot\K[0-9]+(?=\*[[:space:]]+Linux Boot Manager[[:space:]]+)")" -B && \
   efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "/${my_esp/efi/devEfi}")")" --part 1 --label "gentoo31415efi ${my_esp}" --loader '\EFI\systemd\systemd-bootx64.efi' && \
   echo -e "timeout 10\neditor no" > "/${my_esp}/loader/loader.conf" && \
+  mv "/${my_esp}/systemrescuecd.efi" "/${my_esp}/EFI/Linux/" && \
   sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/${my_esp}/EFI/BOOT/BOOTX64.EFI"
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/Linux/systemrescuecd.efi" "/${my_esp}/EFI/Linux/systemrescuecd.efi"
   echo $?
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 ```
