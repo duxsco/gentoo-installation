@@ -45,10 +45,16 @@ chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 
 ## 4.2. Configuration
 
-Create folder structure and `authorized_keys` file (copy&paste one after the other):
+Create folder structure:
 
 ```bash
-mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},root/.ssh,usr/local/sbin}},work}
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},usr/local/sbin}},work}
+```
+
+I you want to be able to access Gentoo Linux as well as the rescue system via SSH do (copy&paste one after the other):
+
+```bash
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 
 # add your ssh public keys to
 # /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
@@ -58,7 +64,7 @@ chmod u=rwx,g=rx,o= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/bu
 chmod -R u=rwX,go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 ```
 
-Configure OpenSSH:
+Configure OpenSSH if you decided to setup public key authentication in the previous step:
 
 ```bash
 rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
