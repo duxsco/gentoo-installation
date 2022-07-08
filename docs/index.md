@@ -4,7 +4,7 @@
     Don't blindly copy&paste the commands! Understand what you are going to do and adjust commands if required! I point this out, even though it should go without saying...
 
 !!! info "System Requirements"
-    The installation guide builds heavily on `Secure Boot` and requires `TPM 2.0` for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on depending on the hardware in use. For this, you can follow the instructions in section "10.1. Secure Boot Setup".
+    The installation guide builds heavily on `Secure Boot` and requires `TPM 2.0` for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on depending on the hardware in use. For this, you can follow the instructions in section [8.3. Secure Boot Setup](/post-boot_configuration/#83-secure-boot-setup).
 
 ## 1.2. Technologies
 
