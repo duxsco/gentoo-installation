@@ -221,17 +221,14 @@ echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf; echo $?
 Enable newer version with required bug fixes and features:
 
 ```bash
-echo "=sys-kernel/dracut-056-r1 ~amd64
-=sys-apps/systemd-251.2 ~amd64" >> /etc/portage/package.accept_keywords/main
+echo "=sys-apps/systemd-251.2 ~amd64" >> /etc/portage/package.accept_keywords/main
 ```
 
-Update and make sure `sys-kernel/dracut` as well as `sys-apps/systemd` got updated:
+Update and make sure `sys-apps/systemd` got updated:
 
 ```bash
 emerge -atuDN @world
 ```
-
-Reboot your system!
 
 Make sure that TPM 2.0 devices (should only be one) are recognised:
 
@@ -253,10 +250,10 @@ Create new LUKS keyslots on all swap and system partitions.
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
 #
 # "--tpm2-with-pin=yes" is optional.
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sda3
 systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sda4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sda5
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sdb3
 systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sdb4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sdb5
 # etc.
 ```
 
@@ -265,6 +262,8 @@ Remove overlay directory containing `app-crypt/clevis`:
 ```bash
 rm -rf /root/localrepo
 ```
+
+Reboot your system!
 
 ### 8.4.1.b) clevis
 
