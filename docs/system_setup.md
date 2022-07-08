@@ -13,7 +13,7 @@ sed -i \
 Install to be able to configure `/etc/portage/make.conf`:
 
 ```bash
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-portage/cpuid2cpuflags
+emerge -1 app-portage/cpuid2cpuflags
 ```
 
 Configure portage (copy&paste one after the other):
