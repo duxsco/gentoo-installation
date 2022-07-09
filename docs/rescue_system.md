@@ -214,15 +214,31 @@ umount /mnt/iso; echo $?
 
 ## 4.5 Kernel Installation
 
+Download `mkinitcpio.conf` and check the file thereafter:
+
+```bash
+su -l meh -c '
+rescue_system_version="$(curl -fsS --proto "=https" --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION)" && \
+curl -fsS --proto "=https" --tlsv1.3 "https://gitlab.com/systemrescue/systemrescue-sources/-/raw/${rescue_system_version}/mkinitcpio.conf" | sed -e "s/ encrypt / sd-encrypt /" -e "s/ udev / systemd /" > /tmp/mkinitcpio.conf && \
+b2sum -c <<<"79d00bc08bb344e9bc5e5dc4c9218bd1e76a01fc3149cdb209d3dd760d72b2235bba3a6e57850df4143ca12d44addc30dc728572640419221efd3c1b14b0045d  /tmp/mkinitcpio.conf"; echo $?
+'
+```
+
+Create a new initramfs:
+
+```bash
+mkinitcpio --config /tmp/mkinitcpio.conf --generate /tmp/sysresccd.img
+```
+
 Setup the unified kernel image:
 
 ```bash
-echo "cryptdevice=UUID=$(blkid -s UUID -o value /mnt/gentoo/devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y" > /tmp/my_cmdline && \
+echo "rd.luks.uuid=$(blkid -s UUID -o value /mnt/gentoo/devRescue) root=UUID=$(blkid -s UUID -o value /mnt/gentoo/mapperRescue) archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y rd.luks.options=password-echo=no,tpm2-device=auto" > /tmp/my_cmdline && \
 objcopy \
   --add-section .osrel="/usr/lib/os-release" --change-section-vma .osrel=0x20000 \
   --add-section .cmdline="/tmp/my_cmdline" --change-section-vma .cmdline=0x30000 \
   --add-section .linux="/mnt/gentoo/mnt/rescue/sysresccd/boot/x86_64/vmlinuz" --change-section-vma .linux=0x2000000 \
-  --add-section .initrd="/mnt/gentoo/mnt/rescue/sysresccd/boot/x86_64/sysresccd.img" --change-section-vma .initrd=0x3000000 \
+  --add-section .initrd="/tmp/sysresccd.img" --change-section-vma .initrd=0x3000000 \
   "/usr/lib/systemd/boot/efi/linuxx64.efi.stub" "/tmp/systemrescuecd.efi" && \
 while read -r my_esp; do
   mkdir "${my_esp/devE/e}" && \
