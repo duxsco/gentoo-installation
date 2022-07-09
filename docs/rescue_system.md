@@ -217,8 +217,7 @@ umount /mnt/iso; echo $?
 Setup the unified kernel image:
 
 ```bash
-# FYI, rd.luks.options=... currently doesn't take effect due to missing sd-encrypt.
-echo "cryptdevice=UUID=$(blkid -s UUID -o value /mnt/gentoo/devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y rd.luks.options=password-echo=no,tpm2-device=auto" > /tmp/my_cmdline && \
+echo "cryptdevice=UUID=$(blkid -s UUID -o value /mnt/gentoo/devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y" > /tmp/my_cmdline && \
 objcopy \
   --add-section .osrel="/usr/lib/os-release" --change-section-vma .osrel=0x20000 \
   --add-section .cmdline="/tmp/my_cmdline" --change-section-vma .cmdline=0x30000 \
