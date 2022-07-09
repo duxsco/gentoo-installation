@@ -718,7 +718,6 @@ emerge -at sys-firmware/intel-microcode<span class="p">;</span> <span class="nb"
 <p>Setup <code>sys-kernel/dracut</code> (copy&amp;paste one after the other):</p>
 <div class="highlight"><pre><span></span><code>emerge -at sys-kernel/dracut
 
-<span class="nv">rescue_uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devRescue <span class="p">|</span> tr -d <span class="s1">&#39;-&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
 <span class="nv">system_uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2">&quot;</span>
 <span class="nv">my_crypt_root</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devSystem* <span class="p">|</span> sed <span class="s1">&#39;s/^/rd.luks.uuid=/&#39;</span> <span class="p">|</span> paste -d <span class="s2">&quot; &quot;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
 <span class="nv">my_crypt_swap</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devSwap* <span class="p">|</span> sed <span class="s1">&#39;s/^/rd.luks.uuid=/&#39;</span> <span class="p">|</span> paste -d <span class="s2">&quot; &quot;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
