@@ -120,11 +120,10 @@ while read -r partition; do
         luks_password="${rescue_password}"
     else
         luks_password="${fallback_password}"
-        pbkdf="--pbkdf argon2id"
     fi
 
     # shellcheck disable=SC2086
-    echo -n "${luks_password}" | cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --use-random ${pbkdf:---pbkdf pbkdf2} "${partition}"
+    echo -n "${luks_password}" | cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --use-random --pbkdf argon2id "${partition}"
     echo -n "${luks_password}" | cryptsetup luksOpen "${partition}" "${partition##*\/}"
 
     index=$((index+1))
