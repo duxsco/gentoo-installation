@@ -293,7 +293,6 @@ Setup `sys-kernel/dracut` (copy&paste one after the other):
 ```bash
 emerge -at sys-kernel/dracut
 
-rescue_uuid="$(blkid -s UUID -o value /devRescue | tr -d '-')"
 system_uuid="$(blkid -s UUID -o value /mapperSystem)"
 my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
 my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
