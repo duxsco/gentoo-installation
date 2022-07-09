@@ -311,6 +311,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#45-kernel-installation" class="md-nav__link">
+    4.5 Kernel Installation
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -446,6 +453,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#45-kernel-installation" class="md-nav__link">
+    4.5 Kernel Installation
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -466,9 +480,9 @@
 
   <h1>4. Rescue System</h1>
 
-<div class="admonition bug">
-<p class="admonition-title">TODO: Rescue systemd currently not usable</p>
-<p>Currently, the rescue system is not usable. Some changes are required for the rescue system to boot with systemd-boot. These changes will follow soon.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>A <a href="https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292">feature request</a> has been opened to get the rescue system support "measured boot".</p>
 </div>
 <p>While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.</p>
 <h2 id="41-downloads-and-verification">4.1. Downloads And Verification<a class="headerlink" href="#41-downloads-and-verification" title="Permanent link">&para;</a></h2>
@@ -499,8 +513,11 @@ su -l meh -c <span class="s2">&quot;</span>
 chown -R <span class="m">0</span>:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <h2 id="42-configuration">4.2. Configuration<a class="headerlink" href="#42-configuration" title="Permanent link">&para;</a></h2>
-<p>Create folder structure and <code>authorized_keys</code> file (copy&amp;paste one after the other):</p>
-<div class="highlight"><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/<span class="o">{</span>recipe/<span class="o">{</span>iso_delete,iso_add/<span class="o">{</span>autorun,sysresccd,sysrescue.d<span class="o">}</span>,iso_patch_and_script,build_into_srm/<span class="o">{</span>etc/<span class="o">{</span>ssh,sysctl.d<span class="o">}</span>,root/.ssh,usr/local/sbin<span class="o">}}</span>,work<span class="o">}</span>
+<p>Create folder structure:</p>
+<div class="highlight"><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/<span class="o">{</span>recipe/<span class="o">{</span>iso_delete,iso_add/<span class="o">{</span>autorun,sysresccd,sysrescue.d<span class="o">}</span>,iso_patch_and_script,build_into_srm/<span class="o">{</span>etc/<span class="o">{</span>ssh,sysctl.d<span class="o">}</span>,usr/local/sbin<span class="o">}}</span>,work<span class="o">}</span>
+</code></pre></div>
+<p>I you want to be able to access Gentoo Linux as well as the rescue system via SSH do (copy&amp;paste one after the other):</p>
+<div class="highlight"><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 
 <span class="c1"># add your ssh public keys to</span>
 <span class="c1"># /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys</span>
@@ -509,7 +526,7 @@ chown -R <span class="m">0</span>:0 /mnt/gentoo/etc/gentoo-installation/systemre
 chmod <span class="nv">u</span><span class="o">=</span>rwx,g<span class="o">=</span>rx,o<span class="o">=</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
 chmod -R <span class="nv">u</span><span class="o">=</span>rwX,go<span class="o">=</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 </code></pre></div>
-<p>Configure OpenSSH:</p>
+<p>Configure OpenSSH if you decided to setup public key authentication in the previous step:</p>
 <div class="highlight"><pre><span></span><code>rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
 <span class="c1"># do some ssh server hardening</span>
@@ -576,7 +593,7 @@ rsync -av --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:
 <div class="highlight"><pre><span></span><code>find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name <span class="s2">&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class="o">{}</span> <span class="se">\;</span>
 </code></pre></div>
 <p>Integrate additional packages:</p>
-<div class="highlight"><pre><span></span><code>pacman -Sy clevis libpwquality luksmeta tpm2-tools <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<div class="highlight"><pre><span></span><code>pacman -Sy clevis libpwquality luksmeta sbsigntools tpm2-tools <span class="o">&amp;&amp;</span> <span class="se">\</span>
 cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <h2 id="43-folder-structure">4.3. Folder Structure<a class="headerlink" href="#43-folder-structure" title="Permanent link">&para;</a></h2>
@@ -625,6 +642,23 @@ mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue
 mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue <span class="o">&amp;&amp;</span> <span class="se">\</span>
 rsync -HAXSacv --delete /mnt/iso/<span class="o">{</span>autorun,sysresccd,sysrescue.d<span class="o">}</span> /mnt/gentoo/mnt/rescue/ <span class="o">&amp;&amp;</span> <span class="se">\</span>
 umount /mnt/iso<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
+<h2 id="45-kernel-installation">4.5 Kernel Installation<a class="headerlink" href="#45-kernel-installation" title="Permanent link">&para;</a></h2>
+<p>Setup the unified kernel image:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># FYI, rd.luks.options=... currently doesn&#39;t take effect due to missing sd-encrypt.</span>
+<span class="nb">echo</span> <span class="s2">&quot;cryptdevice=UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mnt/gentoo/devRescue<span class="k">)</span><span class="s2">:root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y rd.luks.options=password-echo=no,tpm2-device=auto&quot;</span> &gt; /tmp/my_cmdline <span class="o">&amp;&amp;</span> <span class="se">\</span>
+objcopy <span class="se">\</span>
+  --add-section .osrel<span class="o">=</span><span class="s2">&quot;/usr/lib/os-release&quot;</span> --change-section-vma .osrel<span class="o">=</span>0x20000 <span class="se">\</span>
+  --add-section .cmdline<span class="o">=</span><span class="s2">&quot;/tmp/my_cmdline&quot;</span> --change-section-vma .cmdline<span class="o">=</span>0x30000 <span class="se">\</span>
+  --add-section .linux<span class="o">=</span><span class="s2">&quot;/mnt/gentoo/mnt/rescue/sysresccd/boot/x86_64/vmlinuz&quot;</span> --change-section-vma .linux<span class="o">=</span>0x2000000 <span class="se">\</span>
+  --add-section .initrd<span class="o">=</span><span class="s2">&quot;/mnt/gentoo/mnt/rescue/sysresccd/boot/x86_64/sysresccd.img&quot;</span> --change-section-vma .initrd<span class="o">=</span>0x3000000 <span class="se">\</span>
+  <span class="s2">&quot;/usr/lib/systemd/boot/efi/linuxx64.efi.stub&quot;</span> <span class="s2">&quot;/tmp/systemrescuecd.efi&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="k">while</span> <span class="nb">read</span> -r my_esp<span class="p">;</span> <span class="k">do</span>
+  mkdir <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  mount -o noatime,dmask<span class="o">=</span><span class="m">0022</span>,fmask<span class="o">=</span><span class="m">0133</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  rsync -av <span class="s2">&quot;/tmp/systemrescuecd.efi&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">/&quot;</span>
+  <span class="nb">echo</span> <span class="nv">$?</span>
+<span class="k">done</span> &lt; &lt;<span class="o">(</span>find /mnt/gentoo/devEfi* -maxdepth <span class="m">0</span><span class="o">)</span>
 </code></pre></div>
 
               

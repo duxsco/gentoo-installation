@@ -503,7 +503,7 @@ sed -i <span class="se">\</span>
 /etc/._cfg0000_dispatch-conf.conf
 </code></pre></div>
 <p>Install to be able to configure <code>/etc/portage/make.conf</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">ACCEPT_KEYWORDS</span><span class="o">=</span>~amd64 emerge -1 app-portage/cpuid2cpuflags
+<div class="highlight"><pre><span></span><code>emerge -1 app-portage/cpuid2cpuflags
 </code></pre></div>
 <p>Configure portage (copy&amp;paste one after the other):</p>
 <div class="highlight"><pre><span></span><code>rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
@@ -612,11 +612,7 @@ env-update <span class="o">&amp;&amp;</span> <span class="nb">source</span> /etc
 <span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /home                btrfs noatime,subvol=@home          0 0</span>
 <span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0</span>
 <span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0</span>
-<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0&quot;</span> <span class="p">|</span> column -o <span class="s2">&quot; &quot;</span> -t &gt;&gt; /etc/fstab <span class="o">&amp;&amp;</span> <span class="se">\</span>
-find /devEfi* -maxdepth <span class="m">0</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
-  mkdir <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span>
-  mount <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="k">done</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0&quot;</span> <span class="p">|</span> column -o <span class="s2">&quot; &quot;</span> -t &gt;&gt; /etc/fstab<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <h2 id="64-secure-boot">6.4. Secure Boot<a class="headerlink" href="#64-secure-boot" title="Permanent link">&para;</a></h2>
 <p>Credits:</p>
@@ -667,14 +663,19 @@ chattr +i /sys/firmware/efi/efivars/<span class="o">{</span>PK,KEK,db,dbx<span c
 popd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <h2 id="65-kernel-installation">6.5. Kernel Installation<a class="headerlink" href="#65-kernel-installation" title="Permanent link">&para;</a></h2>
+<p>Install <code>sys-boot/efibootmgr</code>:</p>
+<div class="highlight"><pre><span></span><code>emerge -at sys-boot/efibootmgr
+</code></pre></div>
 <p>Setup ESP(s):</p>
 <div class="highlight"><pre><span></span><code><span class="k">while</span> <span class="nb">read</span> -r my_esp<span class="p">;</span> <span class="k">do</span>
   bootctl --esp-path<span class="o">=</span><span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> install <span class="o">&amp;&amp;</span> <span class="se">\</span>
   efibootmgr -b <span class="s2">&quot;</span><span class="k">$(</span>efibootmgr -v <span class="p">|</span> grep -Po <span class="s2">&quot;^Boot\K[0-9]+(?=\*[[:space:]]+Linux Boot Manager[[:space:]]+)&quot;</span><span class="k">)</span><span class="s2">&quot;</span> -B <span class="o">&amp;&amp;</span> <span class="se">\</span>
   efibootmgr --create --disk <span class="s2">&quot;/dev/</span><span class="k">$(</span>lsblk -ndo pkname <span class="s2">&quot;</span><span class="k">$(</span>readlink -f <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/efi/devEfi</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span> --part <span class="m">1</span> --label <span class="s2">&quot;gentoo31415efi </span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> --loader <span class="s1">&#39;\EFI\systemd\systemd-bootx64.efi&#39;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
   <span class="nb">echo</span> -e <span class="s2">&quot;timeout 10\neditor no&quot;</span> &gt; <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/loader/loader.conf&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  mv <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/systemrescuecd.efi&quot;</span> <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/Linux/&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
   sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/systemd/systemd-bootx64.efi&quot;</span> <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/systemd/systemd-bootx64.efi&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/BOOT/BOOTX64.EFI&quot;</span> <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/BOOT/BOOTX64.EFI&quot;</span>
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/BOOT/BOOTX64.EFI&quot;</span> <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/BOOT/BOOTX64.EFI&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/Linux/systemrescuecd.efi&quot;</span> <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/Linux/systemrescuecd.efi&quot;</span>
   <span class="nb">echo</span> <span class="nv">$?</span>
 <span class="k">done</span> &lt; &lt;<span class="o">(</span>grep -Po <span class="s2">&quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot;</span> /etc/fstab<span class="o">)</span>
 </code></pre></div>

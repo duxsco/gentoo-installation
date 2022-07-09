@@ -705,13 +705,11 @@ emerge -av tpm2-tools
 <span class="err">&#39;</span>
 </code></pre></div>
 <p>Enable newer version with required bug fixes and features:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=sys-kernel/dracut-056-r1 ~amd64</span>
-<span class="s2">=sys-apps/systemd-251.2 ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=sys-apps/systemd-251.2 ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main
 </code></pre></div>
-<p>Update and make sure <code>sys-kernel/dracut</code> as well as <code>sys-apps/systemd</code> got updated:</p>
+<p>Update and make sure <code>sys-apps/systemd</code> got updated:</p>
 <div class="highlight"><pre><span></span><code>emerge -atuDN @world
 </code></pre></div>
-<p>Reboot your system!</p>
 <p>Make sure that TPM 2.0 devices (should only be one) are recognised:</p>
 <div class="highlight"><pre><span></span><code>systemd-cryptenroll --tpm2-device<span class="o">=</span>list
 </code></pre></div>
@@ -724,15 +722,16 @@ emerge -av tpm2-tools
 <span class="c1"># https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2</span>
 <span class="c1">#</span>
 <span class="c1"># &quot;--tpm2-with-pin=yes&quot; is optional.</span>
+systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sda3
 systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sda4
-systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sda5
+systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sdb3
 systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sdb4
-systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span class="o">=</span><span class="m">0</span>+1+2+3+4+6+7 --tpm2-with-pin<span class="o">=</span>yes /dev/sdb5
 <span class="c1"># etc.</span>
 </code></pre></div>
 <p>Remove overlay directory containing <code>app-crypt/clevis</code>:</p>
 <div class="highlight"><pre><span></span><code>rm -rf /root/localrepo
 </code></pre></div>
+<p>Reboot your system!</p>
 <h3 id="841b-clevis">8.4.1.b) clevis<a class="headerlink" href="#841b-clevis" title="Permanent link">&para;</a></h3>
 <p>If you don't have a DHCP server running the new system has access to, add <a href="https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN">the following network settings</a> to the <code>CMDLINE</code> array variable in <code>/etc/dracut.conf</code>:</p>
 <div class="highlight"><pre><span></span><code>ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
