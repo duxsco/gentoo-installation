@@ -246,6 +246,16 @@ while read -r my_esp; do
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 ```
 
+Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
+
+```bash
+! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
+echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
+echo "sys-firmware/intel-microcode hostonly" >> /etc/portage/package.use/main && \
+emerge -at sys-firmware/intel-microcode; echo $?
+```
+
 Setup portage hook:
 
 ```bash
@@ -276,16 +286,6 @@ EOF
         fi
     done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 fi' > /etc/portage/env/sys-apps/systemd; echo $?
-```
-
-Microcode updates are not necessary for virtual systems. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
-
-```bash
-! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
-grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
-echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
-echo "sys-firmware/intel-microcode hostonly" >> /etc/portage/package.use/main && \
-emerge -at sys-firmware/intel-microcode; echo $?
 ```
 
 Setup `sys-kernel/dracut` (copy&paste one after the other):
