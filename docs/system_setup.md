@@ -151,17 +151,20 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 Setup /etc/fstab:
 
 ```bash
-echo "" >> /etc/fstab
+SWAP_UUID="$(blkid -s UUID -o value /mapperSwap)" && \
+SYSTEM_UUID="$(blkid -s UUID -o value /mapperSystem)" && \
+echo "" >> /etc/fstab && \
 echo "
 $(find /devEfi* -maxdepth 0 | while read -r i; do
-  echo "UUID=$(blkid -s UUID -o value "$i")  ${i/devE/e}          vfat  noatime,dmask=0022,fmask=0133 0 0"
+  echo "UUID=$(blkid -s UUID -o value "$i") ${i/devE/e} vfat noatime,dmask=0022,fmask=0133 0 0"
 done)
-UUID=$(blkid -s UUID -o value /mapperSwap)   none                 swap  sw                            0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /                    btrfs noatime,subvol=@root          0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /home                btrfs noatime,subvol=@home          0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0
-UUID=$(blkid -s UUID -o value /mapperSystem) /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0" | column -o " " -t >> /etc/fstab; echo $?
+UUID=${SWAP_UUID}   none                 swap  sw                        0 0
+UUID=${SYSTEM_UUID} /                    btrfs noatime,subvol=@root      0 0
+UUID=${SYSTEM_UUID} /home                btrfs noatime,subvol=@home      0 0
+UUID=${SYSTEM_UUID} /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs   0 0
+UUID=${SYSTEM_UUID} /var/cache/distfiles btrfs noatime,subvol=@distfiles 0 0
+UUID=${SYSTEM_UUID} /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0
+" | column -o " " -t >> /etc/fstab; echo $?
 ```
 
 ## 6.4. Secure Boot
