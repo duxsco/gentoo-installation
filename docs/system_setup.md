@@ -131,14 +131,15 @@ Setup vim:
 
 ```bash
 USE="-verify-sig" emerge -1 dev-libs/libsodium && \
-emerge -1 dev-libs/libsodium app-editors/vim && \
-emerge --select --noreplace app-editors/vim && \
+emerge -1 dev-libs/libsodium app-editors/vim app-vim/molokai && \
+emerge --select --noreplace app-editors/vim app-vim/molokai && \
 sed -i 's/^USE="\([^"]*\)"$/USE="\1 vim-syntax"/' /etc/portage/make.conf && \
 echo "filetype plugin on
 filetype indent on
 set number
 set paste
-syntax on" | tee -a /root/.vimrc >> /home/david/.vimrc  && \
+syntax on
+colorscheme molokai" | tee -a /root/.vimrc >> /home/david/.vimrc  && \
 chown david:david /home/david/.vimrc && \
 eselect editor set vi && \
 eselect vi set vim && \
