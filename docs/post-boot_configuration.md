@@ -167,7 +167,7 @@ Test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_
 
 ## 8.3. Secure Boot Setup
 
-If `efi-updatevar` failed in one of the previous sections, you can import Secure Boot files the following way.
+If `efi-updatevar` failed in [one of the previous sections](/system_setup/#64-secure-boot), you can import Secure Boot files the following way.
 
 First, boot into the Gentoo Linux and save necessary files in `DER` form:
 
@@ -267,7 +267,7 @@ Reboot your system!
 
 ### 8.4.1.b) clevis
 
-If you don't have a DHCP server running the new system has access to, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the `CMDLINE` array variable in `/etc/dracut.conf`:
+If you don't have a DHCP server avaiable to the new system, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the `CMDLINE` array variable in `/etc/dracut.conf`:
 
 ```
 ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
