@@ -245,15 +245,16 @@ tpm2_pcrread sha256
 Create new LUKS keyslots on all swap and system partitions.
 
 ```bash
-# Adjust PCR IDs, e.g.: --tpm2-pcrs=1+7
-# Further info can be found at:
+# I only use PCR7 as recommended in the first sentence after following table:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
 #
-# "--tpm2-with-pin=yes" is optional.
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sda3
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sda4
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sdb3
-systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=0+1+2+3+4+6+7 --tpm2-with-pin=yes /dev/sdb4
+# "--tpm2-with-pin=yes" is optional:
+# https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#--tpm2-with-pin=BOOL
+#
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sda3
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sda4
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sdb3
+systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sdb4
 # etc.
 ```
 
@@ -303,13 +304,13 @@ tpm2_pcrread sha256
 Bind all swap and system LUKS volumes.
 
 ```bash
-# Adjust PCR IDs, e.g.: "pcr_ids":"1,7"
-# Further info can be found at:
+# I only use PCR7 as recommended in the first sentence after following table:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-clevis luks bind -d /dev/sda4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sda5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sdb4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,6,7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sdb5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"0,1,2,3,4,6,7"}, "tang": {"url": "http://tang.local"}}}'
+#
+clevis luks bind -d /dev/sda4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sda5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sdb4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sdb5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
 # etc.
 ```
 
@@ -321,8 +322,6 @@ clevis luks list -d /dev/sda5
 clevis luks list -d /dev/sdb4
 clevis luks list -d /dev/sdb5
 # etc.
-# Sample output:
-# 1: tpm2 '{"hash":"sha256","key":"ecc","pcr_bank":"sha256","pcr_ids":"1,2,3,4,5,6,7"}'
 ```
 
 ### 8.4.2. Rebuild Unified Kernel Image
