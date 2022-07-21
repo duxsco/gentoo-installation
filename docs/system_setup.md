@@ -171,10 +171,8 @@ UUID=${SYSTEM_UUID} /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0
 
 Credits:
 
-- [https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd](https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd)
 - [https://www.funtoo.org/Secure_Boot](https://www.funtoo.org/Secure_Boot)
 - [https://www.rodsbooks.com/efi-bootloaders/secureboot.html](https://www.rodsbooks.com/efi-bootloaders/secureboot.html)
-- [https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot](https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot)
 - [https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot)
 
 In order to add your custom keys `Setup Mode` must have been enabled in your `UEFI Firmware Settings` before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling `Setup Mode`. In the following, however, you have to generate Secure Boot files either way.
