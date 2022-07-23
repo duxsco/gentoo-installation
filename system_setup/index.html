@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/system_setup/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.3.9">
     
     
       
@@ -587,14 +587,15 @@ emerge app-admin/sudo <span class="o">&amp;&amp;</span> <span class="se">\</span
 </code></pre></div>
 <p>Setup vim:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">USE</span><span class="o">=</span><span class="s2">&quot;-verify-sig&quot;</span> emerge -1 dev-libs/libsodium <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge -1 dev-libs/libsodium app-editors/vim <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge --select --noreplace app-editors/vim <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge -1 dev-libs/libsodium app-editors/vim app-vim/molokai <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge --select --noreplace app-editors/vim app-vim/molokai <span class="o">&amp;&amp;</span> <span class="se">\</span>
 sed -i <span class="s1">&#39;s/^USE=&quot;\([^&quot;]*\)&quot;$/USE=&quot;\1 vim-syntax&quot;/&#39;</span> /etc/portage/make.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
 <span class="nb">echo</span> <span class="s2">&quot;filetype plugin on</span>
 <span class="s2">filetype indent on</span>
 <span class="s2">set number</span>
 <span class="s2">set paste</span>
-<span class="s2">syntax on&quot;</span> <span class="p">|</span> tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="s2">syntax on</span>
+<span class="s2">colorscheme molokai&quot;</span> <span class="p">|</span> tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  <span class="o">&amp;&amp;</span> <span class="se">\</span>
 chown david:david /home/david/.vimrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
 eselect editor <span class="nb">set</span> vi <span class="o">&amp;&amp;</span> <span class="se">\</span>
 eselect vi <span class="nb">set</span> vim <span class="o">&amp;&amp;</span> <span class="se">\</span>
@@ -602,25 +603,26 @@ env-update <span class="o">&amp;&amp;</span> <span class="nb">source</span> /etc
 </code></pre></div>
 <h2 id="63-configuration-of-etcfstab">6.3. Configuration Of /etc/fstab<a class="headerlink" href="#63-configuration-of-etcfstab" title="Permanent link">&para;</a></h2>
 <p>Setup /etc/fstab:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;&quot;</span> &gt;&gt; /etc/fstab
+<div class="highlight"><pre><span></span><code><span class="nv">SWAP_UUID</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /mapperSwap<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nv">SYSTEM_UUID</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;&quot;</span> &gt;&gt; /etc/fstab <span class="o">&amp;&amp;</span> <span class="se">\</span>
 <span class="nb">echo</span> <span class="s2">&quot;</span>
 <span class="k">$(</span>find /devEfi* -maxdepth <span class="m">0</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
-  <span class="nb">echo</span> <span class="s2">&quot;UUID=</span><span class="k">$(</span>blkid -s UUID -o value <span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">  </span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">          vfat  noatime,dmask=0022,fmask=0133 0 0&quot;</span>
+  <span class="nb">echo</span> <span class="s2">&quot;UUID=</span><span class="k">$(</span>blkid -s UUID -o value <span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2"> </span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2"> vfat noatime,dmask=0022,fmask=0133 0 0&quot;</span>
 <span class="k">done)</span><span class="s2"></span>
-<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSwap<span class="k">)</span><span class="s2">   none                 swap  sw                            0 0</span>
-<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /                    btrfs noatime,subvol=@root          0 0</span>
-<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /home                btrfs noatime,subvol=@home          0 0</span>
-<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs       0 0</span>
-<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/cache/distfiles btrfs noatime,subvol=@distfiles     0 0</span>
-<span class="s2">UUID=</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2"> /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds       0 0&quot;</span> <span class="p">|</span> column -o <span class="s2">&quot; &quot;</span> -t &gt;&gt; /etc/fstab<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SWAP_UUID</span><span class="si">}</span><span class="s2">   none                 swap  sw                        0 0</span>
+<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /                    btrfs noatime,subvol=@root      0 0</span>
+<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /home                btrfs noatime,subvol=@home      0 0</span>
+<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs   0 0</span>
+<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /var/cache/distfiles btrfs noatime,subvol=@distfiles 0 0</span>
+<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0</span>
+<span class="s2">&quot;</span> <span class="p">|</span> column -o <span class="s2">&quot; &quot;</span> -t &gt;&gt; /etc/fstab<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <h2 id="64-secure-boot">6.4. Secure Boot<a class="headerlink" href="#64-secure-boot" title="Permanent link">&para;</a></h2>
 <p>Credits:</p>
 <ul>
-<li><a href="https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd">https://ruderich.org/simon/notes/secure-boot-with-grub-and-signed-linux-and-initrd</a></li>
 <li><a href="https://www.funtoo.org/Secure_Boot">https://www.funtoo.org/Secure_Boot</a></li>
 <li><a href="https://www.rodsbooks.com/efi-bootloaders/secureboot.html">https://www.rodsbooks.com/efi-bootloaders/secureboot.html</a></li>
-<li><a href="https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot">https://fit-pc.com/wiki/index.php?title=Linux:_Secure_Boot</a></li>
 <li><a href="https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot">https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot</a></li>
 </ul>
 <p>In order to add your custom keys <code>Setup Mode</code> must have been enabled in your <code>UEFI Firmware Settings</code> before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling <code>Setup Mode</code>. In the following, however, you have to generate Secure Boot files either way.</p>
@@ -679,6 +681,13 @@ popd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</s
   <span class="nb">echo</span> <span class="nv">$?</span>
 <span class="k">done</span> &lt; &lt;<span class="o">(</span>grep -Po <span class="s2">&quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot;</span> /etc/fstab<span class="o">)</span>
 </code></pre></div>
+<p>Microcode updates are not necessary for virtual machines. Otherwise, install <code>sys-firmware/intel-microcode</code> if you have an Intel CPU. Or, follow the <a href="https://wiki.gentoo.org/wiki/AMD_microcode">Gentoo wiki instruction</a> to update the microcode on AMD systems.</p>
+<div class="highlight"><pre><span></span><code>! grep -q -w <span class="s2">&quot;hypervisor&quot;</span> &lt;<span class="o">(</span>grep <span class="s2">&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+grep -q <span class="s2">&quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel</span>$<span class="s2">&quot;</span> /proc/cpuinfo <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode intel-ucode&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode hostonly&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+emerge -at sys-firmware/intel-microcode<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+</code></pre></div>
 <p>Setup portage hook:</p>
 <div class="highlight"><pre><span></span><code>mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel <span class="o">&amp;&amp;</span> <span class="se">\</span>
 rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode <span class="o">&amp;&amp;</span> <span class="se">\</span>
@@ -707,13 +716,6 @@ rm -f /root/portage_hook_kernel <span class="o">&amp;&amp;</span> <span class="s
 <span class="s1">        fi</span>
 <span class="s1">    done &lt; &lt;(grep -Po &quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot; /etc/fstab)</span>
 <span class="s1">fi&#39;</span> &gt; /etc/portage/env/sys-apps/systemd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<p>Microcode updates are not necessary for virtual systems. Otherwise, install <code>sys-firmware/intel-microcode</code> if you have an Intel CPU. Or, follow the <a href="https://wiki.gentoo.org/wiki/AMD_microcode">Gentoo wiki instruction</a> to update the microcode on AMD systems.</p>
-<div class="highlight"><pre><span></span><code>! grep -q -w <span class="s2">&quot;hypervisor&quot;</span> &lt;<span class="o">(</span>grep <span class="s2">&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-grep -q <span class="s2">&quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel</span>$<span class="s2">&quot;</span> /proc/cpuinfo <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode intel-ucode&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode hostonly&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge -at sys-firmware/intel-microcode<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <p>Setup <code>sys-kernel/dracut</code> (copy&amp;paste one after the other):</p>
 <div class="highlight"><pre><span></span><code>emerge -at sys-kernel/dracut
