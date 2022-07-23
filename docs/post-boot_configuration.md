@@ -307,20 +307,20 @@ Bind all swap and system LUKS volumes.
 # I only use PCR7 as recommended in the first sentence after following table:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
 #
+clevis luks bind -d /dev/sda3 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
 clevis luks bind -d /dev/sda4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sda5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
+clevis luks bind -d /dev/sdb3 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
 clevis luks bind -d /dev/sdb4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
-clevis luks bind -d /dev/sdb5 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
 # etc.
 ```
 
 Show results:
 
 ```bash
+clevis luks list -d /dev/sda3
 clevis luks list -d /dev/sda4
-clevis luks list -d /dev/sda5
+clevis luks list -d /dev/sdb3
 clevis luks list -d /dev/sdb4
-clevis luks list -d /dev/sdb5
 # etc.
 ```
 
