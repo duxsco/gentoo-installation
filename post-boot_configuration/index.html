@@ -351,44 +351,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#82-unbound" class="md-nav__link">
-    8.2. Unbound
+  <a href="#82-secure-boot-setup" class="md-nav__link">
+    8.2. Secure Boot Setup
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#83-secure-boot-setup" class="md-nav__link">
-    8.3. Secure Boot Setup
+  <a href="#83-measured-boot" class="md-nav__link">
+    8.3. Measured Boot
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#84-measured-boot" class="md-nav__link">
-    8.4. Measured Boot
-  </a>
-  
-    <nav class="md-nav" aria-label="8.4. Measured Boot">
+    <nav class="md-nav" aria-label="8.3. Measured Boot">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#841a-systemd-cryptenroll" class="md-nav__link">
-    8.4.1.a) systemd-cryptenroll
+  <a href="#831a-systemd-cryptenroll" class="md-nav__link">
+    8.3.1.a) systemd-cryptenroll
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#841b-clevis" class="md-nav__link">
-    8.4.1.b) clevis
+  <a href="#831b-clevis" class="md-nav__link">
+    8.3.1.b) clevis
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#842-rebuild-unified-kernel-image" class="md-nav__link">
-    8.4.2. Rebuild Unified Kernel Image
+  <a href="#832-rebuild-unified-kernel-image" class="md-nav__link">
+    8.3.2. Rebuild Unified Kernel Image
   </a>
   
 </li>
@@ -399,8 +392,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#85-package-cleanup" class="md-nav__link">
-    8.5. Package Cleanup
+  <a href="#84-package-cleanup" class="md-nav__link">
+    8.4. Package Cleanup
   </a>
   
 </li>
@@ -475,44 +468,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#82-unbound" class="md-nav__link">
-    8.2. Unbound
+  <a href="#82-secure-boot-setup" class="md-nav__link">
+    8.2. Secure Boot Setup
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#83-secure-boot-setup" class="md-nav__link">
-    8.3. Secure Boot Setup
+  <a href="#83-measured-boot" class="md-nav__link">
+    8.3. Measured Boot
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#84-measured-boot" class="md-nav__link">
-    8.4. Measured Boot
-  </a>
-  
-    <nav class="md-nav" aria-label="8.4. Measured Boot">
+    <nav class="md-nav" aria-label="8.3. Measured Boot">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#841a-systemd-cryptenroll" class="md-nav__link">
-    8.4.1.a) systemd-cryptenroll
+  <a href="#831a-systemd-cryptenroll" class="md-nav__link">
+    8.3.1.a) systemd-cryptenroll
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#841b-clevis" class="md-nav__link">
-    8.4.1.b) clevis
+  <a href="#831b-clevis" class="md-nav__link">
+    8.3.1.b) clevis
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#842-rebuild-unified-kernel-image" class="md-nav__link">
-    8.4.2. Rebuild Unified Kernel Image
+  <a href="#832-rebuild-unified-kernel-image" class="md-nav__link">
+    8.3.2. Rebuild Unified Kernel Image
   </a>
   
 </li>
@@ -523,8 +509,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#85-package-cleanup" class="md-nav__link">
-    8.5. Package Cleanup
+  <a href="#84-package-cleanup" class="md-nav__link">
+    8.4. Package Cleanup
   </a>
   
 </li>
@@ -585,106 +571,7 @@ systemctl preset-all
 <span class="s1">systemctl enable nftables-restore; echo $?</span>
 <span class="s1">&#39;</span>
 </code></pre></div>
-<h2 id="82-unbound">8.2. Unbound<a class="headerlink" href="#82-unbound" title="Permanent link">&para;</a></h2>
-<p>Setup unbound:</p>
-<div class="highlight"><pre><span></span><code>/bin/bash -c <span class="s1">&#39;</span>
-<span class="s1">echo &quot;net-dns/unbound ~amd64&quot; &gt;&gt; /etc/portage/package.accept_keywords/main &amp;&amp; \</span>
-<span class="s1">emerge net-dns/unbound &amp;&amp; \</span>
-<span class="s1">( su -s /bin/sh -c &quot;/usr/sbin/unbound-anchor -a /etc/unbound/var/root-anchors.txt&quot; unbound || true ) &amp;&amp; \</span>
-<span class="s1">rsync -a /etc/unbound/unbound.conf /etc/unbound/._cfg0000_unbound.conf &amp;&amp; \</span>
-<span class="s1">sed -i \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(hide-identity: \)no|\1\2yes|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(hide-version: \)no|\1\2yes|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-short-bufsize: yes\)|\1\2|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-large-queries: \)no|\1\2yes|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-glue: yes\)|\1\2|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-dnssec-stripped: yes\)|\1\2|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-below-nxdomain: yes\)|\1\2|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(harden-referral-path: \)no|\1\2yes|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(qname-minimisation: yes\)|\1\2|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(qname-minimisation-strict: no\)|\1\2|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(use-caps-for-id: \)no|\1\2yes|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(minimal-responses: yes\)|\1\2|&quot; \</span>
-<span class="s1">-e &quot;s|\([[:space:]]*\)# \(auto-trust-anchor-file: \&quot;/etc/unbound/var/root-anchors.txt\&quot;\)|\1\2|&quot; \</span>
-<span class="s1">/etc/unbound/._cfg0000_unbound.conf; echo $?</span>
-<span class="s1">&#39;</span>
-</code></pre></div>
-<p>(Optional) Use DNS-over-TLS (<a href="https://www.kuketz-blog.de/empfehlungsecke/#dns">recommended DNS servers</a>):</p>
-<div class="highlight"><pre><span></span><code>/bin/bash -c <span class="s1">&#39;</span>
-<span class="s1">rsync -a /etc/unbound/unbound.conf /etc/unbound/._cfg0000_unbound.conf &amp;&amp; \</span>
-<span class="s1">sed -i &quot;s|\([[:space:]]*\)# \(tls-cert-bundle: \)\&quot;\&quot;|\1\2\&quot;/etc/ssl/certs/4042bcee.0\&quot;|&quot; /etc/unbound/._cfg0000_unbound.conf &amp;&amp; \</span>
-<span class="s1">cat &lt;&lt;EOF &gt;&gt; /etc/unbound/._cfg0000_unbound.conf; echo $?</span>
-
-<span class="s1">forward-zone:</span>
-<span class="s1">    name: &quot;.&quot;</span>
-<span class="s1">    forward-tls-upstream: yes</span>
-<span class="s1">    forward-first: no</span>
-<span class="s1">    forward-addr: 2001:678:e68:f000::@853#dot.ffmuc.net</span>
-<span class="s1">    forward-addr: 2001:678:ed0:f000::@853#dot.ffmuc.net</span>
-<span class="s1">    forward-addr: 5.1.66.255@853#dot.ffmuc.net</span>
-<span class="s1">    forward-addr: 185.150.99.255@853#dot.ffmuc.net</span>
-
-<span class="s1">EOF</span>
-<span class="s1">&#39;</span>
-</code></pre></div>
-<p>I assume that certificates used for DNS-over-TLS are issued by <a href="https://letsencrypt.org/certificates/">Let's Encrypt</a>. Thus, I only allow this single root CA:</p>
-<div class="highlight"><pre><span></span><code>➤ echo | openssl s_client -servername dot.ffmuc.net dot.ffmuc.net:853 2&gt;&amp;1 | sed -n &#39;/^Certificate chain/,/^---/p&#39;
-Certificate chain
- 0 s:CN = ffmuc.net
-   i:C = US, O = Let&#39;s Encrypt, CN = R3
- 1 s:C = US, O = Let&#39;s Encrypt, CN = R3
-   i:C = US, O = Internet Security Research Group, CN = ISRG Root X1
- 2 s:C = US, O = Internet Security Research Group, CN = ISRG Root X1
-   i:O = Digital Signature Trust Co., CN = DST Root CA X3
----
-
-➤ openssl x509 -noout -hash -subject -issuer -in /etc/ssl/certs/4042bcee.0
-4042bcee
-subject=C = US, O = Internet Security Research Group, CN = ISRG Root X1
-issuer=C = US, O = Internet Security Research Group, CN = ISRG Root X1
-</code></pre></div>
-<p>Sample configuration:</p>
-<div class="highlight"><pre><span></span><code>❯ bash -c <span class="s1">&#39;grep -v -e &quot;^[[:space:]]*#&quot; -e &quot;^[[:space:]]*$&quot; /etc/unbound/unbound.conf&#39;</span>
-server:
-    verbosity: <span class="m">1</span>
-    hide-identity: yes
-    hide-version: yes
-    harden-short-bufsize: yes
-    harden-large-queries: yes
-    harden-glue: yes
-    harden-dnssec-stripped: yes
-    harden-below-nxdomain: yes
-    harden-referral-path: yes
-    qname-minimisation: yes
-    qname-minimisation-strict: no
-    use-caps-for-id: yes
-    minimal-responses: yes
-    auto-trust-anchor-file: <span class="s2">&quot;/etc/unbound/var/root-anchors.txt&quot;</span>
-    tls-cert-bundle: <span class="s2">&quot;/etc/ssl/certs/4042bcee.0&quot;</span>
-python:
-dynlib:
-remote-control:
-forward-zone:
-    name: <span class="s2">&quot;.&quot;</span>
-    forward-tls-upstream: yes
-    forward-first: no
-    forward-addr: <span class="m">2001</span>:678:e68:f000::@853#dot.ffmuc.net
-    forward-addr: <span class="m">2001</span>:678:ed0:f000::@853#dot.ffmuc.net
-    forward-addr: <span class="m">5</span>.1.66.255@853#dot.ffmuc.net
-    forward-addr: <span class="m">185</span>.150.99.255@853#dot.ffmuc.net
-</code></pre></div>
-<p>Enable and start unbound service:</p>
-<div class="highlight"><pre><span></span><code>/bin/bash -c <span class="s1">&#39;</span>
-<span class="s1">systemctl disable systemd-resolved.service &amp;&amp; \</span>
-<span class="s1">systemctl stop systemd-resolved.service &amp;&amp; \</span>
-<span class="s1">systemctl enable unbound.service &amp;&amp; \</span>
-<span class="s1">rm -f /etc/resolv.conf &amp;&amp; \</span>
-<span class="s1">echo -e &quot;nameserver ::1\nnameserver 127.0.0.1&quot; &gt; /etc/resolv.conf &amp;&amp; \</span>
-<span class="s1">systemctl start unbound.service; echo $?</span>
-<span class="s1">&#39;</span>
-</code></pre></div>
-<p>Test DNS resolving (<a href="https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing">link</a>).</p>
-<h2 id="83-secure-boot-setup">8.3. Secure Boot Setup<a class="headerlink" href="#83-secure-boot-setup" title="Permanent link">&para;</a></h2>
+<h2 id="82-secure-boot-setup">8.2. Secure Boot Setup<a class="headerlink" href="#82-secure-boot-setup" title="Permanent link">&para;</a></h2>
 <p>If <code>efi-updatevar</code> failed in <a href="/system_setup/#64-secure-boot">one of the previous sections</a>, you can import Secure Boot files the following way.</p>
 <p>First, boot into the Gentoo Linux and save necessary files in <code>DER</code> form:</p>
 <div class="highlight"><pre><span></span><code>/bin/bash -c <span class="s1">&#39;</span>
@@ -701,14 +588,14 @@ forward-zone:
 <p>To check whether Secure Boot is enabled execute:</p>
 <div class="highlight"><pre><span></span><code>mokutil --sb-state
 </code></pre></div>
-<h2 id="84-measured-boot">8.4. Measured Boot<a class="headerlink" href="#84-measured-boot" title="Permanent link">&para;</a></h2>
+<h2 id="83-measured-boot">8.3. Measured Boot<a class="headerlink" href="#83-measured-boot" title="Permanent link">&para;</a></h2>
 <p>You have two options for <code>Measured Boot</code>:</p>
 <ul>
 <li><code>systemd-cryptenroll</code>: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd &gt;=251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with <code>systemd-cryptenroll</code> than with <code>clevis</code> due to the use of PBKDF2 (with secure keys), and you don't have to use the <code>app-crypt/clevis</code> package from (unofficial) <a href="https://wiki.gentoo.org/wiki/Project:GURU">guru overlay</a>.</li>
 <li><code>clevis</code>: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.</li>
 </ul>
 <p>Use either <code>systemd-cryptenroll</code> or <code>clevis</code> in the following.</p>
-<h3 id="841a-systemd-cryptenroll">8.4.1.a) systemd-cryptenroll<a class="headerlink" href="#841a-systemd-cryptenroll" title="Permanent link">&para;</a></h3>
+<h3 id="831a-systemd-cryptenroll">8.3.1.a) systemd-cryptenroll<a class="headerlink" href="#831a-systemd-cryptenroll" title="Permanent link">&para;</a></h3>
 <p>Install <code>app-crypt/tpm2-tools</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=app-crypt/tpm2-tools-5.2-r1 ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
 emerge -av tpm2-tools
@@ -748,7 +635,7 @@ systemd-cryptenroll --tpm2-device<span class="o">=</span>auto --tpm2-pcrs<span c
 <div class="highlight"><pre><span></span><code>rm -rf /root/localrepo
 </code></pre></div>
 <p>Reboot your system!</p>
-<h3 id="841b-clevis">8.4.1.b) clevis<a class="headerlink" href="#841b-clevis" title="Permanent link">&para;</a></h3>
+<h3 id="831b-clevis">8.3.1.b) clevis<a class="headerlink" href="#831b-clevis" title="Permanent link">&para;</a></h3>
 <p>If you don't have a DHCP server avaiable to the new system, add <a href="https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN">the following network settings</a> to the <code>CMDLINE</code> array variable in <code>/etc/dracut.conf</code>:</p>
 <div class="highlight"><pre><span></span><code>ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
 </code></pre></div>
@@ -787,11 +674,11 @@ clevis luks list -d /dev/sdb3
 clevis luks list -d /dev/sdb4
 <span class="c1"># etc.</span>
 </code></pre></div>
-<h3 id="842-rebuild-unified-kernel-image">8.4.2. Rebuild Unified Kernel Image<a class="headerlink" href="#842-rebuild-unified-kernel-image" title="Permanent link">&para;</a></h3>
+<h3 id="832-rebuild-unified-kernel-image">8.3.2. Rebuild Unified Kernel Image<a class="headerlink" href="#832-rebuild-unified-kernel-image" title="Permanent link">&para;</a></h3>
 <p>Rebuild the unified kernel image:</p>
 <div class="highlight"><pre><span></span><code>emerge -at sys-kernel/gentoo-kernel-bin
 </code></pre></div>
-<h2 id="85-package-cleanup">8.5. Package Cleanup<a class="headerlink" href="#85-package-cleanup" title="Permanent link">&para;</a></h2>
+<h2 id="84-package-cleanup">8.4. Package Cleanup<a class="headerlink" href="#84-package-cleanup" title="Permanent link">&para;</a></h2>
 <p>Remove extraneous packages (should be only <code>app-editors/nano</code>, <code>app-eselect/eselect-repository</code>, <code>app-misc/yq</code> and <code>app-portage/cpuid2cpuflags</code>):</p>
 <div class="highlight"><pre><span></span><code>emerge --depclean -a
 </code></pre></div>

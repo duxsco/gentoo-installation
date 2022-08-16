@@ -392,6 +392,19 @@
     9.3.2. Inclusion of dontaudit denials
   </a>
   
+    <nav class="md-nav" aria-label="9.3.2. Inclusion of dontaudit denials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#meh" class="md-nav__link">
+    meh
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -479,6 +492,19 @@
   <a href="#932-inclusion-of-dontaudit-denials" class="md-nav__link">
     9.3.2. Inclusion of dontaudit denials
   </a>
+  
+    <nav class="md-nav" aria-label="9.3.2. Inclusion of dontaudit denials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#meh" class="md-nav__link">
+    meh
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -867,6 +893,118 @@ allow init_t tty_device_t:chr_file <span class="o">{</span> setattr watch watch_
 <div class="highlight"><pre><span></span><code>semodule --disable_dontaudit --build
 </code></pre></div>
 <p>TODO</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># [   71.618497] audit: type=1400 audit(1660578688.199:1278): avc:  denied  { getattr } for  pid=3425 comm=&quot;agetty&quot; name=&quot;/&quot; dev=&quot;selinuxfs&quot; ino=1 scontext=system_u:system_r:getty_t:s0 tcontext=system_u:object_r:security_t:s0 tclass=filesystem permissive=0</span>
+<span class="c1"># [   71.623287] audit: type=1400 audit(1660578688.199:1279): avc:  denied  { getattr } for  pid=3425 comm=&quot;agetty&quot; name=&quot;/&quot; dev=&quot;selinuxfs&quot; ino=1 scontext=system_u:system_r:getty_t:s0 tcontext=system_u:object_r:security_t:s0 tclass=filesystem permissive=0</span>
+<span class="c1"># [   71.626143] audit: type=1400 audit(1660578688.199:1280): avc:  denied  { search } for  pid=3425 comm=&quot;agetty&quot; name=&quot;selinux&quot; dev=&quot;dm-0&quot; ino=1502351 scontext=system_u:system_r:getty_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=dir permissive=0</span>
+
+❯ selocal -a <span class="s2">&quot;seutil_libselinux_linked(getty_t)&quot;</span> -c my_000013
+
+❯ selocal -b -L
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>❯ cat <span class="s">&lt;&lt;EOF | audit2allow</span>
+<span class="s">[  222.344865] audit: type=1400 audit(1660581538.873:1175): avc:  denied  { use } for  pid=3416 comm=&quot;login&quot; path=&quot;/dev/tty1&quot; dev=&quot;devtmpfs&quot; ino=20 scontext=system_u:system_r:local_login_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=fd permissive=0</span>
+<span class="s">EOF</span>
+
+
+<span class="c1">#============= local_login_t ==============</span>
+allow local_login_t init_t:fd use<span class="p">;</span>
+
+❯ selocal -a <span class="s2">&quot;allow local_login_t init_t:fd use;&quot;</span> -c my_000014
+
+❯ selocal -b -L
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>cat <span class="s">&lt;&lt;EOF | audit2allow</span>
+<span class="s">[  124.071924] audit: type=1400 audit(1660582456.606:1155): avc:  denied  { noatsecure } for  pid=3437 comm=&quot;agetty&quot; scontext=system_u:system_r:getty_t:s0 tcontext=system_u:system_r:local_login_t:s0 tclass=process permissive=0</span>
+<span class="s">[  124.078036] audit: type=1400 audit(1660582456.606:1156): avc:  denied  { rlimitinh } for  pid=3437 comm=&quot;login&quot; scontext=system_u:system_r:getty_t:s0 tcontext=system_u:system_r:local_login_t:s0 tclass=process permissive=0</span>
+<span class="s">[  124.080646] audit: type=1400 audit(1660582456.606:1157): avc:  denied  { siginh } for  pid=3437 comm=&quot;login&quot; scontext=system_u:system_r:getty_t:s0 tcontext=system_u:system_r:local_login_t:s0 tclass=process permissive=0</span>
+<span class="s">[  124.087761] audit: type=1400 audit(1660582456.619:1158): avc:  denied  { noatsecure } for  pid=3440 comm=&quot;login&quot; scontext=system_u:system_r:local_login_t:s0 tcontext=system_u:system_r:chkpwd_t:s0 tclass=process permissive=0</span>
+<span class="s">[  124.090289] audit: type=1400 audit(1660582456.619:1159): avc:  denied  { read write } for  pid=3440 comm=&quot;unix_chkpwd&quot; path=&quot;/dev/tty1&quot; dev=&quot;devtmpfs&quot; ino=20 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file permissive=0</span>
+<span class="s">[  124.093821] audit: type=1400 audit(1660582456.619:1160): avc:  denied  { rlimitinh } for  pid=3440 comm=&quot;unix_chkpwd&quot; scontext=system_u:system_r:local_login_t:s0 tcontext=system_u:system_r:chkpwd_t:s0 tclass=process permissive=0</span>
+<span class="s">[  124.096133] audit: type=1400 audit(1660582456.619:1161): avc:  denied  { siginh } for  pid=3440 comm=&quot;unix_chkpwd&quot; scontext=system_u:system_r:local_login_t:s0 tcontext=system_u:system_r:chkpwd_t:s0 tclass=process permissive=0</span>
+<span class="s">[  124.099480] audit: type=1400 audit(1660582456.619:1162): avc:  denied  { search } for  pid=3440 comm=&quot;unix_chkpwd&quot; name=&quot;kernel&quot; dev=&quot;proc&quot; ino=12981 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=dir permissive=0</span>
+
+<span class="s">[  110.728797] audit: type=1400 audit(1660582883.253:843): avc:  denied  { read } for  pid=3216 comm=&quot;unix_chkpwd&quot; name=&quot;cap_last_cap&quot; dev=&quot;proc&quot; ino=13046 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+
+<span class="s">[  133.281256] audit: type=1400 audit(1660582905.806:844): avc:  denied  { read } for  pid=3217 comm=&quot;unix_chkpwd&quot; name=&quot;cap_last_cap&quot; dev=&quot;proc&quot; ino=13046 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class="s">[  133.296342] audit: type=1400 audit(1660582905.819:845): avc:  denied  { read } for  pid=3218 comm=&quot;unix_chkpwd&quot; name=&quot;cap_last_cap&quot; dev=&quot;proc&quot; ino=13046 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class="s">[  133.301187] audit: type=1400 audit(1660582905.826:846): avc:  denied  { net_admin } for  pid=3214 comm=&quot;login&quot; capability=12  scontext=system_u:system_r:local_login_t:s0 tcontext=system_u:system_r:local_login_t:s0 tclass=capability permissive=0</span>
+<span class="s">[  133.304066] audit: type=1400 audit(1660582905.826:847): avc:  denied  { net_admin } for  pid=3214 comm=&quot;login&quot; capability=12  scontext=system_u:system_r:local_login_t:s0 tcontext=system_u:system_r:local_login_t:s0 tclass=capability permissive=0</span>
+<span class="s">[  133.313264] audit: type=1400 audit(1660582905.836:848): avc:  denied  { noatsecure } for  pid=3219 comm=&quot;(time-dir)&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:systemd_user_runtime_dir_t:s0 tclass=process permissive=0</span>
+<span class="s">[  133.316042] audit: type=1400 audit(1660582905.836:849): avc:  denied  { getattr } for  pid=3219 comm=&quot;systemd-user-ru&quot; name=&quot;/&quot; dev=&quot;proc&quot; ino=1 scontext=system_u:system_r:systemd_user_runtime_dir_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0</span>
+<span class="s">[  133.320670] audit: type=1400 audit(1660582905.839:850): avc:  denied  { read } for  pid=3191 comm=&quot;systemd-logind&quot; name=&quot;snd\x2fseq&quot; dev=&quot;tmpfs&quot; ino=906 scontext=system_u:system_r:systemd_logind_t:s0 tcontext=system_u:object_r:udev_runtime_t:s0 tclass=lnk_file permissive=0</span>
+<span class="s">[  133.324261] audit: type=1400 audit(1660582905.839:851): avc:  denied  { read } for  pid=3191 comm=&quot;systemd-logind&quot; name=&quot;snd\x2ftimer&quot; dev=&quot;tmpfs&quot; ino=905 scontext=system_u:system_r:systemd_logind_t:s0 tcontext=system_u:object_r:udev_runtime_t:s0 tclass=lnk_file permissive=0</span>
+<span class="s">[  133.329278] audit: type=1400 audit(1660582905.839:852): avc:  denied  { net_admin } for  pid=3219 comm=&quot;systemd-user-ru&quot; capability=12  scontext=system_u:system_r:systemd_user_runtime_dir_t:s0 tcontext=system_u:system_r:systemd_user_runtime_dir_t:s0 tclass=capability permissive=0</span>
+<span class="s">[  133.334078] audit: type=1400 audit(1660582905.839:853): avc:  denied  { net_admin } for  pid=3219 comm=&quot;systemd-user-ru&quot; capability=12  scontext=system_u:system_r:systemd_user_runtime_dir_t:s0 tcontext=system_u:system_r:systemd_user_runtime_dir_t:s0 tclass=capability permissive=0</span>
+
+<span class="s">[  131.404386] audit: type=1400 audit(1660584690.896:1422): avc:  denied  { open } for  pid=3324 comm=&quot;unix_chkpwd&quot; path=&quot;/proc/sys/kernel/cap_last_cap&quot; dev=&quot;proc&quot; ino=12585 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class="s">[  136.103421] audit: type=1400 audit(1660584695.596:1423): avc:  denied  { open } for  pid=3325 comm=&quot;unix_chkpwd&quot; path=&quot;/proc/sys/kernel/cap_last_cap&quot; dev=&quot;proc&quot; ino=12585 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class="s">[  136.117257] audit: type=1400 audit(1660584695.609:1424): avc:  denied  { open } for  pid=3326 comm=&quot;unix_chkpwd&quot; path=&quot;/proc/sys/kernel/cap_last_cap&quot; dev=&quot;proc&quot; ino=12585 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class="s">[  136.143945] audit: type=1400 audit(1660584695.636:1425): avc:  denied  { noatsecure } for  pid=3329 comm=&quot;(systemd)&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:chkpwd_t:s0 tclass=process permissive=0</span>
+<span class="s">[  136.145948] audit: type=1400 audit(1660584695.639:1426): avc:  denied  { rlimitinh } for  pid=3329 comm=&quot;unix_chkpwd&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:chkpwd_t:s0 tclass=process permissive=0</span>
+<span class="s">[  136.147659] audit: type=1400 audit(1660584695.639:1427): avc:  denied  { siginh } for  pid=3329 comm=&quot;unix_chkpwd&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:chkpwd_t:s0 tclass=process permissive=0</span>
+<span class="s">[  136.150332] audit: type=1400 audit(1660584695.639:1428): avc:  denied  { open } for  pid=3329 comm=&quot;unix_chkpwd&quot; path=&quot;/proc/sys/kernel/cap_last_cap&quot; dev=&quot;proc&quot; ino=12585 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class="s">[  136.162414] audit: type=1400 audit(1660584695.656:1429): avc:  denied  { write } for  pid=3328 comm=&quot;systemd&quot; name=&quot;/&quot; dev=&quot;tmpfs&quot; ino=1 scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:user_runtime_t:s0 tclass=dir permissive=0</span>
+<span class="s">[  136.171271] audit: type=1400 audit(1660584695.659:1430): avc:  denied  { write } for  pid=3328 comm=&quot;systemd&quot; name=&quot;/&quot; dev=&quot;tmpfs&quot; ino=1 scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:user_runtime_t:s0 tclass=dir permissive=0</span>
+<span class="s">[  136.219065] audit: type=1400 audit(1660584695.713:1431): avc:  denied  { noatsecure } for  pid=3331 comm=&quot;(agetty)&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:getty_t:s0 tclass=process permissive=0</span>
+
+<span class="s">[   92.191870] audit: type=1400 audit(1660586439.683:1367): avc:  denied  { getattr } for  pid=3316 comm=&quot;unix_chkpwd&quot; name=&quot;/&quot; dev=&quot;proc&quot; ino=1 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0</span>
+<span class="s">[   95.543102] audit: type=1400 audit(1660586443.033:1368): avc:  denied  { getattr } for  pid=3317 comm=&quot;unix_chkpwd&quot; name=&quot;/&quot; dev=&quot;proc&quot; ino=1 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0</span>
+<span class="s">[   95.556354] audit: type=1400 audit(1660586443.046:1369): avc:  denied  { getattr } for  pid=3318 comm=&quot;unix_chkpwd&quot; name=&quot;/&quot; dev=&quot;proc&quot; ino=1 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0</span>
+<span class="s">[   95.586875] audit: type=1400 audit(1660586443.079:1370): avc:  denied  { getattr } for  pid=3321 comm=&quot;unix_chkpwd&quot; name=&quot;/&quot; dev=&quot;proc&quot; ino=1 scontext=system_u:system_r:chkpwd_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0</span>
+<span class="s">[   95.598046] audit: type=1400 audit(1660586443.089:1371): avc:  denied  { add_name } for  pid=3320 comm=&quot;systemd&quot; name=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:user_runtime_t:s0 tclass=dir permissive=0</span>
+<span class="s">[   95.600191] audit: type=1400 audit(1660586443.093:1372): avc:  denied  { add_name } for  pid=3320 comm=&quot;systemd&quot; name=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:user_runtime_t:s0 tclass=dir permissive=0</span>
+
+<span class="s">[   81.748661] audit: type=1400 audit(1660587572.186:1246): avc:  denied  { create } for  pid=3535 comm=&quot;systemd&quot; name=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0</span>
+<span class="s">[   81.750973] audit: type=1400 audit(1660587572.186:1247): avc:  denied  { create } for  pid=3535 comm=&quot;systemd&quot; name=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0</span>
+<span class="s">EOF</span>
+
+
+<span class="c1">#============= chkpwd_t ==============</span>
+allow chkpwd_t proc_t:filesystem getattr<span class="p">;</span>
+allow chkpwd_t sysctl_kernel_t:dir search<span class="p">;</span>
+allow chkpwd_t sysctl_kernel_t:file <span class="o">{</span> open <span class="nb">read</span> <span class="o">}</span><span class="p">;</span>
+allow chkpwd_t tty_device_t:chr_file <span class="o">{</span> <span class="nb">read</span> write <span class="o">}</span><span class="p">;</span>
+
+<span class="c1">#============= getty_t ==============</span>
+allow getty_t local_login_t:process <span class="o">{</span> noatsecure rlimitinh siginh <span class="o">}</span><span class="p">;</span>
+
+<span class="c1">#============= init_t ==============</span>
+allow init_t chkpwd_t:process <span class="o">{</span> noatsecure rlimitinh siginh <span class="o">}</span><span class="p">;</span>
+allow init_t getty_t:process noatsecure<span class="p">;</span>
+allow init_t systemd_user_runtime_dir_t:process noatsecure<span class="p">;</span>
+allow init_t user_runtime_t:dir <span class="o">{</span> add_name write <span class="o">}</span><span class="p">;</span>
+allow init_t systemd_user_runtime_t:dir create<span class="p">;</span>
+
+<span class="c1">#============= local_login_t ==============</span>
+allow local_login_t chkpwd_t:process <span class="o">{</span> noatsecure rlimitinh siginh <span class="o">}</span><span class="p">;</span>
+allow local_login_t self:capability net_admin<span class="p">;</span>
+
+<span class="c1">#============= systemd_logind_t ==============</span>
+allow systemd_logind_t udev_runtime_t:lnk_file read<span class="p">;</span>
+
+<span class="c1">#============= systemd_user_runtime_dir_t ==============</span>
+allow systemd_user_runtime_dir_t proc_t:filesystem getattr<span class="p">;</span>
+allow systemd_user_runtime_dir_t self:capability net_admin<span class="p">;</span>
+
+❯ selocal -a <span class="s2">&quot;allow chkpwd_t sysctl_kernel_t:dir search;&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow chkpwd_t sysctl_kernel_t:file read;&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow chkpwd_t tty_device_t:chr_file { read write };&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow getty_t local_login_t:process { noatsecure rlimitinh siginh };&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow init_t systemd_user_runtime_dir_t:process noatsecure;&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow local_login_t chkpwd_t:process { noatsecure rlimitinh siginh };&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow local_login_t self:capability net_admin;&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow systemd_logind_t udev_runtime_t:lnk_file read;&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow systemd_user_runtime_dir_t proc_t:filesystem getattr;&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+❯ selocal -a <span class="s2">&quot;allow systemd_user_runtime_dir_t self:capability net_admin;&quot;</span> -c <span class="s2">&quot;meh&quot;</span>
+
+❯ selocal -b -L
+</code></pre></div>
+<h6 id="meh">meh<a class="headerlink" href="#meh" title="Permanent link">&para;</a></h6>
+<div class="highlight"><pre><span></span><code>❯ cat <span class="s">&lt;&lt;EOF | auditallow</span>
+<span class="s">[  217.010974] audit: type=1400 audit(1660588383.389:821): avc:  denied  { create } for  pid=3926 comm=&quot;systemd&quot; name=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0</span>
+<span class="s">[  217.013726] audit: type=1400 audit(1660588383.393:822): avc:  denied  { create } for  pid=3926 comm=&quot;systemd&quot; name=&quot;systemd&quot; scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0</span>
+<span class="s">EOF</span>
+</code></pre></div>
 
 
 
