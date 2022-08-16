@@ -15,11 +15,30 @@ IPv6AcceptRA=no
 EOF
 
 systemctl --no-reload enable systemd-networkd.service
+```
 
-ln -snf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+  - Setup DNS (copy&paste one after the other):
+
+```bash
+# https://wiki.gentoo.org/wiki/Resolv.conf
+# https://wiki.archlinux.org/title/systemd-resolved
+ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+cp -av /etc/systemd/resolved.conf /etc/systemd/._cfg0000_resolved.conf
+
+# https://www.kuketz-blog.de/empfehlungsecke/#dns
+sed -i \
+-e 's/#DNS=.*/DNS=2001:678:e68:f000::#dot.ffmuc.net 2001:678:ed0:f000::#dot.ffmuc.net 5.1.66.255#dot.ffmuc.net 185.150.99.255#dot.ffmuc.net/' \
+-e 's/#FallbackDNS=.*/FallbackDNS=2a01:4f8:251:554::2#dns3.digitalcourage.de 5.9.164.112#dns3.digitalcourage.de/' \
+-e 's/#Domains=.*/Domains=~./' \
+-e 's/#DNSSEC=.*/DNSSEC=true/' \
+-e 's/#DNSOverTLS=.*/DNSOverTLS=true/' \
+/etc/systemd/._cfg0000_resolved.conf
 
 systemctl --no-reload enable systemd-resolved.service
 ```
+
+Test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)) after reboot into Gentoo Linux.
 
   - stage3 and dev* files:
 
