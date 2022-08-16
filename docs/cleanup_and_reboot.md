@@ -38,7 +38,7 @@ sed -i \
 systemctl --no-reload enable systemd-resolved.service
 ```
 
-Test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)) after reboot into Gentoo Linux.
+After reboot into Gentoo Linux, test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)) and check `resolvectl status` output.
 
   - stage3 and dev* files:
 
