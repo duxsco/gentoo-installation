@@ -164,6 +164,7 @@ UUID=${SYSTEM_UUID} /home                btrfs noatime,subvol=@home      0 0
 UUID=${SYSTEM_UUID} /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs   0 0
 UUID=${SYSTEM_UUID} /var/cache/distfiles btrfs noatime,subvol=@distfiles 0 0
 UUID=${SYSTEM_UUID} /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0
+UUID=${SYSTEM_UUID} /var/tmp             btrfs noatime,subvol=@var_tmp   0 0
 " | column -o " " -t >> /etc/fstab; echo $?
 ```
 

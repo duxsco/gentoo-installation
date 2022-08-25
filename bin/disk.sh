@@ -166,6 +166,7 @@ btrfs subvolume create /mnt/gentoo/@distfiles; sync
 btrfs subvolume create /mnt/gentoo/@home; sync
 btrfs subvolume create /mnt/gentoo/@ebuilds; sync
 btrfs subvolume create /mnt/gentoo/@root; sync
+btrfs subvolume create /mnt/gentoo/@var_tmp; sync
 umount /mnt/gentoo
 # shellcheck disable=SC2046
 mount -o noatime,subvol=@root $(getMapperPartitions 4 | awk '{print $1}') /mnt/gentoo

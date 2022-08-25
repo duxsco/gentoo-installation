@@ -47,7 +47,8 @@ PC∕Laptop
                 ├── @distfiles
                 ├── @home
                 ├── @ebuilds
-                └── @root
+                ├── @root
+                └── @var_tmp
 ```
 
 - Two disks:
@@ -70,7 +71,8 @@ PC∕Laptop───────────────────────
                 ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home
                 ├── @ebuilds                       ├── @ebuilds
-                └── @root                          └── @root
+                ├── @root                          ├── @root
+                └── @var_tmp                       └── @var_tmp
 ```
 
 - Three disks:
@@ -93,7 +95,8 @@ PC∕Laptop───────────────────────
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home                          ├── @home
                 ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds
-                └── @root                          └── @root                          └── @root
+                ├── @root                          ├── @root                          ├── @root
+                └── @var_tmp                       └── @var_tmp                       └── @var_tmp
 ```
 
 - Four disks:
@@ -116,7 +119,8 @@ PC∕Laptop───────────────────────
                 ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
                 ├── @home                          ├── @home                          ├── @home                          ├── @home
                 ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds
-                └── @root                          └── @root                          └── @root                          └── @root
+                ├── @root                          ├── @root                          ├── @root                          ├── @root
+                └── @var_tmp                       └── @var_tmp                       └── @var_tmp                       └── @var_tmp
 ```
 
 - More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.

@@ -124,5 +124,9 @@ touch /mnt/gentoo/var/cache/binpkgs/.keep && \
 mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
 
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
-mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles; echo $?
+mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
+
+touch /mnt/gentoo/var/tmp/.keep && \
+mount -o noatime,subvol=@var_tmp /mnt/gentoo/mapperSystem /mnt/gentoo/var/tmp && \
+chmod 1777 /mnt/gentoo/var/tmp; echo $?
 ```
