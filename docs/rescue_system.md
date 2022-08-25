@@ -225,9 +225,9 @@ objcopy \
   --add-section .initrd="/mnt/gentoo/mnt/rescue/sysresccd/boot/x86_64/sysresccd.img" --change-section-vma .initrd=0x3000000 \
   "/usr/lib/systemd/boot/efi/linuxx64.efi.stub" "/tmp/systemrescuecd.efi" && \
 while read -r my_esp; do
-  mkdir "${my_esp/devE/e}" && \
-  mount -o noatime,dmask=0022,fmask=0133 "${my_esp}" "${my_esp/devE/e}" && \
-  rsync -av "/tmp/systemrescuecd.efi" "${my_esp/devE/e}/"
+  mkdir "${my_esp/devE/boot\/e}" && \
+  mount -o noatime,dmask=0022,fmask=0133 "${my_esp}" "${my_esp/devE/boot\/e}" && \
+  rsync -av "/tmp/systemrescuecd.efi" "${my_esp/devE/boot\/e}/"
   echo $?
 done < <(find /mnt/gentoo/devEfi* -maxdepth 0)
 ```

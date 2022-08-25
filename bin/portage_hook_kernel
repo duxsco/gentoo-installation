@@ -2,27 +2,27 @@ function post_pkg_postinst() {
     my_kernel_version="$(</usr/src/linux/include/config/kernel.release)"
 
     while read -r my_esp; do
-        if ! mountpoint --quiet "/${my_esp}"; then
-            mount "/${my_esp}"
+        if ! mountpoint --quiet "/boot/${my_esp}"; then
+            mount "/boot/${my_esp}"
             my_umount_esp="true"
         else
             my_umount_esp="false"
         fi
 
-        if mountpoint --quiet "/${my_esp}"; then
-            dracut --force --kver "${my_kernel_version}" "/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}.efi"
+        if mountpoint --quiet "/boot/${my_esp}"; then
+            dracut --force --kver "${my_kernel_version}" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}.efi"
 
             if [[ ${my_umount_esp} == true ]]; then
-                umount "/${my_esp}"
+                umount "/boot/${my_esp}"
             fi
         else
 cat <<EOF
 
-  ____________________
-/ Failed to install    \\
-| unified kernel image |
-\ in "/${my_esp}"!          /
-  --------------------
+  _____________________
+/ Failed to install     \\
+| unified kernel image  |
+\ in "/boot/${my_esp}"! /
+  ---------------------
          \   ^__^
           \  (oo)\_______
              (__)\       )\/\\
@@ -31,7 +31,7 @@ cat <<EOF
 
 EOF
         fi
-    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 
     for my_boot_file in /boot/{config,vmlinuz,System.map}-${my_kernel_version}{,.old}; do
         if [[ -f ${my_boot_file} ]]; then

@@ -156,7 +156,7 @@ SYSTEM_UUID="$(blkid -s UUID -o value /mapperSystem)" && \
 echo "" >> /etc/fstab && \
 echo "
 $(find /devEfi* -maxdepth 0 | while read -r i; do
-  echo "UUID=$(blkid -s UUID -o value "$i") ${i/devE/e} vfat noatime,dmask=0022,fmask=0133 0 0"
+  echo "UUID=$(blkid -s UUID -o value "$i") ${i/devE/boot\/e} vfat noatime,dmask=0022,fmask=0133 0 0"
 done)
 UUID=${SWAP_UUID}   none                 swap  sw                        0 0
 UUID=${SYSTEM_UUID} /                    btrfs noatime,subvol=@root      0 0
@@ -236,16 +236,15 @@ Setup ESP(s):
 
 ```bash
 while read -r my_esp; do
-  bootctl --esp-path="/${my_esp}" install && \
-  efibootmgr -b "$(efibootmgr -v | grep -Po "^Boot\K[0-9]+(?=\*[[:space:]]+Linux Boot Manager[[:space:]]+)")" -B && \
+  bootctl --esp-path="/boot/${my_esp}" install && \
   efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "/${my_esp/efi/devEfi}")")" --part 1 --label "gentoo31415efi ${my_esp}" --loader '\EFI\systemd\systemd-bootx64.efi' && \
-  echo -e "timeout 10\neditor no" > "/${my_esp}/loader/loader.conf" && \
-  mv "/${my_esp}/systemrescuecd.efi" "/${my_esp}/EFI/Linux/" && \
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/Linux/systemrescuecd.efi" "/${my_esp}/EFI/Linux/systemrescuecd.efi"
+  echo -e "timeout 10\neditor no" > "/boot/${my_esp}/loader/loader.conf" && \
+  mv "/boot/${my_esp}/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/" && \
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi"
   echo $?
-done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 ```
 
 Microcode updates are not necessary for virtual machines. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
@@ -268,9 +267,9 @@ rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /
 rm -f /root/portage_hook_kernel && \
 echo 'if [[ ${EBUILD_PHASE} == postinst ]]; then
     while read -r my_esp; do
-        bootctl --esp-path="/${my_esp}" --no-variables --graceful update && \
-        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
-        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/${my_esp}/EFI/BOOT/BOOTX64.EFI"
+        bootctl --esp-path="/boot/${my_esp}" --no-variables --graceful update && \
+        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
+        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI"
 
         if [[ $? -ne 0 ]]; then
 cat <<EOF
@@ -286,7 +285,7 @@ cat <<EOF
 
 EOF
         fi
-    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 fi' > /etc/portage/env/sys-apps/systemd; echo $?
 ```
 

@@ -58,16 +58,16 @@ First, boot into the Gentoo Linux and save necessary files in `DER` form:
 ```bash
 /bin/bash -c '
 (
-! mountpoint --quiet /efia && \
-mount /efia || true
+! mountpoint --quiet /boot/efia && \
+mount /boot/efia || true
 ) && \
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /efia/db.der && \
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /efia/KEK.der && \
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /efia/PK.der; echo $?
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /boot/efia/db.der && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /boot/efia/KEK.der && \
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /boot/efia/PK.der; echo $?
 '
 ```
 
-Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successful boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/efia`.
+Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successful boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/boot/efia`.
 
 To check whether Secure Boot is enabled execute:
 
