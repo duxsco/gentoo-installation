@@ -158,7 +158,7 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 ## 4.3. Folder Structure
 
 ```bash
-➤ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├── build_into_srm
 │   ├── etc

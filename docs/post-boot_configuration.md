@@ -75,6 +75,12 @@ To check whether Secure Boot is enabled execute:
 mokutil --sb-state
 ```
 
+To list the installed Secure Boot keys/certs:
+
+```bash
+efi-readvar
+```
+
 ## 8.3. Measured Boot
 
 You have two options for `Measured Boot`:
@@ -161,6 +167,7 @@ ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
 Install `dev-vcs/git`:
 
 ```bash
+echo 'dev-vcs/git -webdav' >> /etc/portage/package.use/main && \
 emerge -at dev-vcs/git
 ```
 

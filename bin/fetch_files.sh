@@ -13,7 +13,7 @@ function gpg_verify() {
     )
 }
 
-pushd /mnt/gentoo || (echo 'Failed to move to directory "/mnt/gentoo"! Aborting...' >&2; exit 1)
+pushd /mnt/gentoo || { echo 'Failed to move to directory "/mnt/gentoo"! Aborting...' >&2; exit 1; }
 
 temp_gpg_homedir="$(mktemp -d)"
 

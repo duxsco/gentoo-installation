@@ -37,7 +37,7 @@ set -o history
 Result of a single disk setup:
 
 ```bash
-➤ tree -a /mnt/gentoo/
+❯ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devEfia -> /dev/sda1
 ├── devRescue -> /dev/sda2
@@ -57,7 +57,7 @@ Result of a single disk setup:
 Result of the four disk setup:
 
 ```bash
-➤ tree -a /mnt/gentoo/
+❯ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devEfia -> /dev/sda1
 ├── devEfib -> /dev/sdb1
