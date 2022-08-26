@@ -684,3 +684,169 @@ allow local_login_t init_t:fd use;
 
 ❯ selocal -b -L
 ```
+
+!!! note
+    At this point, ssh connections for non-root and the switch to root via "sudo" should be possible without denials.
+
+### 9.4.3. Denials: remaining default services
+
+!!! note
+    The following policies make the remain systemd services work.
+
+```bash
+❯ semodule -DB
+
+❯ cat <<EOF | audit2allow
+----
+time->Fri Aug 26 13:24:06 2022
+type=PROCTITLE msg=audit(1661513046.786:77): proctitle="/lib/systemd/systemd-resolved"
+type=PATH msg=audit(1661513046.786:77): item=1 name="/lib64/ld-linux-x86-64.so.2" inode=182830 dev=00:21 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=PATH msg=audit(1661513046.786:77): item=0 name="/lib/systemd/systemd-resolved" inode=186052 dev=00:21 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:systemd_resolved_exec_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661513046.786:77): cwd="/"
+type=EXECVE msg=audit(1661513046.786:77): argc=1 a0="/lib/systemd/systemd-resolved"
+type=SYSCALL msg=audit(1661513046.786:77): arch=c000003e syscall=59 success=yes exit=0 a0=5609cd28e350 a1=5609cd76b070 a2=5609cd283a10 a3=5609cd76b070 items=2 ppid=1 pid=3551 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
+type=AVC msg=audit(1661513046.786:77): avc:  denied  { noatsecure } for  pid=3551 comm="(resolved)" scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=process permissive=0
+----
+time->Fri Aug 26 13:24:06 2022
+type=PROCTITLE msg=audit(1661513046.789:78): proctitle="/lib/systemd/systemd-resolved"
+type=PATH msg=audit(1661513046.789:78): item=0 name="/etc/selinux/config" inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661513046.789:78): cwd="/"
+type=SYSCALL msg=audit(1661513046.789:78): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fe9fb66c8bb a2=80000 a3=0 items=1 ppid=1 pid=3551 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
+type=AVC msg=audit(1661513046.789:78): avc:  denied  { read } for  pid=3551 comm="systemd-resolve" name="config" dev="dm-2" ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 13:43:11 2022
+type=PROCTITLE msg=audit(1661514191.273:47): proctitle="/lib/systemd/systemd-resolved"
+type=PATH msg=audit(1661514191.273:47): item=0 name="/etc/selinux/config" inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661514191.273:47): cwd="/"
+type=SYSCALL msg=audit(1661514191.273:47): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f2d111a98bb a2=80000 a3=0 items=1 ppid=1 pid=3340 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
+type=AVC msg=audit(1661514191.273:47): avc:  denied  { open } for  pid=3340 comm="systemd-resolve" path="/etc/selinux/config" dev="dm-1" ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 13:47:15 2022
+type=PROCTITLE msg=audit(1661514435.840:48): proctitle="/lib/systemd/systemd-resolved"
+type=PATH msg=audit(1661514435.840:48): item=0 name="" inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661514435.840:48): cwd="/"
+type=SYSCALL msg=audit(1661514435.840:48): arch=c000003e syscall=262 success=no exit=-13 a0=4 a1=7f33f0334f13 a2=7ffeba0908e0 a3=1000 items=1 ppid=1 pid=3239 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
+type=AVC msg=audit(1661514435.840:48): avc:  denied  { getattr } for  pid=3239 comm="systemd-resolve" path="/etc/selinux/config" dev="dm-0" ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 13:47:15 2022
+type=PROCTITLE msg=audit(1661514435.843:49): proctitle="/lib/systemd/systemd-resolved"
+type=PATH msg=audit(1661514435.843:49): item=0 name="/etc/ssl/openssl.cnf" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661514435.843:49): cwd="/"
+type=SYSCALL msg=audit(1661514435.843:49): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=560cee2731e0 a2=0 a3=0 items=1 ppid=1 pid=3239 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
+type=AVC msg=audit(1661514435.843:49): avc:  denied  { search } for  pid=3239 comm="systemd-resolve" name="ssl" dev="dm-0" ino=456 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=dir permissive=0
+----
+time->Fri Aug 26 13:59:10 2022
+type=PROCTITLE msg=audit(1661515150.289:57): proctitle="/lib/systemd/systemd-resolved"
+type=PATH msg=audit(1661515150.289:57): item=0 name="/etc/ssl/certs/4042bcee.0" inode=35427 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:usr_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661515150.289:57): cwd="/"
+type=SYSCALL msg=audit(1661515150.289:57): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=561ab20763a0 a2=7fffcf548630 a3=0 items=1 ppid=1 pid=3691 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193
+fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
+type=AVC msg=audit(1661515150.289:57): avc:  denied  { getattr } for  pid=3691 comm="systemd-resolve" path="/usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt" dev="dm-3" ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 14:14:29 2022
+type=PROCTITLE msg=audit(1661516069.446:48): proctitle="/lib/systemd/systemd-resolved"
+type=PATH msg=audit(1661516069.446:48): item=0 name="/etc/ssl/certs/4042bcee.0" inode=35427 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:usr_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661516069.446:48): cwd="/"
+type=SYSCALL msg=audit(1661516069.446:48): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=55a2c43cd3a0 a2=0 a3=0 items=1 ppid=1 pid=3370 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 t
+ty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
+type=AVC msg=audit(1661516069.446:48): avc:  denied  { read } for  pid=3370 comm="systemd-resolve" name="ISRG_Root_X1.crt" dev="dm-0" ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 18:05:41 2022
+type=AVC msg=audit(1661529941.943:32): avc:  denied  { open } for  pid=3114 comm="systemd-resolve" path="/usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt" dev="dm-2" ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 18:13:43 2022
+type=AVC msg=audit(1661530423.723:31): avc:  denied  { search } for  pid=3306 comm="systemd-resolve" name="zoneinfo" dev="dm-2" ino=17003 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=dir permissive=0
+----
+time->Fri Aug 26 18:17:24 2022
+type=PROCTITLE msg=audit(1661530644.433:5): proctitle="/lib/systemd/systemd-timesyncd"
+type=SYSCALL msg=audit(1661530644.433:5): arch=c000003e syscall=42 success=no exit=-13 a0=f a1=7fde14452bb0 a2=2a a3=8 items=0 ppid=1 pid=3222 auid=4294967295 uid=195 gid=195 euid=195 suid=195 fsuid=195 egid=195 sgid=195 fsgid=195 tty=(none) ses=4294967295 comm="sd-resolve" exe="/lib/systemd/systemd-timesyncd" subj=system_u:system_r:ntpd_t:s0 key=(null)
+type=AVC msg=audit(1661530644.433:5): avc:  denied  { write } for  pid=3222 comm="sd-resolve" name="io.systemd.Resolve" dev="tmpfs" ino=1556 scontext=system_u:system_r:ntpd_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=sock_file permissive=0
+----
+time->Fri Aug 26 18:21:53 2022
+type=PROCTITLE msg=audit(1661530913.279:12): proctitle="/lib/systemd/systemd-timesyncd"
+type=PATH msg=audit(1661530913.279:12): item=0 name="/run/systemd/resolve/io.systemd.Resolve" inode=1569 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661530913.279:12): cwd="/"
+type=SOCKADDR msg=audit(1661530913.279:12): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500
+type=SYSCALL msg=audit(1661530913.279:12): arch=c000003e syscall=42 success=no exit=-13 a0=c a1=7f20f6308bb0 a2=2a a3=1 items=1 ppid=1 pid=3311 auid=4294967295 uid=195 gid=195 euid=195 suid=195 fsuid=195 egid=195 sgid=195 fsgid=195 tty=(none) ses=4294967295 comm="sd-resolve" exe="/lib/systemd/systemd-timesyncd" subj=system_u:system_r:ntpd_t:s0 key=(null)
+type=AVC msg=audit(1661530913.279:12): avc:  denied  { connectto } for  pid=3311 comm="sd-resolve" path="/run/systemd/resolve/io.systemd.Resolve" scontext=system_u:system_r:ntpd_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=unix_stream_socket permissive=0
+----
+time->Fri Aug 26 18:29:06 2022
+type=PROCTITLE msg=audit(1661531346.373:28): proctitle=2F7362696E2F616765747479002D6F002D70202D2D205C75002D2D6E6F636C656172002D006C696E7578
+type=PATH msg=audit(1661531346.373:28): item=0 name="/run/systemd/resolve/io.systemd.Resolve" inode=1572 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661531346.373:28): cwd="/"
+type=SOCKADDR msg=audit(1661531346.373:28): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500
+type=SYSCALL msg=audit(1661531346.373:28): arch=c000003e syscall=42 success=no exit=-13 a0=4 a1=7ffc75269c90 a2=2a a3=1 items=1 ppid=1 pid=3341 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=tty1 ses=4294967295 comm="agetty" exe="/sbin/agetty" subj=system_u:system_r:getty_t:s0 key=(null)
+type=AVC msg=audit(1661531346.373:28): avc:  denied  { write } for  pid=3341 comm="agetty" name="io.systemd.Resolve" dev="tmpfs" ino=1572 scontext=system_u:system_r:getty_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=sock_file permissive=0
+----
+time->Fri Aug 26 18:33:01 2022
+type=PROCTITLE msg=audit(1661531581.076:28): proctitle=2F7362696E2F616765747479002D6F002D70202D2D205C75002D2D6E6F636C656172002D006C696E7578
+type=PATH msg=audit(1661531581.076:28): item=0 name="/run/systemd/resolve/io.systemd.Resolve" inode=1557 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661531581.076:28): cwd="/"
+type=SOCKADDR msg=audit(1661531581.076:28): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500
+type=SYSCALL msg=audit(1661531581.076:28): arch=c000003e syscall=42 success=no exit=-13 a0=4 a1=7ffedced62d0 a2=2a a3=1 items=1 ppid=1 pid=3252 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=tty1 ses=4294967295 comm="agetty" exe="/sbin/agetty" subj=system_u:system_r:getty_t:s0 key=(null)
+type=AVC msg=audit(1661531581.076:28): avc:  denied  { connectto } for  pid=3252 comm="agetty" path="/run/systemd/resolve/io.systemd.Resolve" scontext=system_u:system_r:getty_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=unix_stream_socket permissive=0
+----
+time->Fri Aug 26 18:36:08 2022
+type=PROCTITLE msg=audit(1661531768.258:29): proctitle="/lib/systemd/systemd-journald"
+type=PATH msg=audit(1661531768.258:29): item=0 name=(null) inode=295993 dev=00:21 mode=0100640 ouid=0 ogid=190 rdev=00:00 obj=system_u:object_r:systemd_journal_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661531768.258:29): cwd="/"
+type=SYSCALL msg=audit(1661531768.258:29): arch=c000003e syscall=190 success=no exit=-13 a0=1d a1=7f6a98000c39 a2=7f6a98000e70 a3=27 items=1 ppid=1 pid=3227 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="journal-offline" exe="/lib/systemd/systemd-journald" subj=system_u:system_r:syslogd_t:s0 key=(null)
+type=AVC msg=audit(1661531768.258:29): avc:  denied  { relabelfrom } for  pid=3227 comm="journal-offline" name=".#system@b1c963f9cd674ade90203e9d2b982ffb-000000000004bdcc-0005e7276b74f36f.journal83d335cb8d2ecc6d" dev="dm-2" ino=295993 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:systemd_journal_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 18:42:58 2022
+type=AVC msg=audit(1661532178.633:52): avc:  denied  { read } for  pid=3307 comm="systemd-resolve" name="Berlin" dev="dm-0" ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 18:51:50 2022
+type=AVC msg=audit(1661532710.416:28): avc:  denied  { open } for  pid=3320 comm="systemd-resolve" path="/usr/share/zoneinfo/Europe/Berlin" dev="dm-1" ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 18:56:04 2022
+type=AVC msg=audit(1661532964.296:28): avc:  denied  { getattr } for  pid=3215 comm="systemd-resolve" path="/usr/share/zoneinfo/Europe/Berlin" dev="dm-1" ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0
+----
+time->Fri Aug 26 20:34:12 2022
+type=AVC msg=audit(1661538852.196:28): avc:  denied  { search } for  pid=3208 comm="systemd-resolve" name="zoneinfo" dev="dm-0" ino=17003 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= getty_t ==============
+allow getty_t systemd_resolved_runtime_t:sock_file write;
+allow getty_t systemd_resolved_t:unix_stream_socket connectto;
+
+#============= init_t ==============
+
+#!!!! This avc has a dontaudit rule in the current policy
+allow init_t systemd_resolved_t:process noatsecure;
+
+#============= ntpd_t ==============
+allow ntpd_t systemd_resolved_runtime_t:sock_file write;
+allow ntpd_t systemd_resolved_t:unix_stream_socket connectto;
+
+#============= syslogd_t ==============
+allow syslogd_t systemd_journal_t:file relabelfrom;
+
+#============= systemd_resolved_t ==============
+
+#!!!! This avc can be allowed using the boolean 'authlogin_nsswitch_use_ldap'
+allow systemd_resolved_t cert_t:dir search;
+allow systemd_resolved_t locale_t:dir search;
+allow systemd_resolved_t locale_t:file { getattr open read };
+
+#!!!! This avc has a dontaudit rule in the current policy
+allow systemd_resolved_t selinux_config_t:file { getattr open read };
+allow systemd_resolved_t usr_t:file { getattr open read };
+
+❯ semodule -B
+
+❯ selocal -a "allow getty_t systemd_resolved_runtime_t:sock_file write;" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "allow getty_t systemd_resolved_t:unix_stream_socket connectto;" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "allow init_t systemd_resolved_t:process noatsecure;" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "allow ntpd_t systemd_resolved_runtime_t:sock_file write;" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "allow ntpd_t systemd_resolved_t:unix_stream_socket connectto;" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "allow syslogd_t systemd_journal_t:file relabelfrom;" -c my_dont_audit_000001_systemd_services
+❯ setsebool -P authlogin_nsswitch_use_ldap on
+❯ selocal -a "allow systemd_resolved_t locale_t:dir search;" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "allow systemd_resolved_t locale_t:file { getattr open read };" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "allow systemd_resolved_t selinux_config_t:file { getattr open read };" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "allow systemd_resolved_t usr_t:file { getattr open read };" -c my_dont_audit_000001_systemd_services
+
+❯ selocal -b -L
+```
