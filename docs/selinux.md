@@ -123,7 +123,7 @@ root                 root                 s0-s0:c0.c1023       *
 
 ## 9.4. SELinux policies
 
-### 9.4.1. Pre-auditd denials
+### 9.4.1. Denials: dmesg
 
 !!! info
     The following denials were retrieved from `dmesg`.
@@ -332,7 +332,7 @@ allow init_t systemd_resolved_runtime_t:dir mounton;
 ❯ setsebool -P init_mounton_non_security on
 ```
 
-### 9.4.2. auditd denials
+### 9.4.2. Denials: auditd.service
 
 !!! info
     The following denials were retrieved with the help of `auditd.service`.
