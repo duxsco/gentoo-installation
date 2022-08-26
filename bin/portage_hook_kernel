@@ -10,7 +10,12 @@ function post_pkg_postinst() {
         fi
 
         if mountpoint --quiet "/boot/${my_esp}"; then
-            dracut --force --kver "${my_kernel_version}" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}.efi"
+            if grep -q selinux <(eselect profile show); then
+                dracut --force --kver "${my_kernel_version}" --kernel-cmdline "${kernel_cmdline} lsm=selinux enforcing=0" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}_0_permissive.efi"
+                dracut --force --kver "${my_kernel_version}" --kernel-cmdline "${kernel_cmdline} lsm=selinux enforcing=1" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}_1_enforcing.efi"
+            else
+                dracut --force --kver "${my_kernel_version}" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}.efi"
+            fi
 
             if [[ ${my_umount_esp} == true ]]; then
                 umount "/boot/${my_esp}"
