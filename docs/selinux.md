@@ -14,7 +14,7 @@ Prepare for SELinux (copy&paste one after the other):
 ```bash
 cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf
-sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -unconfined"/' /etc/portage/._cfg0000_make.conf
+sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf
 # execute dispatch-conf
 
 eselect profile set --force 18 # should be "[18]  default/linux/amd64/17.1/systemd/selinux (exp)"
@@ -44,6 +44,12 @@ rm -v /boot/efi*/EFI/Linux/gentoo-*-gentoo-dist.efi
 ```
 
 Reboot with `permissive` kernel.
+
+Make sure that UBAC gets disabled:
+
+```bash
+semodule -i /usr/share/selinux/mcs/*.pp
+```
 
 ## 9.2. Relabel
 
