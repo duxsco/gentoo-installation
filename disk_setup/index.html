@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/disk_setup/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.0">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
     
     
       
@@ -395,7 +395,7 @@
   
     <li class="md-nav__item">
       <a href="../selinux/" class="md-nav__link">
-        9. SELinux (WIP)
+        9. SELinux (optional)
       </a>
     </li>
   
@@ -522,7 +522,7 @@ bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d <span class="s2">&quot;
 <p><code>disk.sh</code> creates user "meh" which will be used later on to act as non-root.</p>
 <h2 id="33-mntgentoo-content">3.3. /mnt/gentoo Content<a class="headerlink" href="#33-mntgentoo-content" title="Permanent link">&para;</a></h2>
 <p>Result of a single disk setup:</p>
-<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
+<div class="highlight"><pre><span></span><code>❯ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devEfia -&gt; /dev/sda1
 ├── devRescue -&gt; /dev/sda2
@@ -539,7 +539,7 @@ bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d <span class="s2">&quot;
 <span class="m">0</span> directories, <span class="m">13</span> files
 </code></pre></div>
 <p>Result of the four disk setup:</p>
-<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/
+<div class="highlight"><pre><span></span><code>❯ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devEfia -&gt; /dev/sda1
 ├── devEfib -&gt; /dev/sdb1
@@ -597,7 +597,11 @@ touch /mnt/gentoo/var/cache/binpkgs/.keep <span class="o">&amp;&amp;</span> <spa
 mount -o noatime,subvol<span class="o">=</span>@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs <span class="o">&amp;&amp;</span> <span class="se">\</span>
 
 touch /mnt/gentoo/var/cache/distfiles/.keep <span class="o">&amp;&amp;</span> <span class="se">\</span>
-mount -o noatime,subvol<span class="o">=</span>@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
+mount -o noatime,subvol<span class="o">=</span>@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles <span class="o">&amp;&amp;</span> <span class="se">\</span>
+
+touch /mnt/gentoo/var/tmp/.keep <span class="o">&amp;&amp;</span> <span class="se">\</span>
+mount -o noatime,subvol<span class="o">=</span>@var_tmp /mnt/gentoo/mapperSystem /mnt/gentoo/var/tmp <span class="o">&amp;&amp;</span> <span class="se">\</span>
+chmod <span class="m">1777</span> /mnt/gentoo/var/tmp<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 
 

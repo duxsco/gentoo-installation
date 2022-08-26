@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://gentoo.duxsco.de/rescue_system/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.0">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
     
     
       
@@ -395,7 +395,7 @@
   
     <li class="md-nav__item">
       <a href="../selinux/" class="md-nav__link">
-        9. SELinux (WIP)
+        9. SELinux (optional)
       </a>
     </li>
   
@@ -555,7 +555,7 @@ grep -q <span class="s2">&quot;^KbdInteractiveAuthentication no</span>$<span cla
 <span class="s2">AuthenticationMethods publickey</span>
 
 <span class="s2">KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
-<span class="s2">HostKeyAlgorithms ssh-ed25519</span>
+<span class="s2">HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256</span>
 <span class="s2">Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>
 <span class="s2">MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com&quot;</span> &gt;&gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
 <span class="c1"># create ssh_host_* files in build_into_srm/etc/ssh/</span>
@@ -612,7 +612,7 @@ rsync -av --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:
 cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
 </code></pre></div>
 <h2 id="43-folder-structure">4.3. Folder Structure<a class="headerlink" href="#43-folder-structure" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code>➤ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+<div class="highlight"><pre><span></span><code>❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├── build_into_srm
 │   ├── etc
@@ -668,9 +668,9 @@ objcopy <span class="se">\</span>
   --add-section .initrd<span class="o">=</span><span class="s2">&quot;/mnt/gentoo/mnt/rescue/sysresccd/boot/x86_64/sysresccd.img&quot;</span> --change-section-vma .initrd<span class="o">=</span>0x3000000 <span class="se">\</span>
   <span class="s2">&quot;/usr/lib/systemd/boot/efi/linuxx64.efi.stub&quot;</span> <span class="s2">&quot;/tmp/systemrescuecd.efi&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
 <span class="k">while</span> <span class="nb">read</span> -r my_esp<span class="p">;</span> <span class="k">do</span>
-  mkdir <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  mount -o noatime,dmask<span class="o">=</span><span class="m">0022</span>,fmask<span class="o">=</span><span class="m">0133</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  rsync -av <span class="s2">&quot;/tmp/systemrescuecd.efi&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/e</span><span class="si">}</span><span class="s2">/&quot;</span>
+  mkdir <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/boot</span><span class="se">\/</span><span class="nv">e</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  mount -o noatime,dmask<span class="o">=</span><span class="m">0022</span>,fmask<span class="o">=</span><span class="m">0133</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/boot</span><span class="se">\/</span><span class="nv">e</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+  rsync -av <span class="s2">&quot;/tmp/systemrescuecd.efi&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/devE/boot</span><span class="se">\/</span><span class="nv">e</span><span class="si">}</span><span class="s2">/&quot;</span>
   <span class="nb">echo</span> <span class="nv">$?</span>
 <span class="k">done</span> &lt; &lt;<span class="o">(</span>find /mnt/gentoo/devEfi* -maxdepth <span class="m">0</span><span class="o">)</span>
 </code></pre></div>
