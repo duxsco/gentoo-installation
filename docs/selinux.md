@@ -507,6 +507,33 @@ allow init_t systemd_user_runtime_t:dir { add_name create remove_name write };
 ```bash
 ❯ cat <<EOF | audit2allow
 ----
+time->Thu Aug 25 00:59:07 2022
+type=PROCTITLE msg=audit(1661381947.629:69): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
+type=PATH msg=audit(1661381947.629:69): item=1 name="/run/user/1000/systemd" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=PATH msg=audit(1661381947.629:69): item=0 name="/run/user/1000/" inode=1 dev=00:38 mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1661381947.629:69): cwd="/"
+type=SYSCALL msg=audit(1661381947.629:69): arch=c000003e syscall=258 success=no exit=-13 a0=ffffff9c a1=559df6213ea0 a2=1ed a3=60ed288b719f5baa items=2 ppid=1 pid=3432 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
+type=AVC msg=audit(1661381947.629:69): avc:  denied  { create } for  pid=3432 comm="systemd" name="systemd" scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= init_t ==============
+
+#!!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access.
+#Constraint rule:
+#	constrain dir { create relabelfrom relabelto } ((u1 == u2 -Fail-)  or (t1 == can_change_object_identity -Fail-) ); Constraint DENIED
+
+#	Possible cause is the source user (system_u) and target user (staff_u) are different.
+allow init_t systemd_user_runtime_t:dir create;
+
+❯ selocal -a "domain_obj_id_change_exemption(init_t)" -c my_auditd_000004
+
+❯ selocal -b -L
+```
+
+```bash
+❯ cat <<EOF | audit2allow
+----
 time->Thu Aug 25 01:14:01 2022
 type=PROCTITLE msg=audit(1661382841.039:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
 type=PATH msg=audit(1661382841.039:61): item=1 name="/run/user/1000/systemd/inaccessible/reg" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
