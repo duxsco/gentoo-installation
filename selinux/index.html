@@ -388,15 +388,29 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#941-pre-auditd-denials" class="md-nav__link">
-    9.4.1. Pre-auditd denials
+  <a href="#941-denials-dmesg" class="md-nav__link">
+    9.4.1. Denials: dmesg
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#942-auditd-denials" class="md-nav__link">
-    9.4.2. auditd denials
+  <a href="#942-denials-auditdservice" class="md-nav__link">
+    9.4.2. Denials: auditd.service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#943-denials-remaining-default-services" class="md-nav__link">
+    9.4.3. Denials: remaining default services
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#944-denials-portage-hooks" class="md-nav__link">
+    9.4.4. Denials: portage hooks
   </a>
   
 </li>
@@ -483,15 +497,29 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#941-pre-auditd-denials" class="md-nav__link">
-    9.4.1. Pre-auditd denials
+  <a href="#941-denials-dmesg" class="md-nav__link">
+    9.4.1. Denials: dmesg
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#942-auditd-denials" class="md-nav__link">
-    9.4.2. auditd denials
+  <a href="#942-denials-auditdservice" class="md-nav__link">
+    9.4.2. Denials: auditd.service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#943-denials-remaining-default-services" class="md-nav__link">
+    9.4.3. Denials: remaining default services
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#944-denials-portage-hooks" class="md-nav__link">
+    9.4.4. Denials: portage hooks
   </a>
   
 </li>
@@ -537,7 +565,7 @@
 <p>Prepare for SELinux (copy&amp;paste one after the other):</p>
 <div class="highlight"><pre><span></span><code>cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 <span class="nb">echo</span> -e <span class="s1">&#39;POLICY_TYPES=&quot;mcs&quot;\n&#39;</span> &gt;&gt; /etc/portage/._cfg0000_make.conf
-sed -i <span class="s1">&#39;s/^USE_HARDENED=&quot;\(.*\)&quot;/USE_HARDENED=&quot;\1 -unconfined&quot;/&#39;</span> /etc/portage/._cfg0000_make.conf
+sed -i <span class="s1">&#39;s/^USE_HARDENED=&quot;\(.*\)&quot;/USE_HARDENED=&quot;\1 -ubac -unconfined&quot;/&#39;</span> /etc/portage/._cfg0000_make.conf
 <span class="c1"># execute dispatch-conf</span>
 
 eselect profile <span class="nb">set</span> --force <span class="m">18</span> <span class="c1"># should be &quot;[18]  default/linux/amd64/17.1/systemd/selinux (exp)&quot;</span>
@@ -560,6 +588,9 @@ emerge -avuDN @world
 rm -v /boot/efi*/EFI/Linux/gentoo-*-gentoo-dist.efi
 </code></pre></div>
 <p>Reboot with <code>permissive</code> kernel.</p>
+<p>Make sure that UBAC gets disabled:</p>
+<div class="highlight"><pre><span></span><code>semodule -i /usr/share/selinux/mcs/*.pp
+</code></pre></div>
 <h2 id="92-relabel">9.2. Relabel<a class="headerlink" href="#92-relabel" title="Permanent link">&para;</a></h2>
 <p><a href="https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel">Relabel the entire system</a>:</p>
 <div class="highlight"><pre><span></span><code>mkdir /mnt/gentoo <span class="o">&amp;&amp;</span> <span class="se">\</span>
@@ -614,7 +645,7 @@ david                staff_u              s0-s0:c0.c1023       *
 root                 root                 s0-s0:c0.c1023       *
 </code></pre></div>
 <h2 id="94-selinux-policies">9.4. SELinux policies<a class="headerlink" href="#94-selinux-policies" title="Permanent link">&para;</a></h2>
-<h3 id="941-pre-auditd-denials">9.4.1. Pre-auditd denials<a class="headerlink" href="#941-pre-auditd-denials" title="Permanent link">&para;</a></h3>
+<h3 id="941-denials-dmesg">9.4.1. Denials: dmesg<a class="headerlink" href="#941-denials-dmesg" title="Permanent link">&para;</a></h3>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>The following denials were retrieved from <code>dmesg</code>.</p>
@@ -796,7 +827,7 @@ allow init_t systemd_resolved_runtime_t:dir mounton<span class="p">;</span>
 
 ❯ setsebool -P init_mounton_non_security on
 </code></pre></div>
-<h3 id="942-auditd-denials">9.4.2. auditd denials<a class="headerlink" href="#942-auditd-denials" title="Permanent link">&para;</a></h3>
+<h3 id="942-denials-auditdservice">9.4.2. Denials: auditd.service<a class="headerlink" href="#942-denials-auditdservice" title="Permanent link">&para;</a></h3>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>The following denials were retrieved with the help of <code>auditd.service</code>.</p>
@@ -1153,6 +1184,231 @@ allow local_login_t init_t:fd use<span class="p">;</span>
 ❯ selocal -a <span class="s2">&quot;allow local_login_t init_t:fd use;&quot;</span> -c my_dont_audit_000000
 
 ❯ selocal -b -L
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>At this point, ssh connections for non-root and the switch to root via "sudo" should be possible without denials.</p>
+</div>
+<h3 id="943-denials-remaining-default-services">9.4.3. Denials: remaining default services<a class="headerlink" href="#943-denials-remaining-default-services" title="Permanent link">&para;</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following policies make the remain systemd services work.</p>
+</div>
+<div class="highlight"><pre><span></span><code>❯ semodule -DB
+
+❯ cat <span class="s">&lt;&lt;EOF | audit2allow</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 13:24:06 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661513046.786:77): proctitle=&quot;/lib/systemd/systemd-resolved&quot;</span>
+<span class="s">type=PATH msg=audit(1661513046.786:77): item=1 name=&quot;/lib64/ld-linux-x86-64.so.2&quot; inode=182830 dev=00:21 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=PATH msg=audit(1661513046.786:77): item=0 name=&quot;/lib/systemd/systemd-resolved&quot; inode=186052 dev=00:21 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:systemd_resolved_exec_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661513046.786:77): cwd=&quot;/&quot;</span>
+<span class="s">type=EXECVE msg=audit(1661513046.786:77): argc=1 a0=&quot;/lib/systemd/systemd-resolved&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661513046.786:77): arch=c000003e syscall=59 success=yes exit=0 a0=5609cd28e350 a1=5609cd76b070 a2=5609cd283a10 a3=5609cd76b070 items=2 ppid=1 pid=3551 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm=&quot;systemd-resolve&quot; exe=&quot;/lib/systemd/systemd-resolved&quot; subj=system_u:system_r:systemd_resolved_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661513046.786:77): avc:  denied  { noatsecure } for  pid=3551 comm=&quot;(resolved)&quot; scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=process permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 13:24:06 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661513046.789:78): proctitle=&quot;/lib/systemd/systemd-resolved&quot;</span>
+<span class="s">type=PATH msg=audit(1661513046.789:78): item=0 name=&quot;/etc/selinux/config&quot; inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661513046.789:78): cwd=&quot;/&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661513046.789:78): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fe9fb66c8bb a2=80000 a3=0 items=1 ppid=1 pid=3551 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm=&quot;systemd-resolve&quot; exe=&quot;/lib/systemd/systemd-resolved&quot; subj=system_u:system_r:systemd_resolved_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661513046.789:78): avc:  denied  { read } for  pid=3551 comm=&quot;systemd-resolve&quot; name=&quot;config&quot; dev=&quot;dm-2&quot; ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 13:43:11 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661514191.273:47): proctitle=&quot;/lib/systemd/systemd-resolved&quot;</span>
+<span class="s">type=PATH msg=audit(1661514191.273:47): item=0 name=&quot;/etc/selinux/config&quot; inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661514191.273:47): cwd=&quot;/&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661514191.273:47): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f2d111a98bb a2=80000 a3=0 items=1 ppid=1 pid=3340 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm=&quot;systemd-resolve&quot; exe=&quot;/lib/systemd/systemd-resolved&quot; subj=system_u:system_r:systemd_resolved_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661514191.273:47): avc:  denied  { open } for  pid=3340 comm=&quot;systemd-resolve&quot; path=&quot;/etc/selinux/config&quot; dev=&quot;dm-1&quot; ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 13:47:15 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661514435.840:48): proctitle=&quot;/lib/systemd/systemd-resolved&quot;</span>
+<span class="s">type=PATH msg=audit(1661514435.840:48): item=0 name=&quot;&quot; inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661514435.840:48): cwd=&quot;/&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661514435.840:48): arch=c000003e syscall=262 success=no exit=-13 a0=4 a1=7f33f0334f13 a2=7ffeba0908e0 a3=1000 items=1 ppid=1 pid=3239 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm=&quot;systemd-resolve&quot; exe=&quot;/lib/systemd/systemd-resolved&quot; subj=system_u:system_r:systemd_resolved_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661514435.840:48): avc:  denied  { getattr } for  pid=3239 comm=&quot;systemd-resolve&quot; path=&quot;/etc/selinux/config&quot; dev=&quot;dm-0&quot; ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 13:47:15 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661514435.843:49): proctitle=&quot;/lib/systemd/systemd-resolved&quot;</span>
+<span class="s">type=PATH msg=audit(1661514435.843:49): item=0 name=&quot;/etc/ssl/openssl.cnf&quot; nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661514435.843:49): cwd=&quot;/&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661514435.843:49): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=560cee2731e0 a2=0 a3=0 items=1 ppid=1 pid=3239 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm=&quot;systemd-resolve&quot; exe=&quot;/lib/systemd/systemd-resolved&quot; subj=system_u:system_r:systemd_resolved_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661514435.843:49): avc:  denied  { search } for  pid=3239 comm=&quot;systemd-resolve&quot; name=&quot;ssl&quot; dev=&quot;dm-0&quot; ino=456 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=dir permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 13:59:10 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661515150.289:57): proctitle=&quot;/lib/systemd/systemd-resolved&quot;</span>
+<span class="s">type=PATH msg=audit(1661515150.289:57): item=0 name=&quot;/etc/ssl/certs/4042bcee.0&quot; inode=35427 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:usr_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661515150.289:57): cwd=&quot;/&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661515150.289:57): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=561ab20763a0 a2=7fffcf548630 a3=0 items=1 ppid=1 pid=3691 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193</span>
+<span class="s">fsgid=193 tty=(none) ses=4294967295 comm=&quot;systemd-resolve&quot; exe=&quot;/lib/systemd/systemd-resolved&quot; subj=system_u:system_r:systemd_resolved_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661515150.289:57): avc:  denied  { getattr } for  pid=3691 comm=&quot;systemd-resolve&quot; path=&quot;/usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt&quot; dev=&quot;dm-3&quot; ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 14:14:29 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661516069.446:48): proctitle=&quot;/lib/systemd/systemd-resolved&quot;</span>
+<span class="s">type=PATH msg=audit(1661516069.446:48): item=0 name=&quot;/etc/ssl/certs/4042bcee.0&quot; inode=35427 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:usr_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661516069.446:48): cwd=&quot;/&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661516069.446:48): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=55a2c43cd3a0 a2=0 a3=0 items=1 ppid=1 pid=3370 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 t</span>
+<span class="s">ty=(none) ses=4294967295 comm=&quot;systemd-resolve&quot; exe=&quot;/lib/systemd/systemd-resolved&quot; subj=system_u:system_r:systemd_resolved_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661516069.446:48): avc:  denied  { read } for  pid=3370 comm=&quot;systemd-resolve&quot; name=&quot;ISRG_Root_X1.crt&quot; dev=&quot;dm-0&quot; ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:05:41 2022</span>
+<span class="s">type=AVC msg=audit(1661529941.943:32): avc:  denied  { open } for  pid=3114 comm=&quot;systemd-resolve&quot; path=&quot;/usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt&quot; dev=&quot;dm-2&quot; ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:13:43 2022</span>
+<span class="s">type=AVC msg=audit(1661530423.723:31): avc:  denied  { search } for  pid=3306 comm=&quot;systemd-resolve&quot; name=&quot;zoneinfo&quot; dev=&quot;dm-2&quot; ino=17003 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=dir permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:17:24 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661530644.433:5): proctitle=&quot;/lib/systemd/systemd-timesyncd&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661530644.433:5): arch=c000003e syscall=42 success=no exit=-13 a0=f a1=7fde14452bb0 a2=2a a3=8 items=0 ppid=1 pid=3222 auid=4294967295 uid=195 gid=195 euid=195 suid=195 fsuid=195 egid=195 sgid=195 fsgid=195 tty=(none) ses=4294967295 comm=&quot;sd-resolve&quot; exe=&quot;/lib/systemd/systemd-timesyncd&quot; subj=system_u:system_r:ntpd_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661530644.433:5): avc:  denied  { write } for  pid=3222 comm=&quot;sd-resolve&quot; name=&quot;io.systemd.Resolve&quot; dev=&quot;tmpfs&quot; ino=1556 scontext=system_u:system_r:ntpd_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=sock_file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:21:53 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661530913.279:12): proctitle=&quot;/lib/systemd/systemd-timesyncd&quot;</span>
+<span class="s">type=PATH msg=audit(1661530913.279:12): item=0 name=&quot;/run/systemd/resolve/io.systemd.Resolve&quot; inode=1569 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661530913.279:12): cwd=&quot;/&quot;</span>
+<span class="s">type=SOCKADDR msg=audit(1661530913.279:12): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500</span>
+<span class="s">type=SYSCALL msg=audit(1661530913.279:12): arch=c000003e syscall=42 success=no exit=-13 a0=c a1=7f20f6308bb0 a2=2a a3=1 items=1 ppid=1 pid=3311 auid=4294967295 uid=195 gid=195 euid=195 suid=195 fsuid=195 egid=195 sgid=195 fsgid=195 tty=(none) ses=4294967295 comm=&quot;sd-resolve&quot; exe=&quot;/lib/systemd/systemd-timesyncd&quot; subj=system_u:system_r:ntpd_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661530913.279:12): avc:  denied  { connectto } for  pid=3311 comm=&quot;sd-resolve&quot; path=&quot;/run/systemd/resolve/io.systemd.Resolve&quot; scontext=system_u:system_r:ntpd_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=unix_stream_socket permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:29:06 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661531346.373:28): proctitle=2F7362696E2F616765747479002D6F002D70202D2D205C75002D2D6E6F636C656172002D006C696E7578</span>
+<span class="s">type=PATH msg=audit(1661531346.373:28): item=0 name=&quot;/run/systemd/resolve/io.systemd.Resolve&quot; inode=1572 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661531346.373:28): cwd=&quot;/&quot;</span>
+<span class="s">type=SOCKADDR msg=audit(1661531346.373:28): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500</span>
+<span class="s">type=SYSCALL msg=audit(1661531346.373:28): arch=c000003e syscall=42 success=no exit=-13 a0=4 a1=7ffc75269c90 a2=2a a3=1 items=1 ppid=1 pid=3341 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=tty1 ses=4294967295 comm=&quot;agetty&quot; exe=&quot;/sbin/agetty&quot; subj=system_u:system_r:getty_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661531346.373:28): avc:  denied  { write } for  pid=3341 comm=&quot;agetty&quot; name=&quot;io.systemd.Resolve&quot; dev=&quot;tmpfs&quot; ino=1572 scontext=system_u:system_r:getty_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=sock_file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:33:01 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661531581.076:28): proctitle=2F7362696E2F616765747479002D6F002D70202D2D205C75002D2D6E6F636C656172002D006C696E7578</span>
+<span class="s">type=PATH msg=audit(1661531581.076:28): item=0 name=&quot;/run/systemd/resolve/io.systemd.Resolve&quot; inode=1557 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661531581.076:28): cwd=&quot;/&quot;</span>
+<span class="s">type=SOCKADDR msg=audit(1661531581.076:28): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500</span>
+<span class="s">type=SYSCALL msg=audit(1661531581.076:28): arch=c000003e syscall=42 success=no exit=-13 a0=4 a1=7ffedced62d0 a2=2a a3=1 items=1 ppid=1 pid=3252 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=tty1 ses=4294967295 comm=&quot;agetty&quot; exe=&quot;/sbin/agetty&quot; subj=system_u:system_r:getty_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661531581.076:28): avc:  denied  { connectto } for  pid=3252 comm=&quot;agetty&quot; path=&quot;/run/systemd/resolve/io.systemd.Resolve&quot; scontext=system_u:system_r:getty_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=unix_stream_socket permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:36:08 2022</span>
+<span class="s">type=PROCTITLE msg=audit(1661531768.258:29): proctitle=&quot;/lib/systemd/systemd-journald&quot;</span>
+<span class="s">type=PATH msg=audit(1661531768.258:29): item=0 name=(null) inode=295993 dev=00:21 mode=0100640 ouid=0 ogid=190 rdev=00:00 obj=system_u:object_r:systemd_journal_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class="s">type=CWD msg=audit(1661531768.258:29): cwd=&quot;/&quot;</span>
+<span class="s">type=SYSCALL msg=audit(1661531768.258:29): arch=c000003e syscall=190 success=no exit=-13 a0=1d a1=7f6a98000c39 a2=7f6a98000e70 a3=27 items=1 ppid=1 pid=3227 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;journal-offline&quot; exe=&quot;/lib/systemd/systemd-journald&quot; subj=system_u:system_r:syslogd_t:s0 key=(null)</span>
+<span class="s">type=AVC msg=audit(1661531768.258:29): avc:  denied  { relabelfrom } for  pid=3227 comm=&quot;journal-offline&quot; name=&quot;.#system@b1c963f9cd674ade90203e9d2b982ffb-000000000004bdcc-0005e7276b74f36f.journal83d335cb8d2ecc6d&quot; dev=&quot;dm-2&quot; ino=295993 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:systemd_journal_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:42:58 2022</span>
+<span class="s">type=AVC msg=audit(1661532178.633:52): avc:  denied  { read } for  pid=3307 comm=&quot;systemd-resolve&quot; name=&quot;Berlin&quot; dev=&quot;dm-0&quot; ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:51:50 2022</span>
+<span class="s">type=AVC msg=audit(1661532710.416:28): avc:  denied  { open } for  pid=3320 comm=&quot;systemd-resolve&quot; path=&quot;/usr/share/zoneinfo/Europe/Berlin&quot; dev=&quot;dm-1&quot; ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 18:56:04 2022</span>
+<span class="s">type=AVC msg=audit(1661532964.296:28): avc:  denied  { getattr } for  pid=3215 comm=&quot;systemd-resolve&quot; path=&quot;/usr/share/zoneinfo/Europe/Berlin&quot; dev=&quot;dm-1&quot; ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0</span>
+<span class="s">----</span>
+<span class="s">time-&gt;Fri Aug 26 20:34:12 2022</span>
+<span class="s">type=AVC msg=audit(1661538852.196:28): avc:  denied  { search } for  pid=3208 comm=&quot;systemd-resolve&quot; name=&quot;zoneinfo&quot; dev=&quot;dm-0&quot; ino=17003 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=dir permissive=0</span>
+<span class="s">EOF</span>
+
+
+<span class="c1">#============= getty_t ==============</span>
+allow getty_t systemd_resolved_runtime_t:sock_file write<span class="p">;</span>
+allow getty_t systemd_resolved_t:unix_stream_socket connectto<span class="p">;</span>
+
+<span class="c1">#============= init_t ==============</span>
+
+<span class="c1">#!!!! This avc has a dontaudit rule in the current policy</span>
+allow init_t systemd_resolved_t:process noatsecure<span class="p">;</span>
+
+<span class="c1">#============= ntpd_t ==============</span>
+allow ntpd_t systemd_resolved_runtime_t:sock_file write<span class="p">;</span>
+allow ntpd_t systemd_resolved_t:unix_stream_socket connectto<span class="p">;</span>
+
+<span class="c1">#============= syslogd_t ==============</span>
+allow syslogd_t systemd_journal_t:file relabelfrom<span class="p">;</span>
+
+<span class="c1">#============= systemd_resolved_t ==============</span>
+
+<span class="c1">#!!!! This avc can be allowed using the boolean &#39;authlogin_nsswitch_use_ldap&#39;</span>
+allow systemd_resolved_t cert_t:dir search<span class="p">;</span>
+allow systemd_resolved_t locale_t:dir search<span class="p">;</span>
+allow systemd_resolved_t locale_t:file <span class="o">{</span> getattr open <span class="nb">read</span> <span class="o">}</span><span class="p">;</span>
+
+<span class="c1">#!!!! This avc has a dontaudit rule in the current policy</span>
+allow systemd_resolved_t selinux_config_t:file <span class="o">{</span> getattr open <span class="nb">read</span> <span class="o">}</span><span class="p">;</span>
+allow systemd_resolved_t usr_t:file <span class="o">{</span> getattr open <span class="nb">read</span> <span class="o">}</span><span class="p">;</span>
+
+❯ semodule -B
+
+❯ selocal -a <span class="s2">&quot;allow getty_t systemd_resolved_runtime_t:sock_file write;&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ selocal -a <span class="s2">&quot;allow getty_t systemd_resolved_t:unix_stream_socket connectto;&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ selocal -a <span class="s2">&quot;allow init_t systemd_resolved_t:process noatsecure;&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ selocal -a <span class="s2">&quot;allow ntpd_t systemd_resolved_runtime_t:sock_file write;&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ selocal -a <span class="s2">&quot;allow ntpd_t systemd_resolved_t:unix_stream_socket connectto;&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ selocal -a <span class="s2">&quot;allow syslogd_t systemd_journal_t:file relabelfrom;&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ setsebool -P authlogin_nsswitch_use_ldap on
+❯ selocal -a <span class="s2">&quot;allow systemd_resolved_t locale_t:dir search;&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ selocal -a <span class="s2">&quot;allow systemd_resolved_t locale_t:file { getattr open read };&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ selocal -a <span class="s2">&quot;allow systemd_resolved_t selinux_config_t:file { getattr open read };&quot;</span> -c my_dont_audit_000001_systemd_services
+❯ selocal -a <span class="s2">&quot;allow systemd_resolved_t usr_t:file { getattr open read };&quot;</span> -c my_dont_audit_000001_systemd_services
+
+❯ selocal -b -L
+</code></pre></div>
+<h3 id="944-denials-portage-hooks">9.4.4. Denials: portage hooks<a class="headerlink" href="#944-denials-portage-hooks" title="Permanent link">&para;</a></h3>
+<p>To make things simple I use this script to update the kernel in SELinux enforcing mode:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="k">function</span> add_permissive_types<span class="o">()</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="nb">type</span> <span class="k">in</span> dracut_t portage_t<span class="p">;</span> <span class="k">do</span>
+        <span class="k">if</span> ! grep -q <span class="s2">&quot;^</span><span class="si">${</span><span class="nv">type</span><span class="si">}</span>$<span class="s2">&quot;</span> &lt;<span class="o">(</span>semanage permissive --list --noheading<span class="o">)</span><span class="p">;</span> <span class="k">then</span>
+            <span class="nv">permissive_types</span><span class="o">+=(</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">type</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">)</span>
+
+            <span class="k">if</span> ! semanage permissive --add <span class="s2">&quot;</span><span class="si">${</span><span class="nv">type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">then</span>
+                <span class="k">return</span> <span class="m">1</span>
+            <span class="k">fi</span>
+        <span class="k">fi</span>
+    <span class="k">done</span>
+<span class="o">}</span>
+
+<span class="k">function</span> clear_permissive_types<span class="o">()</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="nb">type</span> <span class="k">in</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">permissive_types</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+        semanage permissive --delete <span class="s2">&quot;</span><span class="si">${</span><span class="nv">type</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">done</span>
+<span class="o">}</span>
+
+<span class="nb">declare</span> -a permissive_types
+<span class="nv">temp_dir</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>mktemp -d<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="nb">pushd</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">temp_dir</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">||</span> <span class="o">{</span> <span class="nb">printf</span> <span class="s2">&quot;Failed to switch directory!&quot;</span> &gt;<span class="p">&amp;</span><span class="m">2</span><span class="p">;</span> <span class="nb">exit</span> <span class="m">1</span><span class="p">;</span> <span class="o">}</span>
+
+cat <span class="s">&lt;&lt;&#39;EOF&#39; &gt; my_kernel_build_policy.te</span>
+<span class="s">policy_module(my_kernel_build_policy, 1.0)</span>
+
+<span class="s">gen_require(`</span>
+<span class="s">    type gcc_config_t;</span>
+<span class="s">    type kmod_t;</span>
+<span class="s">    type ldconfig_t;</span>
+<span class="s">    type portage_tmp_t;</span>
+<span class="s">&#39;)</span>
+
+<span class="s">allow gcc_config_t self:capability dac_read_search;</span>
+<span class="s">allow kmod_t portage_tmp_t:dir { add_name getattr open read remove_name search write };</span>
+<span class="s">allow kmod_t portage_tmp_t:file { create getattr open rename write };</span>
+<span class="s">allow kmod_t self:capability dac_read_search;</span>
+<span class="s">allow ldconfig_t portage_tmp_t:dir { add_name getattr open read remove_name search write };</span>
+<span class="s">allow ldconfig_t portage_tmp_t:file { create open rename setattr write };</span>
+<span class="s">allow ldconfig_t portage_tmp_t:lnk_file read;</span>
+<span class="s">allow ldconfig_t self:capability dac_read_search;</span>
+<span class="s">EOF</span>
+
+<span class="k">if</span> b2sum --quiet -c <span class="o">&lt;&lt;&lt;</span><span class="s2">&quot;49b04d6dc0bc6bf7837a378b94e35005cf3eba6d48d744c29e50d9b98086e1bfa30a9fec5edc924bfd99800c4a722286ac34ad5a69fe78b9895ed29be214ba6e  my_kernel_build_policy.te&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+   make -f /usr/share/selinux/mcs/include/Makefile my_kernel_build_policy.pp <span class="o">&amp;&amp;</span> <span class="se">\</span>
+   semodule -i my_kernel_build_policy.pp <span class="o">&amp;&amp;</span> <span class="se">\</span>
+   add_permissive_types
+<span class="k">then</span>
+    emerge sys-kernel/gentoo-kernel-bin
+<span class="k">fi</span>
+
+clear_permissive_types
+semodule -r my_kernel_build_policy.pp
+
+<span class="nb">popd</span> <span class="o">||</span> <span class="o">{</span> <span class="nb">printf</span> <span class="s2">&quot;Failed to switch directory!&quot;</span> &gt;<span class="p">&amp;</span><span class="m">2</span><span class="p">;</span> <span class="nb">exit</span> <span class="m">1</span><span class="p">;</span> <span class="o">}</span>
 </code></pre></div>
 
 
