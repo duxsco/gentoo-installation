@@ -138,7 +138,7 @@ while read -r partition; do
 done < <(find $(getPartitions 1))
 
 # rescue partition
-mkfs.btrfs --quiet --label rescue31415fs "/dev/mapper/${rescue_partition##*\/}"
+mkfs.btrfs --quiet --csum xxhash --label rescue31415fs "/dev/mapper/${rescue_partition##*\/}"
 
 # swap partition
 # shellcheck disable=SC2046
@@ -153,7 +153,7 @@ swapon "${swap_partition}"
 
 # system partition
 # shellcheck disable=SC2046
-mkfs.btrfs --quiet --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label system31415fs $(getMapperPartitions 4)
+mkfs.btrfs --quiet --csum xxhash --data "${btrfs_raid}" --metadata "${btrfs_raid}" --label system31415fs $(getMapperPartitions 4)
 
 if [ ! -d /mnt/gentoo ]; then
     mkdir /mnt/gentoo
