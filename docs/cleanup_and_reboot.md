@@ -8,7 +8,6 @@ Name=enp1s0
 [Network]
 Address=192.168.10.2/24
 Gateway=192.168.10.1
-DNS=192.168.10.1
 # https://wiki.archlinux.org/title/IPv6#systemd-networkd_3
 LinkLocalAddressing=no
 IPv6AcceptRA=no
