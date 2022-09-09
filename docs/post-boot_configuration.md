@@ -158,7 +158,7 @@ Reboot your system!
 
 ### 8.3.1.b) clevis
 
-If you don't have a DHCP server avaiable to the new system, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the `CMDLINE` array variable in `/etc/dracut.conf`:
+If you don't have a DHCP server available to the new system, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the `CMDLINE` array variable in `/etc/dracut.conf`:
 
 ```
 ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
