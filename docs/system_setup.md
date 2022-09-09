@@ -307,7 +307,7 @@ cat <<EOF >> /etc/dracut.conf
 hostonly=no
 hostonly_cmdline=yes
 use_fstab=yes
-#compress=xz
+compress=xz
 show_modules=yes
 
 uefi=yes
