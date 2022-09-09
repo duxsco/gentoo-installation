@@ -26,7 +26,7 @@ cat <<EOF
   _____________________
 / Failed to install     \\
 | unified kernel image  |
-\ in "/boot/${my_esp}"! /
+\ in "/boot/${my_esp}"!      /
   ---------------------
          \   ^__^
           \  (oo)\_______
