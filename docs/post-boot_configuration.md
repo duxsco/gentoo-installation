@@ -108,12 +108,6 @@ echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf; echo $?
 '
 ```
 
-Enable newer version with required bug fixes and features:
-
-```bash
-echo "=sys-apps/systemd-251.2 ~amd64" >> /etc/portage/package.accept_keywords/main
-```
-
 Update and make sure `sys-apps/systemd` got updated:
 
 ```bash
