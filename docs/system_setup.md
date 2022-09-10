@@ -77,6 +77,13 @@ Install `app-portage/eix`:
 emerge -at app-portage/eix
 ```
 
+Mitigate [CVE-2022-29154](https://bugs.gentoo.org/show_bug.cgi?id=CVE-2022-29154) among others before using `rsync` via `eix-sync`:
+
+```bash
+echo 'net-misc/rsync ~amd64' >> /etc/portage/package.accept_keywords/main && \
+emerge -1 net-misc/rsync
+```
+
 Execute `eix-sync`:
 
 ```bash
