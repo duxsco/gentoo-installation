@@ -445,13 +445,13 @@ sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | sour
 
 ```bash
 emerge media-libs/fontconfig && \
-su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip" && \
-b2sum -c <<<"81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip" && \
+su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraCode.zip" && \
+b2sum -c <<<"9f8ada87945ff10d9eced99369f7c6d469f9eaf2192490623a93b2397fe5b6ee3f0df6923b59eb87e92789840a205adf53c6278e526dbeeb25d0a6d307a07b18  /tmp/FiraCode.zip" && \
 mkdir /tmp/FiraCode && \
 unzip -d /tmp/FiraCode /tmp/FiraCode.zip && \
 rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* && \
 mkdir /usr/share/fonts/nerd-firacode && \
-rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firacode/; echo $?
+rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.ttf /usr/share/fonts/nerd-firacode/; echo $?
 ```
 
 Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install.
