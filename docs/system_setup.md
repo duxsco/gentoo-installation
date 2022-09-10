@@ -214,7 +214,7 @@ If the following commands don't work you have to install `db.auth`, `KEK.auth` a
 pushd /etc/gentoo-installation/secureboot && \
 
 # Make them mutable
-chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+{ chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* || true; } && \
 
 # Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
 efi-updatevar -f db.auth db && \
@@ -222,7 +222,7 @@ efi-updatevar -f KEK.auth KEK && \
 efi-updatevar -f PK.auth PK && \
 
 # Make them immutable
-chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* && \
+{ chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* || true; } && \
 popd; echo $?
 ```
 
