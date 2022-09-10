@@ -17,7 +17,9 @@ echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf
 # execute dispatch-conf
 
-eselect profile set --force 18 # should be "[18]  default/linux/amd64/17.1/systemd/selinux (exp)"
+eselect profile set --force "default/linux/amd64/17.1/systemd/selinux"
+
+echo 'sec-policy/* ~amd64' >> /etc/portage/package.accept_keywords/main
 
 FEATURES="-selinux" emerge -1 selinux-base
 
@@ -27,7 +29,7 @@ sed -i 's/^SELINUXTYPE=strict$/SELINUXTYPE=mcs/' /etc/selinux/._cfg0000_config
 
 FEATURES="-selinux -sesandbox" emerge -1 selinux-base
 FEATURES="-selinux -sesandbox" emerge -1 selinux-base-policy
-emerge -avuDN @world
+emerge -atuDN @world
 ```
 
 Enable logging:
@@ -48,7 +50,7 @@ Reboot with `permissive` kernel.
 Make sure that UBAC gets disabled:
 
 ```bash
-semodule -i /usr/share/selinux/mcs/*.pp
+bash -c '( cd /usr/share/selinux/mcs && semodule -i base.pp -i $(ls *.pp | grep -v base.pp) )'
 ```
 
 ## 9.2. Relabel
