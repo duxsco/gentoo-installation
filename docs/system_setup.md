@@ -124,6 +124,7 @@ Setup sudo:
 ```bash
 echo "app-admin/sudo -sendmail" >> /etc/portage/package.use/main && \
 emerge app-admin/sudo && \
+{ [[ -d /etc/sudoers.d ]] || mkdir -m u=rwx,g=rx,o= /etc/sudoers.d; } && \
 echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?
 ```
 
