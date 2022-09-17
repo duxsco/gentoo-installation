@@ -151,7 +151,27 @@ sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
 
 ## 9.4. SELinux policies
 
-### 9.4.1. Denials: dmesg
+### 9.4.1. Denials: timesyncd (optional)
+
+!!! note
+    This section is only relevant if `timesyncd.service` has not been disabled in section [8.1. Systemd Configuration](/post-boot_configuration/#81-systemd-configuration).
+
+```shell
+❯ cat <<EOF | audit2allow
+[   15.416390] audit: type=1400 audit(1663429524.986:3): avc:  denied  { create } for  pid=1065 comm="(imesyncd)" name="timesync" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:ntp_drift_t:s0 tclass=dir permissive=0
+[   13.192323] audit: type=1400 audit(1663429927.743:3): avc:  denied  { setattr } for  pid=1065 comm="(imesyncd)" name="timesync" dev="dm-1" ino=251563 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:ntp_drift_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= init_t ==============
+allow init_t ntp_drift_t:dir { create setattr };
+
+❯ selocal -a "allow init_t ntp_drift_t:dir { create setattr };" -c my_optioanl_000000
+
+❯ selocal -b -L
+```
+
+### 9.4.2. Denials: dmesg
 
 !!! info
     The following denials were retrieved from `dmesg`.
@@ -301,7 +321,7 @@ allow udev_t tmpfs_t:dir getattr;
 ❯ selocal -b -L
 ```
 
-### 9.4.2. Denials: auditd.service
+### 9.4.3. Denials: auditd.service
 
 !!! info
     The following denials were retrieved with the help of `auditd.service`.
@@ -328,7 +348,7 @@ allow init_t wireless_device_t:chr_file { open read write };
 !!! note
     At this point, ssh connections for non-root and the switch to root via "sudo" should be possible without denials.
 
-### 9.4.3. VM host
+### 9.4.4. VM host
 
 !!! note
     I connect to libvirtd via TCP and SSH port forwarding, because I want to use my SSH key which is secured on a hardware token, and `virt-manager` doesn't seem to be able to handle my hardware token directly. Thus, I can't use s.th. like `qemu+ssh://david@192.168.10.3:50022/system`.
@@ -401,7 +421,7 @@ Add this connection in `virt-manager`:
 qemu+tcp://127.0.0.1:56509/system
 ```
 
-#### 9.4.3.1 Connecting with virt-manager over TCP
+#### 9.4.4.1 Connecting with virt-manager over TCP
 
 ```shell
 ❯ cat <<EOF | audit2allow
@@ -524,7 +544,7 @@ allow virtd_t systemd_machined_t:unix_stream_socket connectto;
 ❯ selocal -b -L
 ```
 
-#### 9.4.3.2 VM creation with virt-manager
+#### 9.4.4.2 VM creation with virt-manager
 
 ```shell
 ❯ cat <<EOF | audit2allow
@@ -985,7 +1005,7 @@ allow svirt_t sysfs_t:file read;
 ❯ setsebool -P virt_use_sysfs on
 ```
 
-### 9.4.4. Denials: portage hooks
+### 9.4.5. Denials: portage hooks
 
 To make things simple I use this script to update the kernel in SELinux enforcing mode:
 
