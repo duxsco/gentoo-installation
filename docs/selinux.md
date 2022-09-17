@@ -9,6 +9,13 @@
 !!! info
     Currently, I only use SELinux on servers, and only `mcs` policy type to be able to "isolate" virtual machines from each other.
 
+Keep the number of services to a minimum (copy&paste one after the other):
+
+```shell
+systemctl mask user@.service --now
+systemctl disable systemd-userdbd.socket
+```
+
 Prepare for SELinux (copy&paste one after the other):
 
 ```shell
@@ -20,6 +27,9 @@ sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/port
 eselect profile set --force "default/linux/amd64/17.1/systemd/selinux"
 
 echo 'sec-policy/* ~amd64' >> /etc/portage/package.accept_keywords/main
+
+# To get a nice looking html site in /usr/share/doc/selinux-base-<VERSION>/mcs/html:
+echo 'sec-policy/selinux-base doc' >> /etc/portage/package.use/main
 
 FEATURES="-selinux" emerge -1 selinux-base
 
@@ -63,6 +73,16 @@ mount -o bind / /mnt/gentoo && \
 setfiles -r /mnt/gentoo /etc/selinux/mcs/contexts/files/file_contexts /mnt/gentoo/{dev,home,proc,run,sys,tmp,boot/efi*,var/cache/binpkgs,var/cache/distfiles,var/db/repos/gentoo,var/tmp} && \
 umount /mnt/gentoo && \
 rlpkg -a -r && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+Make sure that nothing (except `.keep` files) is unlabeled:
+
+```shell
+export tmpdir="$(mktemp -d)" && \
+mount --bind / "$tmpdir" && \
+find "$tmpdir" -context system_u:object_r:unlabeled_t:s0 && \
+umount "$tmpdir" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
@@ -123,6 +143,12 @@ david                staff_u              s0-s0:c0.c1023       *
 root                 root                 s0-s0:c0.c1023       *
 ```
 
+Create `/var/lib/sepolgen/interface_info` for `audit2why -R` to work:
+
+```shell
+sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
+```
+
 ## 9.4. SELinux policies
 
 ### 9.4.1. Denials: dmesg
@@ -131,9 +157,9 @@ root                 root                 s0-s0:c0.c1023       *
     The following denials were retrieved from `dmesg`.
 
 ```shell
-# [   37.545369] audit: type=1400 audit(1661366541.083:3): avc:  denied  { read } for  pid=2999 comm="10-gentoo-path" name="profile.env" dev="dm-1" ino=217358 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=0
+# [   22.450146] audit: type=1400 audit(1663353624.006:3): avc:  denied  { read } for  pid=946 comm="10-gentoo-path" name="profile.env" dev="dm-1" ino=221184 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=0
 
-❯ find / -inum 217358
+❯ find / -inum 221184
 /etc/profile.env
 
 ❯ semanage fcontext -l | grep '/etc/profile\\\.env' | column -t
@@ -151,41 +177,10 @@ Relabeled /etc/profile.env from system_u:object_r:etc_runtime_t:s0 to system_u:o
 
 ```shell
 ❯ cat <<EOF | audit2allow
-[   37.726930] audit: type=1400 audit(1661366541.263:4): avc:  denied  { create } for  pid=1 comm="systemd" name="io.systemd.NameServiceSwitch" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_userdbd_runtime_t:s0 tclass=lnk_file permissive=0
-[   37.726917] systemd[1]: systemd-userdbd.socket: Failed to create symlink /run/systemd/userdb/io.systemd.Multiplexer → /run/systemd/userdb/io.systemd.NameServiceSwitch, ignoring: Permission denied
-[   37.729729] systemd[1]: systemd-userdbd.socket: Failed to create symlink /run/systemd/userdb/io.systemd.Multiplexer → /run/systemd/userdb/io.systemd.DropIn, ignoring: Permission denied
-[   37.732899] audit: type=1400 audit(1661366541.269:5): avc:  denied  { create } for  pid=1 comm="systemd" name="io.systemd.DropIn" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_userdbd_runtime_t:s0 tclass=lnk_file permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t systemd_userdbd_runtime_t:lnk_file create;
-
-❯ selocal -a "allow init_t systemd_userdbd_runtime_t:lnk_file create;" -c my_dmesg_000000
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   37.796200] audit: type=1400 audit(1661367313.330:3): avc:  denied  { mounton } for  pid=3224 comm="(-userdbd)" path="/run/systemd/unit-root/proc" dev="dm-0" ino=67139 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t unlabeled_t:dir mounton;
-
-❯ selocal -a "allow init_t unlabeled_t:dir mounton;" -c my_dmesg_000001
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   38.036245] audit: type=1400 audit(1661366541.573:6): avc:  denied  { write } for  pid=3039 comm="systemd-udevd" name="systemd-udevd.service" dev="cgroup2" ino=2051 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
-[   37.962046] audit: type=1400 audit(1661367313.496:8): avc:  denied  { add_name } for  pid=3235 comm="systemd-udevd" name="udev" scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
-[   37.054171] audit: type=1400 audit(1661367691.596:3): avc:  denied  { create } for  pid=3126 comm="systemd-udevd" name="udev" scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
-[   36.687743] audit: type=1400 audit(1661368167.216:3): avc:  denied  { write } for  pid=3125 comm="systemd-udevd" name="cgroup.procs" dev="cgroup2" ino=2119 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=file permissive=0
+[   31.247917] audit: type=1400 audit(1663353989.806:3): avc:  denied  { write } for  pid=981 comm="systemd-udevd" name="systemd-udevd.service" dev="cgroup2" ino=1919 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
+[   15.613447] audit: type=1400 audit(1663354882.173:3): avc:  denied  { add_name } for  pid=980 comm="systemd-udevd" name="udev" scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
+[   19.752551] audit: type=1400 audit(1663354989.273:3): avc:  denied  { create } for  pid=987 comm="systemd-udevd" name="udev" scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
+[   15.386494] audit: type=1400 audit(1663355129.020:3): avc:  denied  { write } for  pid=981 comm="systemd-udevd" name="cgroup.procs" dev="cgroup2" ino=1954 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=file permissive=0
 EOF
 
 
@@ -193,136 +188,94 @@ EOF
 allow udev_t cgroup_t:dir { add_name create write };
 allow udev_t cgroup_t:file write;
 
-❯ selocal -a "allow udev_t cgroup_t:dir { add_name create write };" -c my_dmesg_000002_dir
+❯ selocal -a "allow udev_t cgroup_t:dir { add_name create write };" -c my_dmesg_000000_dir
 
-❯ selocal -a "allow udev_t cgroup_t:file write;" -c my_dmesg_000002_file
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   38.044041] audit: type=1400 audit(1661366541.579:7): avc:  denied  { read } for  pid=3039 comm="systemd-udevd" name="network" dev="tmpfs" ino=78 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:init_runtime_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= udev_t ==============
-allow udev_t init_runtime_t:dir read;
-
-❯ selocal -a "allow udev_t init_runtime_t:dir read;" -c my_dmesg_000003
+❯ selocal -a "allow udev_t cgroup_t:file write;" -c my_dmesg_000000_file
 
 ❯ selocal -b -L
 ```
 
 ```shell
 ❯ cat <<EOF | audit2allow
-[   38.129178] audit: type=1400 audit(1661366541.666:9): avc:  denied  { getattr } for  pid=3051 comm="mdadm" path="/run/udev" dev="tmpfs" ino=71 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:udev_runtime_t:s0 tclass=dir permissive=0
+[   12.880861] audit: type=1400 audit(1663355463.436:3): avc:  denied  { getattr } for  pid=1005 comm="mdadm" path="/run/udev" dev="tmpfs" ino=71 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:udev_runtime_t:s0 tclass=dir permissive=0
 EOF
 
 
 #============= mdadm_t ==============
 allow mdadm_t udev_runtime_t:dir getattr;
 
-❯ selocal -a "allow mdadm_t udev_runtime_t:dir getattr;" -c my_dmesg_000004
+❯ selocal -a "allow mdadm_t udev_runtime_t:dir getattr;" -c my_dmesg_000001
 
 ❯ selocal -b -L
 ```
 
 ```shell
 ❯ cat <<EOF | audit2allow
-[   38.143600] audit: type=1400 audit(1661366541.679:10): avc:  denied  { search } for  pid=3051 comm="mdadm" name="block" dev="debugfs" ino=29 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
-[   38.169458] audit: type=1400 audit(1661366541.683:11): avc:  denied  { search } for  pid=3051 comm="mdadm" name="bdi" dev="debugfs" ino=22 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
+[   16.257926] audit: type=1400 audit(1663355873.803:3): avc:  denied  { search } for  pid=1010 comm="mdadm" name="block" dev="debugfs" ino=29 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
+[   16.315999] audit: type=1400 audit(1663355873.860:4): avc:  denied  { search } for  pid=1010 comm="mdadm" name="bdi" dev="debugfs" ino=22 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
 EOF
 
 
 #============= mdadm_t ==============
 allow mdadm_t debugfs_t:dir search;
 
-❯ selocal -a "allow mdadm_t debugfs_t:dir search;" -c my_dmesg_000005
+❯ selocal -a "kernel_search_debugfs(mdadm_t)" -c my_dmesg_000002
 
 ❯ selocal -b -L
 ```
 
 ```shell
 ❯ cat <<EOF | audit2allow
-[   38.102386] audit: type=1400 audit(1661367313.636:9): avc:  denied  { getattr } for  pid=26 comm="kdevtmpfs" path="/fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
+[   13.211511] audit: type=1400 audit(1663356309.846:3): avc:  denied  { getattr } for  pid=26 comm="kdevtmpfs" path="/fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
+[   18.418356] audit: type=1400 audit(1663356643.869:3): avc:  denied  { setattr } for  pid=26 comm="kdevtmpfs" name="fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
+[   48.414265] audit: type=1400 audit(1663356886.916:3): avc:  denied  { unlink } for  pid=26 comm="kdevtmpfs" name="fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
 EOF
 
 
 #============= kernel_t ==============
-allow kernel_t framebuf_device_t:chr_file getattr;
+allow kernel_t framebuf_device_t:chr_file { getattr setattr unlink };
 
-❯ selocal -a "allow kernel_t framebuf_device_t:chr_file getattr;" -c my_dmesg_000006
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   37.167114] audit: type=1400 audit(1661367691.709:4): avc:  denied  { setattr } for  pid=26 comm="kdevtmpfs" name="fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
-[   37.191217] audit: type=1400 audit(1661367691.709:5): avc:  denied  { unlink } for  pid=26 comm="kdevtmpfs" name="fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
-EOF
-
-
-#============= kernel_t ==============
-allow kernel_t framebuf_device_t:chr_file { setattr unlink };
-
-❯ selocal -a "allow kernel_t framebuf_device_t:chr_file { setattr unlink };" -c my_dmesg_000007
-
-❯ selocal -b -L
-```
-
-
-```shell
-❯ cat <<EOF | audit2allow
-[   38.226602] audit: type=1400 audit(1661367313.759:10): avc:  denied  { read write } for  pid=1 comm="systemd" name="rfkill" dev="devtmpfs" ino=178 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:wireless_device_t:s0 tclass=chr_file permissive=0
-[   37.280830] audit: type=1400 audit(1661367691.823:6): avc:  denied  { open } for  pid=1 comm="systemd" path="/dev/rfkill" dev="devtmpfs" ino=178 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:wireless_device_t:s0 tclass=chr_file permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t wireless_device_t:chr_file { open read write };
-
-❯ selocal -a "allow init_t wireless_device_t:chr_file { open read write };" -c my_dmesg_000008
+❯ selocal -a "dev_getattr_framebuffer_dev(kernel_t)" -c my_dmesg_000003
+❯ selocal -a "dev_setattr_framebuffer_dev(kernel_t)" -c my_dmesg_000003
+❯ selocal -a "allow kernel_t framebuf_device_t:chr_file unlink;" -c my_dmesg_000003
 
 ❯ selocal -b -L
 ```
 
 ```shell
 ❯ cat <<EOF | audit2allow
-[   38.701549] audit: type=1400 audit(1661367314.236:11): avc:  denied  { execute } for  pid=3307 comm="(bootctl)" name="bootctl" dev="dm-0" ino=186106 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:bootloader_exec_t:s0 tclass=file permissive=0
-[   37.857611] audit: type=1400 audit(1661367692.393:7): avc:  denied  { read open } for  pid=3198 comm="(bootctl)" path="/usr/bin/bootctl" dev="dm-0" ino=186106 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:bootloader_exec_t:s0 tclass=file permissive=0
-[   37.524074] audit: type=1400 audit(1661368168.053:4): avc:  denied  { execute_no_trans } for  pid=3197 comm="(bootctl)" path="/usr/bin/bootctl" dev="dm-3" ino=186106 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:bootloader_exec_t:s0 tclass=file permissive=0
-[   37.776422] audit: type=1400 audit(1661368671.299:3): avc:  denied  { map } for  pid=3202 comm="bootctl" path="/usr/bin/bootctl" dev="dm-2" ino=186106 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:bootloader_exec_t:s0 tclass=file permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t bootloader_exec_t:file { execute execute_no_trans map open read };
-
-❯ selocal -a "allow init_t bootloader_exec_t:file { execute execute_no_trans map open read };" -c my_dmesg_000009
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   37.880262] audit: type=1400 audit(1661367692.423:8): avc:  denied  { getattr } for  pid=3199 comm="systemd-tmpfile" path="/var/cache/eix" dev="dm-0" ino=68937 scontext=system_u:system_r:systemd_tmpfiles_t:s0 tcontext=system_u:object_r:portage_cache_t:s0 tclass=dir permissive=0
-[   37.890742] audit: type=1400 audit(1661367692.426:10): avc:  denied  { read } for  pid=3199 comm="systemd-tmpfile" name="eix" dev="dm-0" ino=68937 scontext=system_u:system_r:systemd_tmpfiles_t:s0 tcontext=system_u:object_r:portage_cache_t:s0 tclass=dir permissive=0
+[   14.904914] audit: type=1400 audit(1663357537.436:3): avc:  denied  { getattr } for  pid=1057 comm="systemd-tmpfile" path="/var/cache/eix" dev="dm-3" ino=69394 scontext=system_u:system_r:systemd_tmpfiles_t:s0 tcontext=system_u:object_r:portage_cache_t:s0 tclass=dir permissive=0
 EOF
 
 
 #============= systemd_tmpfiles_t ==============
 
 #!!!! This avc can be allowed using the boolean 'systemd_tmpfiles_manage_all'
-allow systemd_tmpfiles_t portage_cache_t:dir { getattr read };
+allow systemd_tmpfiles_t portage_cache_t:dir getattr;
 
 ❯ setsebool -P systemd_tmpfiles_manage_all on
 ```
 
 ```shell
 ❯ cat <<EOF | audit2allow
-[   37.623382] audit: type=1400 audit(1661368168.150:5): avc:  denied  { mounton } for  pid=3203 comm="(resolved)" path="/run/systemd/unit-root/run/systemd/resolve" dev="tmpfs" ino=1551 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=dir permissive=0
+[   12.725364] audit: type=1400 audit(1663357675.259:3): avc:  denied  { mounton } for  pid=1062 comm="(auditd)" path="/run/systemd/unit-root/proc" dev="dm-0" ino=67581 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= init_t ==============
+allow init_t unlabeled_t:dir mounton;
+
+# Credits: grift :)
+❯ echo '(filecon "/proc" dir (system_u object_r proc_t ((s0)(s0))))
+(allow proc_t fs_t (filesystem (associate)))
+(typeattributeset mountpoint proc_t)'> my_proc.cil
+❯ semodule -i my_proc.cil
+❯ export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+[   20.366108] audit: type=1400 audit(1663357918.869:3): avc:  denied  { mounton } for  pid=1059 comm="(resolved)" path="/run/systemd/unit-root/run/systemd/resolve" dev="tmpfs" ino=1394 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=dir permissive=0
 EOF
 
 
@@ -334,382 +287,40 @@ allow init_t systemd_resolved_runtime_t:dir mounton;
 ❯ setsebool -P init_mounton_non_security on
 ```
 
+```shell
+❯ cat <<EOF | audit2allow
+[   15.209677] audit: type=1400 audit(1663370258.649:3): avc:  denied  { getattr } for  pid=1036 comm="loadkeys" path="/tmp" dev="tmpfs" ino=1 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= udev_t ==============
+allow udev_t tmpfs_t:dir getattr;
+
+❯ selocal -a "fs_getattr_tmpfs_dirs(udev_t)" -c my_dmesg_000004
+
+❯ selocal -b -L
+```
+
 ### 9.4.2. Denials: auditd.service
 
 !!! info
     The following denials were retrieved with the help of `auditd.service`.
 
 ```shell
-# ----
-# time->Wed Aug 24 21:38:26 2022
-# type=PROCTITLE msg=audit(1661369906.239:39): proctitle=6E6674002D66002D
-# type=PATH msg=audit(1661369906.239:39): item=0 name="/var/lib/nftables/rules-save" inode=221279 dev=00:21 mode=0100600 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:var_lib_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-# type=CWD msg=audit(1661369906.239:39): cwd="/"
-# type=SYSCALL msg=audit(1661369906.239:39): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=7ffee5ea26c0 a2=7ffee5ea2760 a3=100 items=1 ppid=3248 pid=3250 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="nft" exe="/sbin/nft" subj=system_u:system_r:iptables_t:s0 key=(null)
-# type=AVC msg=audit(1661369906.239:39): avc:  denied  { getattr } for  pid=3250 comm="nft" path="/var/lib/nftables/rules-save" dev="dm-1" ino=221279 scontext=system_u:system_r:iptables_t:s0 tcontext=system_u:object_r:var_lib_t:s0 tclass=file permissive=0
-
-❯ semanage fcontext -l | grep -i "/var/lib" | grep tables | column -t
-/var/lib/ip6?tables(/.*)?  all  files  system_u:object_r:initrc_tmp_t:s0
-
-❯ sesearch -A -s iptables_t -t initrc_tmp_t -c file -p getattr
-allow iptables_t initrc_tmp_t:file { append getattr ioctl lock open read write };
-
-❯ semanage fcontext -a -f a -s system_u -t initrc_tmp_t '/var/lib/nftables(/[^\.].*)?'
-
-❯ restorecon -RFv /var/lib/nftables
-Relabeled /var/lib/nftables from system_u:object_r:var_lib_t:s0 to system_u:object_r:initrc_tmp_t:s0
-Relabeled /var/lib/nftables/rules-save from system_u:object_r:var_lib_t:s0 to system_u:object_r:initrc_tmp_t:s0
-```
-
-```shell
 ❯ cat <<EOF | audit2allow
 ----
-time->Wed Aug 24 23:53:08 2022
-type=PROCTITLE msg=audit(1661377988.663:43): proctitle="/lib/systemd/systemd-networkd"
-type=PATH msg=audit(1661377988.663:43): item=0 name="/run/systemd/network" inode=78 dev=00:1a mode=040755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:init_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661377988.663:43): cwd="/"
-type=SYSCALL msg=audit(1661377988.663:43): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=55df73b28c00 a2=90800 a3=0 items=1 ppid=1 pid=3261 auid=4294967295 uid=192 gid=192 euid=192 suid=192 fsuid=192 egid=192 sgid=192 fsgid=192 tty=(none) ses=4294967295 comm="systemd-network" exe="/lib/systemd/systemd-networkd" subj=system_u:system_r:systemd_networkd_t:s0 key=(null)
-type=AVC msg=audit(1661377988.663:43): avc:  denied  { read } for  pid=3261 comm="systemd-network" name="network" dev="tmpfs" ino=78 scontext=system_u:system_r:systemd_networkd_t:s0 tcontext=system_u:object_r:init_runtime_t:s0 tclass=dir permissive=0
+time->Fri Sep 16 21:57:21 2022
+type=AVC msg=audit(1663358241.729:19): avc:  denied  { read write } for  pid=1 comm="systemd" name="rfkill" dev="devtmpfs" ino=178 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:wireless_device_t:s0 tclass=chr_file permissive=0
 ----
-time->Thu Aug 25 00:14:48 2022
-type=PROCTITLE msg=audit(1661379288.763:43): proctitle="/lib/systemd/systemd-networkd"
-type=PATH msg=audit(1661379288.763:43): item=0 name="/run/systemd/network/90-enp1s0.network" inode=79 dev=00:1a mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:init_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661379288.763:43): cwd="/"
-type=SYSCALL msg=audit(1661379288.763:43): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=55da01904c00 a2=7ffca10da400 a3=0 items=1 ppid=1 pid=3333 auid=4294967295 uid=192 gid=192 euid=192 suid=192 fsuid=192 egid=192 sgid=192 fsgid=192 tty=(none) ses=4294967295 comm="systemd-network" exe="/lib/systemd/systemd-networkd" subj=system_u:system_r:systemd_networkd_t:s0 key=(null)
-type=AVC msg=audit(1661379288.763:43): avc:  denied  { getattr } for  pid=3333 comm="systemd-network" path="/run/systemd/network/90-enp1s0.network" dev="tmpfs" ino=79 scontext=system_u:system_r:systemd_networkd_t:s0 tcontext=system_u:object_r:init_runtime_t:s0 tclass=file permissive=0
-----
-time->Thu Aug 25 00:17:28 2022
-type=PROCTITLE msg=audit(1661379448.229:51): proctitle="/lib/systemd/systemd-networkd"
-type=PATH msg=audit(1661379448.229:51): item=0 name="/run/systemd/network/90-enp1s0.network" inode=79 dev=00:1a mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:init_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661379448.229:51): cwd="/"
-type=SYSCALL msg=audit(1661379448.229:51): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=5564bc5f9c00 a2=80000 a3=0 items=1 ppid=1 pid=3078 auid=4294967295 uid=192 gid=192 euid=192 suid=192 fsuid=192 egid=192 sgid=192 fsgid=192 tty=(none) ses=4294967295 comm="systemd-network" exe="/lib/systemd/systemd-networkd" subj=system_u:system_r:systemd_networkd_t:s0 key=(null)
-type=AVC msg=audit(1661379448.229:51): avc:  denied  { read } for  pid=3078 comm="systemd-network" name="90-enp1s0.network" dev="tmpfs" ino=79 scontext=system_u:system_r:systemd_networkd_t:s0 tcontext=system_u:object_r:init_runtime_t:s0 tclass=file permissive=0
-----
-time->Thu Aug 25 00:20:51 2022
-type=PROCTITLE msg=audit(1661379651.029:43): proctitle="/lib/systemd/systemd-networkd"
-type=PATH msg=audit(1661379651.029:43): item=0 name="/run/systemd/network/90-enp1s0.network" inode=80 dev=00:1a mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:init_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661379651.029:43): cwd="/"
-type=SYSCALL msg=audit(1661379651.029:43): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=55732695ec00 a2=80000 a3=0 items=1 ppid=1 pid=3176 auid=4294967295 uid=192 gid=192 euid=192 suid=192 fsuid=192 egid=192 sgid=192 fsgid=192 tty=(none) ses=4294967295 comm="systemd-network" exe="/lib/systemd/systemd-networkd" subj=system_u:system_r:systemd_networkd_t:s0 key=(null)
-type=AVC msg=audit(1661379651.029:43): avc:  denied  { open } for  pid=3176 comm="systemd-network" path="/run/systemd/network/90-enp1s0.network" dev="tmpfs" ino=80 scontext=system_u:system_r:systemd_networkd_t:s0 tcontext=system_u:object_r:init_runtime_t:s0 tclass=file permissive=0
-----
-time->Thu Aug 25 00:24:20 2022
-type=PROCTITLE msg=audit(1661379860.443:43): proctitle="/lib/systemd/systemd-networkd"
-type=SYSCALL msg=audit(1661379860.443:43): arch=c000003e syscall=16 success=no exit=-13 a0=10 a1=5401 a2=7ffd638e1410 a3=1 items=0 ppid=1 pid=2975 auid=4294967295 uid=192 gid=192 euid=192 suid=192 fsuid=192 egid=192 sgid=192 fsgid=192 tty=(none) ses=4294967295 comm="systemd-network" exe="/lib/systemd/systemd-networkd" subj=system_u:system_r:systemd_networkd_t:s0 key=(null)
-type=AVC msg=audit(1661379860.443:43): avc:  denied  { ioctl } for  pid=2975 comm="systemd-network" path="/run/systemd/network/90-enp1s0.network" dev="tmpfs" ino=79 ioctlcmd=0x5401 scontext=system_u:system_r:systemd_networkd_t:s0 tcontext=system_u:object_r:init_runtime_t:s0 tclass=file permissive=0
-EOF
-
-
-#============= systemd_networkd_t ==============
-allow systemd_networkd_t init_runtime_t:dir read;
-allow systemd_networkd_t init_runtime_t:file { getattr ioctl open read };
-
-❯ selocal -a "allow systemd_networkd_t init_runtime_t:dir read;" -c my_auditd_000000_dir
-❯ selocal -a "allow systemd_networkd_t init_runtime_t:file { getattr ioctl open read };" -c my_auditd_000000_file
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Thu Aug 25 00:39:19 2022
-type=PROCTITLE msg=audit(1661380759.276:59): proctitle="(agetty)"
-type=PATH msg=audit(1661380759.276:59): item=0 name="/dev/tty1" inode=20 dev=00:05 mode=020620 ouid=0 ogid=5 rdev=04:01 obj=system_u:object_r:tty_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661380759.276:59): cwd="/"
-type=SYSCALL msg=audit(1661380759.276:59): arch=c000003e syscall=254 success=no exit=-13 a0=3 a1=560c815bb0c0 a2=18 a3=5f932dd639e4204a items=1 ppid=1 pid=3416 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="(agetty)" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661380759.276:59): avc:  denied  { watch watch_reads } for  pid=3416 comm="(agetty)" path="/dev/tty1" dev="devtmpfs" ino=20 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file permissive=0
-----
-time->Thu Aug 25 13:34:38 2022
-type=AVC msg=audit(1661427278.566:70): avc:  denied  { setattr } for  pid=1 comm="systemd" name="ttyS0" dev="devtmpfs" ino=96 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file permissive=0
+time->Fri Sep 16 21:59:29 2022
+type=AVC msg=audit(1663358369.983:19): avc:  denied  { open } for  pid=1 comm="systemd" path="/dev/rfkill" dev="devtmpfs" ino=178 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:wireless_device_t:s0 tclass=chr_file permissive=0
 EOF
 
 
 #============= init_t ==============
-allow init_t tty_device_t:chr_file { setattr watch watch_reads };
+allow init_t wireless_device_t:chr_file { open read write };
 
-❯ selocal -a "allow init_t tty_device_t:chr_file { setattr watch watch_reads };" -c my_auditd_000001
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Thu Aug 25 00:44:42 2022
-type=PROCTITLE msg=audit(1661381082.870:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661381082.870:61): item=1 name="/run/user/1000/systemd" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661381082.870:61): item=0 name="/run/user/1000/" inode=1 dev=00:38 mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661381082.870:61): cwd="/"
-type=SYSCALL msg=audit(1661381082.870:61): arch=c000003e syscall=258 success=no exit=-13 a0=ffffff9c a1=55eb393f4ea0 a2=1ed a3=a5491cfe1f2629de items=2 ppid=1 pid=3288 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661381082.870:61): avc:  denied  { write } for  pid=3288 comm="systemd" name="/" dev="tmpfs" ino=1 scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:user_runtime_t:s0 tclass=dir permissive=0
-----
-time->Thu Aug 25 00:47:57 2022
-type=PROCTITLE msg=audit(1661381277.279:69): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661381277.279:69): item=1 name="/run/user/1000/systemd" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661381277.279:69): item=0 name="/run/user/1000/" inode=1 dev=00:37 mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661381277.279:69): cwd="/"
-type=SYSCALL msg=audit(1661381277.279:69): arch=c000003e syscall=258 success=no exit=-13 a0=ffffff9c a1=55b3fd2dbea0 a2=1ed a3=dbecf310753cd1c items=2 ppid=1 pid=3324 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661381277.279:69): avc:  denied  { add_name } for  pid=3324 comm="systemd" name="systemd" scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:user_runtime_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t user_runtime_t:dir { add_name write };
-
-❯ selocal -a "allow init_t user_runtime_t:dir { add_name write };" -c my_auditd_000002
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Thu Aug 25 00:59:07 2022
-type=PROCTITLE msg=audit(1661381947.629:69): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661381947.629:69): item=1 name="/run/user/1000/systemd" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661381947.629:69): item=0 name="/run/user/1000/" inode=1 dev=00:38 mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661381947.629:69): cwd="/"
-type=SYSCALL msg=audit(1661381947.629:69): arch=c000003e syscall=258 success=no exit=-13 a0=ffffff9c a1=559df6213ea0 a2=1ed a3=60ed288b719f5baa items=2 ppid=1 pid=3432 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661381947.629:69): avc:  denied  { create } for  pid=3432 comm="systemd" name="systemd" scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0
-----
-time->Thu Aug 25 01:08:31 2022
-type=PROCTITLE msg=audit(1661382511.569:63): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661382511.569:63): item=1 name="/run/user/1000/systemd/inaccessible" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661382511.569:63): item=0 name="/run/user/1000/systemd/" inode=2 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661382511.569:63): cwd="/"
-type=SYSCALL msg=audit(1661382511.569:63): arch=c000003e syscall=258 success=no exit=-13 a0=ffffff9c a1=55a9e2cdfb70 a2=1ed a3=1aeec676b3642e3d items=2 ppid=1 pid=3159 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661382511.569:63): avc:  denied  { write } for  pid=3159 comm="systemd" name="systemd" dev="tmpfs" ino=2 scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0
-----
-time->Thu Aug 25 01:11:17 2022
-type=PROCTITLE msg=audit(1661382677.403:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661382677.403:61): item=1 name="/run/user/1000/systemd/inaccessible" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661382677.403:61): item=0 name="/run/user/1000/systemd/" inode=2 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661382677.403:61): cwd="/"
-type=SYSCALL msg=audit(1661382677.403:61): arch=c000003e syscall=258 success=no exit=-13 a0=ffffff9c a1=562000db7b70 a2=1ed a3=7e7ebf467e69ce4 items=2 ppid=1 pid=3363 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661382677.403:61): avc:  denied  { add_name } for  pid=3363 comm="systemd" name="inaccessible" scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0
-----
-time->Thu Aug 25 01:52:49 2022
-type=PROCTITLE msg=audit(1661385169.613:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661385169.613:61): item=1 name="/run/user/1000/systemd/generator" inode=10 dev=00:37 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:systemd_user_runtime_unit_t:s0 nametype=DELETE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661385169.613:61): item=0 name="/run/user/1000/systemd/" inode=2 dev=00:37 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661385169.613:61): cwd="/"
-type=SYSCALL msg=audit(1661385169.613:61): arch=c000003e syscall=84 success=no exit=-13 a0=55dfb321d8a0 a1=cd7 a2=7fa895152d72 a3=4 items=2 ppid=1 pid=3281 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661385169.613:61): avc:  denied  { remove_name } for  pid=3281 comm="systemd" name="generator" dev="tmpfs" ino=10 scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t systemd_user_runtime_t:dir { add_name create remove_name write };
-
-❯ selocal -a "allow init_t systemd_user_runtime_t:dir { add_name create remove_name write };" -c my_auditd_000003
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Thu Aug 25 00:59:07 2022
-type=PROCTITLE msg=audit(1661381947.629:69): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661381947.629:69): item=1 name="/run/user/1000/systemd" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661381947.629:69): item=0 name="/run/user/1000/" inode=1 dev=00:38 mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661381947.629:69): cwd="/"
-type=SYSCALL msg=audit(1661381947.629:69): arch=c000003e syscall=258 success=no exit=-13 a0=ffffff9c a1=559df6213ea0 a2=1ed a3=60ed288b719f5baa items=2 ppid=1 pid=3432 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661381947.629:69): avc:  denied  { create } for  pid=3432 comm="systemd" name="systemd" scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:systemd_user_runtime_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= init_t ==============
-
-#!!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access.
-#Constraint rule:
-#	constrain dir { create relabelfrom relabelto } ((u1 == u2 -Fail-)  or (t1 == can_change_object_identity -Fail-) ); Constraint DENIED
-
-#	Possible cause is the source user (system_u) and target user (staff_u) are different.
-allow init_t systemd_user_runtime_t:dir create;
-
-❯ selocal -a "domain_obj_id_change_exemption(init_t)" -c my_auditd_000004
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Thu Aug 25 01:14:01 2022
-type=PROCTITLE msg=audit(1661382841.039:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661382841.039:61): item=1 name="/run/user/1000/systemd/inaccessible/reg" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661382841.039:61): item=0 name="/run/user/1000/systemd/inaccessible/" inode=3 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661382841.039:61): cwd="/"
-type=SYSCALL msg=audit(1661382841.039:61): arch=c000003e syscall=259 success=no exit=-13 a0=ffffff9c a1=55933399bb70 a2=8000 a3=0 items=2 ppid=1 pid=3268 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661382841.039:61): avc:  denied  { create } for  pid=3268 comm="systemd" name="reg" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_user_runtime_t:s0 tclass=file permissive=0
-----
-time->Thu Aug 25 01:16:35 2022
-type=PROCTITLE msg=audit(1661382995.279:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661382995.279:61): item=1 name="/run/user/1000/systemd/inaccessible/fifo" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661382995.279:61): item=0 name="/run/user/1000/systemd/inaccessible/" inode=3 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661382995.279:61): cwd="/"
-type=SYSCALL msg=audit(1661382995.279:61): arch=c000003e syscall=259 success=no exit=-13 a0=ffffff9c a1=564c02a30b70 a2=1000 a3=0 items=2 ppid=1 pid=3262 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661382995.279:61): avc:  denied  { create } for  pid=3262 comm="systemd" name="fifo" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_user_runtime_t:s0 tclass=fifo_file permissive=0
-----
-time->Thu Aug 25 01:23:17 2022
-type=PROCTITLE msg=audit(1661383397.123:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661383397.123:61): item=1 name="/run/user/1000/systemd/inaccessible/sock" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661383397.123:61): item=0 name="/run/user/1000/systemd/inaccessible/" inode=3 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661383397.123:61): cwd="/"
-type=SYSCALL msg=audit(1661383397.123:61): arch=c000003e syscall=259 success=no exit=-13 a0=ffffff9c a1=55e4a6ed1b70 a2=c000 a3=0 items=2 ppid=1 pid=3278 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661383397.123:61): avc:  denied  { create } for  pid=3278 comm="systemd" name="sock" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_user_runtime_t:s0 tclass=sock_file permissive=0
-----
-time->Thu Aug 25 01:29:20 2022
-type=PROCTITLE msg=audit(1661383760.239:62): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661383760.239:62): item=1 name="/run/user/1000/systemd/inaccessible/chr" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661383760.239:62): item=0 name="/run/user/1000/systemd/inaccessible/" inode=3 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661383760.239:62): cwd="/"
-type=SYSCALL msg=audit(1661383760.239:62): arch=c000003e syscall=259 success=no exit=-13 a0=ffffff9c a1=5632bff78b70 a2=2000 a3=0 items=2 ppid=1 pid=3187 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661383760.239:62): avc:  denied  { create } for  pid=3187 comm="systemd" name="chr" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_user_runtime_t:s0 tclass=chr_file permissive=0
-----
-time->Thu Aug 25 01:56:22 2022
-type=PROCTITLE msg=audit(1661385382.983:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661385382.983:61): item=0 name="/proc/self/fd/20" inode=14 dev=00:37 mode=0140755 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661385382.983:61): cwd="/"
-type=SYSCALL msg=audit(1661385382.983:61): arch=c000003e syscall=280 success=no exit=-13 a0=ffffff9c a1=7fffd56539c0 a2=0 a3=0 items=1 ppid=1 pid=3378 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661385382.983:61): avc:  denied  { write } for  pid=3378 comm="systemd" name="private" dev="tmpfs" ino=14 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_user_runtime_t:s0 tclass=sock_file permissive=0
-----
-time->Thu Aug 25 02:04:33 2022
-type=PROCTITLE msg=audit(1661385873.076:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661385873.076:61): item=2 name="/run/user/1000/systemd/units/.#invocation:dbus.socketccab4f1d32dec060" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661385873.076:61): item=1 name="3cc59378b35f4d579b487118b4e918ea" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661385873.076:61): item=0 name="/run/user/1000/systemd/units/" inode=9 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661385873.076:61): cwd="/"
-type=SYSCALL msg=audit(1661385873.076:61): arch=c000003e syscall=88 success=no exit=-13 a0=559116ee34b0 a1=559116f5da50 a2=55944ffae8ee a3=caab043e32a02748 items=3 ppid=1 pid=3266 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661385873.076:61): avc:  denied  { create } for  pid=3266 comm="systemd" name=".#invocation:dbus.socketccab4f1d32dec060" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_user_runtime_t:s0 tclass=lnk_file permissive=0
-----
-time->Thu Aug 25 10:03:06 2022
-type=PROCTITLE msg=audit(1661414586.303:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661414586.303:61): item=3 name="/run/user/1000/systemd/units/invocation:dbus.socket" nametype=CREATE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661414586.303:61): item=2 name="/run/user/1000/systemd/units/.#invocation:dbus.socket6fa23590912098d5" inode=16 dev=00:38 mode=0120777 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=DELETE cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661414586.303:61): item=1 name="/run/user/1000/systemd/units/" inode=9 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661414586.303:61): item=0 name="/run/user/1000/systemd/units/" inode=9 dev=00:38 mode=040755 ouid=1000 ogid=1000 rdev=00:00 obj=system_u:object_r:systemd_user_runtime_t:s0 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661414586.303:61): cwd="/"
-type=SYSCALL msg=audit(1661414586.303:61): arch=c000003e syscall=82 success=no exit=-13 a0=55ad42211f70 a1=55ad421951e0 a2=55a818ce4340 a3=66f3775c14331539 items=4 ppid=1 pid=3770 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661414586.303:61): avc:  denied  { rename } for  pid=3770 comm="systemd" name=".#invocation:dbus.socket6fa23590912098d5" dev="tmpfs" ino=16 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_user_runtime_t:s0 tclass=lnk_file permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t systemd_user_runtime_t:chr_file create;
-allow init_t systemd_user_runtime_t:fifo_file create;
-allow init_t systemd_user_runtime_t:file create;
-allow init_t systemd_user_runtime_t:lnk_file { create rename };
-allow init_t systemd_user_runtime_t:sock_file { create write };
-
-❯ selocal -a "allow init_t systemd_user_runtime_t:chr_file create;" -c my_auditd_000005_chr_file
-❯ selocal -a "allow init_t systemd_user_runtime_t:fifo_file create;" -c my_auditd_000005_fifo_file
-❯ selocal -a "allow init_t systemd_user_runtime_t:file create;" -c my_auditd_000005_file
-❯ selocal -a "allow init_t systemd_user_runtime_t:lnk_file { create rename };" -c my_auditd_000005_lnk_file
-❯ selocal -a "allow init_t systemd_user_runtime_t:sock_file { create write };" -c my_auditd_000005_sock_file
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Thu Aug 25 01:35:11 2022
-type=PROCTITLE msg=audit(1661384111.956:61): proctitle="/usr/lib/systemd/user-environment-generators/30-systemd-environment-d-generator"
-type=PATH msg=audit(1661384111.956:61): item=0 name="" inode=265 dev=00:21 mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:xdg_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661384111.956:61): cwd="/"
-type=SYSCALL msg=audit(1661384111.956:61): arch=c000003e syscall=262 success=no exit=-13 a0=4 a1=7ff72be7df13 a2=7ffff656b200 a3=1000 items=1 ppid=3264 pid=3265 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="30-systemd-envi" exe="/usr/lib/systemd/user-environment-generators/30-systemd-environment-d-generator" subj=system_u:system_r:systemd_generator_t:s0 key=(null)
-type=AVC msg=audit(1661384111.956:61): avc:  denied  { getattr } for  pid=3265 comm="30-systemd-envi" path="/home/david/.config" dev="dm-0" ino=265 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=staff_u:object_r:xdg_config_t:s0 tclass=dir permissive=0
-----
-time->Thu Aug 25 01:38:28 2022
-type=PROCTITLE msg=audit(1661384308.306:61): proctitle="/usr/lib/systemd/user-environment-generators/30-systemd-environment-d-generator"
-type=PATH msg=audit(1661384308.306:61): item=0 name="environment.d" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661384308.306:61): cwd="/"
-type=SYSCALL msg=audit(1661384308.306:61): arch=c000003e syscall=257 success=no exit=-13 a0=4 a1=561d1e9652d0 a2=2a0000 a3=0 items=1 ppid=3273 pid=3274 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="30-systemd-envi" exe="/usr/lib/systemd/user-environment-generators/30-systemd-environment-d-generator" subj=system_u:system_r:systemd_generator_t:s0 key=(null)
-type=AVC msg=audit(1661384308.306:61): avc:  denied  { search } for  pid=3274 comm="30-systemd-envi" name=".config" dev="dm-1" ino=265 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=staff_u:object_r:xdg_config_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= systemd_generator_t ==============
-allow systemd_generator_t xdg_config_t:dir { getattr search };
-
-❯ selocal -a "allow systemd_generator_t xdg_config_t:dir { getattr search };" -c my_auditd_000006
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Thu Aug 25 02:00:35 2022
-type=PROCTITLE msg=audit(1661385635.276:61): proctitle=2F6C69622F73797374656D642F73797374656D64002D2D75736572
-type=PATH msg=audit(1661385635.276:61): item=0 name="/proc/self/fd/26" inode=15 dev=00:38 mode=0140666 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:object_r:session_dbusd_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661385635.276:61): cwd="/"
-type=SYSCALL msg=audit(1661385635.276:61): arch=c000003e syscall=280 success=no exit=-13 a0=ffffff9c a1=7ffc4a0a5f70 a2=0 a3=0 items=1 ppid=1 pid=3268 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=2 comm="systemd" exe="/lib/systemd/systemd" subj=system_u:system_r:init_t:s0 key=(null)
-type=AVC msg=audit(1661385635.276:61): avc:  denied  { write } for  pid=3268 comm="systemd" name="bus" dev="tmpfs" ino=15 scontext=system_u:system_r:init_t:s0 tcontext=staff_u:object_r:session_dbusd_runtime_t:s0 tclass=sock_file permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t session_dbusd_runtime_t:sock_file write;
-
-❯ selocal -a "allow init_t session_dbusd_runtime_t:sock_file write;" -c my_auditd_000007
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Thu Aug 25 11:18:48 2022
-type=PROCTITLE msg=audit(1661419128.603:65): proctitle=7375646F002D69
-type=PATH msg=audit(1661419128.603:65): item=0 name="/proc/3268/stat" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661419128.603:65): cwd="/home/david"
-type=SYSCALL msg=audit(1661419128.603:65): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7ffebc1a77b0 a2=20000 a3=0 items=1 ppid=3268 pid=3296 auid=1000 uid=1000 gid=1000 euid=0 suid=0 fsuid=0 egid=1000 sgid=1000 fsgid=1000 tty=pts0 ses=1 comm="sudo" exe="/usr/bin/sudo" subj=staff_u:staff_r:staff_sudo_t:s0-s0:c0.c1023 key=(null)
-type=AVC msg=audit(1661419128.603:65): avc:  denied  { search } for  pid=3296 comm="sudo" name="3268" dev="proc" ino=23326 scontext=staff_u:staff_r:staff_sudo_t:s0-s0:c0.c1023 tcontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=dir permissive=0
-----
-time->Thu Aug 25 11:21:23 2022
-type=PROCTITLE msg=audit(1661419283.933:65): proctitle=7375646F002D69
-type=PATH msg=audit(1661419283.933:65): item=0 name="/proc/3172/stat" inode=21310 dev=00:16 mode=0100444 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:staff_r:staff_t:s0-s0:c0.c1023 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661419283.933:65): cwd="/home/david"
-type=SYSCALL msg=audit(1661419283.933:65): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7ffc8f06ad90 a2=20000 a3=0 items=1 ppid=3172 pid=3197 auid=1000 uid=1000 gid=1000 euid=0 suid=0 fsuid=0 egid=1000 sgid=1000 fsgid=1000 tty=pts0 ses=1 comm="sudo" exe="/usr/bin/sudo" subj=staff_u:staff_r:staff_sudo_t:s0-s0:c0.c1023 key=(null)
-type=AVC msg=audit(1661419283.933:65): avc:  denied  { read } for  pid=3197 comm="sudo" name="stat" dev="proc" ino=21310 scontext=staff_u:staff_r:staff_sudo_t:s0-s0:c0.c1023 tcontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=file permissive=0
-----
-time->Thu Aug 25 11:24:21 2022
-type=PROCTITLE msg=audit(1661419461.606:65): proctitle=7375646F002D69
-type=PATH msg=audit(1661419461.606:65): item=0 name="/proc/3077/stat" inode=22073 dev=00:16 mode=0100444 ouid=1000 ogid=1000 rdev=00:00 obj=staff_u:staff_r:staff_t:s0-s0:c0.c1023 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661419461.606:65): cwd="/home/david"
-type=SYSCALL msg=audit(1661419461.606:65): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7ffde6d86d20 a2=20000 a3=0 items=1 ppid=3077 pid=3102 auid=1000 uid=1000 gid=1000 euid=0 suid=0 fsuid=0 egid=1000 sgid=1000 fsgid=1000 tty=pts0 ses=1 comm="sudo" exe="/usr/bin/sudo" subj=staff_u:staff_r:staff_sudo_t:s0-s0:c0.c1023 key=(null)
-type=AVC msg=audit(1661419461.606:65): avc:  denied  { open } for  pid=3102 comm="sudo" path="/proc/3077/stat" dev="proc" ino=22073 scontext=staff_u:staff_r:staff_sudo_t:s0-s0:c0.c1023 tcontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=file permissive=0
-EOF
-
-
-#============= staff_sudo_t ==============
-allow staff_sudo_t staff_t:dir search;
-allow staff_sudo_t staff_t:file { open read };
-
-❯ selocal -a "allow staff_sudo_t staff_t:dir search;" -c my_auditd_000008_dir
-❯ selocal -a "allow staff_sudo_t staff_t:file { open read };" -c my_auditd_000008_file
-
-❯ selocal -b -L
-```
-
-```shell
-❯ semodule -DB
-
-❯ cat <<EOF | audit2allow
-----
-type=AVC msg=audit(1661427872.643:74): avc:  denied  { use } for  pid=3163 comm="login" path="/dev/ttyS0" dev="devtmpfs" ino=96 scontext=system_u:system_r:local_login_t:s0 tcontext=system_u:system_r:init_t:s0 tclass=fd permissive=0
-EOF
-
-
-#============= local_login_t ==============
-allow local_login_t init_t:fd use;
-
-❯ semodule -B
-
-❯ selocal -a "allow local_login_t init_t:fd use;" -c my_dont_audit_000000
+❯ selocal -a "dev_rw_wireless(init_t)" -c my_auditd_000000
 
 ❯ selocal -b -L
 ```
@@ -717,167 +328,661 @@ allow local_login_t init_t:fd use;
 !!! note
     At this point, ssh connections for non-root and the switch to root via "sudo" should be possible without denials.
 
-### 9.4.3. Denials: remaining default services
+### 9.4.3. VM host
 
 !!! note
-    The following policies make the remain systemd services work.
+    I connect to libvirtd via TCP and SSH port forwarding, because I want to use my SSH key which is secured on a hardware token, and `virt-manager` doesn't seem to be able to handle my hardware token directly. Thus, I can't use s.th. like `qemu+ssh://david@192.168.10.3:50022/system`.
+
+I prefer managing downloads and network myself:
 
 ```shell
-❯ semodule -DB
+echo "\
+app-emulation/libvirt -virt-network
+app-emulation/qemu -curl" >> /etc/portage/package.use/main
+```
 
+I setup the internal network manually:
+
+```shell
+❯ head /etc/systemd/network/br0.*
+==> /etc/systemd/network/br0.netdev <==
+[NetDev]
+Name=br0
+Kind=bridge
+
+==> /etc/systemd/network/br0.network <==
+[Match]
+Name=br0
+
+[Network]
+Address=192.168.110.1/24
+ConfigureWithoutCarrier=true
+```
+
+Install:
+
+```shell
+emerge -av app-emulation/libvirt
+```
+
+Enable libvirt's [TCP transport](https://libvirt.org/remote.html#transports):
+
+```shell
+systemctl enable libvirtd-tcp.socket && \
+systemctl start libvirtd-tcp.socket && \
+systemctl enable libvirt-guests.service && \
+systemctl start libvirt-guests.service && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+systemd should listen now on TCP port 16509:
+
+```shell
+❯ lsof -nP -iTCP -sTCP:LISTEN
+COMMAND    PID            USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+systemd      1            root   48u  IPv6  50548      0t0  TCP *:16509 (LISTEN)
+systemd-r 1063 systemd-resolve   12u  IPv4  18306      0t0  TCP *:5355 (LISTEN)
+systemd-r 1063 systemd-resolve   14u  IPv6  18309      0t0  TCP *:5355 (LISTEN)
+systemd-r 1063 systemd-resolve   18u  IPv4  18313      0t0  TCP 127.0.0.53:53 (LISTEN)
+systemd-r 1063 systemd-resolve   20u  IPv4  18315      0t0  TCP 127.0.0.54:53 (LISTEN)
+sshd      1096            root    3u  IPv4  18400      0t0  TCP *:50022 (LISTEN)
+sshd      1096            root    4u  IPv6  18401      0t0  TCP *:50022 (LISTEN)
+```
+
+Forward the connection with:
+
+```shell
+ssh -NL 56509:127.0.0.1:16509 -p 50022 david@192.168.10.3
+```
+
+Add this connection in `virt-manager`:
+
+```shell
+qemu+tcp://127.0.0.1:56509/system
+```
+
+#### 9.4.3.1 Connecting with virt-manager over TCP
+
+```shell
 ❯ cat <<EOF | audit2allow
 ----
-time->Fri Aug 26 13:24:06 2022
-type=PROCTITLE msg=audit(1661513046.786:77): proctitle="/lib/systemd/systemd-resolved"
-type=PATH msg=audit(1661513046.786:77): item=1 name="/lib64/ld-linux-x86-64.so.2" inode=182830 dev=00:21 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=PATH msg=audit(1661513046.786:77): item=0 name="/lib/systemd/systemd-resolved" inode=186052 dev=00:21 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:systemd_resolved_exec_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661513046.786:77): cwd="/"
-type=EXECVE msg=audit(1661513046.786:77): argc=1 a0="/lib/systemd/systemd-resolved"
-type=SYSCALL msg=audit(1661513046.786:77): arch=c000003e syscall=59 success=yes exit=0 a0=5609cd28e350 a1=5609cd76b070 a2=5609cd283a10 a3=5609cd76b070 items=2 ppid=1 pid=3551 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
-type=AVC msg=audit(1661513046.786:77): avc:  denied  { noatsecure } for  pid=3551 comm="(resolved)" scontext=system_u:system_r:init_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=process permissive=0
-----
-time->Fri Aug 26 13:24:06 2022
-type=PROCTITLE msg=audit(1661513046.789:78): proctitle="/lib/systemd/systemd-resolved"
-type=PATH msg=audit(1661513046.789:78): item=0 name="/etc/selinux/config" inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661513046.789:78): cwd="/"
-type=SYSCALL msg=audit(1661513046.789:78): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fe9fb66c8bb a2=80000 a3=0 items=1 ppid=1 pid=3551 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
-type=AVC msg=audit(1661513046.789:78): avc:  denied  { read } for  pid=3551 comm="systemd-resolve" name="config" dev="dm-2" ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 13:43:11 2022
-type=PROCTITLE msg=audit(1661514191.273:47): proctitle="/lib/systemd/systemd-resolved"
-type=PATH msg=audit(1661514191.273:47): item=0 name="/etc/selinux/config" inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661514191.273:47): cwd="/"
-type=SYSCALL msg=audit(1661514191.273:47): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f2d111a98bb a2=80000 a3=0 items=1 ppid=1 pid=3340 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
-type=AVC msg=audit(1661514191.273:47): avc:  denied  { open } for  pid=3340 comm="systemd-resolve" path="/etc/selinux/config" dev="dm-1" ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 13:47:15 2022
-type=PROCTITLE msg=audit(1661514435.840:48): proctitle="/lib/systemd/systemd-resolved"
-type=PATH msg=audit(1661514435.840:48): item=0 name="" inode=180685 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:selinux_config_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661514435.840:48): cwd="/"
-type=SYSCALL msg=audit(1661514435.840:48): arch=c000003e syscall=262 success=no exit=-13 a0=4 a1=7f33f0334f13 a2=7ffeba0908e0 a3=1000 items=1 ppid=1 pid=3239 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
-type=AVC msg=audit(1661514435.840:48): avc:  denied  { getattr } for  pid=3239 comm="systemd-resolve" path="/etc/selinux/config" dev="dm-0" ino=180685 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:selinux_config_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 13:47:15 2022
-type=PROCTITLE msg=audit(1661514435.843:49): proctitle="/lib/systemd/systemd-resolved"
-type=PATH msg=audit(1661514435.843:49): item=0 name="/etc/ssl/openssl.cnf" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661514435.843:49): cwd="/"
-type=SYSCALL msg=audit(1661514435.843:49): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=560cee2731e0 a2=0 a3=0 items=1 ppid=1 pid=3239 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
-type=AVC msg=audit(1661514435.843:49): avc:  denied  { search } for  pid=3239 comm="systemd-resolve" name="ssl" dev="dm-0" ino=456 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=dir permissive=0
-----
-time->Fri Aug 26 13:59:10 2022
-type=PROCTITLE msg=audit(1661515150.289:57): proctitle="/lib/systemd/systemd-resolved"
-type=PATH msg=audit(1661515150.289:57): item=0 name="/etc/ssl/certs/4042bcee.0" inode=35427 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:usr_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661515150.289:57): cwd="/"
-type=SYSCALL msg=audit(1661515150.289:57): arch=c000003e syscall=262 success=no exit=-13 a0=ffffff9c a1=561ab20763a0 a2=7fffcf548630 a3=0 items=1 ppid=1 pid=3691 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193
-fsgid=193 tty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
-type=AVC msg=audit(1661515150.289:57): avc:  denied  { getattr } for  pid=3691 comm="systemd-resolve" path="/usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt" dev="dm-3" ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 14:14:29 2022
-type=PROCTITLE msg=audit(1661516069.446:48): proctitle="/lib/systemd/systemd-resolved"
-type=PATH msg=audit(1661516069.446:48): item=0 name="/etc/ssl/certs/4042bcee.0" inode=35427 dev=00:21 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:usr_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661516069.446:48): cwd="/"
-type=SYSCALL msg=audit(1661516069.446:48): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=55a2c43cd3a0 a2=0 a3=0 items=1 ppid=1 pid=3370 auid=4294967295 uid=193 gid=193 euid=193 suid=193 fsuid=193 egid=193 sgid=193 fsgid=193 t
-ty=(none) ses=4294967295 comm="systemd-resolve" exe="/lib/systemd/systemd-resolved" subj=system_u:system_r:systemd_resolved_t:s0 key=(null)
-type=AVC msg=audit(1661516069.446:48): avc:  denied  { read } for  pid=3370 comm="systemd-resolve" name="ISRG_Root_X1.crt" dev="dm-0" ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 18:05:41 2022
-type=AVC msg=audit(1661529941.943:32): avc:  denied  { open } for  pid=3114 comm="systemd-resolve" path="/usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt" dev="dm-2" ino=35427 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:usr_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 18:13:43 2022
-type=AVC msg=audit(1661530423.723:31): avc:  denied  { search } for  pid=3306 comm="systemd-resolve" name="zoneinfo" dev="dm-2" ino=17003 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=dir permissive=0
-----
-time->Fri Aug 26 18:17:24 2022
-type=PROCTITLE msg=audit(1661530644.433:5): proctitle="/lib/systemd/systemd-timesyncd"
-type=SYSCALL msg=audit(1661530644.433:5): arch=c000003e syscall=42 success=no exit=-13 a0=f a1=7fde14452bb0 a2=2a a3=8 items=0 ppid=1 pid=3222 auid=4294967295 uid=195 gid=195 euid=195 suid=195 fsuid=195 egid=195 sgid=195 fsgid=195 tty=(none) ses=4294967295 comm="sd-resolve" exe="/lib/systemd/systemd-timesyncd" subj=system_u:system_r:ntpd_t:s0 key=(null)
-type=AVC msg=audit(1661530644.433:5): avc:  denied  { write } for  pid=3222 comm="sd-resolve" name="io.systemd.Resolve" dev="tmpfs" ino=1556 scontext=system_u:system_r:ntpd_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=sock_file permissive=0
-----
-time->Fri Aug 26 18:21:53 2022
-type=PROCTITLE msg=audit(1661530913.279:12): proctitle="/lib/systemd/systemd-timesyncd"
-type=PATH msg=audit(1661530913.279:12): item=0 name="/run/systemd/resolve/io.systemd.Resolve" inode=1569 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661530913.279:12): cwd="/"
-type=SOCKADDR msg=audit(1661530913.279:12): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500
-type=SYSCALL msg=audit(1661530913.279:12): arch=c000003e syscall=42 success=no exit=-13 a0=c a1=7f20f6308bb0 a2=2a a3=1 items=1 ppid=1 pid=3311 auid=4294967295 uid=195 gid=195 euid=195 suid=195 fsuid=195 egid=195 sgid=195 fsgid=195 tty=(none) ses=4294967295 comm="sd-resolve" exe="/lib/systemd/systemd-timesyncd" subj=system_u:system_r:ntpd_t:s0 key=(null)
-type=AVC msg=audit(1661530913.279:12): avc:  denied  { connectto } for  pid=3311 comm="sd-resolve" path="/run/systemd/resolve/io.systemd.Resolve" scontext=system_u:system_r:ntpd_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=unix_stream_socket permissive=0
-----
-time->Fri Aug 26 18:29:06 2022
-type=PROCTITLE msg=audit(1661531346.373:28): proctitle=2F7362696E2F616765747479002D6F002D70202D2D205C75002D2D6E6F636C656172002D006C696E7578
-type=PATH msg=audit(1661531346.373:28): item=0 name="/run/systemd/resolve/io.systemd.Resolve" inode=1572 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661531346.373:28): cwd="/"
-type=SOCKADDR msg=audit(1661531346.373:28): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500
-type=SYSCALL msg=audit(1661531346.373:28): arch=c000003e syscall=42 success=no exit=-13 a0=4 a1=7ffc75269c90 a2=2a a3=1 items=1 ppid=1 pid=3341 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=tty1 ses=4294967295 comm="agetty" exe="/sbin/agetty" subj=system_u:system_r:getty_t:s0 key=(null)
-type=AVC msg=audit(1661531346.373:28): avc:  denied  { write } for  pid=3341 comm="agetty" name="io.systemd.Resolve" dev="tmpfs" ino=1572 scontext=system_u:system_r:getty_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=sock_file permissive=0
-----
-time->Fri Aug 26 18:33:01 2022
-type=PROCTITLE msg=audit(1661531581.076:28): proctitle=2F7362696E2F616765747479002D6F002D70202D2D205C75002D2D6E6F636C656172002D006C696E7578
-type=PATH msg=audit(1661531581.076:28): item=0 name="/run/systemd/resolve/io.systemd.Resolve" inode=1557 dev=00:1a mode=0140666 ouid=193 ogid=193 rdev=00:00 obj=system_u:object_r:systemd_resolved_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661531581.076:28): cwd="/"
-type=SOCKADDR msg=audit(1661531581.076:28): saddr=01002F72756E2F73797374656D642F7265736F6C76652F696F2E73797374656D642E5265736F6C766500
-type=SYSCALL msg=audit(1661531581.076:28): arch=c000003e syscall=42 success=no exit=-13 a0=4 a1=7ffedced62d0 a2=2a a3=1 items=1 ppid=1 pid=3252 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=tty1 ses=4294967295 comm="agetty" exe="/sbin/agetty" subj=system_u:system_r:getty_t:s0 key=(null)
-type=AVC msg=audit(1661531581.076:28): avc:  denied  { connectto } for  pid=3252 comm="agetty" path="/run/systemd/resolve/io.systemd.Resolve" scontext=system_u:system_r:getty_t:s0 tcontext=system_u:system_r:systemd_resolved_t:s0 tclass=unix_stream_socket permissive=0
-----
-time->Fri Aug 26 18:36:08 2022
-type=PROCTITLE msg=audit(1661531768.258:29): proctitle="/lib/systemd/systemd-journald"
-type=PATH msg=audit(1661531768.258:29): item=0 name=(null) inode=295993 dev=00:21 mode=0100640 ouid=0 ogid=190 rdev=00:00 obj=system_u:object_r:systemd_journal_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
-type=CWD msg=audit(1661531768.258:29): cwd="/"
-type=SYSCALL msg=audit(1661531768.258:29): arch=c000003e syscall=190 success=no exit=-13 a0=1d a1=7f6a98000c39 a2=7f6a98000e70 a3=27 items=1 ppid=1 pid=3227 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="journal-offline" exe="/lib/systemd/systemd-journald" subj=system_u:system_r:syslogd_t:s0 key=(null)
-type=AVC msg=audit(1661531768.258:29): avc:  denied  { relabelfrom } for  pid=3227 comm="journal-offline" name=".#system@b1c963f9cd674ade90203e9d2b982ffb-000000000004bdcc-0005e7276b74f36f.journal83d335cb8d2ecc6d" dev="dm-2" ino=295993 scontext=system_u:system_r:syslogd_t:s0 tcontext=system_u:object_r:systemd_journal_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 18:42:58 2022
-type=AVC msg=audit(1661532178.633:52): avc:  denied  { read } for  pid=3307 comm="systemd-resolve" name="Berlin" dev="dm-0" ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 18:51:50 2022
-type=AVC msg=audit(1661532710.416:28): avc:  denied  { open } for  pid=3320 comm="systemd-resolve" path="/usr/share/zoneinfo/Europe/Berlin" dev="dm-1" ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 18:56:04 2022
-type=AVC msg=audit(1661532964.296:28): avc:  denied  { getattr } for  pid=3215 comm="systemd-resolve" path="/usr/share/zoneinfo/Europe/Berlin" dev="dm-1" ino=17360 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file permissive=0
-----
-time->Fri Aug 26 20:34:12 2022
-type=AVC msg=audit(1661538852.196:28): avc:  denied  { search } for  pid=3208 comm="systemd-resolve" name="zoneinfo" dev="dm-0" ino=17003 scontext=system_u:system_r:systemd_resolved_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=dir permissive=0
+time->Fri Sep 16 22:51:23 2022
+type=AVC msg=audit(1663361483.820:41): avc:  denied  { write } for  pid=1 comm="systemd" name="libvirt-sock" dev="tmpfs" ino=1548 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:virt_runtime_t:s0 tclass=sock_file permissive=0
 EOF
 
 
-#============= getty_t ==============
-allow getty_t systemd_resolved_runtime_t:sock_file write;
-allow getty_t systemd_resolved_t:unix_stream_socket connectto;
-
 #============= init_t ==============
+allow init_t virt_runtime_t:sock_file write;
 
-#!!!! This avc has a dontaudit rule in the current policy
-allow init_t systemd_resolved_t:process noatsecure;
-
-#============= ntpd_t ==============
-allow ntpd_t systemd_resolved_runtime_t:sock_file write;
-allow ntpd_t systemd_resolved_t:unix_stream_socket connectto;
-
-#============= syslogd_t ==============
-allow syslogd_t systemd_journal_t:file relabelfrom;
-
-#============= systemd_resolved_t ==============
-
-#!!!! This avc can be allowed using the boolean 'authlogin_nsswitch_use_ldap'
-allow systemd_resolved_t cert_t:dir search;
-allow systemd_resolved_t locale_t:dir search;
-allow systemd_resolved_t locale_t:file { getattr open read };
-
-#!!!! This avc has a dontaudit rule in the current policy
-allow systemd_resolved_t selinux_config_t:file { getattr open read };
-allow systemd_resolved_t usr_t:file { getattr open read };
-
-❯ semodule -B
-
-❯ selocal -a "allow getty_t systemd_resolved_runtime_t:sock_file write;" -c my_dont_audit_000001_systemd_services
-❯ selocal -a "allow getty_t systemd_resolved_t:unix_stream_socket connectto;" -c my_dont_audit_000001_systemd_services
-❯ selocal -a "allow init_t systemd_resolved_t:process noatsecure;" -c my_dont_audit_000001_systemd_services
-❯ selocal -a "allow ntpd_t systemd_resolved_runtime_t:sock_file write;" -c my_dont_audit_000001_systemd_services
-❯ selocal -a "allow ntpd_t systemd_resolved_t:unix_stream_socket connectto;" -c my_dont_audit_000001_systemd_services
-❯ selocal -a "allow syslogd_t systemd_journal_t:file relabelfrom;" -c my_dont_audit_000001_systemd_services
-❯ setsebool -P authlogin_nsswitch_use_ldap on
-❯ selocal -a "allow systemd_resolved_t locale_t:dir search;" -c my_dont_audit_000001_systemd_services
-❯ selocal -a "allow systemd_resolved_t locale_t:file { getattr open read };" -c my_dont_audit_000001_systemd_services
-❯ selocal -a "allow systemd_resolved_t selinux_config_t:file { getattr open read };" -c my_dont_audit_000001_systemd_services
-❯ selocal -a "allow systemd_resolved_t usr_t:file { getattr open read };" -c my_dont_audit_000001_systemd_services
+❯ selocal -a "virt_stream_connect(init_t)" -c my_libvirtd_service_000000
 
 ❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 22:54:07 2022
+type=AVC msg=audit(1663361647.136:50): avc:  denied  { write } for  pid=1 comm="systemd" name="virtlockd-sock" dev="tmpfs" ino=1558 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:virtlockd_run_t:s0 tclass=sock_file permissive=0
+EOF
+
+
+#============= init_t ==============
+allow init_t virtlockd_run_t:sock_file write;
+
+❯ selocal -a "allow init_t virtlockd_run_t:sock_file write;" -c my_libvirtd_service_000001
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 22:56:14 2022
+type=PROCTITLE msg=audit(1663361774.700:52): proctitle="/lib/systemd/systemd-machined"
+type=SYSCALL msg=audit(1663361774.700:52): arch=c000003e syscall=138 success=no exit=-13 a0=3 a1=7ffef47c94d0 a2=0 a3=7fbe36521df0 items=0 ppid=1 pid=1221 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="systemd-machine" exe="/lib/systemd/systemd-machined" subj=system_u:system_r:systemd_machined_t:s0 key=(null)
+type=AVC msg=audit(1663361774.700:52): avc:  denied  { getattr } for  pid=1221 comm="systemd-machine" name="/" dev="proc" ino=1 scontext=system_u:system_r:systemd_machined_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0
+EOF
+
+
+#============= systemd_machined_t ==============
+allow systemd_machined_t proc_t:filesystem getattr;
+
+❯ selocal -a "kernel_getattr_proc(systemd_machined_t)" -c my_libvirtd_service_000002
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 22:59:47 2022
+type=PROCTITLE msg=audit(1663361987.606:52): proctitle="/lib/systemd/systemd-machined"
+type=PATH msg=audit(1663361987.606:52): item=0 name="/" inode=256 dev=00:1f mode=040755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:root_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663361987.606:52): cwd="/"
+type=SYSCALL msg=audit(1663361987.606:52): arch=c000003e syscall=137 success=no exit=-13 a0=7f10c6beeccd a1=7ffcc787c590 a2=3 a3=523234cc234200f5 items=1 ppid=1 pid=1206 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="systemd-machine" exe="/lib/systemd/systemd-machined" subj=system_u:system_r:systemd_machined_t:s0 key=(null)
+type=AVC msg=audit(1663361987.606:52): avc:  denied  { getattr } for  pid=1206 comm="systemd-machine" name="/" dev="dm-1" ino=256 scontext=system_u:system_r:systemd_machined_t:s0 tcontext=system_u:object_r:fs_t:s0 tclass=filesystem permissive=0
+EOF
+
+
+#============= systemd_machined_t ==============
+allow systemd_machined_t fs_t:filesystem getattr;
+
+❯ selocal -a "fs_getattr_xattr_fs(systemd_machined_t)" -c my_libvirtd_service_000003
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:04:27 2022
+type=PROCTITLE msg=audit(1663362267.026:53): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=PATH msg=audit(1663362267.026:53): item=0 name="/var/run/utmp" inode=98 dev=00:1a mode=0100664 ouid=0 ogid=406 rdev=00:00 obj=system_u:object_r:initrc_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663362267.026:53): cwd="/"
+type=SYSCALL msg=audit(1663362267.026:53): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fdcd4460e88 a2=80000 a3=0 items=1 ppid=1 pid=1221 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663362267.026:53): avc:  denied  { read } for  pid=1221 comm="libvirtd" name="utmp" dev="tmpfs" ino=98 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:initrc_runtime_t:s0 tclass=file permissive=0
+----
+time->Fri Sep 16 23:06:32 2022
+type=PROCTITLE msg=audit(1663362392.993:53): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=PATH msg=audit(1663362392.993:53): item=0 name="/var/run/utmp" inode=95 dev=00:1a mode=0100664 ouid=0 ogid=406 rdev=00:00 obj=system_u:object_r:initrc_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663362392.993:53): cwd="/"
+type=SYSCALL msg=audit(1663362392.993:53): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f02818d6e88 a2=80000 a3=0 items=1 ppid=1 pid=1197 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663362392.993:53): avc:  denied  { open } for  pid=1197 comm="libvirtd" path="/run/utmp" dev="tmpfs" ino=95 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:initrc_runtime_t:s0 tclass=file permissive=0
+----
+time->Fri Sep 16 23:09:33 2022
+type=AVC msg=audit(1663362573.460:53): avc:  denied  { lock } for  pid=1189 comm="libvirtd" path="/run/utmp" dev="tmpfs" ino=95 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:initrc_runtime_t:s0 tclass=file permissive=0
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t initrc_runtime_t:file { lock open read };
+
+❯ selocal -a "allow virtd_t initrc_runtime_t:file { lock open read };" -c my_libvirtd_service_000004
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:12:30 2022
+type=PROCTITLE msg=audit(1663362750.713:55): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=PATH msg=audit(1663362750.713:55): item=0 name="/run/systemd/userdb/io.systemd.Machine" inode=1562 dev=00:1a mode=0140666 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:systemd_userdbd_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663362750.713:55): cwd="/"
+type=SOCKADDR msg=audit(1663362750.713:55): saddr=01002F72756E2F73797374656D642F7573657264622F696F2E73797374656D642E4D616368696E6500
+type=SYSCALL msg=audit(1663362750.713:55): arch=c000003e syscall=42 success=no exit=-13 a0=1b a1=7f1d8dffa660 a2=29 a3=7f1d740302b0 items=1 ppid=1 pid=1205 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="daemon-init" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663362750.713:55): avc:  denied  { connectto } for  pid=1205 comm="daemon-init" path="/run/systemd/userdb/io.systemd.Machine" scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:systemd_machined_t:s0 tclass=unix_stream_socket permissive=0
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t systemd_machined_t:unix_stream_socket connectto;
+
+❯ selocal -a "systemd_connect_machined(virtd_t)" -c my_libvirtd_service_000005
+
+❯ selocal -b -L
+```
+
+#### 9.4.3.2 VM creation with virt-manager
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:24:31 2022
+type=PROCTITLE msg=audit(1663363471.726:56): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=PATH msg=audit(1663363471.726:56): item=0 name="/dev/cpu/0/msr" inode=85 dev=00:05 mode=020600 ouid=0 ogid=0 rdev=ca:00 obj=system_u:object_r:cpu_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663363471.726:56): cwd="/"
+type=SYSCALL msg=audit(1663363471.726:56): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f02211d4670 a2=0 a3=0 items=1 ppid=1 pid=1223 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663363471.726:56): avc:  denied  { read } for  pid=1223 comm="rpc-libvirtd" name="msr" dev="devtmpfs" ino=85 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:cpu_device_t:s0 tclass=chr_file permissive=0
+----
+time->Fri Sep 16 23:28:05 2022
+type=PROCTITLE msg=audit(1663363685.759:56): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=PATH msg=audit(1663363685.759:56): item=0 name="/dev/cpu/0/msr" inode=85 dev=00:05 mode=020600 ouid=0 ogid=0 rdev=ca:00 obj=system_u:object_r:cpu_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663363685.759:56): cwd="/"
+type=SYSCALL msg=audit(1663363685.759:56): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fad25c9f670 a2=0 a3=0 items=1 ppid=1 pid=1204 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663363685.759:56): avc:  denied  { open } for  pid=1204 comm="rpc-libvirtd" path="/dev/cpu/0/msr" dev="devtmpfs" ino=85 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:cpu_device_t:s0 tclass=chr_file permissive=0
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t cpu_device_t:chr_file { open read };
+
+❯ selocal -a "allow virtd_t cpu_device_t:chr_file { open read };" -c my_virt-manager_000000
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:31:01 2022
+type=PROCTITLE msg=audit(1663363861.959:56): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=PATH msg=audit(1663363861.959:56): item=0 name="/dev/cpu/0/msr" inode=85 dev=00:05 mode=020600 ouid=0 ogid=0 rdev=ca:00 obj=system_u:object_r:cpu_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663363861.959:56): cwd="/"
+type=SYSCALL msg=audit(1663363861.959:56): arch=c000003e syscall=257 success=no exit=-1 a0=ffffff9c a1=7f46e847c670 a2=0 a3=0 items=1 ppid=1 pid=1197 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663363861.959:56): avc:  denied  { sys_rawio } for  pid=1197 comm="rpc-libvirtd" capability=17  scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=capability permissive=0
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t self:capability sys_rawio;
+
+❯ selocal -a "allow virtd_t self:capability sys_rawio;" -c my_virt-manager_000001
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:41:00 2022
+type=PROCTITLE msg=audit(1663364460.659:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663364460.659:60): item=0 name="/proc/sys/kernel/cap_last_cap" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663364460.659:60): cwd="/"
+type=SYSCALL msg=audit(1663364460.659:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f2e2ef8802a a2=0 a3=0 items=1 ppid=1 pid=1284 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663364460.659:60): avc:  denied  { search } for  pid=1284 comm="virtlogd" name="kernel" dev="proc" ino=12520 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=dir permissive=0
+----
+time->Fri Sep 16 23:43:15 2022
+type=PROCTITLE msg=audit(1663364595.286:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663364595.286:60): item=0 name="/proc/sys/kernel/cap_last_cap" inode=13044 dev=00:16 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysctl_kernel_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663364595.286:60): cwd="/"
+type=SYSCALL msg=audit(1663364595.286:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f4091f0a02a a2=0 a3=0 items=1 ppid=1 pid=1237 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663364595.286:60): avc:  denied  { read } for  pid=1237 comm="virtlogd" name="cap_last_cap" dev="proc" ino=13044 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0
+----
+time->Fri Sep 16 23:45:38 2022
+type=PROCTITLE msg=audit(1663364738.143:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663364738.143:60): item=0 name="/proc/sys/kernel/cap_last_cap" inode=12583 dev=00:16 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysctl_kernel_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663364738.143:60): cwd="/"
+type=SYSCALL msg=audit(1663364738.143:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7ffbbec4802a a2=0 a3=0 items=1 ppid=1 pid=1262 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663364738.143:60): avc:  denied  { open } for  pid=1262 comm="virtlogd" path="/proc/sys/kernel/cap_last_cap" dev="proc" ino=12583 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0
+EOF
+
+
+#============= virtlogd_t ==============
+allow virtlogd_t sysctl_kernel_t:dir search;
+allow virtlogd_t sysctl_kernel_t:file { open read };
+
+❯ selocal -a "allow virtlogd_t sysctl_kernel_t:dir search;" -c my_virt-manager_000002_dir
+❯ selocal -a "allow virtlogd_t sysctl_kernel_t:file { open read };" -c my_virt-manager_000002_file
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:48:52 2022
+type=PROCTITLE msg=audit(1663364932.490:60): proctitle="/usr/sbin/virtlogd"
+type=SYSCALL msg=audit(1663364932.490:60): arch=c000003e syscall=138 success=no exit=-13 a0=5 a1=7ffded86dc50 a2=0 a3=7f2967143df0 items=0 ppid=1 pid=1253 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663364932.490:60): avc:  denied  { getattr } for  pid=1253 comm="virtlogd" name="/" dev="proc" ino=1 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0
+EOF
+
+
+#============= virtlogd_t ==============
+allow virtlogd_t proc_t:filesystem getattr;
+
+❯ selocal -a "kernel_getattr_proc(virtlogd_t)" -c my_virt-manager_000003
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:52:05 2022
+type=PROCTITLE msg=audit(1663365125.670:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663365125.670:60): item=0 name="/usr/sbin/virtlogd" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663365125.670:60): cwd="/"
+type=SYSCALL msg=audit(1663365125.670:60): arch=c000003e syscall=89 success=no exit=-13 a0=7ffff4e82120 a1=7ffff4e81cc0 a2=3ff a3=1 items=1 ppid=1 pid=1298 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663365125.670:60): avc:  denied  { search } for  pid=1298 comm="virtlogd" name="sbin" dev="dm-2" ino=53969 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= virtlogd_t ==============
+allow virtlogd_t bin_t:dir search;
+
+❯ selocal -a "allow virtlogd_t bin_t:dir search;" -c my_virt-manager_000004
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:54:28 2022
+type=PROCTITLE msg=audit(1663365268.836:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663365268.836:60): item=0 name="/run/systemd/journal/socket" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663365268.836:60): cwd="/"
+type=SYSCALL msg=audit(1663365268.836:60): arch=c000003e syscall=21 success=no exit=-13 a0=7f7b39d1de7e a1=2 a2=1 a3=ce358e085363cd20 items=1 ppid=1 pid=1221 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663365268.836:60): avc:  denied  { search } for  pid=1221 comm="virtlogd" name="journal" dev="tmpfs" ino=67 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:syslogd_runtime_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= virtlogd_t ==============
+allow virtlogd_t syslogd_runtime_t:dir search;
+
+❯ selocal -a "allow virtlogd_t syslogd_runtime_t:dir search;" -c my_virt-manager_000005
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Fri Sep 16 23:57:52 2022
+type=PROCTITLE msg=audit(1663365472.796:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663365472.796:60): item=0 name="/run/systemd/journal/socket" inode=69 dev=00:1a mode=0140666 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:devlog_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663365472.796:60): cwd="/"
+type=SYSCALL msg=audit(1663365472.796:60): arch=c000003e syscall=21 success=no exit=-13 a0=7fbf53001e7e a1=2 a2=1 a3=2f9a13ca77778bab items=1 ppid=1 pid=1258 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663365472.796:60): avc:  denied  { write } for  pid=1258 comm="virtlogd" name="socket" dev="tmpfs" ino=69 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:devlog_t:s0 tclass=sock_file permissive=0
+EOF
+
+
+#============= virtlogd_t ==============
+allow virtlogd_t devlog_t:sock_file write;
+
+❯ selocal -a "allow virtlogd_t devlog_t:sock_file write;" -c my_virt-manager_000006
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 00:01:05 2022
+type=PROCTITLE msg=audit(1663365665.069:60): proctitle="/usr/sbin/virtlogd"
+type=SYSCALL msg=audit(1663365665.069:60): arch=c000003e syscall=41 success=no exit=-13 a0=1 a1=2 a2=0 a3=7f3284482ac0 items=0 ppid=1 pid=1287 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663365665.069:60): avc:  denied  { create } for  pid=1287 comm="virtlogd" scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:system_r:virtlogd_t:s0 tclass=unix_dgram_socket permissive=0
+EOF
+
+
+#============= virtlogd_t ==============
+allow virtlogd_t self:unix_dgram_socket create;
+
+❯ selocal -a "allow virtlogd_t self:unix_dgram_socket create;" -c my_virt-manager_000007
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 00:04:39 2022
+type=PROCTITLE msg=audit(1663365879.139:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663365879.139:60): item=0 name="/etc/ssl/openssl.cnf" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663365879.139:60): cwd="/"
+type=SYSCALL msg=audit(1663365879.139:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=5579e68a4a90 a2=0 a3=0 items=1 ppid=1 pid=1255 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663365879.139:60): avc:  denied  { search } for  pid=1255 comm="virtlogd" name="ssl" dev="dm-3" ino=456 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=dir permissive=0
+----
+time->Sat Sep 17 00:07:06 2022
+type=PROCTITLE msg=audit(1663366026.166:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663366026.166:60): item=0 name="/etc/ssl/openssl.cnf" inode=76254 dev=00:1f mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:cert_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663366026.166:60): cwd="/"
+type=SYSCALL msg=audit(1663366026.166:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=5636a04f1a90 a2=0 a3=0 items=1 ppid=1 pid=1234 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663366026.166:60): avc:  denied  { read } for  pid=1234 comm="virtlogd" name="openssl.cnf" dev="dm-3" ino=76254 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=file permissive=0
+----
+time->Sat Sep 17 00:09:55 2022
+type=PROCTITLE msg=audit(1663366195.780:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663366195.780:60): item=0 name="/etc/ssl/openssl.cnf" inode=76254 dev=00:1f mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:cert_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663366195.780:60): cwd="/"
+type=SYSCALL msg=audit(1663366195.780:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=55a7ed6ffa90 a2=0 a3=0 items=1 ppid=1 pid=1249 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663366195.780:60): avc:  denied  { open } for  pid=1249 comm="virtlogd" path="/etc/ssl/openssl.cnf" dev="dm-0" ino=76254 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=file permissive=0
+----
+time->Sat Sep 17 00:12:01 2022
+type=PROCTITLE msg=audit(1663366321.463:60): proctitle="/usr/sbin/virtlogd"
+type=PATH msg=audit(1663366321.463:60): item=0 name="" inode=76254 dev=00:1f mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:cert_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663366321.463:60): cwd="/"
+type=SYSCALL msg=audit(1663366321.463:60): arch=c000003e syscall=262 success=no exit=-13 a0=7 a1=7f168d651f13 a2=7ffd6c4a6040 a3=1000 items=1 ppid=1 pid=1235 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="virtlogd" exe="/usr/sbin/virtlogd" subj=system_u:system_r:virtlogd_t:s0 key=(null)
+type=AVC msg=audit(1663366321.463:60): avc:  denied  { getattr } for  pid=1235 comm="virtlogd" path="/etc/ssl/openssl.cnf" dev="dm-2" ino=76254 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=file permissive=0
+EOF
+
+
+#============= virtlogd_t ==============
+allow virtlogd_t cert_t:dir search;
+allow virtlogd_t cert_t:file { getattr open read };
+
+❯ selocal -a "allow virtlogd_t cert_t:dir search;" -c my_virt-manager_000008_dir
+❯ selocal -a "allow virtlogd_t cert_t:file { getattr open read };" -c my_virt-manager_000008_file
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 00:16:15 2022
+type=PROCTITLE msg=audit(1663366575.140:63): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=PATH msg=audit(1663366575.140:63): item=0 name="/dev/urandom" inode=6 dev=00:37 mode=020666 ouid=0 ogid=0 rdev=01:09 obj=system_u:object_r:urandom_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663366575.140:63): cwd="/"
+type=SYSCALL msg=audit(1663366575.140:63): arch=c000003e syscall=94 success=no exit=-13 a0=7fa59c01c990 a1=0 a2=0 a3=100 items=1 ppid=1190 pid=1267 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663366575.140:63): avc:  denied  { setattr } for  pid=1267 comm="rpc-libvirtd" name="urandom" dev="tmpfs" ino=6 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:urandom_device_t:s0 tclass=chr_file permissive=0
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t urandom_device_t:chr_file setattr;
+
+❯ selocal -a "allow virtd_t urandom_device_t:chr_file setattr;" -c my_virt-manager_000009
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 00:37:01 2022
+type=AVC msg=audit(1663367821.716:65): avc:  denied  { connectto } for  pid=1060 comm="auditd" path="/run/systemd/userdb/io.systemd.Machine" scontext=system_u:system_r:auditd_t:s0 tcontext=system_u:system_r:systemd_machined_t:s0 tclass=unix_stream_socket permissive=0
+EOF
+
+
+#============= auditd_t ==============
+allow auditd_t systemd_machined_t:unix_stream_socket connectto;
+
+❯ selocal -a "systemd_connect_machined(auditd_t)" -c my_virt-manager_000010
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 00:40:50 2022
+type=USER_AVC msg=audit(1663368050.436:63): pid=1076 uid=101 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0 msg='avc:  denied  { send_msg } for msgtype=method_call interface=org.freedesktop.machine1.Manager member=CreateMachineWithNetwork dest=org.freedesktop.machine1 spid=1215 tpid=1214 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:systemd_machined_t:s0 tclass=dbus permissive=0  exe="/usr/bin/dbus-daemon" sauid=101 hostname=? addr=? terminal=?'
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t systemd_machined_t:dbus send_msg;
+
+❯ selocal -a "systemd_dbus_chat_machined(virtd_t)" -c my_virt-manager_000011
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 00:45:43 2022
+type=USER_AVC msg=audit(1663368343.369:54): pid=1069 uid=101 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0 msg='avc:  denied  { send_msg } for msgtype=method_call interface=org.freedesktop.login1.Manager member=Inhibit dest=org.freedesktop.login1 spid=1227 tpid=1071 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:systemd_logind_t:s0 tclass=dbus permissive=0  exe="/usr/bin/dbus-daemon" sauid=101 hostname=? addr=? terminal=?'
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t systemd_logind_t:dbus send_msg;
+
+❯ selocal -a "systemd_dbus_chat_logind(virtd_t)" -c my_virt-manager_000012
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 00:54:02 2022
+type=USER_AVC msg=audit(1663368842.223:77): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='avc:  denied  { start } for auid=n/a uid=0 gid=0 path="/run/systemd/transient/machine-qemu\x2d2\x2ddebian11.scope" cmdline="/lib/systemd/systemd-machined" function="bus_unit_queue_job" scontext=system_u:system_r:systemd_machined_t:s0 tcontext=system_u:object_r:systemd_transient_unit_t:s0 tclass=service permissive=0  exe="/lib/systemd/systemd" sauid=0 hostname=? addr=? terminal=?'
+EOF
+
+
+#============= systemd_machined_t ==============
+allow systemd_machined_t systemd_transient_unit_t:service start;
+
+❯ selocal -a "init_start_transient_units(systemd_machined_t)" -c my_virt-manager_000013
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 01:14:10 2022
+type=PROCTITLE msg=audit(1663370050.736:71): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=SYSCALL msg=audit(1663370050.736:71): arch=c000003e syscall=321 success=yes exit=0 a0=10 a1=7f69d12cb3b0 a2=80 a3=0 items=0 ppid=1 pid=1231 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663370050.736:71): avc:  denied  { bpf } for  pid=1231 comm="rpc-libvirtd" capability=39  scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=capability2 permissive=0
+----
+time->Sat Sep 17 01:20:26 2022
+type=PROCTITLE msg=audit(1663370426.119:88): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=SYSCALL msg=audit(1663370426.119:88): arch=c000003e syscall=321 success=yes exit=31 a0=5 a1=7f8b9ce86380 a2=80 a3=40811 items=0 ppid=1 pid=1404 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=BPF msg=audit(1663370426.119:88): prog-id=33 op=LOAD
+type=AVC msg=audit(1663370426.119:88): avc:  denied  { perfmon } for  pid=1404 comm="rpc-libvirtd" capability=38  scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=capability2 permissive=0
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t self:capability2 { bpf perfmon };
+
+❯ selocal -a "allow virtd_t self:capability2 { bpf perfmon };" -c my_virt-manager_000014
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 01:01:30 2022
+type=PROCTITLE msg=audit(1663369290.669:76): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=SYSCALL msg=audit(1663369290.669:76): arch=c000003e syscall=321 success=no exit=-13 a0=0 a1=7faf1344e620 a2=80 a3=4 items=0 ppid=1 pid=1191 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663369290.669:76): avc:  denied  { map_create } for  pid=1191 comm="rpc-libvirtd" scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=bpf permissive=0
+----
+time->Sat Sep 17 01:04:17 2022
+type=PROCTITLE msg=audit(1663369457.883:76): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=SYSCALL msg=audit(1663369457.883:76): arch=c000003e syscall=321 success=no exit=-13 a0=0 a1=7f1fa0756620 a2=80 a3=4 items=0 ppid=1 pid=1192 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663369457.883:76): avc:  denied  { map_read map_write } for  pid=1192 comm="rpc-libvirtd" scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=bpf permissive=0
+----
+time->Sat Sep 17 01:06:33 2022
+type=PROCTITLE msg=audit(1663369593.086:76): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=SYSCALL msg=audit(1663369593.086:76): arch=c000003e syscall=321 success=no exit=-13 a0=5 a1=7fa821fcd380 a2=80 a3=0 items=0 ppid=1 pid=1195 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663369593.086:76): avc:  denied  { prog_load } for  pid=1195 comm="rpc-libvirtd" scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=bpf permissive=0
+----
+time->Sat Sep 17 01:09:06 2022
+type=PROCTITLE msg=audit(1663369746.156:76): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=SYSCALL msg=audit(1663369746.156:76): arch=c000003e syscall=321 success=no exit=-13 a0=5 a1=7f53e81bb380 a2=80 a3=0 items=0 ppid=1 pid=1192 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663369746.156:76): avc:  denied  { prog_run } for  pid=1192 comm="rpc-libvirtd" scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=bpf permissive=0
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t self:bpf { map_create map_read map_write prog_load prog_run };
+
+❯ selocal -a "allow virtd_t self:bpf { map_create map_read map_write prog_load prog_run };" -c my_virt-manager_000015
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 01:26:04 2022
+type=PROCTITLE msg=audit(1663370764.663:54): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230
+type=PATH msg=audit(1663370764.663:54): item=0 name="/sys/kernel/debug/kvm" inode=19632 dev=00:07 mode=040755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:debugfs_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663370764.663:54): cwd="/"
+type=SYSCALL msg=audit(1663370764.663:54): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f0548001450 a2=90800 a3=0 items=1 ppid=1 pid=1190 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rpc-libvirtd" exe="/usr/sbin/libvirtd" subj=system_u:system_r:virtd_t:s0 key=(null)
+type=AVC msg=audit(1663370764.663:54): avc:  denied  { read } for  pid=1190 comm="rpc-libvirtd" name="kvm" dev="debugfs" ino=19632 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= virtd_t ==============
+allow virtd_t debugfs_t:dir read;
+
+❯ selocal -a "kernel_read_debugfs(virtd_t)" -c my_virt-manager_000016
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 01:36:24 2022
+type=PROCTITLE msg=audit(1663371384.123:37): proctitle=737368643A206461766964
+type=SOCKADDR msg=audit(1663371384.123:37): saddr=0A00170C000000000000000000000000000000000000000100000000
+type=SYSCALL msg=audit(1663371384.123:37): arch=c000003e syscall=49 success=no exit=-13 a0=7 a1=55f1bf7fb9b0 a2=1c a3=0 items=0 ppid=1097 pid=1101 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=1 comm="sshd" exe="/usr/sbin/sshd" subj=system_u:system_r:sshd_t:s0 key=(null)
+type=AVC msg=audit(1663371384.123:37): avc:  denied  { name_bind } for  pid=1101 comm="sshd" src=5900 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:vnc_port_t:s0 tclass=tcp_socket permissive=0
+EOF
+
+
+#============= sshd_t ==============
+
+#!!!! This avc can be allowed using the boolean 'sshd_port_forwarding'
+allow sshd_t vnc_port_t:tcp_socket name_bind;
+
+❯ setsebool -P sshd_port_forwarding on
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 02:14:55 2022
+type=PROCTITLE msg=audit(1663373695.646:89): proctitle=2F7573722F62696E2F71656D752D73797374656D2D7838365F3634002D6E616D650067756573743D64656269616E31312C64656275672D746872656164733D6F6E002D53002D6F626A656374007B22716F6D2D74797065223A22736563726574222C226964223A226D61737465724B657930222C22666F726D6174223A227261
+type=PATH msg=audit(1663373695.646:89): item=0 name="/proc/sys/kernel/cap_last_cap" nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663373695.646:89): cwd="/"
+type=SYSCALL msg=audit(1663373695.646:89): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f4344a3802a a2=0 a3=0 items=1 ppid=1 pid=1377 auid=4294967295 uid=77 gid=77 euid=77 suid=77 fsuid=77 egid=77 sgid=77 fsgid=77 tty=(none) ses=4294967295 comm="qemu-system-x86" exe="/usr/bin/qemu-system-x86_64" subj=system_u:system_r:svirt_t:s0:c305,c965 key=(null)
+type=AVC msg=audit(1663373695.646:89): avc:  denied  { search } for  pid=1377 comm="qemu-system-x86" name="kernel" dev="proc" ino=12981 scontext=system_u:system_r:svirt_t:s0:c305,c965 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=dir permissive=0
+----
+time->Sat Sep 17 02:23:14 2022
+type=PROCTITLE msg=audit(1663374194.313:87): proctitle=2F7573722F62696E2F71656D752D73797374656D2D7838365F3634002D6E616D650067756573743D64656269616E31312C64656275672D746872656164733D6F6E002D53002D6F626A656374007B22716F6D2D74797065223A22736563726574222C226964223A226D61737465724B657930222C22666F726D6174223A227261
+type=PATH msg=audit(1663374194.313:87): item=0 name="/proc/sys/kernel/cap_last_cap" inode=12583 dev=00:16 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysctl_kernel_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663374194.313:87): cwd="/"
+type=SYSCALL msg=audit(1663374194.313:87): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f4dc568102a a2=0 a3=0 items=1 ppid=1 pid=1260 auid=4294967295 uid=77 gid=77 euid=77 suid=77 fsuid=77 egid=77 sgid=77 fsgid=77 tty=(none) ses=4294967295 comm="qemu-system-x86" exe="/usr/bin/qemu-system-x86_64" subj=system_u:system_r:svirt_t:s0:c245,c487 key=(null)
+type=AVC msg=audit(1663374194.313:87): avc:  denied  { read } for  pid=1260 comm="qemu-system-x86" name="cap_last_cap" dev="proc" ino=12583 scontext=system_u:system_r:svirt_t:s0:c245,c487 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0
+----
+time->Sat Sep 17 02:27:13 2022
+type=PROCTITLE msg=audit(1663374433.816:87): proctitle=2F7573722F62696E2F71656D752D73797374656D2D7838365F3634002D6E616D650067756573743D64656269616E31312C64656275672D746872656164733D6F6E002D53002D6F626A656374007B22716F6D2D74797065223A22736563726574222C226964223A226D61737465724B657930222C22666F726D6174223A227261
+type=PATH msg=audit(1663374433.816:87): item=0 name="/proc/sys/kernel/cap_last_cap" inode=12478 dev=00:16 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysctl_kernel_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663374433.816:87): cwd="/"
+type=SYSCALL msg=audit(1663374433.816:87): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fea28e8e02a a2=0 a3=0 items=1 ppid=1 pid=1252 auid=4294967295 uid=77 gid=77 euid=77 suid=77 fsuid=77 egid=77 sgid=77 fsgid=77 tty=(none) ses=4294967295 comm="qemu-system-x86" exe="/usr/bin/qemu-system-x86_64" subj=system_u:system_r:svirt_t:s0:c168,c285 key=(null)
+type=AVC msg=audit(1663374433.816:87): avc:  denied  { open } for  pid=1252 comm="qemu-system-x86" path="/proc/sys/kernel/cap_last_cap" dev="proc" ino=12478 scontext=system_u:system_r:svirt_t:s0:c168,c285 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0
+EOF
+
+
+#============= svirt_t ==============
+allow svirt_t sysctl_kernel_t:dir search;
+allow svirt_t sysctl_kernel_t:file { open read };
+
+❯ selocal -a "allow svirt_t sysctl_kernel_t:dir search;" -c my_virt-manager_000017_dir
+❯ selocal -a "allow svirt_t sysctl_kernel_t:file { open read };" -c my_virt-manager_000017_file
+
+❯ selocal -b -L
+```
+
+```shell
+❯ cat <<EOF | audit2allow
+----
+time->Sat Sep 17 02:29:45 2022
+type=PROCTITLE msg=audit(1663374585.776:87): proctitle=2F7573722F62696E2F71656D752D73797374656D2D7838365F3634002D6E616D650067756573743D64656269616E31312C64656275672D746872656164733D6F6E002D53002D6F626A656374007B22716F6D2D74797065223A22736563726574222C226964223A226D61737465724B657930222C22666F726D6174223A227261
+type=PATH msg=audit(1663374585.776:87): item=0 name="/sys/module/vhost/parameters/max_mem_regions" inode=32904 dev=00:17 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysfs_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=CWD msg=audit(1663374585.776:87): cwd="/"
+type=SYSCALL msg=audit(1663374585.776:87): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=56390eb16eb8 a2=0 a3=0 items=1 ppid=1 pid=1252 auid=4294967295 uid=77 gid=77 euid=77 suid=77 fsuid=77 egid=77 sgid=77 fsgid=77 tty=(none) ses=4294967295 comm="qemu-system-x86" exe="/usr/bin/qemu-system-x86_64" subj=system_u:system_r:svirt_t:s0:c210,c503 key=(null)
+type=AVC msg=audit(1663374585.776:87): avc:  denied  { read } for  pid=1252 comm="qemu-system-x86" name="max_mem_regions" dev="sysfs" ino=32904 scontext=system_u:system_r:svirt_t:s0:c210,c503 tcontext=system_u:object_r:sysfs_t:s0 tclass=file permissive=0
+EOF
+
+
+#============= svirt_t ==============
+
+#!!!! This avc can be allowed using one of the these booleans:
+#     virt_use_sysfs, virt_use_usb
+allow svirt_t sysfs_t:file read;
+
+❯ setsebool -P virt_use_sysfs on
 ```
 
 ### 9.4.4. Denials: portage hooks
