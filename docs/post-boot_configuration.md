@@ -6,10 +6,13 @@ Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configurati
 
 ```shell
 systemd-firstboot --prompt --setup-machine-id
-systemctl preset-all
 ```
 
-Re-enable services you need if they have been disabled by above second command.
+If you dont't intend to use SELinux, reset all installed unit files. Re-enable services you need if they have been disabled by the following command.
+
+```shell
+systemctl preset-all
+```
 
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
 
