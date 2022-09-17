@@ -27,20 +27,18 @@ rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 # You could resolve "-march=native" with app-misc/resolve-march-native
 sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/._cfg0000_make.conf
 
-cat <<'EOF' >> /etc/portage/._cfg0000_make.conf
-EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '*/*-bin sys-kernel/* virtual/*' --noconfmem --with-bdeps=y --complete-graph=y"
+echo 'EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '\''*/*-bin sys-kernel/* virtual/*'\'' --noconfmem --with-bdeps=y --complete-graph=y"
 
 L10N="de"
 LINGUAS="${L10N}"
 
 GENTOO_MIRRORS="https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/"
-FETCHCOMMAND="curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
+FETCHCOMMAND="curl --fail --silent --show-error --location --proto '\''=https'\'' --tlsv1.2 --ciphers '\''ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128'\'' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
 RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"
 
 USE_HARDENED="pie -sslv3 -suid verify-sig"
 USE="${USE_HARDENED} fish-completion"
-
-EOF
+' >> /etc/portage/._cfg0000_make.conf
 
 echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
 ```
@@ -281,14 +279,14 @@ echo 'if [[ ${EBUILD_PHASE} == postinst ]]; then
         sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI"
 
         if [[ $? -ne 0 ]]; then
-cat <<EOF
+cat <<'\''EOF'\''
 
   ___________________________
 < Failed to Secure Boot sign! >
   ---------------------------
          \   ^__^ 
           \  (oo)\_______
-             (__)\       )\/\\
+             (__)\       )\/\
                  ||----w |
                  ||     ||
 
@@ -310,7 +308,7 @@ my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | p
 # If you intend to use systemd-cryptenroll, define this variable:
 # my_systemd_cryptenroll=",tpm2-device=auto"
 
-cat <<EOF >> /etc/dracut.conf
+echo "\
 
 hostonly=no
 hostonly_cmdline=yes
@@ -334,30 +332,34 @@ CMDLINE=(
   mitigations=auto,nosmt
 )
 kernel_cmdline="\${CMDLINE[*]}"
-unset CMDLINE
-EOF
+unset CMDLINE" >> /etc/dracut.conf
 ```
 
 Install tools required for booting:
 
 ```shell
-install_lts_kernel="true" && \
+export install_lts_kernel="true" && \
 echo "sys-fs/btrfs-progs ~amd64
 sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/linux-headers ~amd64
 virtual/dist-kernel ~amd64" >> /etc/portage/package.accept_keywords/main && \
-if [[ ${install_lts_kernel} == true ]]; then
-cat <<EOF >> /etc/portage/package.mask/main
+{
+[ $install_lts_kernel = true ] && \
+echo "\
 >=sys-fs/btrfs-progs-5.16
 >=sys-kernel/gentoo-kernel-bin-5.16
 >=sys-kernel/linux-headers-5.16
->=virtual/dist-kernel-5.16
-EOF
-fi && \
+>=virtual/dist-kernel-5.16" >> /etc/portage/package.mask/main || \
+true
+} && \
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
 echo "sys-kernel/gentoo-kernel-bin -initramfs" >> /etc/portage/package.use/main && \
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdadm"; fi) sys-kernel/linux-firmware
+{
+  [ -e /devSwapb ] && \
+  emerge -at sys-fs/btrfs-progs sys-fs/mdadm sys-kernel/linux-firmware || \
+  emerge -at sys-fs/btrfs-progs sys-kernel/linux-firmware
+}
 ```
 
 Install the [kernel](https://www.kernel.org/category/releases.html):
@@ -390,12 +392,10 @@ emerge app-shells/starship && \
 mkdir --mode=0700 /home/david/.config /root/.config && \
 touch /home/david/.config/starship.toml && \
 chown -R david:david /home/david/.config && \
-cat <<'EOF' | tee /root/.config/starship.toml > /home/david/.config/starship.toml; echo $?
-[hostname]
+echo '[hostname]
 ssh_only = false
 format =  "[$hostname](bold red) "
-
-EOF
+' | tee /root/.config/starship.toml > /home/david/.config/starship.toml; echo $?
 ```
 
   - fish shell:

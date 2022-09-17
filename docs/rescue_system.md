@@ -111,7 +111,7 @@ crypt_pass="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt
 set -o history
 
 # set default settings
-cat <<EOF > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml
+echo "\
 ---
 global:
     copytoram: true
@@ -128,8 +128,8 @@ autorun:
     ar_disable: false
     ar_nowait: true
     ar_nodel: false
-    ar_ignorefail: false
-EOF
+    ar_ignorefail: false\
+" > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml
 
 # Delete variable
 unset crypt_pass

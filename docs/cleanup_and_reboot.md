@@ -1,7 +1,7 @@
   - Setup [network](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
 
 ```shell
-cat <<EOF >> /etc/systemd/network/50-static.network
+echo "\
 [Match]
 Name=enp1s0
 
@@ -10,8 +10,8 @@ Address=192.168.10.2/24
 Gateway=192.168.10.1
 # https://wiki.archlinux.org/title/IPv6#systemd-networkd_3
 LinkLocalAddressing=no
-IPv6AcceptRA=no
-EOF
+IPv6AcceptRA=no\
+" >> /etc/systemd/network/50-static.network
 
 systemctl --no-reload enable systemd-networkd.service
 ```

@@ -10,13 +10,12 @@ Set `.bashrc` etc.:
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
 echo -e 'alias cp="cp -i"\nalias mv="mv -i"\nalias rm="rm -i"' >> /mnt/gentoo/root/.bash_aliases && \
-cat <<'EOF'  >> /mnt/gentoo/root/.bashrc; echo $?
-source "${HOME}/.bash_aliases"
+echo 'source "${HOME}/.bash_aliases"
 
 # Raise an alert if something is wrong with btrfs or mdadm
 if  { [[ -f /proc/mdstat ]] && grep -q "\[[U_]*_[U_]*\]" /proc/mdstat; } || \
-    [[ $(find /sys/fs/btrfs -type f -name "error_stats" -exec awk '{sum += $2} END {print sum}' {} +) -ne 0 ]]; then
-echo '
+    [[ $(find /sys/fs/btrfs -type f -name "error_stats" -exec awk '\''{sum += $2} END {print sum}'\'' {} +) -ne 0 ]]; then
+echo '\''
   _________________
 < Something smells! >
   -----------------
@@ -25,9 +24,8 @@ echo '
              (__)\       )\/\
                  ||----w |
                  ||     ||
-'
-fi
-EOF
+'\''
+fi' >> /mnt/gentoo/root/.bashrc; echo $?
 ```
 
 Set locale:
@@ -48,10 +46,7 @@ Set `MAKEOPTS`:
 ram_size="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)" && \
 number_cores="$(nproc --all)" && \
 [[ $((number_cores*2)) -le ${ram_size} ]] && jobs="${number_cores}" || jobs="$(bc <<<"${ram_size} / 2")" && \
-cat <<EOF >> /mnt/gentoo/etc/portage/make.conf; echo $?
-
-MAKEOPTS="-j${jobs}"
-EOF
+echo -e "\nMAKEOPTS=\"-j${jobs}\"" >> /mnt/gentoo/etc/portage/make.conf; echo $?
 ```
 
 Chroot (copy&paste one after the other):
