@@ -149,12 +149,6 @@ systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sd
 # etc.
 ```
 
-Remove overlay directory containing `app-crypt/clevis`:
-
-```shell
-rm -rf /root/localrepo
-```
-
 Reboot your system!
 
 ### 8.3.1.b) clevis
@@ -175,11 +169,6 @@ emerge -at dev-vcs/git
 Install `app-crypt/clevis`:
 
 ```shell
-emerge -1 app-eselect/eselect-repository && \
-eselect repository create localrepo && \
-sed -i '/^location[[:space:]]*=[[:space:]]*\/var\/db\/repos\/localrepo$/a auto-sync = false' /etc/portage/repos.conf/eselect-repo.conf && \
-rsync -a /root/localrepo /var/db/repos/ && \
-rm -rf /root/localrepo && \
 echo "app-crypt/clevis ~amd64
 dev-libs/jose ~amd64
 dev-libs/luksmeta ~amd64

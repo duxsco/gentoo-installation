@@ -93,7 +93,7 @@ Extract stage3 tarball and copy `firewall.nft`:
 ```shell
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ && \
-rsync -a /tmp/{portage_hook_kernel,localrepo} /mnt/gentoo/root/ && \
+rsync -a /tmp/portage_hook_kernel /mnt/gentoo/root/ && \
 mkdir -p /mnt/gentoo/etc/gentoo-installation && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
@@ -105,6 +105,11 @@ mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
 mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
 tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz && \
+rsync -av --numeric-ids --chown=250:250 /tmp/overlay/duxsco /mnt/gentoo/var/db/repos/ && \
+mkdir /mnt/gentoo/etc/portage/repos.conf && \
+echo '[duxsco]
+location = /var/db/repos/duxsco
+auto-sync = false' > /mnt/gentoo/etc/portage/repos.conf/duxsco.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
