@@ -94,7 +94,8 @@ Extract stage3 tarball and copy `firewall.nft`:
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ && \
 rsync -a /tmp/{portage_hook_kernel,localrepo} /mnt/gentoo/root/ && \
-mkdir -p /mnt/gentoo/etc/gentoo-installation; echo $?
+mkdir -p /mnt/gentoo/etc/gentoo-installation && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Extract portage tarball:
@@ -103,7 +104,8 @@ Extract portage tarball:
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
 mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
-tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz; echo $?
+tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 3.5. Mounting
@@ -128,5 +130,7 @@ mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cach
 
 touch /mnt/gentoo/var/tmp/.keep && \
 mount -o noatime,subvol=@var_tmp /mnt/gentoo/mapperSystem /mnt/gentoo/var/tmp && \
-chmod 1777 /mnt/gentoo/var/tmp; echo $?
+chmod 1777 /mnt/gentoo/var/tmp && \
+
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```

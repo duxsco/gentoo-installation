@@ -25,7 +25,8 @@ echo '\''
                  ||----w |
                  ||     ||
 '\''
-fi' >> /mnt/gentoo/root/.bashrc; echo $?
+fi' >> /mnt/gentoo/root/.bashrc && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Set locale:
@@ -37,7 +38,8 @@ en_US.UTF-8 UTF-8" > /mnt/gentoo/etc/locale.gen && \
 echo 'LANG="de_DE.UTF-8"
 LC_COLLATE="C.UTF-8"
 LC_MESSAGES="en_US.UTF-8"' > /mnt/gentoo/etc/env.d/02locale && \
-chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen"; echo $?
+chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen" && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Set `MAKEOPTS`:
@@ -46,7 +48,8 @@ Set `MAKEOPTS`:
 ram_size="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)" && \
 number_cores="$(nproc --all)" && \
 [[ $((number_cores*2)) -le ${ram_size} ]] && jobs="${number_cores}" || jobs="$(bc <<<"${ram_size} / 2")" && \
-echo -e "\nMAKEOPTS=\"-j${jobs}\"" >> /mnt/gentoo/etc/portage/make.conf; echo $?
+echo -e "\nMAKEOPTS=\"-j${jobs}\"" >> /mnt/gentoo/etc/portage/make.conf && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Chroot (copy&paste one after the other):

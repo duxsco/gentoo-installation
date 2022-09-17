@@ -9,7 +9,8 @@ Prepare the working directory:
 
 ```shell
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
-chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
+chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Import Gnupg public key:
@@ -19,7 +20,8 @@ su -l meh -c "
 mkdir --mode=0700 /tmp/gpgHomeDir && \
 curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import && \
 gpg --homedir /tmp/gpgHomeDir --import-ownertrust <<<'62989046EB5C7E985ECDF5DD3B0FEA9BE13CA3C9:6:' && \
-gpgconf --homedir /tmp/gpgHomeDir --kill all; echo $?
+gpgconf --homedir /tmp/gpgHomeDir --kill all && \
+echo -e '\e[1;32mSUCCESS\e[0m'
 "
 ```
 
@@ -29,8 +31,9 @@ Download .iso and .asc file:
 rescue_system_version="$(su -l meh -c "curl -fsS --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && \
 su -l meh -c "
 curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso/download?use_mirror=netcologne\" && \
-curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso.asc\"
-"; echo $?
+curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso.asc\" && \
+echo -e '\e[1;32mSUCCESS\e[0m'
+"
 ```
 
 Verify the .iso file:
@@ -40,7 +43,8 @@ su -l meh -c "
 gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso && \
 gpgconf --homedir /tmp/gpgHomeDir --kill all
 " && \
-chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
+chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 4.2. Configuration
@@ -152,7 +156,8 @@ Integrate additional packages:
 
 ```shell
 pacman -Sy clevis libpwquality luksmeta sbsigntools tpm2-tools && \
-cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm; echo $?
+cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 4.3. Folder Structure
@@ -199,7 +204,8 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 Create customised ISO:
 
 ```shell
-sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work
+sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Copy ISO files to the `rescue` partition:
@@ -209,7 +215,8 @@ mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
 mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
 mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ && \
-umount /mnt/iso; echo $?
+umount /mnt/iso && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 4.5 Kernel Installation
@@ -227,7 +234,7 @@ objcopy \
 while read -r my_esp; do
   mkdir "${my_esp/devE/boot\/e}" && \
   mount -o noatime,dmask=0022,fmask=0133 "${my_esp}" "${my_esp/devE/boot\/e}" && \
-  rsync -av "/tmp/systemrescuecd.efi" "${my_esp/devE/boot\/e}/"
-  echo $?
+  rsync -av "/tmp/systemrescuecd.efi" "${my_esp/devE/boot\/e}/" && \
+  echo -e "\e[1;32mSUCCESS\e[0m"
 done < <(find /mnt/gentoo/devEfi* -maxdepth 0)
 ```

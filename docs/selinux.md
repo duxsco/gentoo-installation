@@ -63,7 +63,7 @@ mount -o bind / /mnt/gentoo && \
 setfiles -r /mnt/gentoo /etc/selinux/mcs/contexts/files/file_contexts /mnt/gentoo/{dev,home,proc,run,sys,tmp,boot/efi*,var/cache/binpkgs,var/cache/distfiles,var/db/repos/gentoo,var/tmp} && \
 umount /mnt/gentoo && \
 rlpkg -a -r && \
-echo SUCCESS
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 In the [custom Gentoo Linux installation](https://github.com/duxsco/gentoo-installation), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:

@@ -17,7 +17,8 @@ Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
 /bin/bash -c '
 localectl set-locale LANG="de_DE.UTF-8" LC_COLLATE="C.UTF-8" LC_MESSAGES="en_US.UTF-8" && \
 localectl status && \
-env-update && source /etc/profile; echo $?
+env-update && source /etc/profile && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
@@ -32,10 +33,11 @@ if grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinf
 else
     rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf && \
     sed -i -e "s/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/" -e "s/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/" /etc/systemd/._cfg0000_timesyncd.conf && \
-    timedatectl set-ntp true
-    echo $?
+    timedatectl set-ntp true && \
+    echo -e "\e[1;32mSUCCESS\e[0m"
 fi && \
-timedatectl; echo $?
+timedatectl && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
@@ -48,7 +50,8 @@ rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables && \
 sed -i "s/^SAVE_ON_STOP=\"yes\"$/SAVE_ON_STOP=\"no\"/" /etc/conf.d/._cfg0000_nftables && \
 /usr/local/sbin/firewall.nft && \
 nft list ruleset > /var/lib/nftables/rules-save && \
-systemctl enable nftables-restore; echo $?
+systemctl enable nftables-restore && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
@@ -66,7 +69,8 @@ mount /boot/efia || true
 ) && \
 openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /boot/efia/db.der && \
 openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /boot/efia/KEK.der && \
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /boot/efia/PK.der; echo $?
+openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /boot/efia/PK.der && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
@@ -107,7 +111,8 @@ Add support for TPM to dracut and systemd:
 ```shell
 /bin/bash -c '
 sed -i "s/\(sys-apps\/systemd \)/\1 tpm /" /etc/portage/package.use/main && \
-echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf; echo $?
+echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 

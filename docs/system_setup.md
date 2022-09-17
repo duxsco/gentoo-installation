@@ -130,7 +130,8 @@ Setup sudo:
 echo "app-admin/sudo -sendmail" >> /etc/portage/package.use/main && \
 emerge app-admin/sudo && \
 { [[ -d /etc/sudoers.d ]] || mkdir -m u=rwx,g=rx,o= /etc/sudoers.d; } && \
-echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?
+echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Setup vim:
@@ -149,7 +150,8 @@ colorscheme molokai" | tee -a /root/.vimrc >> /home/david/.vimrc  && \
 chown david:david /home/david/.vimrc && \
 eselect editor set vi && \
 eselect vi set vim && \
-env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
+env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 6.3. Configuration Of /etc/fstab
@@ -171,7 +173,8 @@ UUID=${SYSTEM_UUID} /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs   0 0
 UUID=${SYSTEM_UUID} /var/cache/distfiles btrfs noatime,subvol=@distfiles 0 0
 UUID=${SYSTEM_UUID} /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0
 UUID=${SYSTEM_UUID} /var/tmp             btrfs noatime,subvol=@var_tmp   0 0
-" | column -o " " -t >> /etc/fstab; echo $?
+" | column -o " " -t >> /etc/fstab && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 6.4. Secure Boot
@@ -210,7 +213,8 @@ cert-to-efi-sig-list -g "${uuid}" db.crt db.esl && \
 sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
 sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
 sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
-popd; echo $?
+popd && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 If the following commands don't work you have to install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
@@ -228,7 +232,8 @@ efi-updatevar -f PK.auth PK && \
 
 # Make them immutable
 { chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* || true; } && \
-popd; echo $?
+popd && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 6.5. Kernel Installation
@@ -249,8 +254,8 @@ while read -r my_esp; do
   mv "/boot/${my_esp}/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/" && \
   sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
   sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi"
-  echo $?
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" && \
+  echo -e "\e[1;32mSUCCESS\e[0m"
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 ```
 
@@ -293,7 +298,8 @@ cat <<'\''EOF'\''
 EOF
         fi
     done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
-fi' > /etc/portage/env/sys-apps/systemd; echo $?
+fi' > /etc/portage/env/sys-apps/systemd && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Setup `sys-kernel/dracut` (copy&paste one after the other):
@@ -395,7 +401,8 @@ chown -R david:david /home/david/.config && \
 echo '[hostname]
 ssh_only = false
 format =  "[$hostname](bold red) "
-' | tee /root/.config/starship.toml > /home/david/.config/starship.toml; echo $?
+' | tee /root/.config/starship.toml > /home/david/.config/starship.toml && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
   - fish shell:
@@ -422,7 +429,8 @@ echo '
 # keep this line at the bottom of ~/.bashrc
 if [[ -x /bin/fish ]]; then
     SHELL=/bin/fish exec /bin/fish
-fi' >> /home/david/.bashrc; echo $?
+fi' >> /home/david/.bashrc && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 `root` setup:
@@ -458,7 +466,8 @@ mkdir /tmp/FiraCode && \
 unzip -d /tmp/FiraCode /tmp/FiraCode.zip && \
 rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* && \
 mkdir /usr/share/fonts/nerd-firacode && \
-rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.ttf /usr/share/fonts/nerd-firacode/; echo $?
+rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.ttf /usr/share/fonts/nerd-firacode/ && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install.
@@ -469,7 +478,8 @@ Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.ht
 [[ -e /devSwapb ]] && \
 rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
 echo "" >> /etc/._cfg0000_mdadm.conf && \
-mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
+mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
   - ssh:
@@ -492,7 +502,8 @@ MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 
 AllowUsers david" >> /etc/ssh/._cfg0000_sshd_config && \
 ssh-keygen -A && \
-sshd -t; echo $?
+sshd -t && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
@@ -512,7 +523,8 @@ MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 HashKnownHosts no
 StrictHostKeyChecking ask
 VisualHostKey yes" > /home/david/.ssh/config && \
-chown david:david /home/david/.ssh/config; echo $?
+chown david:david /home/david/.ssh/config && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
   - Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
