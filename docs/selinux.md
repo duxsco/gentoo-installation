@@ -11,7 +11,7 @@
 
 Prepare for SELinux (copy&paste one after the other):
 
-```bash
+```shell
 cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf
@@ -34,13 +34,13 @@ emerge -atuDN @world
 
 Enable logging:
 
-```bash
+```shell
 systemctl enable auditd.service
 ```
 
 Rebuild the kernel with SELinux support:
 
-```bash
+```shell
 emerge sys-kernel/gentoo-kernel-bin && \
 rm -v /boot/efi*/EFI/Linux/gentoo-*-gentoo-dist.efi
 ```
@@ -49,7 +49,7 @@ Reboot with `permissive` kernel.
 
 Make sure that UBAC gets disabled:
 
-```bash
+```shell
 bash -c '( cd /usr/share/selinux/mcs && semodule -i base.pp -i $(ls *.pp | grep -v base.pp) )'
 ```
 
@@ -57,7 +57,7 @@ bash -c '( cd /usr/share/selinux/mcs && semodule -i base.pp -i $(ls *.pp | grep 
 
 [Relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel):
 
-```bash
+```shell
 mkdir /mnt/gentoo && \
 mount -o bind / /mnt/gentoo && \
 setfiles -r /mnt/gentoo /etc/selinux/mcs/contexts/files/file_contexts /mnt/gentoo/{dev,home,proc,run,sys,tmp,boot/efi*,var/cache/binpkgs,var/cache/distfiles,var/db/repos/gentoo,var/tmp} && \
@@ -68,7 +68,7 @@ echo SUCCESS
 
 In the [custom Gentoo Linux installation](https://github.com/duxsco/gentoo-installation), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
 
-```bash
+```shell
 ❯ semanage port -l | grep -e ssh -e Port
 SELinux Port Type              Proto    Port Number
 ssh_port_t                     tcp      22
@@ -82,7 +82,7 @@ ssh_port_t                     tcp      50022, 22
 
 Default `mcs` SELinux `login` and `user` settings:
 
-```bash
+```shell
 ❯ semanage login -l
 
 Login Name           SELinux User         MLS/MCS Range        Service
@@ -105,7 +105,7 @@ user_u          user       s0         s0                             user_r
 
 Add the initial user to the [administration SELinux user](https://wiki.gentoo.org/wiki/SELinux/Installation#Define_the_administrator_accounts):
 
-```bash
+```shell
 semanage login -a -s staff_u david
 restorecon -RFv /home/david
 bash -c 'echo "%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?'
@@ -113,7 +113,7 @@ bash -c 'echo "%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL" | EDITOR="tee" 
 
 Now, we should have:
 
-```bash
+```shell
 ❯ semanage login -l
 
 Login Name           SELinux User         MLS/MCS Range        Service
@@ -130,7 +130,7 @@ root                 root                 s0-s0:c0.c1023       *
 !!! info
     The following denials were retrieved from `dmesg`.
 
-```bash
+```shell
 # [   37.545369] audit: type=1400 audit(1661366541.083:3): avc:  denied  { read } for  pid=2999 comm="10-gentoo-path" name="profile.env" dev="dm-1" ino=217358 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=0
 
 ❯ find / -inum 217358
@@ -149,7 +149,7 @@ allow systemd_generator_t lvm_etc_t:file { getattr ioctl lock map open read };
 Relabeled /etc/profile.env from system_u:object_r:etc_runtime_t:s0 to system_u:object_r:etc_t:s0
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   37.726930] audit: type=1400 audit(1661366541.263:4): avc:  denied  { create } for  pid=1 comm="systemd" name="io.systemd.NameServiceSwitch" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_userdbd_runtime_t:s0 tclass=lnk_file permissive=0
 [   37.726917] systemd[1]: systemd-userdbd.socket: Failed to create symlink /run/systemd/userdb/io.systemd.Multiplexer → /run/systemd/userdb/io.systemd.NameServiceSwitch, ignoring: Permission denied
@@ -166,7 +166,7 @@ allow init_t systemd_userdbd_runtime_t:lnk_file create;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   37.796200] audit: type=1400 audit(1661367313.330:3): avc:  denied  { mounton } for  pid=3224 comm="(-userdbd)" path="/run/systemd/unit-root/proc" dev="dm-0" ino=67139 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
 EOF
@@ -180,7 +180,7 @@ allow init_t unlabeled_t:dir mounton;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   38.036245] audit: type=1400 audit(1661366541.573:6): avc:  denied  { write } for  pid=3039 comm="systemd-udevd" name="systemd-udevd.service" dev="cgroup2" ino=2051 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
 [   37.962046] audit: type=1400 audit(1661367313.496:8): avc:  denied  { add_name } for  pid=3235 comm="systemd-udevd" name="udev" scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
@@ -200,7 +200,7 @@ allow udev_t cgroup_t:file write;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   38.044041] audit: type=1400 audit(1661366541.579:7): avc:  denied  { read } for  pid=3039 comm="systemd-udevd" name="network" dev="tmpfs" ino=78 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:init_runtime_t:s0 tclass=dir permissive=0
 EOF
@@ -214,7 +214,7 @@ allow udev_t init_runtime_t:dir read;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   38.129178] audit: type=1400 audit(1661366541.666:9): avc:  denied  { getattr } for  pid=3051 comm="mdadm" path="/run/udev" dev="tmpfs" ino=71 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:udev_runtime_t:s0 tclass=dir permissive=0
 EOF
@@ -228,7 +228,7 @@ allow mdadm_t udev_runtime_t:dir getattr;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   38.143600] audit: type=1400 audit(1661366541.679:10): avc:  denied  { search } for  pid=3051 comm="mdadm" name="block" dev="debugfs" ino=29 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
 [   38.169458] audit: type=1400 audit(1661366541.683:11): avc:  denied  { search } for  pid=3051 comm="mdadm" name="bdi" dev="debugfs" ino=22 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
@@ -243,7 +243,7 @@ allow mdadm_t debugfs_t:dir search;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   38.102386] audit: type=1400 audit(1661367313.636:9): avc:  denied  { getattr } for  pid=26 comm="kdevtmpfs" path="/fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
 EOF
@@ -257,7 +257,7 @@ allow kernel_t framebuf_device_t:chr_file getattr;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   37.167114] audit: type=1400 audit(1661367691.709:4): avc:  denied  { setattr } for  pid=26 comm="kdevtmpfs" name="fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
 [   37.191217] audit: type=1400 audit(1661367691.709:5): avc:  denied  { unlink } for  pid=26 comm="kdevtmpfs" name="fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
@@ -273,7 +273,7 @@ allow kernel_t framebuf_device_t:chr_file { setattr unlink };
 ```
 
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   38.226602] audit: type=1400 audit(1661367313.759:10): avc:  denied  { read write } for  pid=1 comm="systemd" name="rfkill" dev="devtmpfs" ino=178 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:wireless_device_t:s0 tclass=chr_file permissive=0
 [   37.280830] audit: type=1400 audit(1661367691.823:6): avc:  denied  { open } for  pid=1 comm="systemd" path="/dev/rfkill" dev="devtmpfs" ino=178 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:wireless_device_t:s0 tclass=chr_file permissive=0
@@ -288,7 +288,7 @@ allow init_t wireless_device_t:chr_file { open read write };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   38.701549] audit: type=1400 audit(1661367314.236:11): avc:  denied  { execute } for  pid=3307 comm="(bootctl)" name="bootctl" dev="dm-0" ino=186106 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:bootloader_exec_t:s0 tclass=file permissive=0
 [   37.857611] audit: type=1400 audit(1661367692.393:7): avc:  denied  { read open } for  pid=3198 comm="(bootctl)" path="/usr/bin/bootctl" dev="dm-0" ino=186106 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:bootloader_exec_t:s0 tclass=file permissive=0
@@ -305,7 +305,7 @@ allow init_t bootloader_exec_t:file { execute execute_no_trans map open read };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   37.880262] audit: type=1400 audit(1661367692.423:8): avc:  denied  { getattr } for  pid=3199 comm="systemd-tmpfile" path="/var/cache/eix" dev="dm-0" ino=68937 scontext=system_u:system_r:systemd_tmpfiles_t:s0 tcontext=system_u:object_r:portage_cache_t:s0 tclass=dir permissive=0
 [   37.890742] audit: type=1400 audit(1661367692.426:10): avc:  denied  { read } for  pid=3199 comm="systemd-tmpfile" name="eix" dev="dm-0" ino=68937 scontext=system_u:system_r:systemd_tmpfiles_t:s0 tcontext=system_u:object_r:portage_cache_t:s0 tclass=dir permissive=0
@@ -320,7 +320,7 @@ allow systemd_tmpfiles_t portage_cache_t:dir { getattr read };
 ❯ setsebool -P systemd_tmpfiles_manage_all on
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 [   37.623382] audit: type=1400 audit(1661368168.150:5): avc:  denied  { mounton } for  pid=3203 comm="(resolved)" path="/run/systemd/unit-root/run/systemd/resolve" dev="tmpfs" ino=1551 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=dir permissive=0
 EOF
@@ -339,7 +339,7 @@ allow init_t systemd_resolved_runtime_t:dir mounton;
 !!! info
     The following denials were retrieved with the help of `auditd.service`.
 
-```bash
+```shell
 # ----
 # time->Wed Aug 24 21:38:26 2022
 # type=PROCTITLE msg=audit(1661369906.239:39): proctitle=6E6674002D66002D
@@ -361,7 +361,7 @@ Relabeled /var/lib/nftables from system_u:object_r:var_lib_t:s0 to system_u:obje
 Relabeled /var/lib/nftables/rules-save from system_u:object_r:var_lib_t:s0 to system_u:object_r:initrc_tmp_t:s0
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Wed Aug 24 23:53:08 2022
@@ -409,7 +409,7 @@ allow systemd_networkd_t init_runtime_t:file { getattr ioctl open read };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Thu Aug 25 00:39:19 2022
@@ -432,7 +432,7 @@ allow init_t tty_device_t:chr_file { setattr watch watch_reads };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Thu Aug 25 00:44:42 2022
@@ -461,7 +461,7 @@ allow init_t user_runtime_t:dir { add_name write };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Thu Aug 25 00:59:07 2022
@@ -506,7 +506,7 @@ allow init_t systemd_user_runtime_t:dir { add_name create remove_name write };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Thu Aug 25 00:59:07 2022
@@ -533,7 +533,7 @@ allow init_t systemd_user_runtime_t:dir create;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Thu Aug 25 01:14:01 2022
@@ -612,7 +612,7 @@ allow init_t systemd_user_runtime_t:sock_file { create write };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Thu Aug 25 01:35:11 2022
@@ -639,7 +639,7 @@ allow systemd_generator_t xdg_config_t:dir { getattr search };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Thu Aug 25 02:00:35 2022
@@ -659,7 +659,7 @@ allow init_t session_dbusd_runtime_t:sock_file write;
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ cat <<EOF | audit2allow
 ----
 time->Thu Aug 25 11:18:48 2022
@@ -695,7 +695,7 @@ allow staff_sudo_t staff_t:file { open read };
 ❯ selocal -b -L
 ```
 
-```bash
+```shell
 ❯ semodule -DB
 
 ❯ cat <<EOF | audit2allow
@@ -722,7 +722,7 @@ allow local_login_t init_t:fd use;
 !!! note
     The following policies make the remain systemd services work.
 
-```bash
+```shell
 ❯ semodule -DB
 
 ❯ cat <<EOF | audit2allow
@@ -884,7 +884,7 @@ allow systemd_resolved_t usr_t:file { getattr open read };
 
 To make things simple I use this script to update the kernel in SELinux enforcing mode:
 
-```bash
+```shell
 #!/usr/bin/env bash
 
 function add_permissive_types() {

@@ -4,7 +4,7 @@ Some configuration needs to be done after systemd has been started.
 
 Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configuration) (copy&paste one after the other):
 
-```bash
+```shell
 systemd-firstboot --prompt --setup-machine-id
 systemctl preset-all
 ```
@@ -13,7 +13,7 @@ Re-enable services you need if they have been disabled by above second command.
 
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
 
-```bash
+```shell
 /bin/bash -c '
 localectl set-locale LANG="de_DE.UTF-8" LC_COLLATE="C.UTF-8" LC_MESSAGES="en_US.UTF-8" && \
 localectl status && \
@@ -23,7 +23,7 @@ env-update && source /etc/profile; echo $?
 
 Setup timedatectl:
 
-```bash
+```shell
 /bin/bash -c '
 timedatectl set-timezone Europe/Berlin && \
 if grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo); then
@@ -41,7 +41,7 @@ timedatectl; echo $?
 
 Setup nftables:
 
-```bash
+```shell
 /bin/bash -c '
 emerge net-firewall/nftables && \
 rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables && \
@@ -58,7 +58,7 @@ If `efi-updatevar` failed in [one of the previous sections](/system_setup/#64-se
 
 First, boot into the Gentoo Linux and save necessary files in `DER` form:
 
-```bash
+```shell
 /bin/bash -c '
 (
 ! mountpoint --quiet /boot/efia && \
@@ -74,13 +74,13 @@ Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`
 
 To check whether Secure Boot is enabled execute:
 
-```bash
+```shell
 mokutil --sb-state
 ```
 
 To list the installed Secure Boot keys/certs:
 
-```bash
+```shell
 efi-readvar
 ```
 
@@ -97,14 +97,14 @@ Use either `systemd-cryptenroll` or `clevis` in the following.
 
 Install `app-crypt/tpm2-tools`:
 
-```bash
+```shell
 echo "=app-crypt/tpm2-tools-5.2-r1 ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge -av tpm2-tools
 ```
 
 Add support for TPM to dracut and systemd:
 
-```bash
+```shell
 /bin/bash -c '
 sed -i "s/\(sys-apps\/systemd \)/\1 tpm /" /etc/portage/package.use/main && \
 echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf; echo $?
@@ -113,25 +113,25 @@ echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf; echo $?
 
 Update and make sure `sys-apps/systemd` got updated:
 
-```bash
+```shell
 emerge -atuDN @world
 ```
 
 Make sure that TPM 2.0 devices (should only be one) are recognised:
 
-```bash
+```shell
 systemd-cryptenroll --tpm2-device=list
 ```
 
 Make sure that the PCRs you are going to use have a valid hash and don't contain only zeroes:
 
-```bash
+```shell
 tpm2_pcrread sha256
 ```
 
 Create new LUKS keyslots on all swap and system partitions.
 
-```bash
+```shell
 # I only use PCR7 as recommended in the first sentence after following table:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
 #
@@ -147,7 +147,7 @@ systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sd
 
 Remove overlay directory containing `app-crypt/clevis`:
 
-```bash
+```shell
 rm -rf /root/localrepo
 ```
 
@@ -163,14 +163,14 @@ ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
 
 Install `dev-vcs/git`:
 
-```bash
+```shell
 echo 'dev-vcs/git -webdav' >> /etc/portage/package.use/main && \
 emerge -at dev-vcs/git
 ```
 
 Install `app-crypt/clevis`:
 
-```bash
+```shell
 emerge -1 app-eselect/eselect-repository && \
 eselect repository create localrepo && \
 sed -i '/^location[[:space:]]*=[[:space:]]*\/var\/db\/repos\/localrepo$/a auto-sync = false' /etc/portage/repos.conf/eselect-repo.conf && \
@@ -185,13 +185,13 @@ emerge -at app-crypt/clevis
 
 Make sure that the PCRs you are going to use have a valid hash and don't contain only zeroes:
 
-```bash
+```shell
 tpm2_pcrread sha256
 ```
 
 Bind all swap and system LUKS volumes.
 
-```bash
+```shell
 # I only use PCR7 as recommended in the first sentence after following table:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
 #
@@ -204,7 +204,7 @@ clevis luks bind -d /dev/sdb4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256
 
 Show results:
 
-```bash
+```shell
 clevis luks list -d /dev/sda3
 clevis luks list -d /dev/sda4
 clevis luks list -d /dev/sdb3
@@ -216,7 +216,7 @@ clevis luks list -d /dev/sdb4
 
 Rebuild the unified kernel image:
 
-```bash
+```shell
 emerge -at sys-kernel/gentoo-kernel-bin
 ```
 
@@ -224,6 +224,6 @@ emerge -at sys-kernel/gentoo-kernel-bin
 
 Remove extraneous packages (should be only `app-editors/nano`, `app-eselect/eselect-repository`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
 
-```bash
+```shell
 emerge --depclean -a
 ```

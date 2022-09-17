@@ -13,6 +13,6 @@ emerge -av dev-python/mkdocs dev-python/mkdocs-material
 
 2. Within the folder containing `mkdocs.yml`, execute as `non-root`:
 
-```bash
+```shell
 mkdocs serve
 ```

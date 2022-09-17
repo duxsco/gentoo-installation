@@ -2,25 +2,25 @@ In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/
 
 Boot into SystemRescueCD and set the correct keyboard layout:
 
-```bash
+```shell
 loadkeys de-latin1-nodeadkeys
 ```
 
 Make sure you have booted with UEFI:
 
-```bash
+```shell
 [ -d /sys/firmware/efi ] && echo UEFI || echo BIOS
 ```
 
 Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
-```bash
+```shell
 sysctl -w kernel.sysrq=0
 ```
 
 Do initial setup (copy&paste one after the other):
 
-```bash
+```shell
 screen -S install
 
 # If no network setup via DHCP done, use nmtui (recommended if DHCP not working) or...
@@ -38,13 +38,13 @@ passwd root
 
 Print out fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
 
-```bash
+```shell
 find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
 Execute following `rsync` and `ssh` command **on your local machine** (copy&paste one after the other):
 
-```bash
+```shell
 # Copy installation files to remote machine. Adjust port and IP.
 rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 {bin/{portage_hook_kernel,disk.sh,fetch_files.sh,firewall.nft,firewall.sh},localrepo} root@XXX:/tmp/
 
@@ -54,13 +54,13 @@ ssh root@...
 
 Resume `screen`:
 
-```bash
+```shell
 screen -d -r install
 ```
 
 (Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**):
 
-```bash
+```shell
 # If you have set /root/.ssh/authorized_keys in the previous step
 # and haven't executed "passwd" make sure to do it now for "vlock" to work...
 passwd root
@@ -73,7 +73,7 @@ vlock -a
 
 Set date if system time is not correct:
 
-```bash
+```shell
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 # replace "MMDDhhmmYYYY" with UTC time
 date --utc MMDDhhmmYYYY
@@ -81,7 +81,7 @@ date --utc MMDDhhmmYYYY
 
 Update hardware clock:
 
-```bash
+```shell
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 hwclock --systohc --utc
 ```

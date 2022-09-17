@@ -4,7 +4,7 @@
 
 If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk:
 
-```bash
+```shell
 # Change disk name to the one you want to wipe
 disk="/dev/sda"
 lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r | while read -r i; do wipefs -a "$i"; done
@@ -17,7 +17,7 @@ lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r | while read -r i; do wip
 
 Prepare the disks (copy&paste one after the other):
 
-```bash
+```shell
 bash /tmp/disk.sh -h
 
 # disable bash history
@@ -36,7 +36,7 @@ set -o history
 
 Result of a single disk setup:
 
-```bash
+```shell
 ❯ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devEfia -> /dev/sda1
@@ -56,7 +56,7 @@ Result of a single disk setup:
 
 Result of the four disk setup:
 
-```bash
+```shell
 ❯ tree -a /mnt/gentoo/
 /mnt/gentoo/
 ├── devEfia -> /dev/sda1
@@ -90,7 +90,7 @@ Result of the four disk setup:
 
 Extract stage3 tarball and copy `firewall.nft`:
 
-```bash
+```shell
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/firewall.nft /mnt/gentoo/usr/local/sbin/ && \
 rsync -a /tmp/{portage_hook_kernel,localrepo} /mnt/gentoo/root/ && \
@@ -99,7 +99,7 @@ mkdir -p /mnt/gentoo/etc/gentoo-installation; echo $?
 
 Extract portage tarball:
 
-```bash
+```shell
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
 mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
@@ -108,7 +108,7 @@ tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/ge
 
 ## 3.5. Mounting
 
-```bash
+```shell
 mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
 mount --types proc /proc /mnt/gentoo/proc && \
 mount --rbind /sys /mnt/gentoo/sys && \

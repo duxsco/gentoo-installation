@@ -7,14 +7,14 @@ While we are still on SystemRescueCD and not in chroot, download and customise t
 
 Prepare the working directory:
 
-```bash
+```shell
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
 chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 ```
 
 Import Gnupg public key:
 
-```bash
+```shell
 su -l meh -c "
 mkdir --mode=0700 /tmp/gpgHomeDir && \
 curl -fsSL --proto '=https' --tlsv1.3 https://www.system-rescue.org/security/signing-keys/gnupg-pubkey-fdupoux-20210704-v001.pem | gpg --homedir /tmp/gpgHomeDir --import && \
@@ -25,7 +25,7 @@ gpgconf --homedir /tmp/gpgHomeDir --kill all; echo $?
 
 Download .iso and .asc file:
 
-```bash
+```shell
 rescue_system_version="$(su -l meh -c "curl -fsS --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && \
 su -l meh -c "
 curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso/download?use_mirror=netcologne\" && \
@@ -35,7 +35,7 @@ curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installati
 
 Verify the .iso file:
 
-```bash
+```shell
 su -l meh -c "
 gpg --homedir /tmp/gpgHomeDir --verify /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso && \
 gpgconf --homedir /tmp/gpgHomeDir --kill all
@@ -47,13 +47,13 @@ chown -R 0:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd; echo $?
 
 Create folder structure:
 
-```bash
+```shell
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},usr/local/sbin}},work}
 ```
 
 I you want to be able to access Gentoo Linux as well as the rescue system via SSH do (copy&paste one after the other):
 
-```bash
+```shell
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 
 # add your ssh public keys to
@@ -66,7 +66,7 @@ chmod -R u=rwX,go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/bui
 
 Configure OpenSSH if you decided to setup public key authentication in the previous step:
 
-```bash
+```shell
 rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 
 # do some ssh server hardening
@@ -90,19 +90,19 @@ diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/rec
 
 Disable magic SysRq key for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
-```bash
+```shell
 echo "kernel.sysrq = 0" > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
 ```
 
 Copy `chroot.sh` created by `disk.sh`:
 
-```bash
+```shell
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/
 ```
 
 Create settings YAML (copy&paste one after the other):
 
-```bash
+```shell
 # disable bash history
 set +o history
 # replace "MyPassWord123" with the password you want to use to login via TTY on SystemRescueCD
@@ -137,27 +137,27 @@ unset crypt_pass
 
 Create firewall rules:
 
-```bash
+```shell
 # set firewall rules upon bootup.
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
 ```
 
 Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
 
-```bash
+```shell
 find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
 Integrate additional packages:
 
-```bash
+```shell
 pacman -Sy clevis libpwquality luksmeta sbsigntools tpm2-tools && \
 cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm; echo $?
 ```
 
 ## 4.3. Folder Structure
 
-```bash
+```shell
 ❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├── build_into_srm
@@ -198,13 +198,13 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 
 Create customised ISO:
 
-```bash
+```shell
 sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work
 ```
 
 Copy ISO files to the `rescue` partition:
 
-```bash
+```shell
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
 mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
 mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
@@ -216,7 +216,7 @@ umount /mnt/iso; echo $?
 
 Setup the unified kernel image:
 
-```bash
+```shell
 echo "cryptdevice=UUID=$(blkid -s UUID -o value /mnt/gentoo/devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y" > /tmp/my_cmdline && \
 objcopy \
   --add-section .osrel="/usr/lib/os-release" --change-section-vma .osrel=0x20000 \

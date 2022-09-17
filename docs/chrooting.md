@@ -1,12 +1,12 @@
 Set resolv.conf:
 
-```bash
+```shell
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 ```
 
 Set `.bashrc` etc.:
 
-```bash
+```shell
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
 echo -e 'alias cp="cp -i"\nalias mv="mv -i"\nalias rm="rm -i"' >> /mnt/gentoo/root/.bash_aliases && \
@@ -32,7 +32,7 @@ EOF
 
 Set locale:
 
-```bash
+```shell
 echo "C.UTF-8 UTF-8
 de_DE.UTF-8 UTF-8
 en_US.UTF-8 UTF-8" > /mnt/gentoo/etc/locale.gen && \
@@ -44,7 +44,7 @@ chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen"; echo $?
 
 Set `MAKEOPTS`:
 
-```bash
+```shell
 ram_size="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)" && \
 number_cores="$(nproc --all)" && \
 [[ $((number_cores*2)) -le ${ram_size} ]] && jobs="${number_cores}" || jobs="$(bc <<<"${ram_size} / 2")" && \
@@ -56,7 +56,7 @@ EOF
 
 Chroot (copy&paste one after the other):
 
-```bash
+```shell
 chroot /mnt/gentoo /bin/bash
 source /etc/profile
 su -

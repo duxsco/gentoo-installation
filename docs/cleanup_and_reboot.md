@@ -1,6 +1,6 @@
   - Setup [network](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
 
-```bash
+```shell
 cat <<EOF >> /etc/systemd/network/50-static.network
 [Match]
 Name=enp1s0
@@ -18,7 +18,7 @@ systemctl --no-reload enable systemd-networkd.service
 
   - Setup DNS (copy&paste one after the other):
 
-```bash
+```shell
 # https://wiki.gentoo.org/wiki/Resolv.conf
 # https://wiki.archlinux.org/title/systemd-resolved
 ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
@@ -41,13 +41,13 @@ After reboot into Gentoo Linux, test DNS resolving ([link](https://openwrt.org/d
 
   - stage3 and dev* files:
 
-```bash
+```shell
 rm -fv /stage3-* /portage-latest.tar.xz* /devEfi* /devRescue /devSystem* /devSwap* /mapperRescue /mapperSwap /mapperSystem; echo $?
 ```
 
   - exit and reboot (copy&paste one after the other):
 
-```bash
+```shell
 exit
 exit
 exit

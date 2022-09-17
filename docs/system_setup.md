@@ -2,7 +2,7 @@
 
 Make `dispatch-conf` show diffs in color and use vimdiff for merging:
 
-```bash
+```shell
 rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
 sed -i \
 -e "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" \
@@ -12,13 +12,13 @@ sed -i \
 
 Install to be able to configure `/etc/portage/make.conf`:
 
-```bash
+```shell
 emerge -1 app-portage/cpuid2cpuflags
 ```
 
 Configure portage (copy&paste one after the other):
 
-```bash
+```shell
 rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 
 # If you use distcc, beware of:
@@ -47,7 +47,7 @@ echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
 
 (Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf` (copy&paste one after the other):
 
-```bash
+```shell
 # Install app-misc/yq
 ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq
 
@@ -67,26 +67,26 @@ done
 
 I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-pages`. Makes using Stackoverflow easier 😉.
 
-```bash
+```shell
 echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main
 ```
 
 Install `app-portage/eix`:
 
-```bash
+```shell
 emerge -at app-portage/eix
 ```
 
 Mitigate [CVE-2022-29154](https://bugs.gentoo.org/show_bug.cgi?id=CVE-2022-29154) among others before using `rsync` via `eix-sync`:
 
-```bash
+```shell
 echo 'net-misc/rsync ~amd64' >> /etc/portage/package.accept_keywords/main && \
 emerge -1 net-misc/rsync
 ```
 
 Execute `eix-sync`:
 
-```bash
+```shell
 eix-sync
 ```
 
@@ -101,7 +101,7 @@ eselect news list
 
 Update system:
 
-```bash
+```shell
 touch /etc/sysctl.conf && \
 echo "sys-apps/systemd cryptsetup gnuefi" >> /etc/portage/package.use/main && \
 emerge -atuDN @world
@@ -111,7 +111,7 @@ emerge -atuDN @world
 
 Create a non-root user and set a password you can use with English keyboard layout for now. You can set a secure password after rebooting and taking care of localisation.
 
-```bash
+```shell
 useradd -m -G wheel -s /bin/bash david && \
 chmod u=rwx,og= /home/david && \
 echo -e 'alias cp="cp -i"\nalias mv="mv -i"\nalias rm="rm -i"' >> /home/david/.bash_aliases && \
@@ -122,13 +122,13 @@ passwd david
 
 (Optional) Create your `authorized_keys`:
 
-```bash
+```shell
 rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/
 ```
 
 Setup sudo:
 
-```bash
+```shell
 echo "app-admin/sudo -sendmail" >> /etc/portage/package.use/main && \
 emerge app-admin/sudo && \
 { [[ -d /etc/sudoers.d ]] || mkdir -m u=rwx,g=rx,o= /etc/sudoers.d; } && \
@@ -137,7 +137,7 @@ echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo 
 
 Setup vim:
 
-```bash
+```shell
 USE="-verify-sig" emerge -1 dev-libs/libsodium && \
 emerge -1 dev-libs/libsodium app-editors/vim app-vim/molokai && \
 emerge --select --noreplace app-editors/vim app-vim/molokai && \
@@ -158,7 +158,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"; echo $?
 
 Setup /etc/fstab:
 
-```bash
+```shell
 SWAP_UUID="$(blkid -s UUID -o value /mapperSwap)" && \
 SYSTEM_UUID="$(blkid -s UUID -o value /mapperSystem)" && \
 echo "" >> /etc/fstab && \
@@ -188,14 +188,14 @@ In order to add your custom keys `Setup Mode` must have been enabled in your `UE
 
 Install required tools on your system:
 
-```bash
+```shell
 echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
 ```
 
 Create Secure Boot keys and certificates:
 
-```bash
+```shell
 mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
 pushd /etc/gentoo-installation/secureboot && \
 
@@ -217,7 +217,7 @@ popd; echo $?
 
 If the following commands don't work you have to install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
 
-```bash
+```shell
 pushd /etc/gentoo-installation/secureboot && \
 
 # Make them mutable
@@ -237,13 +237,13 @@ popd; echo $?
 
 Install `sys-boot/efibootmgr`:
 
-```bash
+```shell
 emerge -at sys-boot/efibootmgr
 ```
 
 Setup ESP(s):
 
-```bash
+```shell
 while read -r my_esp; do
   bootctl --esp-path="/boot/${my_esp}" install && \
   efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "/${my_esp/efi/devEfi}")")" --part 1 --label "gentoo31415efi ${my_esp}" --loader '\EFI\systemd\systemd-bootx64.efi' && \
@@ -258,7 +258,7 @@ done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[
 
 Microcode updates are not necessary for virtual machines. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
 
-```bash
+```shell
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
 grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
 echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
@@ -268,7 +268,7 @@ emerge -at sys-firmware/intel-microcode; echo $?
 
 Setup portage hook:
 
-```bash
+```shell
 mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin && \
@@ -300,7 +300,7 @@ fi' > /etc/portage/env/sys-apps/systemd; echo $?
 
 Setup `sys-kernel/dracut` (copy&paste one after the other):
 
-```bash
+```shell
 emerge -at sys-kernel/dracut
 
 system_uuid="$(blkid -s UUID -o value /mapperSystem)"
@@ -340,7 +340,7 @@ EOF
 
 Install tools required for booting:
 
-```bash
+```shell
 install_lts_kernel="true" && \
 echo "sys-fs/btrfs-progs ~amd64
 sys-kernel/gentoo-kernel-bin ~amd64
@@ -362,7 +362,7 @@ emerge -at sys-fs/btrfs-progs $(if [[ -e /devSwapb ]]; then echo -n "sys-fs/mdad
 
 Install the [kernel](https://www.kernel.org/category/releases.html):
 
-```bash
+```shell
 emerge -at sys-kernel/gentoo-kernel-bin
 ```
 
@@ -370,20 +370,20 @@ emerge -at sys-kernel/gentoo-kernel-bin
 
 Set `/etc/hosts`:
 
-```bash
+```shell
 rsync -a /etc/hosts /etc/._cfg0000_hosts && \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
 
 (Optional) Enable ssh service:
 
-```bash
+```shell
 systemctl --no-reload enable sshd.service
 ```
 
   - starship:
 
-```bash
+```shell
 # If you have insufficient ressources, you may want to "emerge -1 dev-lang/rust-bin" beforehand.
 echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/starship && \
@@ -400,7 +400,7 @@ EOF
 
   - fish shell:
 
-```bash
+```shell
 echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
 echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/fish && \
@@ -427,13 +427,13 @@ fi' >> /home/david/.bashrc; echo $?
 
 `root` setup:
 
-```bash
+```shell
 /bin/fish -c fish_update_completions
 ```
 
 `non-root` setup:
 
-```bash
+```shell
 su -l david -c "/bin/fish -c fish_update_completions"
 ```
 
@@ -450,7 +450,7 @@ sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | sour
 
   - nerd fonts:
 
-```bash
+```shell
 emerge media-libs/fontconfig && \
 su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraCode.zip" && \
 b2sum -c <<<"9f8ada87945ff10d9eced99369f7c6d469f9eaf2192490623a93b2397fe5b6ee3f0df6923b59eb87e92789840a205adf53c6278e526dbeeb25d0a6d307a07b18  /tmp/FiraCode.zip" && \
@@ -465,7 +465,7 @@ Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.ht
 
   - If you have `sys-fs/mdadm` installed:
 
-```bash
+```shell
 [[ -e /devSwapb ]] && \
 rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
 echo "" >> /etc/._cfg0000_mdadm.conf && \
@@ -474,7 +474,7 @@ mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf; echo $?
 
   - ssh:
 
-```bash
+```shell
 rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
 sed -i \
 -e 's/^#Port 22$/Port 50022/' \
@@ -497,13 +497,13 @@ sshd -t; echo $?
 
 Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
 
-```bash
+```shell
 find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
 Setup client SSH config:
 
-```bash
+```shell
 echo "AddKeysToAgent no
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
@@ -517,12 +517,12 @@ chown david:david /home/david/.ssh/config; echo $?
 
   - Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
-```bash
+```shell
 echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
 ```
 
   - misc tools:
 
-```bash
+```shell
 emerge -at app-misc/screen app-portage/gentoolkit
 ```
