@@ -44,15 +44,13 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Setup nftables:
 
 ```shell
-/bin/bash -c '
 emerge net-firewall/nftables && \
 rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables && \
-sed -i "s/^SAVE_ON_STOP=\"yes\"$/SAVE_ON_STOP=\"no\"/" /etc/conf.d/._cfg0000_nftables && \
+sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_nftables && \
 /usr/local/sbin/firewall.nft && \
 nft list ruleset > /var/lib/nftables/rules-save && \
 systemctl enable nftables-restore && \
 echo -e "\e[1;32mSUCCESS\e[0m"
-'
 ```
 
 ## 8.2. Secure Boot Setup
@@ -109,11 +107,9 @@ emerge -av tpm2-tools
 Add support for TPM to dracut and systemd:
 
 ```shell
-/bin/bash -c '
 sed -i "s/\(sys-apps\/systemd \)/\1 tpm /" /etc/portage/package.use/main && \
-echo \'add_dracutmodules+=" tpm2-tss "\' >> /etc/dracut.conf && \
+echo 'add_dracutmodules+=" tpm2-tss "' >> /etc/dracut.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
-'
 ```
 
 Update and make sure `sys-apps/systemd` got updated:
