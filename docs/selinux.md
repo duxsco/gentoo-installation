@@ -14,6 +14,7 @@ Keep the number of services to a minimum (copy&paste one after the other):
 ```shell
 systemctl mask user@.service --now
 systemctl disable systemd-userdbd.socket
+sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/nsswitch.conf
 ```
 
 Prepare for SELinux (copy&paste one after the other):
