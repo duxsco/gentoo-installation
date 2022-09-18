@@ -25,7 +25,7 @@ echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf
 # execute dispatch-conf
 
-eselect profile set --force "default/linux/amd64/17.1/systemd/selinux"
+eselect profile set --force "duxsco:hardened-systemd-selinux"
 
 echo 'sec-policy/* ~amd64' >> /etc/portage/package.accept_keywords/main
 
