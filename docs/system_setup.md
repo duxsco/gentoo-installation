@@ -90,7 +90,7 @@ eix-sync
 
 Read Gentoo news items:
 
-```
+```shell
 eselect news list
 # eselect news read 1
 # eselect news read 2
@@ -447,7 +447,7 @@ su -l david -c "/bin/fish -c fish_update_completions"
 
 Enable aliases and starship (copy&paste one after the other):
 
-```
+```shell
 su -
 exit
 su - david

@@ -4,7 +4,7 @@ The documentation can be found in the `docs/` folder. To run the site locally do
 
 1. Install as `root`:
 
-```
+```shell
 echo "dev-python/mkdocs ~amd64
 dev-python/mkdocs-material ~amd64" >> /etc/portage/package.accept_keywords/main
 
