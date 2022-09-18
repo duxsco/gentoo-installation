@@ -6,7 +6,7 @@ Make `dispatch-conf` show diffs in color and use vimdiff for merging:
 rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
 sed -i \
 -e "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" \
--e "s/merge=\"sdiff --suppress-common-lines --output='%s' '%s' '%s'\"/merge=\"vimdiff -c'saveas %s' -c next -c'setlocal noma readonly' -c prev '%s' '%s'\"/" \
+-e "s/merge=\"sdiff --suppress-common-lines --output='%s' '%s' '%s'\"/merge=\"vimdiff -c'saveas %s' -c next -c'setlocal noma readonly' -c prev %s %s\"/" \
 /etc/._cfg0000_dispatch-conf.conf
 ```
 
