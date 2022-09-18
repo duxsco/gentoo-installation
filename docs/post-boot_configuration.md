@@ -2,18 +2,6 @@
 
 Some configuration needs to be done after systemd has been started.
 
-Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configuration) (copy&paste one after the other):
-
-```shell
-systemd-firstboot --prompt --setup-machine-id
-```
-
-If you dont't intend to use SELinux, reset all installed unit files. Re-enable services you need if they have been disabled by the following command.
-
-```shell
-systemctl preset-all
-```
-
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
 
 ```shell

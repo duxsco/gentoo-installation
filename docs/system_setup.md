@@ -385,7 +385,21 @@ Install the [kernel](https://www.kernel.org/category/releases.html):
 emerge -at sys-kernel/gentoo-kernel-bin
 ```
 
-## 6.6. Additional Packages
+## 6.6. Initial systemd configuration
+
+Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configuration) (copy&paste one after the other):
+
+```shell
+systemd-firstboot --prompt --setup-machine-id
+```
+
+If you dont't intend to use SELinux, reset all installed unit files.
+
+```shell
+systemctl preset-all
+```
+
+## 6.7. Additional Packages
 
 Set `/etc/hosts`:
 
