@@ -88,6 +88,25 @@ umount "$tmpdir" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
+If `/proc` was listed by the code of the previous codeblock you have to relabel to avoid a denial:
+
+```shell
+❯ cat <<EOF | audit2allow
+[   12.725364] audit: type=1400 audit(1663357675.259:3): avc:  denied  { mounton } for  pid=1062 comm="(auditd)" path="/run/systemd/unit-root/proc" dev="dm-0" ino=67581 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
+EOF
+
+
+#============= init_t ==============
+allow init_t unlabeled_t:dir mounton;
+
+# Credits: grift :)
+❯ echo '(filecon "/proc" dir (system_u object_r proc_t ((s0)(s0))))
+(allow proc_t fs_t (filesystem (associate)))
+(typeattributeset mountpoint proc_t)'> my_proc.cil
+❯ semodule -i my_proc.cil
+❯ export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
 In the [custom Gentoo Linux installation](https://github.com/duxsco/gentoo-installation), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
 
 ```shell
@@ -277,23 +296,6 @@ EOF
 allow systemd_tmpfiles_t portage_cache_t:dir getattr;
 
 ❯ setsebool -P systemd_tmpfiles_manage_all on
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   12.725364] audit: type=1400 audit(1663357675.259:3): avc:  denied  { mounton } for  pid=1062 comm="(auditd)" path="/run/systemd/unit-root/proc" dev="dm-0" ino=67581 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t unlabeled_t:dir mounton;
-
-# Credits: grift :)
-❯ echo '(filecon "/proc" dir (system_u object_r proc_t ((s0)(s0))))
-(allow proc_t fs_t (filesystem (associate)))
-(typeattributeset mountpoint proc_t)'> my_proc.cil
-❯ semodule -i my_proc.cil
-❯ export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ```shell
