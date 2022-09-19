@@ -170,41 +170,25 @@ sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
 
 ## 9.4. SELinux policies
 
-### 9.4.1. Denials: timesyncd (optional)
-
 !!! note
-    This section is only relevant if `timesyncd.service` has not been disabled in section [8.1. Systemd Configuration](/post-boot_configuration/#81-systemd-configuration).
+    Use `create_policy.sh` to create your SELinux policies after booting into permissive mode. The script expects you to reboot into permissive mode after installation of each newly created policy module via `semodule -i <name>.pp`.
+
+### 9.4.1. Additional relabeling
+
+In one case, I relabeled a file instead of executing `semodule -i`:
 
 ```shell
-❯ cat <<EOF | audit2allow
-[   15.416390] audit: type=1400 audit(1663429524.986:3): avc:  denied  { create } for  pid=1065 comm="(imesyncd)" name="timesync" scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:ntp_drift_t:s0 tclass=dir permissive=0
-[   13.192323] audit: type=1400 audit(1663429927.743:3): avc:  denied  { setattr } for  pid=1065 comm="(imesyncd)" name="timesync" dev="dm-1" ino=251563 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:ntp_drift_t:s0 tclass=dir permissive=0
-EOF
+# [   12.208682] audit: type=1400 audit(1663626722.916:3): avc:  denied  { read } for  pid=951 comm="10-gentoo-path" name="profile.env" dev="dm-1" ino=285848 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=1
+# [   12.211534] audit: type=1400 audit(1663626722.916:4): avc:  denied  { open } for  pid=951 comm="10-gentoo-path" path="/etc/profile.env" dev="dm-1" ino=285848 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=1
+# [   12.214297] audit: type=1400 audit(1663626722.916:5): avc:  denied  { getattr } for  pid=951 comm="10-gentoo-path" path="/etc/profile.env" dev="dm-1" ino=285848 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=1
 
-
-#============= init_t ==============
-allow init_t ntp_drift_t:dir { create setattr };
-
-❯ selocal -a "allow init_t ntp_drift_t:dir { create setattr };" -c my_optioanl_000000
-
-❯ selocal -b -L
-```
-
-### 9.4.2. Denials: dmesg
-
-!!! info
-    The following denials were retrieved from `dmesg`.
-
-```shell
-# [   22.450146] audit: type=1400 audit(1663353624.006:3): avc:  denied  { read } for  pid=946 comm="10-gentoo-path" name="profile.env" dev="dm-1" ino=221184 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=0
-
-❯ find / -inum 221184
+❯ find / -inum 285848
 /etc/profile.env
 
 ❯ semanage fcontext -l | grep '/etc/profile\\\.env' | column -t
 /etc/profile\.env  regular  file  system_u:object_r:etc_runtime_t:s0
 
-❯ sesearch -A -s systemd_generator_t -c file -p read | grep etc
+❯ sesearch -A -s systemd_generator_t -c file -p getattr,open,read | grep etc
 allow systemd_generator_t etc_t:file { getattr ioctl lock open read };
 allow systemd_generator_t lvm_etc_t:file { getattr ioctl lock map open read };
 
@@ -214,143 +198,7 @@ allow systemd_generator_t lvm_etc_t:file { getattr ioctl lock map open read };
 Relabeled /etc/profile.env from system_u:object_r:etc_runtime_t:s0 to system_u:object_r:etc_t:s0
 ```
 
-```shell
-❯ cat <<EOF | audit2allow
-[   31.247917] audit: type=1400 audit(1663353989.806:3): avc:  denied  { write } for  pid=981 comm="systemd-udevd" name="systemd-udevd.service" dev="cgroup2" ino=1919 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
-[   15.613447] audit: type=1400 audit(1663354882.173:3): avc:  denied  { add_name } for  pid=980 comm="systemd-udevd" name="udev" scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
-[   19.752551] audit: type=1400 audit(1663354989.273:3): avc:  denied  { create } for  pid=987 comm="systemd-udevd" name="udev" scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=dir permissive=0
-[   15.386494] audit: type=1400 audit(1663355129.020:3): avc:  denied  { write } for  pid=981 comm="systemd-udevd" name="cgroup.procs" dev="cgroup2" ino=1954 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:cgroup_t:s0 tclass=file permissive=0
-EOF
-
-
-#============= udev_t ==============
-allow udev_t cgroup_t:dir { add_name create write };
-allow udev_t cgroup_t:file write;
-
-❯ selocal -a "allow udev_t cgroup_t:dir { add_name create write };" -c my_dmesg_000000_dir
-
-❯ selocal -a "allow udev_t cgroup_t:file write;" -c my_dmesg_000000_file
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   12.880861] audit: type=1400 audit(1663355463.436:3): avc:  denied  { getattr } for  pid=1005 comm="mdadm" path="/run/udev" dev="tmpfs" ino=71 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:udev_runtime_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= mdadm_t ==============
-allow mdadm_t udev_runtime_t:dir getattr;
-
-❯ selocal -a "allow mdadm_t udev_runtime_t:dir getattr;" -c my_dmesg_000001
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   16.257926] audit: type=1400 audit(1663355873.803:3): avc:  denied  { search } for  pid=1010 comm="mdadm" name="block" dev="debugfs" ino=29 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
-[   16.315999] audit: type=1400 audit(1663355873.860:4): avc:  denied  { search } for  pid=1010 comm="mdadm" name="bdi" dev="debugfs" ino=22 scontext=system_u:system_r:mdadm_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= mdadm_t ==============
-allow mdadm_t debugfs_t:dir search;
-
-❯ selocal -a "kernel_search_debugfs(mdadm_t)" -c my_dmesg_000002
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   13.211511] audit: type=1400 audit(1663356309.846:3): avc:  denied  { getattr } for  pid=26 comm="kdevtmpfs" path="/fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
-[   18.418356] audit: type=1400 audit(1663356643.869:3): avc:  denied  { setattr } for  pid=26 comm="kdevtmpfs" name="fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
-[   48.414265] audit: type=1400 audit(1663356886.916:3): avc:  denied  { unlink } for  pid=26 comm="kdevtmpfs" name="fb0" dev="devtmpfs" ino=152 scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:framebuf_device_t:s0 tclass=chr_file permissive=0
-EOF
-
-
-#============= kernel_t ==============
-allow kernel_t framebuf_device_t:chr_file { getattr setattr unlink };
-
-❯ selocal -a "dev_getattr_framebuffer_dev(kernel_t)" -c my_dmesg_000003
-❯ selocal -a "dev_setattr_framebuffer_dev(kernel_t)" -c my_dmesg_000003
-❯ selocal -a "allow kernel_t framebuf_device_t:chr_file unlink;" -c my_dmesg_000003
-
-❯ selocal -b -L
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   14.904914] audit: type=1400 audit(1663357537.436:3): avc:  denied  { getattr } for  pid=1057 comm="systemd-tmpfile" path="/var/cache/eix" dev="dm-3" ino=69394 scontext=system_u:system_r:systemd_tmpfiles_t:s0 tcontext=system_u:object_r:portage_cache_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= systemd_tmpfiles_t ==============
-
-#!!!! This avc can be allowed using the boolean 'systemd_tmpfiles_manage_all'
-allow systemd_tmpfiles_t portage_cache_t:dir getattr;
-
-❯ setsebool -P systemd_tmpfiles_manage_all on
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   20.366108] audit: type=1400 audit(1663357918.869:3): avc:  denied  { mounton } for  pid=1059 comm="(resolved)" path="/run/systemd/unit-root/run/systemd/resolve" dev="tmpfs" ino=1394 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:systemd_resolved_runtime_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= init_t ==============
-
-#!!!! This avc can be allowed using the boolean 'init_mounton_non_security'
-allow init_t systemd_resolved_runtime_t:dir mounton;
-
-❯ setsebool -P init_mounton_non_security on
-```
-
-```shell
-❯ cat <<EOF | audit2allow
-[   15.209677] audit: type=1400 audit(1663370258.649:3): avc:  denied  { getattr } for  pid=1036 comm="loadkeys" path="/tmp" dev="tmpfs" ino=1 scontext=system_u:system_r:udev_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir permissive=0
-EOF
-
-
-#============= udev_t ==============
-allow udev_t tmpfs_t:dir getattr;
-
-❯ selocal -a "fs_getattr_tmpfs_dirs(udev_t)" -c my_dmesg_000004
-
-❯ selocal -b -L
-```
-
-### 9.4.3. Denials: auditd.service
-
-!!! info
-    The following denials were retrieved with the help of `auditd.service`.
-
-```shell
-❯ cat <<EOF | audit2allow
-----
-time->Fri Sep 16 21:57:21 2022
-type=AVC msg=audit(1663358241.729:19): avc:  denied  { read write } for  pid=1 comm="systemd" name="rfkill" dev="devtmpfs" ino=178 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:wireless_device_t:s0 tclass=chr_file permissive=0
-----
-time->Fri Sep 16 21:59:29 2022
-type=AVC msg=audit(1663358369.983:19): avc:  denied  { open } for  pid=1 comm="systemd" path="/dev/rfkill" dev="devtmpfs" ino=178 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:wireless_device_t:s0 tclass=chr_file permissive=0
-EOF
-
-
-#============= init_t ==============
-allow init_t wireless_device_t:chr_file { open read write };
-
-❯ selocal -a "dev_rw_wireless(init_t)" -c my_auditd_000000
-
-❯ selocal -b -L
-```
-
-!!! note
-    At this point, ssh connections for non-root and the switch to root via "sudo" should be possible without denials.
-
-### 9.4.4. VM host
+### 9.4.2. VM host
 
 !!! note
     I connect to libvirtd via TCP and SSH port forwarding, because I want to use my SSH key which is secured on a hardware token, and `virt-manager` doesn't seem to be able to handle my hardware token directly. Thus, I can't use s.th. like `qemu+ssh://david@192.168.10.3:50022/system`.
