@@ -9,12 +9,13 @@
 !!! info
     Currently, I only use SELinux on servers, and only `mcs` policy type to be able to "isolate" virtual machines from each other.
 
-Keep the number of services to a minimum (copy&paste one after the other):
+Reduce the number of services (copy&paste one after the other):
 
 ```shell
-systemctl mask user@.service --now
+systemctl mask user@.service
 systemctl disable systemd-userdbd.socket
-sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/nsswitch.conf
+cp -av /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf
+sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/._cfg0000_nsswitch.conf
 ```
 
 Prepare for SELinux (copy&paste one after the other):
@@ -25,7 +26,7 @@ echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf
 # execute dispatch-conf
 
-eselect profile set --force "duxsco:hardened-systemd-selinux"
+eselect profile set "duxsco:hardened-systemd-selinux"
 
 echo 'sec-policy/* ~amd64' >> /etc/portage/package.accept_keywords/main
 

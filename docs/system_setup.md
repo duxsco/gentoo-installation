@@ -97,15 +97,16 @@ eselect news list
 # etc.
 ```
 
-Switch over to hardened profile (copy&paste one after the other):
+Switch over to hardened profile:
 
 ```shell
-eselect profile set duxsco:hardened-systemd
-env-update && source /etc/profile && export PS1="(chroot) $PS1"
-emerge -1 sys-devel/gcc
-emerge -1 sys-devel/binutils sys-libs/glibc
-env-update && source /etc/profile && export PS1="(chroot) $PS1"
-emerge -e @world
+eselect profile set duxsco:hardened-systemd && \
+env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
+emerge -1 sys-devel/gcc && \
+emerge -1 sys-devel/binutils sys-libs/glibc && \
+env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
+emerge -e @world && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Update system:
@@ -151,7 +152,8 @@ Setup vim:
 USE="-verify-sig" emerge -1 dev-libs/libsodium && \
 emerge -1 dev-libs/libsodium app-editors/vim app-vim/molokai && \
 emerge --select --noreplace app-editors/vim app-vim/molokai && \
-sed -i 's/^USE="\([^"]*\)"$/USE="\1 vim-syntax"/' /etc/portage/make.conf && \
+cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
+sed -i 's/^USE="\([^"]*\)"$/USE="\1 vim-syntax"/' /etc/portage/._cfg0000_make.conf && \
 echo "filetype plugin on
 filetype indent on
 set number
@@ -323,6 +325,8 @@ system_uuid="$(blkid -s UUID -o value /mapperSystem)"
 my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
 my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
 
+unset my_systemd_cryptenroll
+
 # If you intend to use systemd-cryptenroll, define this variable:
 # my_systemd_cryptenroll=",tpm2-device=auto"
 
@@ -388,7 +392,7 @@ emerge -at sys-kernel/gentoo-kernel-bin
 
 ## 6.6. Initial systemd configuration
 
-Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configuration) (copy&paste one after the other):
+Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configuration):
 
 ```shell
 systemd-firstboot --prompt --setup-machine-id
