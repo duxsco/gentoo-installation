@@ -1,6 +1,3 @@
-!!! info
-    The following covers the SELinux denials from bootup until login via tty/SSH and up to `sudo -i` into the root account.
-
 !!! note
     I haven't taken a close look at all denials yet. First, I wanted to take care of all denials until I can login successfully. I need to check next whether all policies are necessary and make sure that PAM (see constraint violation below) is working correctly.
 
