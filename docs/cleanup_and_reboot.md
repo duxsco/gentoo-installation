@@ -42,7 +42,8 @@ After reboot into Gentoo Linux, test DNS resolving ([link](https://openwrt.org/d
   - stage3 and dev* files:
 
 ```shell
-rm -fv /stage3-* /portage-latest.tar.xz* /devEfi* /devRescue /devSystem* /devSwap* /mapperRescue /mapperSwap /mapperSystem; echo $?
+rm -fv /stage3-* /portage-latest.tar.xz* /devEfi* /devRescue /devSystem* /devSwap* /mapperRescue /mapperSwap /mapperSystem && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
   - exit and reboot (copy&paste one after the other):

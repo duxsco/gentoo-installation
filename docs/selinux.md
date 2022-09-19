@@ -129,7 +129,8 @@ Add the initial user to the [administration SELinux user](https://wiki.gentoo.or
 ```shell
 semanage login -a -s staff_u david
 restorecon -RFv /home/david
-bash -c 'echo "%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel; echo $?'
+bash -c 'echo "%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel && \
+echo -e "\e[1;32mSUCCESS\e[0m"'
 ```
 
 Now, we should have:

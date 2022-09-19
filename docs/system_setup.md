@@ -277,7 +277,8 @@ Microcode updates are not necessary for virtual machines. Otherwise, install `sy
 grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
 echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
 echo "sys-firmware/intel-microcode hostonly" >> /etc/portage/package.use/main && \
-emerge -at sys-firmware/intel-microcode; echo $?
+emerge -at sys-firmware/intel-microcode && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Setup portage hook:
