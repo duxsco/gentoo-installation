@@ -11,6 +11,7 @@ theme:
   name: material
   locale: en
   use_directory_urls: true
+  font: false
   icon:
     repo: material/github
 markdown_extensions:
