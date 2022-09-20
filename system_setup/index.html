@@ -1,1003 +1,338 @@
-
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-        <meta name="description" content="Gentoo installation using Measured Boot, Secure Boot, Full Disk Encryption, RAID and offering a rescue system based on customised SystemRescueCD">
-      
-      
-        <meta name="author" content="David Sardari">
-      
-      
-        <link rel="canonical" href="https://gentoo.duxsco.de/system_setup/">
-      
-      <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
-    
-    
-      
-        <title>6. System Setup - Gentoo Linux Installation</title>
-      
-    
-    
-      <link rel="stylesheet" href="../assets/stylesheets/main.69437709.min.css">
-      
-        
-        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
-        
-      
-      
-    
-    
-    
-      
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
-    
-    
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
-    
-      
-
-    
-    
-  </head>
-  
-  
-    
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
-  
-    
-    
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#61-portage-setup" class="md-skip">
-          Skip to content
-        </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-    
-      
-
-<header class="md-header" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Gentoo Linux Installation" class="md-header__button md-logo" aria-label="Gentoo Linux Installation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
-
-    </a>
-    <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
-    </label>
-    <div class="md-header__title" data-md-component="header-title">
-      <div class="md-header__ellipsis">
-        <div class="md-header__topic">
-          <span class="md-ellipsis">
-            Gentoo Linux Installation
-          </span>
-        </div>
-        <div class="md-header__topic" data-md-component="header-topic">
-          <span class="md-ellipsis">
-            
-              6. System Setup
-            
-          </span>
-        </div>
-      </div>
-    </div>
-    
-    
-    
-      <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
-      </label>
-      <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
-        </button>
-      </nav>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
-            Initializing search
-          </div>
-          <ol class="md-search-result__list"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-    
-    
-      <div class="md-header__source">
-        <a href="https://github.com/duxsco/gentoo-installation/" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg>
-  </div>
-  <div class="md-source__repository">
-    duxsco/gentoo-installation
-  </div>
-</a>
-      </div>
-    
-  </nav>
-  
-</header>
-    
-    <div class="md-container" data-md-component="container">
-      
-      
-        
-          
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Gentoo Linux Installation" class="md-nav__button md-logo" aria-label="Gentoo Linux Installation" data-md-component="logo">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
-
-    </a>
-    Gentoo Linux Installation
-  </label>
-  
-    <div class="md-nav__source">
-      <a href="https://github.com/duxsco/gentoo-installation/" title="Go to repository" class="md-source" data-md-component="source">
-  <div class="md-source__icon md-icon">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg>
-  </div>
-  <div class="md-source__repository">
-    duxsco/gentoo-installation
-  </div>
-</a>
-    </div>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        1. Introduction
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../live-cd_environment/" class="md-nav__link">
-        2. Live-CD Environment
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../disk_setup/" class="md-nav__link">
-        3. Disk Setup
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../rescue_system/" class="md-nav__link">
-        4. Rescue System
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../chrooting/" class="md-nav__link">
-        5. Chrooting
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-    
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          6. System Setup
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        6. System Setup
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#61-portage-setup" class="md-nav__link">
-    6.1. Portage Setup
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#62-non-root-user-creation" class="md-nav__link">
-    6.2. Non-Root User Creation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#63-configuration-of-etcfstab" class="md-nav__link">
-    6.3. Configuration Of /etc/fstab
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#64-secure-boot" class="md-nav__link">
-    6.4. Secure Boot
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#65-kernel-installation" class="md-nav__link">
-    6.5. Kernel Installation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#66-additional-packages" class="md-nav__link">
-    6.6. Additional Packages
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../cleanup_and_reboot/" class="md-nav__link">
-        7. Cleanup And Reboot
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../post-boot_configuration/" class="md-nav__link">
-        8. Post-Boot Configuration
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../selinux/" class="md-nav__link">
-        9. SELinux (optional)
-      </a>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../other_gentoo_linux_repos/" class="md-nav__link">
-        10. Other Gentoo Linux repos
-      </a>
-    </li>
-  
-
-    
-  </ul>
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#61-portage-setup" class="md-nav__link">
-    6.1. Portage Setup
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#62-non-root-user-creation" class="md-nav__link">
-    6.2. Non-Root User Creation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#63-configuration-of-etcfstab" class="md-nav__link">
-    6.3. Configuration Of /etc/fstab
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#64-secure-boot" class="md-nav__link">
-    6.4. Secure Boot
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#65-kernel-installation" class="md-nav__link">
-    6.5. Kernel Installation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#66-additional-packages" class="md-nav__link">
-    6.6. Additional Packages
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
-                
-  <a href="https://github.com/duxsco/gentoo-installation/blob/main/docs/system_setup.md" title="Edit this page" class="md-content__button md-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
-  </a>
-
-
-
-  <h1>6. System Setup</h1>
-
-<h2 id="61-portage-setup">6.1. Portage Setup<a class="headerlink" href="#61-portage-setup" title="Permanent link">&para;</a></h2>
-<p>Make <code>dispatch-conf</code> show diffs in color and use vimdiff for merging:</p>
-<div class="highlight"><pre><span></span><code>rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
-sed -i <span class="se">\</span>
--e <span class="s2">&quot;s/diff=\&quot;diff -Nu &#39;%s&#39; &#39;%s&#39;\&quot;/diff=\&quot;diff --color=always -Nu &#39;%s&#39; &#39;%s&#39;\&quot;/&quot;</span> <span class="se">\</span>
--e <span class="s2">&quot;s/merge=\&quot;sdiff --suppress-common-lines --output=&#39;%s&#39; &#39;%s&#39; &#39;%s&#39;\&quot;/merge=\&quot;vimdiff -c&#39;saveas %s&#39; -c next -c&#39;setlocal noma readonly&#39; -c prev &#39;%s&#39; &#39;%s&#39;\&quot;/&quot;</span> <span class="se">\</span>
+<!doctype html><html lang=en class=no-js> <head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Gentoo installation using Measured Boot, Secure Boot, Full Disk Encryption, RAID and offering a rescue system based on customised SystemRescueCD"><meta name=author content="David Sardari"><link href=https://gentoo.duxsco.de/system_setup/ rel=canonical><link rel=icon href=../assets/images/favicon.png><meta name=generator content="mkdocs-1.3.1, mkdocs-material-8.5.2"><title>6. System Setup - Gentoo Linux Installation</title><link rel=stylesheet href=../assets/stylesheets/main.9f9400aa.min.css><link rel=stylesheet href=../assets/stylesheets/palette.cbb835fc.min.css><script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script></head> <body dir=ltr data-md-color-scheme data-md-color-primary=none data-md-color-accent=none> <input class=md-toggle data-md-toggle=drawer type=checkbox id=__drawer autocomplete=off> <input class=md-toggle data-md-toggle=search type=checkbox id=__search autocomplete=off> <label class=md-overlay for=__drawer></label> <div data-md-component=skip> <a href=#61-portage-setup class=md-skip> Skip to content </a> </div> <div data-md-component=announce> </div> <header class=md-header data-md-component=header> <nav class="md-header__inner md-grid" aria-label=Header> <a href=.. title="Gentoo Linux Installation" class="md-header__button md-logo" aria-label="Gentoo Linux Installation" data-md-component=logo> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg> </a> <label class="md-header__button md-icon" for=__drawer> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg> </label> <div class=md-header__title data-md-component=header-title> <div class=md-header__ellipsis> <div class=md-header__topic> <span class=md-ellipsis> Gentoo Linux Installation </span> </div> <div class=md-header__topic data-md-component=header-topic> <span class=md-ellipsis> 6. System Setup </span> </div> </div> </div> <label class="md-header__button md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> </label> <div class=md-search data-md-component=search role=dialog> <label class=md-search__overlay for=__search></label> <div class=md-search__inner role=search> <form class=md-search__form name=search> <input type=text class=md-search__input name=query aria-label=Search placeholder=Search autocapitalize=off autocorrect=off autocomplete=off spellcheck=false data-md-component=search-query required> <label class="md-search__icon md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg> </label> <nav class=md-search__options aria-label=Search> <button type=reset class="md-search__icon md-icon" title=Clear aria-label=Clear tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg> </button> </nav> </form> <div class=md-search__output> <div class=md-search__scrollwrap data-md-scrollfix> <div class=md-search-result data-md-component=search-result> <div class=md-search-result__meta> Initializing search </div> <ol class=md-search-result__list></ol> </div> </div> </div> </div> </div> <div class=md-header__source> <a href=https://github.com/duxsco/gentoo-installation/ title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg> </div> <div class=md-source__repository> duxsco/gentoo-installation </div> </a> </div> </nav> </header> <div class=md-container data-md-component=container> <main class=md-main data-md-component=main> <div class="md-main__inner md-grid"> <div class="md-sidebar md-sidebar--primary" data-md-component=sidebar data-md-type=navigation> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--primary" aria-label=Navigation data-md-level=0> <label class=md-nav__title for=__drawer> <a href=.. title="Gentoo Linux Installation" class="md-nav__button md-logo" aria-label="Gentoo Linux Installation" data-md-component=logo> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg> </a> Gentoo Linux Installation </label> <div class=md-nav__source> <a href=https://github.com/duxsco/gentoo-installation/ title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg> </div> <div class=md-source__repository> duxsco/gentoo-installation </div> </a> </div> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=.. class=md-nav__link> 1. Introduction </a> </li> <li class=md-nav__item> <a href=../live-cd_environment/ class=md-nav__link> 2. Live-CD Environment </a> </li> <li class=md-nav__item> <a href=../disk_setup/ class=md-nav__link> 3. Disk Setup </a> </li> <li class=md-nav__item> <a href=../rescue_system/ class=md-nav__link> 4. Rescue System </a> </li> <li class=md-nav__item> <a href=../chrooting/ class=md-nav__link> 5. Chrooting </a> </li> <li class="md-nav__item md-nav__item--active"> <input class="md-nav__toggle md-toggle" data-md-toggle=toc type=checkbox id=__toc> <label class="md-nav__link md-nav__link--active" for=__toc> 6. System Setup <span class="md-nav__icon md-icon"></span> </label> <a href=./ class="md-nav__link md-nav__link--active"> 6. System Setup </a> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#61-portage-setup class=md-nav__link> 6.1. Portage Setup </a> </li> <li class=md-nav__item> <a href=#62-non-root-user-creation class=md-nav__link> 6.2. Non-Root User Creation </a> </li> <li class=md-nav__item> <a href=#63-configuration-of-etcfstab class=md-nav__link> 6.3. Configuration Of /etc/fstab </a> </li> <li class=md-nav__item> <a href=#64-secure-boot class=md-nav__link> 6.4. Secure Boot </a> </li> <li class=md-nav__item> <a href=#65-kernel-installation class=md-nav__link> 6.5. Kernel Installation </a> </li> <li class=md-nav__item> <a href=#66-initial-systemd-configuration class=md-nav__link> 6.6. Initial systemd configuration </a> </li> <li class=md-nav__item> <a href=#67-additional-packages class=md-nav__link> 6.7. Additional Packages </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=../cleanup_and_reboot/ class=md-nav__link> 7. Cleanup And Reboot </a> </li> <li class=md-nav__item> <a href=../post-boot_configuration/ class=md-nav__link> 8. Post-Boot Configuration </a> </li> <li class=md-nav__item> <a href=../selinux/ class=md-nav__link> 9. SELinux (optional) (WIP) </a> </li> <li class=md-nav__item> <a href=../other_gentoo_linux_repos/ class=md-nav__link> 10. Other Gentoo Linux repos </a> </li> </ul> </nav> </div> </div> </div> <div class="md-sidebar md-sidebar--secondary" data-md-component=sidebar data-md-type=toc> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#61-portage-setup class=md-nav__link> 6.1. Portage Setup </a> </li> <li class=md-nav__item> <a href=#62-non-root-user-creation class=md-nav__link> 6.2. Non-Root User Creation </a> </li> <li class=md-nav__item> <a href=#63-configuration-of-etcfstab class=md-nav__link> 6.3. Configuration Of /etc/fstab </a> </li> <li class=md-nav__item> <a href=#64-secure-boot class=md-nav__link> 6.4. Secure Boot </a> </li> <li class=md-nav__item> <a href=#65-kernel-installation class=md-nav__link> 6.5. Kernel Installation </a> </li> <li class=md-nav__item> <a href=#66-initial-systemd-configuration class=md-nav__link> 6.6. Initial systemd configuration </a> </li> <li class=md-nav__item> <a href=#67-additional-packages class=md-nav__link> 6.7. Additional Packages </a> </li> </ul> </nav> </div> </div> </div> <div class=md-content data-md-component=content> <article class="md-content__inner md-typeset"> <a href=https://github.com/duxsco/gentoo-installation/blob/main/docs/system_setup.md title="Edit this page" class="md-content__button md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg> </a> <h1>6. System Setup</h1> <h2 id=61-portage-setup>6.1. Portage Setup<a class=headerlink href=#61-portage-setup title="Permanent link">&para;</a></h2> <p>Make <code>dispatch-conf</code> show diffs in color and use vimdiff for merging:</p> <div class=highlight><pre><span></span><code>rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+sed -i <span class=se>\</span>
+-e <span class=s2>&quot;s/diff=\&quot;diff -Nu &#39;%s&#39; &#39;%s&#39;\&quot;/diff=\&quot;diff --color=always -Nu &#39;%s&#39; &#39;%s&#39;\&quot;/&quot;</span> <span class=se>\</span>
+-e <span class=s2>&quot;s/merge=\&quot;sdiff --suppress-common-lines --output=&#39;%s&#39; &#39;%s&#39; &#39;%s&#39;\&quot;/merge=\&quot;vimdiff -c&#39;saveas %s&#39; -c next -c&#39;setlocal noma readonly&#39; -c prev %s %s\&quot;/&quot;</span> <span class=se>\</span>
 /etc/._cfg0000_dispatch-conf.conf
-</code></pre></div>
-<p>Install to be able to configure <code>/etc/portage/make.conf</code>:</p>
-<div class="highlight"><pre><span></span><code>emerge -1 app-portage/cpuid2cpuflags
-</code></pre></div>
-<p>Configure portage (copy&amp;paste one after the other):</p>
-<div class="highlight"><pre><span></span><code>rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
+</code></pre></div> <p>Install to be able to configure <code>/etc/portage/make.conf</code>:</p> <div class=highlight><pre><span></span><code>emerge -1 app-portage/cpuid2cpuflags
+</code></pre></div> <p>Configure portage (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code>rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 
-<span class="c1"># If you use distcc, beware of:</span>
-<span class="c1"># https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative</span>
-<span class="c1">#</span>
-<span class="c1"># You could resolve &quot;-march=native&quot; with app-misc/resolve-march-native</span>
-sed -i <span class="s1">&#39;s/COMMON_FLAGS=&quot;-O2 -pipe&quot;/COMMON_FLAGS=&quot;-march=native -O2 -pipe&quot;/&#39;</span> /etc/portage/._cfg0000_make.conf
+<span class=c1># If you use distcc, beware of:</span>
+<span class=c1># https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative</span>
+<span class=c1>#</span>
+<span class=c1># You could resolve &quot;-march=native&quot; with app-misc/resolve-march-native</span>
+sed -i <span class=s1>&#39;s/COMMON_FLAGS=&quot;-O2 -pipe&quot;/COMMON_FLAGS=&quot;-march=native -O2 -pipe&quot;/&#39;</span> /etc/portage/._cfg0000_make.conf
 
-cat <span class="s">&lt;&lt;&#39;EOF&#39; &gt;&gt; /etc/portage/._cfg0000_make.conf</span>
-<span class="s">EMERGE_DEFAULT_OPTS=&quot;--buildpkg --buildpkg-exclude &#39;*/*-bin sys-kernel/* virtual/*&#39; --noconfmem --with-bdeps=y --complete-graph=y&quot;</span>
+<span class=nb>echo</span> <span class=s1>&#39;EMERGE_DEFAULT_OPTS=&quot;--buildpkg --buildpkg-exclude &#39;</span><span class=se>\&#39;</span><span class=s1>&#39;*/*-bin sys-kernel/* virtual/*&#39;</span><span class=se>\&#39;</span><span class=s1>&#39; --noconfmem --with-bdeps=y --complete-graph=y&quot;</span>
 
-<span class="s">L10N=&quot;de&quot;</span>
-<span class="s">LINGUAS=&quot;${L10N}&quot;</span>
+<span class=s1>L10N=&quot;de&quot;</span>
+<span class=s1>LINGUAS=&quot;${L10N}&quot;</span>
 
-<span class="s">GENTOO_MIRRORS=&quot;https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/&quot;</span>
-<span class="s">FETCHCOMMAND=&quot;curl --fail --silent --show-error --location --proto &#39;=https&#39; --tlsv1.2 --ciphers &#39;ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128&#39; --retry 2 --connect-timeout 60 -o \&quot;\${DISTDIR}/\${FILE}\&quot; \&quot;\${URI}\&quot;&quot;</span>
-<span class="s">RESUMECOMMAND=&quot;${FETCHCOMMAND} --continue-at -&quot;</span>
+<span class=s1>GENTOO_MIRRORS=&quot;https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/&quot;</span>
+<span class=s1>FETCHCOMMAND=&quot;curl --fail --silent --show-error --location --proto &#39;</span><span class=se>\&#39;</span><span class=s1>&#39;=https&#39;</span><span class=se>\&#39;</span><span class=s1>&#39; --tlsv1.2 --ciphers &#39;</span><span class=se>\&#39;</span><span class=s1>&#39;ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128&#39;</span><span class=se>\&#39;</span><span class=s1>&#39; --retry 2 --connect-timeout 60 -o \&quot;\${DISTDIR}/\${FILE}\&quot; \&quot;\${URI}\&quot;&quot;</span>
+<span class=s1>RESUMECOMMAND=&quot;${FETCHCOMMAND} --continue-at -&quot;</span>
 
-<span class="s">USE_HARDENED=&quot;pie -sslv3 -suid verify-sig&quot;</span>
-<span class="s">USE=&quot;${USE_HARDENED} fish-completion&quot;</span>
+<span class=s1>USE_HARDENED=&quot;pie -sslv3 -suid verify-sig&quot;</span>
+<span class=s1>USE=&quot;${USE_HARDENED} fish-completion&quot;</span>
+<span class=s1>&#39;</span> &gt;&gt; /etc/portage/._cfg0000_make.conf
 
-<span class="s">EOF</span>
+<span class=nb>echo</span> <span class=s2>&quot;*/* </span><span class=k>$(</span>cpuid2cpuflags<span class=k>)</span><span class=s2>&quot;</span> &gt; /etc/portage/package.use/00cpu-flags
+</code></pre></div> <p>(Optional) Change <code>GENTOO_MIRRORS</code> in <code>/etc/portage/make.conf</code> (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code><span class=c1># Install app-misc/yq</span>
+<span class=nv>ACCEPT_KEYWORDS</span><span class=o>=</span>~amd64 emerge -1 app-misc/yq
 
-<span class="nb">echo</span> <span class="s2">&quot;*/* </span><span class="k">$(</span>cpuid2cpuflags<span class="k">)</span><span class="s2">&quot;</span> &gt; /etc/portage/package.use/00cpu-flags
-</code></pre></div>
-<p>(Optional) Change <code>GENTOO_MIRRORS</code> in <code>/etc/portage/make.conf</code> (copy&amp;paste one after the other):</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Install app-misc/yq</span>
-<span class="nv">ACCEPT_KEYWORDS</span><span class="o">=</span>~amd64 emerge -1 app-misc/yq
+<span class=c1># Get a list of country codes and names:</span>
+curl -fsSL --proto <span class=s1>&#39;=https&#39;</span> --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml <span class=p>|</span> xq -r <span class=s1>&#39;.mirrors.mirrorgroup[] | &quot;\(.[&quot;@country&quot;]) \(.[&quot;@countryname&quot;])&quot;&#39;</span> <span class=p>|</span> sort -k2.2
 
-<span class="c1"># Get a list of country codes and names:</span>
-curl -fsSL --proto <span class="s1">&#39;=https&#39;</span> --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml <span class="p">|</span> xq -r <span class="s1">&#39;.mirrors.mirrorgroup[] | &quot;\(.[&quot;@country&quot;]) \(.[&quot;@countryname&quot;])&quot;&#39;</span> <span class="p">|</span> sort -k2.2
+<span class=c1># Choose your countries the mirrors should be located in:</span>
+<span class=nv>country</span><span class=o>=</span><span class=s1>&#39;&quot;AU&quot;,&quot;BE&quot;,&quot;BR&quot;,&quot;CA&quot;,&quot;CH&quot;,&quot;CL&quot;,&quot;CN&quot;,&quot;CZ&quot;,&quot;DE&quot;,&quot;DK&quot;,&quot;ES&quot;,&quot;FR&quot;,&quot;GR&quot;,&quot;HK&quot;,&quot;IL&quot;,&quot;IT&quot;,&quot;JP&quot;,&quot;KR&quot;,&quot;KZ&quot;,&quot;LU&quot;,&quot;NA&quot;,&quot;NC&quot;,&quot;NL&quot;,&quot;PH&quot;,&quot;PL&quot;,&quot;PT&quot;,&quot;RO&quot;,&quot;RU&quot;,&quot;SG&quot;,&quot;SK&quot;,&quot;TR&quot;,&quot;TW&quot;,&quot;UK&quot;,&quot;US&quot;,&quot;ZA&quot;&#39;</span>
 
-<span class="c1"># Choose your countries the mirrors should be located in:</span>
-<span class="nv">country</span><span class="o">=</span><span class="s1">&#39;&quot;AU&quot;,&quot;BE&quot;,&quot;BR&quot;,&quot;CA&quot;,&quot;CH&quot;,&quot;CL&quot;,&quot;CN&quot;,&quot;CZ&quot;,&quot;DE&quot;,&quot;DK&quot;,&quot;ES&quot;,&quot;FR&quot;,&quot;GR&quot;,&quot;HK&quot;,&quot;IL&quot;,&quot;IT&quot;,&quot;JP&quot;,&quot;KR&quot;,&quot;KZ&quot;,&quot;LU&quot;,&quot;NA&quot;,&quot;NC&quot;,&quot;NL&quot;,&quot;PH&quot;,&quot;PL&quot;,&quot;PT&quot;,&quot;RO&quot;,&quot;RU&quot;,&quot;SG&quot;,&quot;SK&quot;,&quot;TR&quot;,&quot;TW&quot;,&quot;UK&quot;,&quot;US&quot;,&quot;ZA&quot;&#39;</span>
-
-<span class="c1"># Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support</span>
-curl -fsSL --proto <span class="s1">&#39;=https&#39;</span> --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml <span class="p">|</span> xq -r <span class="s2">&quot;.mirrors.mirrorgroup[] | select([.\&quot;@country\&quot;] | inside([</span><span class="si">${</span><span class="nv">country</span><span class="si">}</span><span class="s2">])) | .mirror | if type==\&quot;array\&quot; then .[] else . end | .uri | if type==\&quot;array\&quot; then .[] else . end | select(.\&quot;@protocol\&quot; == \&quot;http\&quot; and .\&quot;@ipv4\&quot; == \&quot;y\&quot; and .\&quot;@ipv6\&quot; == \&quot;y\&quot; and (.\&quot;#text\&quot; | startswith(\&quot;https://\&quot;))) | .\&quot;#text\&quot;&quot;</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
-  <span class="k">if</span> curl -fs --proto <span class="s1">&#39;=https&#39;</span> --tlsv1.3 -I <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="s2">&quot;</span> &gt;/dev/null<span class="p">;</span> <span class="k">then</span>
-    <span class="nb">echo</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="s2">&quot;</span>
-  <span class="k">fi</span>
-<span class="k">done</span>
-</code></pre></div>
-<p>I prefer English manpages and ignore above <code>L10N</code> setting for <code>sys-apps/man-pages</code>. Makes using Stackoverflow easier 😉.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;sys-apps/man-pages -l10n_de&quot;</span> &gt;&gt; /etc/portage/package.use/main
-</code></pre></div>
-<p>Install <code>app-portage/eix</code>:</p>
-<div class="highlight"><pre><span></span><code>emerge -at app-portage/eix
-</code></pre></div>
-<p>Execute <code>eix-sync</code>:</p>
-<div class="highlight"><pre><span></span><code>eix-sync
-</code></pre></div>
-<p>Read Gentoo news items:</p>
-<div class="highlight"><pre><span></span><code>eselect news list
-# eselect news read 1
-# eselect news read 2
-# etc.
-</code></pre></div>
-<p>Update system:</p>
-<div class="highlight"><pre><span></span><code>touch /etc/sysctl.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-apps/systemd cryptsetup gnuefi&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class=c1># Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support</span>
+curl -fsSL --proto <span class=s1>&#39;=https&#39;</span> --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml <span class=p>|</span> xq -r <span class=s2>&quot;.mirrors.mirrorgroup[] | select([.\&quot;@country\&quot;] | inside([</span><span class=si>${</span><span class=nv>country</span><span class=si>}</span><span class=s2>])) | .mirror | if type==\&quot;array\&quot; then .[] else . end | .uri | if type==\&quot;array\&quot; then .[] else . end | select(.\&quot;@protocol\&quot; == \&quot;http\&quot; and .\&quot;@ipv4\&quot; == \&quot;y\&quot; and .\&quot;@ipv6\&quot; == \&quot;y\&quot; and (.\&quot;#text\&quot; | startswith(\&quot;https://\&quot;))) | .\&quot;#text\&quot;&quot;</span> <span class=p>|</span> <span class=k>while</span> <span class=nb>read</span> -r i<span class=p>;</span> <span class=k>do</span>
+  <span class=k>if</span> curl -fs --proto <span class=s1>&#39;=https&#39;</span> --tlsv1.3 -I <span class=s2>&quot;</span><span class=si>${</span><span class=nv>i</span><span class=si>}</span><span class=s2>&quot;</span> &gt;/dev/null<span class=p>;</span> <span class=k>then</span>
+    <span class=nb>echo</span> <span class=s2>&quot;</span><span class=si>${</span><span class=nv>i</span><span class=si>}</span><span class=s2>&quot;</span>
+  <span class=k>fi</span>
+<span class=k>done</span>
+</code></pre></div> <p>I prefer English manpages and ignore above <code>L10N</code> setting for <code>sys-apps/man-pages</code>. Makes using Stackoverflow easier 😉.</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;sys-apps/man-pages -l10n_de&quot;</span> &gt;&gt; /etc/portage/package.use/main
+</code></pre></div> <p>Install <code>app-portage/eix</code>:</p> <div class=highlight><pre><span></span><code>emerge -at app-portage/eix
+</code></pre></div> <p>Mitigate <a href="https://bugs.gentoo.org/show_bug.cgi?id=CVE-2022-29154">CVE-2022-29154</a> among others before using <code>rsync</code> via <code>eix-sync</code>:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s1>&#39;net-misc/rsync ~amd64&#39;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge -1 net-misc/rsync
+</code></pre></div> <p>Execute <code>eix-sync</code>:</p> <div class=highlight><pre><span></span><code>eix-sync
+</code></pre></div> <p>Read Gentoo news items:</p> <div class=highlight><pre><span></span><code>eselect news list
+<span class=c1># eselect news read 1</span>
+<span class=c1># eselect news read 2</span>
+<span class=c1># etc.</span>
+</code></pre></div> <p>Switch over to hardened profile:</p> <div class=highlight><pre><span></span><code>eselect profile <span class=nb>set</span> duxsco:hardened-systemd <span class=o>&amp;&amp;</span> <span class=se>\</span>
+env-update <span class=o>&amp;&amp;</span> <span class=nb>source</span> /etc/profile <span class=o>&amp;&amp;</span> <span class=nb>export</span> <span class=nv>PS1</span><span class=o>=</span><span class=s2>&quot;(chroot) </span><span class=nv>$PS1</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge -1 sys-devel/gcc <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge -1 sys-devel/binutils sys-libs/glibc <span class=o>&amp;&amp;</span> <span class=se>\</span>
+env-update <span class=o>&amp;&amp;</span> <span class=nb>source</span> /etc/profile <span class=o>&amp;&amp;</span> <span class=nb>export</span> <span class=nv>PS1</span><span class=o>=</span><span class=s2>&quot;(chroot) </span><span class=nv>$PS1</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge -e @world <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Update system:</p> <div class=highlight><pre><span></span><code>touch /etc/sysctl.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;sys-apps/systemd cryptsetup gnuefi&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
 emerge -atuDN @world
-</code></pre></div>
-<h2 id="62-non-root-user-creation">6.2. Non-Root User Creation<a class="headerlink" href="#62-non-root-user-creation" title="Permanent link">&para;</a></h2>
-<p>Create a non-root user and set a password you can use with English keyboard layout for now. You can set a secure password after rebooting and taking care of localisation.</p>
-<div class="highlight"><pre><span></span><code>useradd -m -G wheel -s /bin/bash david <span class="o">&amp;&amp;</span> <span class="se">\</span>
-chmod <span class="nv">u</span><span class="o">=</span>rwx,og<span class="o">=</span> /home/david <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> -e <span class="s1">&#39;alias cp=&quot;cp -i&quot;\nalias mv=&quot;mv -i&quot;\nalias rm=&quot;rm -i&quot;&#39;</span> &gt;&gt; /home/david/.bash_aliases <span class="o">&amp;&amp;</span> <span class="se">\</span>
-chown david:david /home/david/.bash_aliases <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s1">&#39;source &quot;${HOME}/.bash_aliases&quot;&#39;</span> &gt;&gt; /home/david/.bashrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</code></pre></div> <h2 id=62-non-root-user-creation>6.2. Non-Root User Creation<a class=headerlink href=#62-non-root-user-creation title="Permanent link">&para;</a></h2> <p>Create a non-root user and set a password you can use with English keyboard layout for now. You can set a secure password after rebooting and taking care of localisation.</p> <div class=highlight><pre><span></span><code>useradd -m -G wheel -s /bin/bash david <span class=o>&amp;&amp;</span> <span class=se>\</span>
+chmod <span class=nv>u</span><span class=o>=</span>rwx,og<span class=o>=</span> /home/david <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s1>&#39;alias cp=&quot;cp -i&quot;\nalias mv=&quot;mv -i&quot;\nalias rm=&quot;rm -i&quot;&#39;</span> &gt;&gt; /home/david/.bash_aliases <span class=o>&amp;&amp;</span> <span class=se>\</span>
+chown david:david /home/david/.bash_aliases <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s1>&#39;source &quot;${HOME}/.bash_aliases&quot;&#39;</span> &gt;&gt; /home/david/.bashrc <span class=o>&amp;&amp;</span> <span class=se>\</span>
 passwd david
-</code></pre></div>
-<p>(Optional) Create your <code>authorized_keys</code>:</p>
-<div class="highlight"><pre><span></span><code>rsync -av --chown<span class="o">=</span>david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/
-</code></pre></div>
-<p>Setup sudo:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;app-admin/sudo -sendmail&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge app-admin/sudo <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;%wheel ALL=(ALL) ALL&quot;</span> <span class="p">|</span> <span class="nv">EDITOR</span><span class="o">=</span><span class="s2">&quot;tee&quot;</span> visudo -f /etc/sudoers.d/wheel<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<p>Setup vim:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">USE</span><span class="o">=</span><span class="s2">&quot;-verify-sig&quot;</span> emerge -1 dev-libs/libsodium <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge -1 dev-libs/libsodium app-editors/vim app-vim/molokai <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge --select --noreplace app-editors/vim app-vim/molokai <span class="o">&amp;&amp;</span> <span class="se">\</span>
-sed -i <span class="s1">&#39;s/^USE=&quot;\([^&quot;]*\)&quot;$/USE=&quot;\1 vim-syntax&quot;/&#39;</span> /etc/portage/make.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;filetype plugin on</span>
-<span class="s2">filetype indent on</span>
-<span class="s2">set number</span>
-<span class="s2">set paste</span>
-<span class="s2">syntax on</span>
-<span class="s2">colorscheme molokai&quot;</span> <span class="p">|</span> tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  <span class="o">&amp;&amp;</span> <span class="se">\</span>
-chown david:david /home/david/.vimrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
-eselect editor <span class="nb">set</span> vi <span class="o">&amp;&amp;</span> <span class="se">\</span>
-eselect vi <span class="nb">set</span> vim <span class="o">&amp;&amp;</span> <span class="se">\</span>
-env-update <span class="o">&amp;&amp;</span> <span class="nb">source</span> /etc/profile <span class="o">&amp;&amp;</span> <span class="nb">export</span> <span class="nv">PS1</span><span class="o">=</span><span class="s2">&quot;(chroot) </span><span class="nv">$PS1</span><span class="s2">&quot;</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<h2 id="63-configuration-of-etcfstab">6.3. Configuration Of /etc/fstab<a class="headerlink" href="#63-configuration-of-etcfstab" title="Permanent link">&para;</a></h2>
-<p>Setup /etc/fstab:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">SWAP_UUID</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /mapperSwap<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nv">SYSTEM_UUID</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;&quot;</span> &gt;&gt; /etc/fstab <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;</span>
-<span class="k">$(</span>find /devEfi* -maxdepth <span class="m">0</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> -r i<span class="p">;</span> <span class="k">do</span>
-  <span class="nb">echo</span> <span class="s2">&quot;UUID=</span><span class="k">$(</span>blkid -s UUID -o value <span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2"> </span><span class="si">${</span><span class="nv">i</span><span class="p">/devE/boot</span><span class="se">\/</span><span class="nv">e</span><span class="si">}</span><span class="s2"> vfat noatime,dmask=0022,fmask=0133 0 0&quot;</span>
-<span class="k">done)</span><span class="s2"></span>
-<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SWAP_UUID</span><span class="si">}</span><span class="s2">   none                 swap  sw                        0 0</span>
-<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /                    btrfs noatime,subvol=@root      0 0</span>
-<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /home                btrfs noatime,subvol=@home      0 0</span>
-<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs   0 0</span>
-<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /var/cache/distfiles btrfs noatime,subvol=@distfiles 0 0</span>
-<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0</span>
-<span class="s2">UUID=</span><span class="si">${</span><span class="nv">SYSTEM_UUID</span><span class="si">}</span><span class="s2"> /var/tmp             btrfs noatime,subvol=@var_tmp   0 0</span>
-<span class="s2">&quot;</span> <span class="p">|</span> column -o <span class="s2">&quot; &quot;</span> -t &gt;&gt; /etc/fstab<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<h2 id="64-secure-boot">6.4. Secure Boot<a class="headerlink" href="#64-secure-boot" title="Permanent link">&para;</a></h2>
-<p>Credits:</p>
-<ul>
-<li><a href="https://www.funtoo.org/Secure_Boot">https://www.funtoo.org/Secure_Boot</a></li>
-<li><a href="https://www.rodsbooks.com/efi-bootloaders/secureboot.html">https://www.rodsbooks.com/efi-bootloaders/secureboot.html</a></li>
-<li><a href="https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot">https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot</a></li>
-</ul>
-<p>In order to add your custom keys <code>Setup Mode</code> must have been enabled in your <code>UEFI Firmware Settings</code> before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling <code>Setup Mode</code>. In the following, however, you have to generate Secure Boot files either way.</p>
-<p>Install required tools on your system:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;sys-boot/mokutil ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</code></pre></div> <p>(Optional) Create your <code>authorized_keys</code>:</p> <div class=highlight><pre><span></span><code>rsync -av --chown<span class=o>=</span>david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/
+</code></pre></div> <p>Setup sudo:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;app-admin/sudo -sendmail&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge app-admin/sudo <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=o>{</span> <span class=o>[[</span> -d /etc/sudoers.d <span class=o>]]</span> <span class=o>||</span> mkdir -m <span class=nv>u</span><span class=o>=</span>rwx,g<span class=o>=</span>rx,o<span class=o>=</span> /etc/sudoers.d<span class=p>;</span> <span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;%wheel ALL=(ALL) ALL&quot;</span> <span class=p>|</span> <span class=nv>EDITOR</span><span class=o>=</span><span class=s2>&quot;tee&quot;</span> visudo -f /etc/sudoers.d/wheel <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Setup vim:</p> <div class=highlight><pre><span></span><code><span class=nv>USE</span><span class=o>=</span><span class=s2>&quot;-verify-sig&quot;</span> emerge -1 dev-libs/libsodium <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge -1 dev-libs/libsodium app-editors/vim app-vim/molokai <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge --select --noreplace app-editors/vim app-vim/molokai <span class=o>&amp;&amp;</span> <span class=se>\</span>
+cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+sed -i <span class=s1>&#39;s/^USE=&quot;\([^&quot;]*\)&quot;$/USE=&quot;\1 vim-syntax&quot;/&#39;</span> /etc/portage/._cfg0000_make.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;filetype plugin on</span>
+<span class=s2>filetype indent on</span>
+<span class=s2>set number</span>
+<span class=s2>set paste</span>
+<span class=s2>syntax on</span>
+<span class=s2>colorscheme molokai&quot;</span> <span class=p>|</span> tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  <span class=o>&amp;&amp;</span> <span class=se>\</span>
+chown david:david /home/david/.vimrc <span class=o>&amp;&amp;</span> <span class=se>\</span>
+eselect editor <span class=nb>set</span> vi <span class=o>&amp;&amp;</span> <span class=se>\</span>
+eselect vi <span class=nb>set</span> vim <span class=o>&amp;&amp;</span> <span class=se>\</span>
+env-update <span class=o>&amp;&amp;</span> <span class=nb>source</span> /etc/profile <span class=o>&amp;&amp;</span> <span class=nb>export</span> <span class=nv>PS1</span><span class=o>=</span><span class=s2>&quot;(chroot) </span><span class=nv>$PS1</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <h2 id=63-configuration-of-etcfstab>6.3. Configuration Of /etc/fstab<a class=headerlink href=#63-configuration-of-etcfstab title="Permanent link">&para;</a></h2> <p>Setup /etc/fstab:</p> <div class=highlight><pre><span></span><code><span class=nv>SWAP_UUID</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>blkid -s UUID -o value /mapperSwap<span class=k>)</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nv>SYSTEM_UUID</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>blkid -s UUID -o value /mapperSystem<span class=k>)</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;&quot;</span> &gt;&gt; /etc/fstab <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;</span>
+<span class=k>$(</span>find /devEfi* -maxdepth <span class=m>0</span> <span class=p>|</span> <span class=k>while</span> <span class=nb>read</span> -r i<span class=p>;</span> <span class=k>do</span>
+  <span class=nb>echo</span> <span class=s2>&quot;UUID=</span><span class=k>$(</span>blkid -s UUID -o value <span class=s2>&quot;</span><span class=nv>$i</span><span class=s2>&quot;</span><span class=k>)</span><span class=s2> </span><span class=si>${</span><span class=nv>i</span><span class=p>/devE/boot</span><span class=se>\/</span><span class=nv>e</span><span class=si>}</span><span class=s2> vfat noatime,dmask=0022,fmask=0133 0 0&quot;</span>
+<span class=k>done)</span><span class=s2></span>
+<span class=s2>UUID=</span><span class=si>${</span><span class=nv>SWAP_UUID</span><span class=si>}</span><span class=s2>   none                 swap  sw                        0 0</span>
+<span class=s2>UUID=</span><span class=si>${</span><span class=nv>SYSTEM_UUID</span><span class=si>}</span><span class=s2> /                    btrfs noatime,subvol=@root      0 0</span>
+<span class=s2>UUID=</span><span class=si>${</span><span class=nv>SYSTEM_UUID</span><span class=si>}</span><span class=s2> /home                btrfs noatime,subvol=@home      0 0</span>
+<span class=s2>UUID=</span><span class=si>${</span><span class=nv>SYSTEM_UUID</span><span class=si>}</span><span class=s2> /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs   0 0</span>
+<span class=s2>UUID=</span><span class=si>${</span><span class=nv>SYSTEM_UUID</span><span class=si>}</span><span class=s2> /var/cache/distfiles btrfs noatime,subvol=@distfiles 0 0</span>
+<span class=s2>UUID=</span><span class=si>${</span><span class=nv>SYSTEM_UUID</span><span class=si>}</span><span class=s2> /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0</span>
+<span class=s2>UUID=</span><span class=si>${</span><span class=nv>SYSTEM_UUID</span><span class=si>}</span><span class=s2> /var/tmp             btrfs noatime,subvol=@var_tmp   0 0</span>
+<span class=s2>&quot;</span> <span class=p>|</span> column -o <span class=s2>&quot; &quot;</span> -t &gt;&gt; /etc/fstab <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <h2 id=64-secure-boot>6.4. Secure Boot<a class=headerlink href=#64-secure-boot title="Permanent link">&para;</a></h2> <p>Credits:</p> <ul> <li><a href=https://www.funtoo.org/Secure_Boot>https://www.funtoo.org/Secure_Boot</a></li> <li><a href=https://www.rodsbooks.com/efi-bootloaders/secureboot.html>https://www.rodsbooks.com/efi-bootloaders/secureboot.html</a></li> <li><a href=https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot>https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot</a></li> </ul> <p>In order to add your custom keys <code>Setup Mode</code> must have been enabled in your <code>UEFI Firmware Settings</code> before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling <code>Setup Mode</code>. In the following, however, you have to generate Secure Boot files either way.</p> <p>Install required tools on your system:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;sys-boot/mokutil ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
 emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
-</code></pre></div>
-<p>Create Secure Boot keys and certificates:</p>
-<div class="highlight"><pre><span></span><code>mkdir --mode<span class="o">=</span><span class="m">0700</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">pushd</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</code></pre></div> <p>Create Secure Boot keys and certificates:</p> <div class=highlight><pre><span></span><code>mkdir --mode<span class=o>=</span><span class=m>0700</span> /etc/gentoo-installation/secureboot <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>pushd</span> /etc/gentoo-installation/secureboot <span class=o>&amp;&amp;</span> <span class=se>\</span>
 
-<span class="c1"># Create the keys</span>
-openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=PK/&quot;</span>  -keyout PK.key  -out PK.crt  -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
-openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=KEK/&quot;</span> -keyout KEK.key -out KEK.crt -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
-openssl req -new -x509 -newkey rsa:3072 -subj <span class="s2">&quot;/CN=db/&quot;</span>  -keyout db.key  -out db.crt  -days <span class="m">7300</span> -nodes -sha256 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class=c1># Create the keys</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class=s2>&quot;/CN=PK/&quot;</span>  -keyout PK.key  -out PK.crt  -days <span class=m>7300</span> -nodes -sha256 <span class=o>&amp;&amp;</span> <span class=se>\</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class=s2>&quot;/CN=KEK/&quot;</span> -keyout KEK.key -out KEK.crt -days <span class=m>7300</span> -nodes -sha256 <span class=o>&amp;&amp;</span> <span class=se>\</span>
+openssl req -new -x509 -newkey rsa:3072 -subj <span class=s2>&quot;/CN=db/&quot;</span>  -keyout db.key  -out db.crt  -days <span class=m>7300</span> -nodes -sha256 <span class=o>&amp;&amp;</span> <span class=se>\</span>
 
-<span class="c1"># Prepare installation in EFI</span>
-<span class="nv">uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>uuidgen --random<span class="k">)</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> PK.crt PK.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
-cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> KEK.crt KEK.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
-cert-to-efi-sig-list -g <span class="s2">&quot;</span><span class="si">${</span><span class="nv">uuid</span><span class="si">}</span><span class="s2">&quot;</span> db.crt db.esl <span class="o">&amp;&amp;</span> <span class="se">\</span>
-sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
-sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
-sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth <span class="o">&amp;&amp;</span> <span class="se">\</span>
-popd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<p>If the following commands don't work you have to install <code>db.auth</code>, <code>KEK.auth</code> and <code>PK.auth</code> over the <code>UEFI Firmware Settings</code> upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.</p>
-<div class="highlight"><pre><span></span><code><span class="nb">pushd</span> /etc/gentoo-installation/secureboot <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class=c1># Prepare installation in EFI</span>
+<span class=nv>uuid</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>uuidgen --random<span class=k>)</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+cert-to-efi-sig-list -g <span class=s2>&quot;</span><span class=si>${</span><span class=nv>uuid</span><span class=si>}</span><span class=s2>&quot;</span> PK.crt PK.esl <span class=o>&amp;&amp;</span> <span class=se>\</span>
+cert-to-efi-sig-list -g <span class=s2>&quot;</span><span class=si>${</span><span class=nv>uuid</span><span class=si>}</span><span class=s2>&quot;</span> KEK.crt KEK.esl <span class=o>&amp;&amp;</span> <span class=se>\</span>
+cert-to-efi-sig-list -g <span class=s2>&quot;</span><span class=si>${</span><span class=nv>uuid</span><span class=si>}</span><span class=s2>&quot;</span> db.crt db.esl <span class=o>&amp;&amp;</span> <span class=se>\</span>
+sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth <span class=o>&amp;&amp;</span> <span class=se>\</span>
+sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth <span class=o>&amp;&amp;</span> <span class=se>\</span>
+sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>popd</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>If the following commands don't work you have to install <code>db.auth</code>, <code>KEK.auth</code> and <code>PK.auth</code> over the <code>UEFI Firmware Settings</code> upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.</p> <div class=highlight><pre><span></span><code><span class=nb>pushd</span> /etc/gentoo-installation/secureboot <span class=o>&amp;&amp;</span> <span class=se>\</span>
 
-<span class="c1"># Make them mutable</span>
-chattr -i /sys/firmware/efi/efivars/<span class="o">{</span>PK,KEK,db,dbx<span class="o">}</span>* <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class=c1># Make them mutable</span>
+<span class=o>{</span> chattr -i /sys/firmware/efi/efivars/<span class=o>{</span>PK,KEK,db,dbx<span class=o>}</span>* <span class=o>||</span> true<span class=p>;</span> <span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
 
-<span class="c1"># Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)</span>
-efi-updatevar -f db.auth db <span class="o">&amp;&amp;</span> <span class="se">\</span>
-efi-updatevar -f KEK.auth KEK <span class="o">&amp;&amp;</span> <span class="se">\</span>
-efi-updatevar -f PK.auth PK <span class="o">&amp;&amp;</span> <span class="se">\</span>
+<span class=c1># Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)</span>
+efi-updatevar -f db.auth db <span class=o>&amp;&amp;</span> <span class=se>\</span>
+efi-updatevar -f KEK.auth KEK <span class=o>&amp;&amp;</span> <span class=se>\</span>
+efi-updatevar -f PK.auth PK <span class=o>&amp;&amp;</span> <span class=se>\</span>
 
-<span class="c1"># Make them immutable</span>
-chattr +i /sys/firmware/efi/efivars/<span class="o">{</span>PK,KEK,db,dbx<span class="o">}</span>* <span class="o">&amp;&amp;</span> <span class="se">\</span>
-popd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<h2 id="65-kernel-installation">6.5. Kernel Installation<a class="headerlink" href="#65-kernel-installation" title="Permanent link">&para;</a></h2>
-<p>Install <code>sys-boot/efibootmgr</code>:</p>
-<div class="highlight"><pre><span></span><code>emerge -at sys-boot/efibootmgr
-</code></pre></div>
-<p>Setup ESP(s):</p>
-<div class="highlight"><pre><span></span><code><span class="k">while</span> <span class="nb">read</span> -r my_esp<span class="p">;</span> <span class="k">do</span>
-  bootctl --esp-path<span class="o">=</span><span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> install <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  efibootmgr --create --disk <span class="s2">&quot;/dev/</span><span class="k">$(</span>lsblk -ndo pkname <span class="s2">&quot;</span><span class="k">$(</span>readlink -f <span class="s2">&quot;/</span><span class="si">${</span><span class="nv">my_esp</span><span class="p">/efi/devEfi</span><span class="si">}</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2">&quot;</span> --part <span class="m">1</span> --label <span class="s2">&quot;gentoo31415efi </span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">&quot;</span> --loader <span class="s1">&#39;\EFI\systemd\systemd-bootx64.efi&#39;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  <span class="nb">echo</span> -e <span class="s2">&quot;timeout 10\neditor no&quot;</span> &gt; <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/loader/loader.conf&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  mv <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/systemrescuecd.efi&quot;</span> <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/Linux/&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/systemd/systemd-bootx64.efi&quot;</span> <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/systemd/systemd-bootx64.efi&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/BOOT/BOOTX64.EFI&quot;</span> <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/BOOT/BOOTX64.EFI&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/Linux/systemrescuecd.efi&quot;</span> <span class="s2">&quot;/boot/</span><span class="si">${</span><span class="nv">my_esp</span><span class="si">}</span><span class="s2">/EFI/Linux/systemrescuecd.efi&quot;</span>
-  <span class="nb">echo</span> <span class="nv">$?</span>
-<span class="k">done</span> &lt; &lt;<span class="o">(</span>grep -Po <span class="s2">&quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot;</span> /etc/fstab<span class="o">)</span>
-</code></pre></div>
-<p>Microcode updates are not necessary for virtual machines. Otherwise, install <code>sys-firmware/intel-microcode</code> if you have an Intel CPU. Or, follow the <a href="https://wiki.gentoo.org/wiki/AMD_microcode">Gentoo wiki instruction</a> to update the microcode on AMD systems.</p>
-<div class="highlight"><pre><span></span><code>! grep -q -w <span class="s2">&quot;hypervisor&quot;</span> &lt;<span class="o">(</span>grep <span class="s2">&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-grep -q <span class="s2">&quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel</span>$<span class="s2">&quot;</span> /proc/cpuinfo <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode intel-ucode&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-firmware/intel-microcode hostonly&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge -at sys-firmware/intel-microcode<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<p>Setup portage hook:</p>
-<div class="highlight"><pre><span></span><code>mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel <span class="o">&amp;&amp;</span> <span class="se">\</span>
-rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode <span class="o">&amp;&amp;</span> <span class="se">\</span>
-rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin <span class="o">&amp;&amp;</span> <span class="se">\</span>
-rsync -a --numeric-ids --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">u</span><span class="o">=</span>rw,go<span class="o">=</span>r /root/portage_hook_kernel /etc/portage/env/sys-kernel/linux-firmware <span class="o">&amp;&amp;</span> <span class="se">\</span>
-rm -f /root/portage_hook_kernel <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s1">&#39;if [[ ${EBUILD_PHASE} == postinst ]]; then</span>
-<span class="s1">    while read -r my_esp; do</span>
-<span class="s1">        bootctl --esp-path=&quot;/boot/${my_esp}&quot; --no-variables --graceful update &amp;&amp; \</span>
-<span class="s1">        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output &quot;/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi&quot; &quot;/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi&quot; &amp;&amp; \</span>
-<span class="s1">        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output &quot;/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI&quot; &quot;/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI&quot;</span>
+<span class=c1># Make them immutable</span>
+<span class=o>{</span> chattr +i /sys/firmware/efi/efivars/<span class=o>{</span>PK,KEK,db,dbx<span class=o>}</span>* <span class=o>||</span> true<span class=p>;</span> <span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>popd</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <h2 id=65-kernel-installation>6.5. Kernel Installation<a class=headerlink href=#65-kernel-installation title="Permanent link">&para;</a></h2> <p>Install <code>sys-boot/efibootmgr</code>:</p> <div class=highlight><pre><span></span><code>emerge -at sys-boot/efibootmgr
+</code></pre></div> <p>Setup ESP(s):</p> <div class=highlight><pre><span></span><code><span class=k>while</span> <span class=nb>read</span> -r my_esp<span class=p>;</span> <span class=k>do</span>
+  bootctl --esp-path<span class=o>=</span><span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>&quot;</span> install <span class=o>&amp;&amp;</span> <span class=se>\</span>
+  efibootmgr --create --disk <span class=s2>&quot;/dev/</span><span class=k>$(</span>lsblk -ndo pkname <span class=s2>&quot;</span><span class=k>$(</span>readlink -f <span class=s2>&quot;/</span><span class=si>${</span><span class=nv>my_esp</span><span class=p>/efi/devEfi</span><span class=si>}</span><span class=s2>&quot;</span><span class=k>)</span><span class=s2>&quot;</span><span class=k>)</span><span class=s2>&quot;</span> --part <span class=m>1</span> --label <span class=s2>&quot;gentoo31415efi </span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>&quot;</span> --loader <span class=s1>&#39;\EFI\systemd\systemd-bootx64.efi&#39;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+  <span class=nb>echo</span> -e <span class=s2>&quot;timeout 10\neditor no&quot;</span> &gt; <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/loader/loader.conf&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+  mv <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/systemrescuecd.efi&quot;</span> <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/EFI/Linux/&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/EFI/systemd/systemd-bootx64.efi&quot;</span> <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/EFI/systemd/systemd-bootx64.efi&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/EFI/BOOT/BOOTX64.EFI&quot;</span> <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/EFI/BOOT/BOOTX64.EFI&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/EFI/Linux/systemrescuecd.efi&quot;</span> <span class=s2>&quot;/boot/</span><span class=si>${</span><span class=nv>my_esp</span><span class=si>}</span><span class=s2>/EFI/Linux/systemrescuecd.efi&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+  <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+<span class=k>done</span> &lt; &lt;<span class=o>(</span>grep -Po <span class=s2>&quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot;</span> /etc/fstab<span class=o>)</span>
+</code></pre></div> <p>Microcode updates are not necessary for virtual machines. Otherwise, install <code>sys-firmware/intel-microcode</code> if you have an Intel CPU. Or, follow the <a href=https://wiki.gentoo.org/wiki/AMD_microcode>Gentoo wiki instruction</a> to update the microcode on AMD systems.</p> <div class=highlight><pre><span></span><code>! grep -q -w <span class=s2>&quot;hypervisor&quot;</span> &lt;<span class=o>(</span>grep <span class=s2>&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span> /proc/cpuinfo<span class=o>)</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+grep -q <span class=s2>&quot;^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel</span>$<span class=s2>&quot;</span> /proc/cpuinfo <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;sys-firmware/intel-microcode intel-ucode&quot;</span> &gt;&gt; /etc/portage/package.license <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;sys-firmware/intel-microcode hostonly&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge -at sys-firmware/intel-microcode <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Setup portage hook:</p> <div class=highlight><pre><span></span><code>mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rsync -a --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rw,go<span class=o>=</span>r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rsync -a --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rw,go<span class=o>=</span>r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rsync -a --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rw,go<span class=o>=</span>r /root/portage_hook_kernel /etc/portage/env/sys-kernel/linux-firmware <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rm -f /root/portage_hook_kernel <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s1>&#39;if [[ ${EBUILD_PHASE} == postinst ]]; then</span>
+<span class=s1>    while read -r my_esp; do</span>
+<span class=s1>        bootctl --esp-path=&quot;/boot/${my_esp}&quot; --no-variables --graceful update &amp;&amp; \</span>
+<span class=s1>        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output &quot;/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi&quot; &quot;/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi&quot; &amp;&amp; \</span>
+<span class=s1>        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output &quot;/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI&quot; &quot;/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI&quot;</span>
 
-<span class="s1">        if [[ $? -ne 0 ]]; then</span>
-<span class="s1">cat &lt;&lt;EOF</span>
+<span class=s1>        if [[ $? -ne 0 ]]; then</span>
+<span class=s1>cat &lt;&lt;&#39;</span><span class=se>\&#39;</span><span class=s1>&#39;EOF&#39;</span><span class=se>\&#39;</span><span class=s1>&#39;</span>
 
-<span class="s1">  ___________________________</span>
-<span class="s1">&lt; Failed to Secure Boot sign! &gt;</span>
-<span class="s1">  ---------------------------</span>
-<span class="s1">         \   ^__^ </span>
-<span class="s1">          \  (oo)\_______</span>
-<span class="s1">             (__)\       )\/\\</span>
-<span class="s1">                 ||----w |</span>
-<span class="s1">                 ||     ||</span>
+<span class=s1>  ___________________________</span>
+<span class=s1>&lt; Failed to Secure Boot sign! &gt;</span>
+<span class=s1>  ---------------------------</span>
+<span class=s1>         \   ^__^ </span>
+<span class=s1>          \  (oo)\_______</span>
+<span class=s1>             (__)\       )\/\</span>
+<span class=s1>                 ||----w |</span>
+<span class=s1>                 ||     ||</span>
 
-<span class="s1">EOF</span>
-<span class="s1">        fi</span>
-<span class="s1">    done &lt; &lt;(grep -Po &quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot; /etc/fstab)</span>
-<span class="s1">fi&#39;</span> &gt; /etc/portage/env/sys-apps/systemd<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<p>Setup <code>sys-kernel/dracut</code> (copy&amp;paste one after the other):</p>
-<div class="highlight"><pre><span></span><code>emerge -at sys-kernel/dracut
+<span class=s1>EOF</span>
+<span class=s1>        fi</span>
+<span class=s1>    done &lt; &lt;(grep -Po &quot;^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)&quot; /etc/fstab)</span>
+<span class=s1>fi&#39;</span> &gt; /etc/portage/env/sys-apps/systemd <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Setup <code>sys-kernel/dracut</code> (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code>emerge -at sys-kernel/dracut
 
-<span class="nv">system_uuid</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /mapperSystem<span class="k">)</span><span class="s2">&quot;</span>
-<span class="nv">my_crypt_root</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devSystem* <span class="p">|</span> sed <span class="s1">&#39;s/^/rd.luks.uuid=/&#39;</span> <span class="p">|</span> paste -d <span class="s2">&quot; &quot;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
-<span class="nv">my_crypt_swap</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>blkid -s UUID -o value /devSwap* <span class="p">|</span> sed <span class="s1">&#39;s/^/rd.luks.uuid=/&#39;</span> <span class="p">|</span> paste -d <span class="s2">&quot; &quot;</span> -s -<span class="k">)</span><span class="s2">&quot;</span>
+<span class=nv>system_uuid</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>blkid -s UUID -o value /mapperSystem<span class=k>)</span><span class=s2>&quot;</span>
+<span class=nv>my_crypt_root</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>blkid -s UUID -o value /devSystem* <span class=p>|</span> sed <span class=s1>&#39;s/^/rd.luks.uuid=/&#39;</span> <span class=p>|</span> paste -d <span class=s2>&quot; &quot;</span> -s -<span class=k>)</span><span class=s2>&quot;</span>
+<span class=nv>my_crypt_swap</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>blkid -s UUID -o value /devSwap* <span class=p>|</span> sed <span class=s1>&#39;s/^/rd.luks.uuid=/&#39;</span> <span class=p>|</span> paste -d <span class=s2>&quot; &quot;</span> -s -<span class=k>)</span><span class=s2>&quot;</span>
 
-<span class="c1"># If you intend to use systemd-cryptenroll, define this variable:</span>
-<span class="c1"># my_systemd_cryptenroll=&quot;,tpm2-device=auto&quot;</span>
+<span class=nb>unset</span> my_systemd_cryptenroll
 
-cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/dracut.conf</span>
+<span class=c1># If you intend to use systemd-cryptenroll, define this variable:</span>
+<span class=c1># my_systemd_cryptenroll=&quot;,tpm2-device=auto&quot;</span>
 
-<span class="s">hostonly=no</span>
-<span class="s">hostonly_cmdline=yes</span>
-<span class="s">use_fstab=yes</span>
-<span class="s">#compress=xz</span>
-<span class="s">show_modules=yes</span>
+<span class=nb>echo</span> <span class=s2>&quot;\</span>
 
-<span class="s">uefi=yes</span>
-<span class="s">early_microcode=yes</span>
-<span class="s">uefi_stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub</span>
-<span class="s">uefi_secureboot_cert=/etc/gentoo-installation/secureboot/db.crt</span>
-<span class="s">uefi_secureboot_key=/etc/gentoo-installation/secureboot/db.key</span>
-<span class="s">CMDLINE=(</span>
-<span class="s">  ro</span>
-<span class="s">  root=UUID=${system_uuid}</span>
-<span class="s">  ${my_crypt_root}</span>
-<span class="s">  ${my_crypt_swap}</span>
-<span class="s">  rd.luks.options=password-echo=no${my_systemd_cryptenroll}</span>
-<span class="s">  rootfstype=btrfs</span>
-<span class="s">  rootflags=subvol=@root</span>
-<span class="s">  mitigations=auto,nosmt</span>
-<span class="s">)</span>
-<span class="s">kernel_cmdline=&quot;\${CMDLINE[*]}&quot;</span>
-<span class="s">unset CMDLINE</span>
-<span class="s">EOF</span>
-</code></pre></div>
-<p>Install tools required for booting:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">install_lts_kernel</span><span class="o">=</span><span class="s2">&quot;true&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-fs/btrfs-progs ~amd64</span>
-<span class="s2">sys-kernel/gentoo-kernel-bin ~amd64</span>
-<span class="s2">sys-kernel/linux-headers ~amd64</span>
-<span class="s2">virtual/dist-kernel ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="k">if</span> <span class="o">[[</span> <span class="si">${</span><span class="nv">install_lts_kernel</span><span class="si">}</span> <span class="o">==</span> <span class="nb">true</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
-cat <span class="s">&lt;&lt;EOF &gt;&gt; /etc/portage/package.mask/main</span>
-<span class="s">&gt;=sys-fs/btrfs-progs-5.16</span>
-<span class="s">&gt;=sys-kernel/gentoo-kernel-bin-5.16</span>
-<span class="s">&gt;=sys-kernel/linux-headers-5.16</span>
-<span class="s">&gt;=virtual/dist-kernel-5.16</span>
-<span class="s">EOF</span>
-<span class="k">fi</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-fs/btrfs-progs -convert&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-kernel/gentoo-kernel-bin -initramfs&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;sys-kernel/linux-firmware linux-fw-redistributable no-source-code&quot;</span> &gt;&gt; /etc/portage/package.license <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge -at sys-fs/btrfs-progs <span class="k">$(if</span> <span class="o">[[</span> -e /devSwapb <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> <span class="nb">echo</span> -n <span class="s2">&quot;sys-fs/mdadm&quot;</span><span class="p">;</span> <span class="k">fi)</span> sys-kernel/linux-firmware
-</code></pre></div>
-<p>Install the <a href="https://www.kernel.org/category/releases.html">kernel</a>:</p>
-<div class="highlight"><pre><span></span><code>emerge -at sys-kernel/gentoo-kernel-bin
-</code></pre></div>
-<h2 id="66-additional-packages">6.6. Additional Packages<a class="headerlink" href="#66-additional-packages" title="Permanent link">&para;</a></h2>
-<p>Set <code>/etc/hosts</code>:</p>
-<div class="highlight"><pre><span></span><code>rsync -a /etc/hosts /etc/._cfg0000_hosts <span class="o">&amp;&amp;</span> <span class="se">\</span>
-sed -i <span class="s1">&#39;s/localhost$/localhost micro/&#39;</span> /etc/._cfg0000_hosts
-</code></pre></div>
-<p>(Optional) Enable ssh service:</p>
-<div class="highlight"><pre><span></span><code>systemctl --no-reload <span class="nb">enable</span> sshd.service
-</code></pre></div>
-<ul>
-<li>starship:</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="c1"># If you have insufficient ressources, you may want to &quot;emerge -1 dev-lang/rust-bin&quot; beforehand.</span>
-<span class="nb">echo</span> <span class="s2">&quot;app-shells/starship ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge app-shells/starship <span class="o">&amp;&amp;</span> <span class="se">\</span>
-mkdir --mode<span class="o">=</span><span class="m">0700</span> /home/david/.config /root/.config <span class="o">&amp;&amp;</span> <span class="se">\</span>
-touch /home/david/.config/starship.toml <span class="o">&amp;&amp;</span> <span class="se">\</span>
-chown -R david:david /home/david/.config <span class="o">&amp;&amp;</span> <span class="se">\</span>
-cat <span class="s">&lt;&lt;&#39;EOF&#39; | tee /root/.config/starship.toml &gt; /home/david/.config/starship.toml; echo $?</span>
-<span class="s">[hostname]</span>
-<span class="s">ssh_only = false</span>
-<span class="s">format =  &quot;[$hostname](bold red) &quot;</span>
+<span class=s2>hostonly=no</span>
+<span class=s2>hostonly_cmdline=yes</span>
+<span class=s2>use_fstab=yes</span>
+<span class=s2>compress=xz</span>
+<span class=s2>show_modules=yes</span>
 
-<span class="s">EOF</span>
-</code></pre></div>
-<ul>
-<li>fish shell:</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;=dev-libs/libpcre2-</span><span class="k">$(</span>qatom -F <span class="s2">&quot;%{PVR}&quot;</span> <span class="s2">&quot;</span><span class="k">$(</span>portageq best_visible / dev-libs/libpcre2<span class="k">)</span><span class="s2">&quot;</span><span class="k">)</span><span class="s2"> pcre32&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;app-shells/fish ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class="o">&amp;&amp;</span> <span class="se">\</span>
-emerge app-shells/fish <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s1">&#39;</span>
-<span class="s1"># Use fish in place of bash</span>
-<span class="s1"># keep this line at the bottom of ~/.bashrc</span>
-<span class="s1">if [[ -z ${chrooted} ]]; then</span>
-<span class="s1">    if [[ -x /bin/fish ]]; then</span>
-<span class="s1">        SHELL=/bin/fish exec /bin/fish</span>
-<span class="s1">    fi</span>
-<span class="s1">elif [[ -z ${chrooted_su} ]]; then</span>
-<span class="s1">    export chrooted_su=true</span>
-<span class="s1">    source /etc/profile &amp;&amp; su --login --whitelist-environment=chrooted,chrooted_su</span>
-<span class="s1">else</span>
-<span class="s1">    env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $PS1&quot;</span>
-<span class="s1">fi&#39;</span> &gt;&gt; /root/.bashrc <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s1">&#39;</span>
-<span class="s1"># Use fish in place of bash</span>
-<span class="s1"># keep this line at the bottom of ~/.bashrc</span>
-<span class="s1">if [[ -x /bin/fish ]]; then</span>
-<span class="s1">    SHELL=/bin/fish exec /bin/fish</span>
-<span class="s1">fi&#39;</span> &gt;&gt; /home/david/.bashrc<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<p><code>root</code> setup:</p>
-<div class="highlight"><pre><span></span><code>/bin/fish -c fish_update_completions
-</code></pre></div>
-<p><code>non-root</code> setup:</p>
-<div class="highlight"><pre><span></span><code>su -l david -c <span class="s2">&quot;/bin/fish -c fish_update_completions&quot;</span>
-</code></pre></div>
-<p>Enable aliases and starship (copy&amp;paste one after the other):</p>
-<div class="highlight"><pre><span></span><code>su -
-exit
+<span class=s2>uefi=yes</span>
+<span class=s2>early_microcode=yes</span>
+<span class=s2>uefi_stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub</span>
+<span class=s2>uefi_secureboot_cert=/etc/gentoo-installation/secureboot/db.crt</span>
+<span class=s2>uefi_secureboot_key=/etc/gentoo-installation/secureboot/db.key</span>
+<span class=s2>CMDLINE=(</span>
+<span class=s2>  ro</span>
+<span class=s2>  root=UUID=</span><span class=si>${</span><span class=nv>system_uuid</span><span class=si>}</span><span class=s2></span>
+<span class=s2>  </span><span class=si>${</span><span class=nv>my_crypt_root</span><span class=si>}</span><span class=s2></span>
+<span class=s2>  </span><span class=si>${</span><span class=nv>my_crypt_swap</span><span class=si>}</span><span class=s2></span>
+<span class=s2>  rd.luks.options=password-echo=no</span><span class=si>${</span><span class=nv>my_systemd_cryptenroll</span><span class=si>}</span><span class=s2></span>
+<span class=s2>  rootfstype=btrfs</span>
+<span class=s2>  rootflags=subvol=@root</span>
+<span class=s2>  mitigations=auto,nosmt</span>
+<span class=s2>)</span>
+<span class=s2>kernel_cmdline=&quot;</span><span class=se>\$</span><span class=o>{</span>CMDLINE<span class=o>[</span>*<span class=o>]}</span><span class=s2>&quot;</span>
+<span class=s2>unset CMDLINE&quot;</span> &gt;&gt; /etc/dracut.conf
+</code></pre></div> <p>Install tools required for booting:</p> <div class=highlight><pre><span></span><code><span class=nb>export</span> <span class=nv>install_lts_kernel</span><span class=o>=</span><span class=s2>&quot;true&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;sys-fs/btrfs-progs ~amd64</span>
+<span class=s2>sys-kernel/gentoo-kernel-bin ~amd64</span>
+<span class=s2>sys-kernel/linux-headers ~amd64</span>
+<span class=s2>virtual/dist-kernel ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=o>{</span>
+<span class=o>[</span> <span class=nv>$install_lts_kernel</span> <span class=o>=</span> <span class=nb>true</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;\</span>
+<span class=s2>&gt;=sys-fs/btrfs-progs-5.16</span>
+<span class=s2>&gt;=sys-kernel/gentoo-kernel-bin-5.16</span>
+<span class=s2>&gt;=sys-kernel/linux-headers-5.16</span>
+<span class=s2>&gt;=virtual/dist-kernel-5.16&quot;</span> &gt;&gt; /etc/portage/package.mask/main <span class=o>||</span> <span class=se>\</span>
+<span class=nb>true</span>
+<span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;sys-fs/btrfs-progs -convert&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;sys-kernel/gentoo-kernel-bin -initramfs&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;sys-kernel/linux-firmware linux-fw-redistributable no-source-code&quot;</span> &gt;&gt; /etc/portage/package.license <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=o>{</span>
+  <span class=o>[</span> -e /devSwapb <span class=o>]</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+  emerge -at sys-fs/btrfs-progs sys-fs/mdadm sys-kernel/linux-firmware <span class=o>||</span> <span class=se>\</span>
+  emerge -at sys-fs/btrfs-progs sys-kernel/linux-firmware
+<span class=o>}</span>
+</code></pre></div> <p>Install the <a href=https://www.kernel.org/category/releases.html>kernel</a>:</p> <div class=highlight><pre><span></span><code>emerge -at sys-kernel/gentoo-kernel-bin
+</code></pre></div> <h2 id=66-initial-systemd-configuration>6.6. Initial systemd configuration<a class=headerlink href=#66-initial-systemd-configuration title="Permanent link">&para;</a></h2> <p>Do some <a href=https://wiki.gentoo.org/wiki/Systemd#Configuration>initial configuration</a>:</p> <div class=highlight><pre><span></span><code>systemd-firstboot --prompt --setup-machine-id
+</code></pre></div> <p>If you dont't intend to use SELinux, reset all installed unit files.</p> <div class=highlight><pre><span></span><code>systemctl preset-all
+</code></pre></div> <h2 id=67-additional-packages>6.7. Additional Packages<a class=headerlink href=#67-additional-packages title="Permanent link">&para;</a></h2> <p>Set <code>/etc/hosts</code>:</p> <div class=highlight><pre><span></span><code>rsync -a /etc/hosts /etc/._cfg0000_hosts <span class=o>&amp;&amp;</span> <span class=se>\</span>
+sed -i <span class=s1>&#39;s/localhost$/localhost micro/&#39;</span> /etc/._cfg0000_hosts
+</code></pre></div> <p>(Optional) Enable ssh service:</p> <div class=highlight><pre><span></span><code>systemctl --no-reload <span class=nb>enable</span> sshd.service
+</code></pre></div> <ul> <li>starship:</li> </ul> <div class=highlight><pre><span></span><code><span class=c1># If you have insufficient ressources, you may want to &quot;emerge -1 dev-lang/rust-bin&quot; beforehand.</span>
+<span class=nb>echo</span> <span class=s2>&quot;app-shells/starship ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge app-shells/starship <span class=o>&amp;&amp;</span> <span class=se>\</span>
+mkdir --mode<span class=o>=</span><span class=m>0700</span> /home/david/.config /root/.config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+touch /home/david/.config/starship.toml <span class=o>&amp;&amp;</span> <span class=se>\</span>
+chown -R david:david /home/david/.config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s1>&#39;[hostname]</span>
+<span class=s1>ssh_only = false</span>
+<span class=s1>format =  &quot;[$hostname](bold red) &quot;</span>
+<span class=s1>&#39;</span> <span class=p>|</span> tee /root/.config/starship.toml &gt; /home/david/.config/starship.toml <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <ul> <li>fish shell:</li> </ul> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;=dev-libs/libpcre2-</span><span class=k>$(</span>qatom -F <span class=s2>&quot;%{PVR}&quot;</span> <span class=s2>&quot;</span><span class=k>$(</span>portageq best_visible / dev-libs/libpcre2<span class=k>)</span><span class=s2>&quot;</span><span class=k>)</span><span class=s2> pcre32&quot;</span> &gt;&gt; /etc/portage/package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;app-shells/fish ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+emerge app-shells/fish <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s1>&#39;</span>
+<span class=s1># Use fish in place of bash</span>
+<span class=s1># keep this line at the bottom of ~/.bashrc</span>
+<span class=s1>if [[ -z ${chrooted} ]]; then</span>
+<span class=s1>    if [[ -x /bin/fish ]]; then</span>
+<span class=s1>        SHELL=/bin/fish exec /bin/fish</span>
+<span class=s1>    fi</span>
+<span class=s1>elif [[ -z ${chrooted_su} ]]; then</span>
+<span class=s1>    export chrooted_su=true</span>
+<span class=s1>    source /etc/profile &amp;&amp; su --login --whitelist-environment=chrooted,chrooted_su</span>
+<span class=s1>else</span>
+<span class=s1>    env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $PS1&quot;</span>
+<span class=s1>fi&#39;</span> &gt;&gt; /root/.bashrc <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s1>&#39;</span>
+<span class=s1># Use fish in place of bash</span>
+<span class=s1># keep this line at the bottom of ~/.bashrc</span>
+<span class=s1>if [[ -x /bin/fish ]]; then</span>
+<span class=s1>    SHELL=/bin/fish exec /bin/fish</span>
+<span class=s1>fi&#39;</span> &gt;&gt; /home/david/.bashrc <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p><code>root</code> setup:</p> <div class=highlight><pre><span></span><code>/bin/fish -c fish_update_completions
+</code></pre></div> <p><code>non-root</code> setup:</p> <div class=highlight><pre><span></span><code>su -l david -c <span class=s2>&quot;/bin/fish -c fish_update_completions&quot;</span>
+</code></pre></div> <p>Enable aliases and starship (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code>su -
+<span class=nb>exit</span>
 su - david
-exit
-sed -i &#39;s/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/&#39; /root/.config/fish/config.fish
-sed -i &#39;s/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/&#39; /home/david/.config/fish/config.fish
-</code></pre></div>
-<ul>
-<li>nerd fonts:</li>
-</ul>
-<div class="highlight"><pre><span></span><code>emerge media-libs/fontconfig <span class="o">&amp;&amp;</span> <span class="se">\</span>
-su -l david -c <span class="s2">&quot;curl --proto &#39;=https&#39; --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-b2sum -c <span class="o">&lt;&lt;&lt;</span><span class="s2">&quot;81f1dce1c7724a838fc5c61886902db576f3d1e8a18d4ba077772e045e3aea9a97e424b6fcd92a40a419f3ba160b3cad09609812c5496709f4b6a52c2b7269e6  /tmp/FiraCode.zip&quot;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-mkdir /tmp/FiraCode <span class="o">&amp;&amp;</span> <span class="se">\</span>
-unzip -d /tmp/FiraCode /tmp/FiraCode.zip <span class="o">&amp;&amp;</span> <span class="se">\</span>
-rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* <span class="o">&amp;&amp;</span> <span class="se">\</span>
-mkdir /usr/share/fonts/nerd-firacode <span class="o">&amp;&amp;</span> <span class="se">\</span>
-rsync -a --chown<span class="o">=</span><span class="m">0</span>:0 --chmod<span class="o">=</span><span class="nv">a</span><span class="o">=</span>r /tmp/FiraCode/*.otf /usr/share/fonts/nerd-firacode/<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<p>Download the <a href="https://starship.rs/presets/nerd-font.html">Nerd Font Symbols Preset</a>, verify the content and install.</p>
-<ul>
-<li>If you have <code>sys-fs/mdadm</code> installed:</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="o">[[</span> -e /devSwapb <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;&quot;</span> &gt;&gt; /etc/._cfg0000_mdadm.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
-mdadm --detail --scan &gt;&gt; /etc/._cfg0000_mdadm.conf<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<ul>
-<li>ssh:</li>
-</ul>
-<div class="highlight"><pre><span></span><code>rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
-sed -i <span class="se">\</span>
--e <span class="s1">&#39;s/^#Port 22$/Port 50022/&#39;</span> <span class="se">\</span>
--e <span class="s1">&#39;s/^#PermitRootLogin prohibit-password$/PermitRootLogin no/&#39;</span> <span class="se">\</span>
--e <span class="s1">&#39;s/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/&#39;</span> <span class="se">\</span>
--e <span class="s1">&#39;s/^#X11Forwarding no$/X11Forwarding no/&#39;</span> /etc/ssh/._cfg0000_sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
-grep -q <span class="s2">&quot;^PasswordAuthentication no</span>$<span class="s2">&quot;</span> /etc/ssh/._cfg0000_sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">echo</span> <span class="s2">&quot;</span>
-<span class="s2">AuthenticationMethods publickey</span>
+<span class=nb>exit</span>
+sed -i <span class=s1>&#39;s/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/&#39;</span> /root/.config/fish/config.fish
+sed -i <span class=s1>&#39;s/^end$/    source &quot;$HOME\/.bash_aliases&quot;\n    starship init fish | source\nend/&#39;</span> /home/david/.config/fish/config.fish
+</code></pre></div> <ul> <li>nerd fonts:</li> </ul> <div class=highlight><pre><span></span><code>emerge media-libs/fontconfig <span class=o>&amp;&amp;</span> <span class=se>\</span>
+su -l david -c <span class=s2>&quot;curl --proto &#39;=https&#39; --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraCode.zip&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+b2sum -c <span class=o>&lt;&lt;&lt;</span><span class=s2>&quot;9f8ada87945ff10d9eced99369f7c6d469f9eaf2192490623a93b2397fe5b6ee3f0df6923b59eb87e92789840a205adf53c6278e526dbeeb25d0a6d307a07b18  /tmp/FiraCode.zip&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+mkdir /tmp/FiraCode <span class=o>&amp;&amp;</span> <span class=se>\</span>
+unzip -d /tmp/FiraCode /tmp/FiraCode.zip <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* <span class=o>&amp;&amp;</span> <span class=se>\</span>
+mkdir /usr/share/fonts/nerd-firacode <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rsync -a --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>a</span><span class=o>=</span>r /tmp/FiraCode/*.ttf /usr/share/fonts/nerd-firacode/ <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Download the <a href=https://starship.rs/presets/nerd-font.html>Nerd Font Symbols Preset</a>, verify the content and install.</p> <ul> <li>If you have <code>sys-fs/mdadm</code> installed:</li> </ul> <div class=highlight><pre><span></span><code><span class=o>[[</span> -e /devSwapb <span class=o>]]</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;&quot;</span> &gt;&gt; /etc/._cfg0000_mdadm.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+mdadm --detail --scan &gt;&gt; /etc/._cfg0000_mdadm.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <ul> <li>ssh:</li> </ul> <div class=highlight><pre><span></span><code>rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+sed -i <span class=se>\</span>
+-e <span class=s1>&#39;s/^#Port 22$/Port 50022/&#39;</span> <span class=se>\</span>
+-e <span class=s1>&#39;s/^#PermitRootLogin prohibit-password$/PermitRootLogin no/&#39;</span> <span class=se>\</span>
+-e <span class=s1>&#39;s/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/&#39;</span> <span class=se>\</span>
+-e <span class=s1>&#39;s/^#X11Forwarding no$/X11Forwarding no/&#39;</span> /etc/ssh/._cfg0000_sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+grep -q <span class=s2>&quot;^PasswordAuthentication no</span>$<span class=s2>&quot;</span> /etc/ssh/._cfg0000_sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> <span class=s2>&quot;</span>
+<span class=s2>AuthenticationMethods publickey</span>
 
-<span class="s2">KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
-<span class="s2">HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256</span>
-<span class="s2">Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>
-<span class="s2">MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com</span>
+<span class=s2>KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
+<span class=s2>HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256</span>
+<span class=s2>Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>
+<span class=s2>MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com</span>
 
-<span class="s2">AllowUsers david&quot;</span> &gt;&gt; /etc/ssh/._cfg0000_sshd_config <span class="o">&amp;&amp;</span> <span class="se">\</span>
-ssh-keygen -A <span class="o">&amp;&amp;</span> <span class="se">\</span>
-sshd -t<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<p>Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:</p>
-<div class="highlight"><pre><span></span><code>find /etc/ssh/ -type f -name <span class="s2">&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class="o">{}</span> <span class="se">\;</span>
-</code></pre></div>
-<p>Setup client SSH config:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;AddKeysToAgent no</span>
-<span class="s2">KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
-<span class="s2">HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256</span>
-<span class="s2">Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>
-<span class="s2">MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com</span>
-<span class="s2">HashKnownHosts no</span>
-<span class="s2">StrictHostKeyChecking ask</span>
-<span class="s2">VisualHostKey yes&quot;</span> &gt; /home/david/.ssh/config <span class="o">&amp;&amp;</span> <span class="se">\</span>
-chown david:david /home/david/.ssh/config<span class="p">;</span> <span class="nb">echo</span> <span class="nv">$?</span>
-</code></pre></div>
-<ul>
-<li>Disable <code>sysrq</code> for <a href="https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key">security sake</a>:</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;kernel.sysrq = 0&quot;</span> &gt; /etc/sysctl.d/99sysrq.conf
-</code></pre></div>
-<ul>
-<li>misc tools:</li>
-</ul>
-<div class="highlight"><pre><span></span><code>emerge -at app-misc/screen app-portage/gentoolkit
-</code></pre></div>
-
-
-
-
-              
-            </article>
-            
-          </div>
-        </div>
-        
-      </main>
-      
-        <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="../chrooting/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 5. Chrooting" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              5. Chrooting
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../cleanup_and_reboot/" class="md-footer__link md-footer__link--next" aria-label="Next: 7. Cleanup And Reboot" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              7. Cleanup And Reboot
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-copyright">
-  
-  
-    Made with
-    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
-      Material for MkDocs
-    </a>
-  
-</div>
-      
-    </div>
-  </div>
-</footer>
-      
-    </div>
-    <div class="md-dialog" data-md-component="dialog">
-      <div class="md-dialog__inner md-typeset"></div>
-    </div>
-    
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
-    
-    
-      <script src="../assets/javascripts/bundle.9c69f0bc.min.js"></script>
-      
-    
-  </body>
-</html>
+<span class=s2>AllowUsers david&quot;</span> &gt;&gt; /etc/ssh/._cfg0000_sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+ssh-keygen -A <span class=o>&amp;&amp;</span> <span class=se>\</span>
+sshd -t <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:</p> <div class=highlight><pre><span></span><code>find /etc/ssh/ -type f -name <span class=s2>&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class=o>{}</span> <span class=se>\;</span>
+</code></pre></div> <p>Setup client SSH config:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;AddKeysToAgent no</span>
+<span class=s2>KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
+<span class=s2>HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256</span>
+<span class=s2>Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>
+<span class=s2>MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com</span>
+<span class=s2>HashKnownHosts no</span>
+<span class=s2>StrictHostKeyChecking ask</span>
+<span class=s2>VisualHostKey yes&quot;</span> &gt; /home/david/.ssh/config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+chown david:david /home/david/.ssh/config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <ul> <li>Disable <code>sysrq</code> for <a href=https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key>security sake</a>:</li> </ul> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;kernel.sysrq = 0&quot;</span> &gt; /etc/sysctl.d/99sysrq.conf
+</code></pre></div> <ul> <li>misc tools:</li> </ul> <div class=highlight><pre><span></span><code>emerge -at app-misc/screen app-portage/gentoolkit
+</code></pre></div> </article> </div> </div> </main> <footer class=md-footer> <nav class="md-footer__inner md-grid" aria-label=Footer> <a href=../chrooting/ class="md-footer__link md-footer__link--prev" aria-label="Previous: 5. Chrooting" rel=prev> <div class="md-footer__button md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg> </div> <div class=md-footer__title> <div class=md-ellipsis> <span class=md-footer__direction> Previous </span> 5. Chrooting </div> </div> </a> <a href=../cleanup_and_reboot/ class="md-footer__link md-footer__link--next" aria-label="Next: 7. Cleanup And Reboot" rel=next> <div class=md-footer__title> <div class=md-ellipsis> <span class=md-footer__direction> Next </span> 7. Cleanup And Reboot </div> </div> <div class="md-footer__button md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg> </div> </a> </nav> <div class="md-footer-meta md-typeset"> <div class="md-footer-meta__inner md-grid"> <div class=md-copyright> Made with <a href=https://squidfunk.github.io/mkdocs-material/ target=_blank rel=noopener> Material for MkDocs </a> </div> </div> </div> </footer> </div> <div class=md-dialog data-md-component=dialog> <div class="md-dialog__inner md-typeset"></div> </div> <script id=__config type=application/json>{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script> <script src=../assets/javascripts/bundle.39f04ddb.min.js></script> </body> </html>
