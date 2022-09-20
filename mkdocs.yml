@@ -11,6 +11,8 @@ theme:
   name: material
   locale: en
   use_directory_urls: true
+  features:
+    - navigation.instant
   font: false
   icon:
     repo: material/github
