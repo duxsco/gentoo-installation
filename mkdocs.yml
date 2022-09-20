@@ -19,6 +19,14 @@ markdown_extensions:
   - pymdownx.superfences
   - toc:
       permalink: True
+plugins:
+  - search
+  - minify:
+      minify_html: true
+      minify_js: false
+      minify_css: false
+      htmlmin_opts:
+        remove_comments: true
 nav:
   - 1. Introduction: index.md
   - 2. Live-CD Environment: live-cd_environment.md
