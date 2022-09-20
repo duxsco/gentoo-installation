@@ -37,5 +37,5 @@ nav:
   - 6. System Setup: system_setup.md
   - 7. Cleanup And Reboot: cleanup_and_reboot.md
   - 8. Post-Boot Configuration: post-boot_configuration.md
-  - 9. SELinux (optional): selinux.md
+  - 9. SELinux (optional) (WIP): selinux.md
   - 10. Other Gentoo Linux repos: other_gentoo_linux_repos.md
