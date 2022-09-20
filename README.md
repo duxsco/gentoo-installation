@@ -8,7 +8,7 @@ The documentation can be found in the `docs/` folder. To run the site locally do
 echo "dev-python/mkdocs ~amd64
 dev-python/mkdocs-material ~amd64" >> /etc/portage/package.accept_keywords/main
 
-emerge -av dev-python/mkdocs dev-python/mkdocs-material
+emerge -av dev-python/mkdocs dev-python/mkdocs-material dev-python/mkdocs-minify-plugin
 ```
 
 2. Within the folder containing `mkdocs.yml`, execute as `non-root`:
