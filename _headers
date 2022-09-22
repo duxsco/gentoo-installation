@@ -1,2 +1,4 @@
 /
   Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self'; img-src 'self' data:; connect-src 'self'
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
