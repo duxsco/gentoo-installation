@@ -47,10 +47,6 @@ umount <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&
 allow init_t unlabeled_t:dir mounton<span class=p>;</span>
 
 <span class=c1># Credits: grift :)</span>
-❯ <span class=nb>echo</span> <span class=s1>&#39;(filecon &quot;/proc&quot; dir (system_u object_r proc_t ((s0)(s0))))</span>
-<span class=s1>(allow proc_t fs_t (filesystem (associate)))</span>
-<span class=s1>(typeattributeset mountpoint proc_t)&#39;</span>&gt; my_proc.cil
-❯ semodule -i my_proc.cil
 ❯ <span class=nb>export</span> <span class=nv>tmpdir</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>mktemp -d<span class=k>)</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> mount --bind / <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> chcon system_u:object_r:proc_t:s0 <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span>/proc <span class=o>&amp;&amp;</span> umount <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>In the <a href=https://github.com/duxsco/gentoo-installation>custom Gentoo Linux installation</a>, the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:</p> <div class=highlight><pre><span></span><code>❯ semanage port -l <span class=p>|</span> grep -e ssh -e Port
 SELinux Port Type              Proto    Port Number
