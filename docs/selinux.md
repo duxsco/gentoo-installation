@@ -97,10 +97,6 @@ EOF
 allow init_t unlabeled_t:dir mounton;
 
 # Credits: grift :)
-❯ echo '(filecon "/proc" dir (system_u object_r proc_t ((s0)(s0))))
-(allow proc_t fs_t (filesystem (associate)))
-(typeattributeset mountpoint proc_t)'> my_proc.cil
-❯ semodule -i my_proc.cil
 ❯ export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
