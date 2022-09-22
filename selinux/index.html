@@ -1,0 +1,702 @@
+<!doctype html><html lang=en class=no-js> <head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Gentoo installation using Measured Boot, Secure Boot, Full Disk Encryption, RAID and offering a rescue system based on customised SystemRescueCD"><meta name=author content="David Sardari"><link href=https://gentoo.duxsco.de/selinux/ rel=canonical><link rel=icon href=../assets/images/favicon.png><meta name=generator content="mkdocs-1.3.1, mkdocs-material-8.5.2"><title>9. SELinux (optional) (WIP) - Gentoo Linux Installation</title><link rel=stylesheet href=../assets/stylesheets/main.9f9400aa.min.css><link rel=stylesheet href=../assets/stylesheets/palette.cbb835fc.min.css><script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script></head> <body dir=ltr data-md-color-scheme data-md-color-primary=none data-md-color-accent=none> <input class=md-toggle data-md-toggle=drawer type=checkbox id=__drawer autocomplete=off> <input class=md-toggle data-md-toggle=search type=checkbox id=__search autocomplete=off> <label class=md-overlay for=__drawer></label> <div data-md-component=skip> <a href=#91-enable-selinux class=md-skip> Skip to content </a> </div> <div data-md-component=announce> </div> <header class=md-header data-md-component=header> <nav class="md-header__inner md-grid" aria-label=Header> <a href=.. title="Gentoo Linux Installation" class="md-header__button md-logo" aria-label="Gentoo Linux Installation" data-md-component=logo> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg> </a> <label class="md-header__button md-icon" for=__drawer> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg> </label> <div class=md-header__title data-md-component=header-title> <div class=md-header__ellipsis> <div class=md-header__topic> <span class=md-ellipsis> Gentoo Linux Installation </span> </div> <div class=md-header__topic data-md-component=header-topic> <span class=md-ellipsis> 9. SELinux (optional) (WIP) </span> </div> </div> </div> <label class="md-header__button md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> </label> <div class=md-search data-md-component=search role=dialog> <label class=md-search__overlay for=__search></label> <div class=md-search__inner role=search> <form class=md-search__form name=search> <input type=text class=md-search__input name=query aria-label=Search placeholder=Search autocapitalize=off autocorrect=off autocomplete=off spellcheck=false data-md-component=search-query required> <label class="md-search__icon md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg> </label> <nav class=md-search__options aria-label=Search> <button type=reset class="md-search__icon md-icon" title=Clear aria-label=Clear tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg> </button> </nav> </form> <div class=md-search__output> <div class=md-search__scrollwrap data-md-scrollfix> <div class=md-search-result data-md-component=search-result> <div class=md-search-result__meta> Initializing search </div> <ol class=md-search-result__list></ol> </div> </div> </div> </div> </div> <div class=md-header__source> <a href=https://github.com/duxsco/gentoo-installation/ title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg> </div> <div class=md-source__repository> duxsco/gentoo-installation </div> </a> </div> </nav> </header> <div class=md-container data-md-component=container> <main class=md-main data-md-component=main> <div class="md-main__inner md-grid"> <div class="md-sidebar md-sidebar--primary" data-md-component=sidebar data-md-type=navigation> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--primary" aria-label=Navigation data-md-level=0> <label class=md-nav__title for=__drawer> <a href=.. title="Gentoo Linux Installation" class="md-nav__button md-logo" aria-label="Gentoo Linux Installation" data-md-component=logo> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg> </a> Gentoo Linux Installation </label> <div class=md-nav__source> <a href=https://github.com/duxsco/gentoo-installation/ title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2Z"/></svg> </div> <div class=md-source__repository> duxsco/gentoo-installation </div> </a> </div> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=.. class=md-nav__link> 1. Introduction </a> </li> <li class=md-nav__item> <a href=../live-cd_environment/ class=md-nav__link> 2. Live-CD Environment </a> </li> <li class=md-nav__item> <a href=../disk_setup/ class=md-nav__link> 3. Disk Setup </a> </li> <li class=md-nav__item> <a href=../rescue_system/ class=md-nav__link> 4. Rescue System </a> </li> <li class=md-nav__item> <a href=../chrooting/ class=md-nav__link> 5. Chrooting </a> </li> <li class=md-nav__item> <a href=../system_setup/ class=md-nav__link> 6. System Setup </a> </li> <li class=md-nav__item> <a href=../cleanup_and_reboot/ class=md-nav__link> 7. Cleanup And Reboot </a> </li> <li class=md-nav__item> <a href=../post-boot_configuration/ class=md-nav__link> 8. Post-Boot Configuration </a> </li> <li class="md-nav__item md-nav__item--active"> <input class="md-nav__toggle md-toggle" data-md-toggle=toc type=checkbox id=__toc> <label class="md-nav__link md-nav__link--active" for=__toc> 9. SELinux (optional) (WIP) <span class="md-nav__icon md-icon"></span> </label> <a href=./ class="md-nav__link md-nav__link--active"> 9. SELinux (optional) (WIP) </a> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#91-enable-selinux class=md-nav__link> 9.1. Enable SELinux </a> </li> <li class=md-nav__item> <a href=#92-relabel class=md-nav__link> 9.2. Relabel </a> </li> <li class=md-nav__item> <a href=#93-users-and-services class=md-nav__link> 9.3. Users and services </a> </li> <li class=md-nav__item> <a href=#94-selinux-policies class=md-nav__link> 9.4. SELinux policies </a> <nav class=md-nav aria-label="9.4. SELinux policies"> <ul class=md-nav__list> <li class=md-nav__item> <a href=#941-additional-relabeling class=md-nav__link> 9.4.1. Additional relabeling </a> </li> <li class=md-nav__item> <a href=#942-vm-host class=md-nav__link> 9.4.2. VM host </a> <nav class=md-nav aria-label="9.4.2. VM host"> <ul class=md-nav__list> <li class=md-nav__item> <a href=#9441-connecting-with-virt-manager-over-tcp class=md-nav__link> 9.4.4.1 Connecting with virt-manager over TCP </a> </li> <li class=md-nav__item> <a href=#9442-vm-creation-with-virt-manager class=md-nav__link> 9.4.4.2 VM creation with virt-manager </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#945-denials-portage-hooks class=md-nav__link> 9.4.5. Denials: portage hooks </a> </li> </ul> </nav> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=../other_gentoo_linux_repos/ class=md-nav__link> 10. Other Gentoo Linux repos </a> </li> </ul> </nav> </div> </div> </div> <div class="md-sidebar md-sidebar--secondary" data-md-component=sidebar data-md-type=toc> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#91-enable-selinux class=md-nav__link> 9.1. Enable SELinux </a> </li> <li class=md-nav__item> <a href=#92-relabel class=md-nav__link> 9.2. Relabel </a> </li> <li class=md-nav__item> <a href=#93-users-and-services class=md-nav__link> 9.3. Users and services </a> </li> <li class=md-nav__item> <a href=#94-selinux-policies class=md-nav__link> 9.4. SELinux policies </a> <nav class=md-nav aria-label="9.4. SELinux policies"> <ul class=md-nav__list> <li class=md-nav__item> <a href=#941-additional-relabeling class=md-nav__link> 9.4.1. Additional relabeling </a> </li> <li class=md-nav__item> <a href=#942-vm-host class=md-nav__link> 9.4.2. VM host </a> <nav class=md-nav aria-label="9.4.2. VM host"> <ul class=md-nav__list> <li class=md-nav__item> <a href=#9441-connecting-with-virt-manager-over-tcp class=md-nav__link> 9.4.4.1 Connecting with virt-manager over TCP </a> </li> <li class=md-nav__item> <a href=#9442-vm-creation-with-virt-manager class=md-nav__link> 9.4.4.2 VM creation with virt-manager </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#945-denials-portage-hooks class=md-nav__link> 9.4.5. Denials: portage hooks </a> </li> </ul> </nav> </li> </ul> </nav> </div> </div> </div> <div class=md-content data-md-component=content> <article class="md-content__inner md-typeset"> <a href=https://github.com/duxsco/gentoo-installation/blob/main/docs/selinux.md title="Edit this page" class="md-content__button md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg> </a> <h1>9. SELinux (optional) (WIP)</h1> <div class="admonition note"> <p class=admonition-title>Note</p> <p>I haven't taken a close look at all denials yet. First, I wanted to take care of all denials until I can login successfully. I need to check next whether all policies are necessary and make sure that PAM (see constraint violation below) is working correctly.</p> </div> <h2 id=91-enable-selinux>9.1. Enable SELinux<a class=headerlink href=#91-enable-selinux title="Permanent link">&para;</a></h2> <div class="admonition info"> <p class=admonition-title>Info</p> <p>Currently, I only use SELinux on servers, and only <code>mcs</code> policy type to be able to "isolate" virtual machines from each other.</p> </div> <p>Reduce the number of services (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code>systemctl mask user@.service
+systemctl disable systemd-userdbd.socket
+cp -av /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf
+sed -i <span class=s1>&#39;s/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/&#39;</span> /etc/._cfg0000_nsswitch.conf
+</code></pre></div> <p>Prepare for SELinux (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code>cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
+<span class=nb>echo</span> -e <span class=s1>&#39;POLICY_TYPES=&quot;mcs&quot;\n&#39;</span> &gt;&gt; /etc/portage/._cfg0000_make.conf
+sed -i <span class=s1>&#39;s/^USE_HARDENED=&quot;\(.*\)&quot;/USE_HARDENED=&quot;\1 -ubac -unconfined&quot;/&#39;</span> /etc/portage/._cfg0000_make.conf
+<span class=c1># execute dispatch-conf</span>
+
+eselect profile <span class=nb>set</span> <span class=s2>&quot;duxsco:hardened-systemd-selinux&quot;</span>
+
+<span class=nb>echo</span> <span class=s1>&#39;sec-policy/* ~amd64&#39;</span> &gt;&gt; /etc/portage/package.accept_keywords/main
+
+<span class=c1># To get a nice looking html site in /usr/share/doc/selinux-base-&lt;VERSION&gt;/mcs/html:</span>
+<span class=nb>echo</span> <span class=s1>&#39;sec-policy/selinux-base doc&#39;</span> &gt;&gt; /etc/portage/package.use/main
+
+<span class=nv>FEATURES</span><span class=o>=</span><span class=s2>&quot;-selinux&quot;</span> emerge -1 selinux-base
+
+cp -av /etc/selinux/config /etc/selinux/._cfg0000_config
+sed -i <span class=s1>&#39;s/^SELINUXTYPE=strict$/SELINUXTYPE=mcs/&#39;</span> /etc/selinux/._cfg0000_config
+<span class=c1># execute dispatch-conf</span>
+
+<span class=nv>FEATURES</span><span class=o>=</span><span class=s2>&quot;-selinux -sesandbox&quot;</span> emerge -1 selinux-base
+<span class=nv>FEATURES</span><span class=o>=</span><span class=s2>&quot;-selinux -sesandbox&quot;</span> emerge -1 selinux-base-policy
+emerge -atuDN @world
+</code></pre></div> <p>Enable logging:</p> <div class=highlight><pre><span></span><code>systemctl <span class=nb>enable</span> auditd.service
+</code></pre></div> <p>Rebuild the kernel with SELinux support:</p> <div class=highlight><pre><span></span><code>emerge sys-kernel/gentoo-kernel-bin <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rm -v /boot/efi*/EFI/Linux/gentoo-*-gentoo-dist.efi
+</code></pre></div> <p>Reboot with <code>permissive</code> kernel.</p> <p>Make sure that UBAC gets disabled:</p> <div class=highlight><pre><span></span><code>bash -c <span class=s1>&#39;( cd /usr/share/selinux/mcs &amp;&amp; semodule -i base.pp -i $(ls *.pp | grep -v base.pp) )&#39;</span>
+</code></pre></div> <h2 id=92-relabel>9.2. Relabel<a class=headerlink href=#92-relabel title="Permanent link">&para;</a></h2> <p><a href=https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel>Relabel the entire system</a>:</p> <div class=highlight><pre><span></span><code>mkdir /mnt/gentoo <span class=o>&amp;&amp;</span> <span class=se>\</span>
+mount -o <span class=nb>bind</span> / /mnt/gentoo <span class=o>&amp;&amp;</span> <span class=se>\</span>
+setfiles -r /mnt/gentoo /etc/selinux/mcs/contexts/files/file_contexts /mnt/gentoo/<span class=o>{</span>dev,home,proc,run,sys,tmp,boot/efi*,var/cache/binpkgs,var/cache/distfiles,var/db/repos/gentoo,var/tmp<span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+umount /mnt/gentoo <span class=o>&amp;&amp;</span> <span class=se>\</span>
+rlpkg -a -r <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Make sure that nothing (except <code>.keep</code> files) is unlabeled:</p> <div class=highlight><pre><span></span><code><span class=nb>export</span> <span class=nv>tmpdir</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>mktemp -d<span class=k>)</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+mount --bind / <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+find <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span> -context system_u:object_r:unlabeled_t:s0 <span class=o>&amp;&amp;</span> <span class=se>\</span>
+umount <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>If <code>/proc</code> was listed by the code of the previous codeblock you have to relabel to avoid a denial:</p> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>[   19.902620] audit: type=1400 audit(1663630933.439:3): avc:  denied  { mounton } for  pid=1062 comm=&quot;(auditd)&quot; path=&quot;/run/systemd/unit-root/proc&quot; dev=&quot;dm-3&quot; ino=67581 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=1</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= init_t ==============</span>
+allow init_t unlabeled_t:dir mounton<span class=p>;</span>
+
+<span class=c1># Credits: grift :)</span>
+❯ <span class=nb>echo</span> <span class=s1>&#39;(filecon &quot;/proc&quot; dir (system_u object_r proc_t ((s0)(s0))))</span>
+<span class=s1>(allow proc_t fs_t (filesystem (associate)))</span>
+<span class=s1>(typeattributeset mountpoint proc_t)&#39;</span>&gt; my_proc.cil
+❯ semodule -i my_proc.cil
+❯ <span class=nb>export</span> <span class=nv>tmpdir</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>mktemp -d<span class=k>)</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> mount --bind / <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> chcon system_u:object_r:proc_t:s0 <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span>/proc <span class=o>&amp;&amp;</span> umount <span class=s2>&quot;</span><span class=nv>$tmpdir</span><span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>In the <a href=https://github.com/duxsco/gentoo-installation>custom Gentoo Linux installation</a>, the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:</p> <div class=highlight><pre><span></span><code>❯ semanage port -l <span class=p>|</span> grep -e ssh -e Port
+SELinux Port Type              Proto    Port Number
+ssh_port_t                     tcp      <span class=m>22</span>
+❯ semanage port -a -t ssh_port_t -p tcp <span class=m>50022</span>
+❯ semanage port -l <span class=p>|</span> grep -e ssh -e Port
+SELinux Port Type              Proto    Port Number
+ssh_port_t                     tcp      <span class=m>50022</span>, <span class=m>22</span>
+</code></pre></div> <h2 id=93-users-and-services>9.3. Users and services<a class=headerlink href=#93-users-and-services title="Permanent link">&para;</a></h2> <p>Default <code>mcs</code> SELinux <code>login</code> and <code>user</code> settings:</p> <div class=highlight><pre><span></span><code>❯ semanage login -l
+
+Login Name           SELinux User         MLS/MCS Range        Service
+
+__default__          user_u               s0-s0                *
+root                 root                 s0-s0:c0.c1023       *
+
+❯ semanage user -l
+
+                Labeling   MLS/       MLS/
+SELinux User    Prefix     MCS Level  MCS Range                      SELinux Roles
+
+root            sysadm     s0         s0-s0:c0.c1023                 staff_r sysadm_r
+staff_u         staff      s0         s0-s0:c0.c1023                 staff_r sysadm_r
+sysadm_u        sysadm     s0         s0-s0:c0.c1023                 sysadm_r
+system_u        user       s0         s0-s0:c0.c1023                 system_r
+unconfined_u    unconfined s0         s0-s0:c0.c1023                 unconfined_r
+user_u          user       s0         s0                             user_r
+</code></pre></div> <p>Add the initial user to the <a href=https://wiki.gentoo.org/wiki/SELinux/Installation#Define_the_administrator_accounts>administration SELinux user</a>:</p> <div class=highlight><pre><span></span><code>semanage login -a -s staff_u david
+restorecon -RFv /home/david
+bash -c <span class=s1>&#39;echo &quot;%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL&quot; | EDITOR=&quot;tee&quot; visudo -f /etc/sudoers.d/wheel &amp;&amp; \</span>
+<span class=s1>echo -e &quot;\e[1;32mSUCCESS\e[0m&quot;&#39;</span>
+</code></pre></div> <p>Now, we should have:</p> <div class=highlight><pre><span></span><code>❯ semanage login -l
+
+Login Name           SELinux User         MLS/MCS Range        Service
+
+__default__          user_u               s0-s0                *
+david                staff_u              s0-s0:c0.c1023       *
+root                 root                 s0-s0:c0.c1023       *
+</code></pre></div> <p>Create <code>/var/lib/sepolgen/interface_info</code> for <code>audit2why -R</code> to work:</p> <div class=highlight><pre><span></span><code>sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
+</code></pre></div> <h2 id=94-selinux-policies>9.4. SELinux policies<a class=headerlink href=#94-selinux-policies title="Permanent link">&para;</a></h2> <div class="admonition note"> <p class=admonition-title>Note</p> <p>Use <code>create_policy.sh</code> to create your SELinux policies after booting into permissive mode. The script expects you to reboot into permissive mode after installation of each newly created policy module via <code>semodule -i &lt;name&gt;.pp</code>.</p> </div> <h3 id=941-additional-relabeling>9.4.1. Additional relabeling<a class=headerlink href=#941-additional-relabeling title="Permanent link">&para;</a></h3> <p>In one case, I relabeled a file instead of executing <code>semodule -i</code>:</p> <div class=highlight><pre><span></span><code><span class=c1># [   12.208682] audit: type=1400 audit(1663626722.916:3): avc:  denied  { read } for  pid=951 comm=&quot;10-gentoo-path&quot; name=&quot;profile.env&quot; dev=&quot;dm-1&quot; ino=285848 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=1</span>
+<span class=c1># [   12.211534] audit: type=1400 audit(1663626722.916:4): avc:  denied  { open } for  pid=951 comm=&quot;10-gentoo-path&quot; path=&quot;/etc/profile.env&quot; dev=&quot;dm-1&quot; ino=285848 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=1</span>
+<span class=c1># [   12.214297] audit: type=1400 audit(1663626722.916:5): avc:  denied  { getattr } for  pid=951 comm=&quot;10-gentoo-path&quot; path=&quot;/etc/profile.env&quot; dev=&quot;dm-1&quot; ino=285848 scontext=system_u:system_r:systemd_generator_t:s0 tcontext=system_u:object_r:etc_runtime_t:s0 tclass=file permissive=1</span>
+
+❯ find / -inum <span class=m>285848</span>
+/etc/profile.env
+
+❯ semanage fcontext -l <span class=p>|</span> grep <span class=s1>&#39;/etc/profile\\\.env&#39;</span> <span class=p>|</span> column -t
+/etc/profile<span class=se>\.</span>env  regular  file  system_u:object_r:etc_runtime_t:s0
+
+❯ sesearch -A -s systemd_generator_t -c file -p getattr,open,read <span class=p>|</span> grep etc
+allow systemd_generator_t etc_t:file <span class=o>{</span> getattr ioctl lock open <span class=nb>read</span> <span class=o>}</span><span class=p>;</span>
+allow systemd_generator_t lvm_etc_t:file <span class=o>{</span> getattr ioctl lock map open <span class=nb>read</span> <span class=o>}</span><span class=p>;</span>
+
+❯ semanage fcontext -m -f f -t etc_t <span class=s1>&#39;/etc/profile\.env&#39;</span>
+
+❯ restorecon -Fv /etc/profile.env
+Relabeled /etc/profile.env from system_u:object_r:etc_runtime_t:s0 to system_u:object_r:etc_t:s0
+</code></pre></div> <h3 id=942-vm-host>9.4.2. VM host<a class=headerlink href=#942-vm-host title="Permanent link">&para;</a></h3> <div class="admonition note"> <p class=admonition-title>Note</p> <p>I connect to libvirtd via TCP and SSH port forwarding, because I want to use my SSH key which is secured on a hardware token, and <code>virt-manager</code> doesn't seem to be able to handle my hardware token directly. Thus, I can't use s.th. like <code>qemu+ssh://david@192.168.10.3:50022/system</code>.</p> </div> <p>I prefer managing downloads and network myself:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;\</span>
+<span class=s2>app-emulation/libvirt -virt-network</span>
+<span class=s2>app-emulation/qemu -curl&quot;</span> &gt;&gt; /etc/portage/package.use/main
+</code></pre></div> <p>I setup the internal network manually:</p> <div class=highlight><pre><span></span><code>❯ head /etc/systemd/network/br0.*
+<span class=o>==</span>&gt; /etc/systemd/network/br0.netdev &lt;<span class=o>==</span>
+<span class=o>[</span>NetDev<span class=o>]</span>
+<span class=nv>Name</span><span class=o>=</span>br0
+<span class=nv>Kind</span><span class=o>=</span><span class=nv>bridge</span>
+
+<span class=o>==</span>&gt; /etc/systemd/network/br0.network &lt;<span class=o>==</span>
+<span class=o>[</span>Match<span class=o>]</span>
+<span class=nv>Name</span><span class=o>=</span>br0
+
+<span class=o>[</span>Network<span class=o>]</span>
+<span class=nv>Address</span><span class=o>=</span><span class=m>192</span>.168.110.1/24
+<span class=nv>ConfigureWithoutCarrier</span><span class=o>=</span><span class=nb>true</span>
+</code></pre></div> <p>Install:</p> <div class=highlight><pre><span></span><code>emerge -av app-emulation/libvirt
+</code></pre></div> <p>Enable libvirt's <a href=https://libvirt.org/remote.html#transports>TCP transport</a>:</p> <div class=highlight><pre><span></span><code>systemctl <span class=nb>enable</span> libvirtd-tcp.socket <span class=o>&amp;&amp;</span> <span class=se>\</span>
+systemctl start libvirtd-tcp.socket <span class=o>&amp;&amp;</span> <span class=se>\</span>
+systemctl <span class=nb>enable</span> libvirt-guests.service <span class=o>&amp;&amp;</span> <span class=se>\</span>
+systemctl start libvirt-guests.service <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>systemd should listen now on TCP port 16509:</p> <div class=highlight><pre><span></span><code>❯ lsof -nP -iTCP -sTCP:LISTEN
+COMMAND    PID            USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+systemd      <span class=m>1</span>            root   48u  IPv6  <span class=m>50548</span>      0t0  TCP *:16509 <span class=o>(</span>LISTEN<span class=o>)</span>
+systemd-r <span class=m>1063</span> systemd-resolve   12u  IPv4  <span class=m>18306</span>      0t0  TCP *:5355 <span class=o>(</span>LISTEN<span class=o>)</span>
+systemd-r <span class=m>1063</span> systemd-resolve   14u  IPv6  <span class=m>18309</span>      0t0  TCP *:5355 <span class=o>(</span>LISTEN<span class=o>)</span>
+systemd-r <span class=m>1063</span> systemd-resolve   18u  IPv4  <span class=m>18313</span>      0t0  TCP <span class=m>127</span>.0.0.53:53 <span class=o>(</span>LISTEN<span class=o>)</span>
+systemd-r <span class=m>1063</span> systemd-resolve   20u  IPv4  <span class=m>18315</span>      0t0  TCP <span class=m>127</span>.0.0.54:53 <span class=o>(</span>LISTEN<span class=o>)</span>
+sshd      <span class=m>1096</span>            root    3u  IPv4  <span class=m>18400</span>      0t0  TCP *:50022 <span class=o>(</span>LISTEN<span class=o>)</span>
+sshd      <span class=m>1096</span>            root    4u  IPv6  <span class=m>18401</span>      0t0  TCP *:50022 <span class=o>(</span>LISTEN<span class=o>)</span>
+</code></pre></div> <p>Forward the connection with:</p> <div class=highlight><pre><span></span><code>ssh -NL <span class=m>56509</span>:127.0.0.1:16509 -p <span class=m>50022</span> david@192.168.10.3
+</code></pre></div> <p>Add this connection in <code>virt-manager</code>:</p> <div class=highlight><pre><span></span><code>qemu+tcp://127.0.0.1:56509/system
+</code></pre></div> <h4 id=9441-connecting-with-virt-manager-over-tcp>9.4.4.1 Connecting with virt-manager over TCP<a class=headerlink href=#9441-connecting-with-virt-manager-over-tcp title="Permanent link">&para;</a></h4> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 22:51:23 2022</span>
+<span class=s>type=AVC msg=audit(1663361483.820:41): avc:  denied  { write } for  pid=1 comm=&quot;systemd&quot; name=&quot;libvirt-sock&quot; dev=&quot;tmpfs&quot; ino=1548 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:virt_runtime_t:s0 tclass=sock_file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= init_t ==============</span>
+allow init_t virt_runtime_t:sock_file write<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;virt_stream_connect(init_t)&quot;</span> -c my_libvirtd_service_000000
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 22:54:07 2022</span>
+<span class=s>type=AVC msg=audit(1663361647.136:50): avc:  denied  { write } for  pid=1 comm=&quot;systemd&quot; name=&quot;virtlockd-sock&quot; dev=&quot;tmpfs&quot; ino=1558 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:virtlockd_run_t:s0 tclass=sock_file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= init_t ==============</span>
+allow init_t virtlockd_run_t:sock_file write<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow init_t virtlockd_run_t:sock_file write;&quot;</span> -c my_libvirtd_service_000001
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 22:56:14 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663361774.700:52): proctitle=&quot;/lib/systemd/systemd-machined&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663361774.700:52): arch=c000003e syscall=138 success=no exit=-13 a0=3 a1=7ffef47c94d0 a2=0 a3=7fbe36521df0 items=0 ppid=1 pid=1221 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;systemd-machine&quot; exe=&quot;/lib/systemd/systemd-machined&quot; subj=system_u:system_r:systemd_machined_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663361774.700:52): avc:  denied  { getattr } for  pid=1221 comm=&quot;systemd-machine&quot; name=&quot;/&quot; dev=&quot;proc&quot; ino=1 scontext=system_u:system_r:systemd_machined_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= systemd_machined_t ==============</span>
+allow systemd_machined_t proc_t:filesystem getattr<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;kernel_getattr_proc(systemd_machined_t)&quot;</span> -c my_libvirtd_service_000002
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 22:59:47 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663361987.606:52): proctitle=&quot;/lib/systemd/systemd-machined&quot;</span>
+<span class=s>type=PATH msg=audit(1663361987.606:52): item=0 name=&quot;/&quot; inode=256 dev=00:1f mode=040755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:root_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663361987.606:52): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663361987.606:52): arch=c000003e syscall=137 success=no exit=-13 a0=7f10c6beeccd a1=7ffcc787c590 a2=3 a3=523234cc234200f5 items=1 ppid=1 pid=1206 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;systemd-machine&quot; exe=&quot;/lib/systemd/systemd-machined&quot; subj=system_u:system_r:systemd_machined_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663361987.606:52): avc:  denied  { getattr } for  pid=1206 comm=&quot;systemd-machine&quot; name=&quot;/&quot; dev=&quot;dm-1&quot; ino=256 scontext=system_u:system_r:systemd_machined_t:s0 tcontext=system_u:object_r:fs_t:s0 tclass=filesystem permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= systemd_machined_t ==============</span>
+allow systemd_machined_t fs_t:filesystem getattr<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;fs_getattr_xattr_fs(systemd_machined_t)&quot;</span> -c my_libvirtd_service_000003
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:04:27 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663362267.026:53): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=PATH msg=audit(1663362267.026:53): item=0 name=&quot;/var/run/utmp&quot; inode=98 dev=00:1a mode=0100664 ouid=0 ogid=406 rdev=00:00 obj=system_u:object_r:initrc_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663362267.026:53): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663362267.026:53): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fdcd4460e88 a2=80000 a3=0 items=1 ppid=1 pid=1221 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663362267.026:53): avc:  denied  { read } for  pid=1221 comm=&quot;libvirtd&quot; name=&quot;utmp&quot; dev=&quot;tmpfs&quot; ino=98 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:initrc_runtime_t:s0 tclass=file permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:06:32 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663362392.993:53): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=PATH msg=audit(1663362392.993:53): item=0 name=&quot;/var/run/utmp&quot; inode=95 dev=00:1a mode=0100664 ouid=0 ogid=406 rdev=00:00 obj=system_u:object_r:initrc_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663362392.993:53): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663362392.993:53): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f02818d6e88 a2=80000 a3=0 items=1 ppid=1 pid=1197 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663362392.993:53): avc:  denied  { open } for  pid=1197 comm=&quot;libvirtd&quot; path=&quot;/run/utmp&quot; dev=&quot;tmpfs&quot; ino=95 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:initrc_runtime_t:s0 tclass=file permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:09:33 2022</span>
+<span class=s>type=AVC msg=audit(1663362573.460:53): avc:  denied  { lock } for  pid=1189 comm=&quot;libvirtd&quot; path=&quot;/run/utmp&quot; dev=&quot;tmpfs&quot; ino=95 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:initrc_runtime_t:s0 tclass=file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t initrc_runtime_t:file <span class=o>{</span> lock open <span class=nb>read</span> <span class=o>}</span><span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtd_t initrc_runtime_t:file { lock open read };&quot;</span> -c my_libvirtd_service_000004
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:12:30 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663362750.713:55): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=PATH msg=audit(1663362750.713:55): item=0 name=&quot;/run/systemd/userdb/io.systemd.Machine&quot; inode=1562 dev=00:1a mode=0140666 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:systemd_userdbd_runtime_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663362750.713:55): cwd=&quot;/&quot;</span>
+<span class=s>type=SOCKADDR msg=audit(1663362750.713:55): saddr=01002F72756E2F73797374656D642F7573657264622F696F2E73797374656D642E4D616368696E6500</span>
+<span class=s>type=SYSCALL msg=audit(1663362750.713:55): arch=c000003e syscall=42 success=no exit=-13 a0=1b a1=7f1d8dffa660 a2=29 a3=7f1d740302b0 items=1 ppid=1 pid=1205 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;daemon-init&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663362750.713:55): avc:  denied  { connectto } for  pid=1205 comm=&quot;daemon-init&quot; path=&quot;/run/systemd/userdb/io.systemd.Machine&quot; scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:systemd_machined_t:s0 tclass=unix_stream_socket permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t systemd_machined_t:unix_stream_socket connectto<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;systemd_connect_machined(virtd_t)&quot;</span> -c my_libvirtd_service_000005
+
+❯ selocal -b -L
+</code></pre></div> <h4 id=9442-vm-creation-with-virt-manager>9.4.4.2 VM creation with virt-manager<a class=headerlink href=#9442-vm-creation-with-virt-manager title="Permanent link">&para;</a></h4> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:24:31 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663363471.726:56): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=PATH msg=audit(1663363471.726:56): item=0 name=&quot;/dev/cpu/0/msr&quot; inode=85 dev=00:05 mode=020600 ouid=0 ogid=0 rdev=ca:00 obj=system_u:object_r:cpu_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663363471.726:56): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663363471.726:56): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f02211d4670 a2=0 a3=0 items=1 ppid=1 pid=1223 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663363471.726:56): avc:  denied  { read } for  pid=1223 comm=&quot;rpc-libvirtd&quot; name=&quot;msr&quot; dev=&quot;devtmpfs&quot; ino=85 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:cpu_device_t:s0 tclass=chr_file permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:28:05 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663363685.759:56): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=PATH msg=audit(1663363685.759:56): item=0 name=&quot;/dev/cpu/0/msr&quot; inode=85 dev=00:05 mode=020600 ouid=0 ogid=0 rdev=ca:00 obj=system_u:object_r:cpu_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663363685.759:56): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663363685.759:56): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fad25c9f670 a2=0 a3=0 items=1 ppid=1 pid=1204 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663363685.759:56): avc:  denied  { open } for  pid=1204 comm=&quot;rpc-libvirtd&quot; path=&quot;/dev/cpu/0/msr&quot; dev=&quot;devtmpfs&quot; ino=85 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:cpu_device_t:s0 tclass=chr_file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t cpu_device_t:chr_file <span class=o>{</span> open <span class=nb>read</span> <span class=o>}</span><span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtd_t cpu_device_t:chr_file { open read };&quot;</span> -c my_virt-manager_000000
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:31:01 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663363861.959:56): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=PATH msg=audit(1663363861.959:56): item=0 name=&quot;/dev/cpu/0/msr&quot; inode=85 dev=00:05 mode=020600 ouid=0 ogid=0 rdev=ca:00 obj=system_u:object_r:cpu_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663363861.959:56): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663363861.959:56): arch=c000003e syscall=257 success=no exit=-1 a0=ffffff9c a1=7f46e847c670 a2=0 a3=0 items=1 ppid=1 pid=1197 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663363861.959:56): avc:  denied  { sys_rawio } for  pid=1197 comm=&quot;rpc-libvirtd&quot; capability=17  scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=capability permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t self:capability sys_rawio<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtd_t self:capability sys_rawio;&quot;</span> -c my_virt-manager_000001
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:41:00 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663364460.659:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663364460.659:60): item=0 name=&quot;/proc/sys/kernel/cap_last_cap&quot; nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663364460.659:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663364460.659:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f2e2ef8802a a2=0 a3=0 items=1 ppid=1 pid=1284 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663364460.659:60): avc:  denied  { search } for  pid=1284 comm=&quot;virtlogd&quot; name=&quot;kernel&quot; dev=&quot;proc&quot; ino=12520 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=dir permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:43:15 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663364595.286:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663364595.286:60): item=0 name=&quot;/proc/sys/kernel/cap_last_cap&quot; inode=13044 dev=00:16 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysctl_kernel_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663364595.286:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663364595.286:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f4091f0a02a a2=0 a3=0 items=1 ppid=1 pid=1237 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663364595.286:60): avc:  denied  { read } for  pid=1237 comm=&quot;virtlogd&quot; name=&quot;cap_last_cap&quot; dev=&quot;proc&quot; ino=13044 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:45:38 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663364738.143:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663364738.143:60): item=0 name=&quot;/proc/sys/kernel/cap_last_cap&quot; inode=12583 dev=00:16 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysctl_kernel_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663364738.143:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663364738.143:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7ffbbec4802a a2=0 a3=0 items=1 ppid=1 pid=1262 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663364738.143:60): avc:  denied  { open } for  pid=1262 comm=&quot;virtlogd&quot; path=&quot;/proc/sys/kernel/cap_last_cap&quot; dev=&quot;proc&quot; ino=12583 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtlogd_t ==============</span>
+allow virtlogd_t sysctl_kernel_t:dir search<span class=p>;</span>
+allow virtlogd_t sysctl_kernel_t:file <span class=o>{</span> open <span class=nb>read</span> <span class=o>}</span><span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtlogd_t sysctl_kernel_t:dir search;&quot;</span> -c my_virt-manager_000002_dir
+❯ selocal -a <span class=s2>&quot;allow virtlogd_t sysctl_kernel_t:file { open read };&quot;</span> -c my_virt-manager_000002_file
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:48:52 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663364932.490:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663364932.490:60): arch=c000003e syscall=138 success=no exit=-13 a0=5 a1=7ffded86dc50 a2=0 a3=7f2967143df0 items=0 ppid=1 pid=1253 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663364932.490:60): avc:  denied  { getattr } for  pid=1253 comm=&quot;virtlogd&quot; name=&quot;/&quot; dev=&quot;proc&quot; ino=1 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:proc_t:s0 tclass=filesystem permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtlogd_t ==============</span>
+allow virtlogd_t proc_t:filesystem getattr<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;kernel_getattr_proc(virtlogd_t)&quot;</span> -c my_virt-manager_000003
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:52:05 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663365125.670:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663365125.670:60): item=0 name=&quot;/usr/sbin/virtlogd&quot; nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663365125.670:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663365125.670:60): arch=c000003e syscall=89 success=no exit=-13 a0=7ffff4e82120 a1=7ffff4e81cc0 a2=3ff a3=1 items=1 ppid=1 pid=1298 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663365125.670:60): avc:  denied  { search } for  pid=1298 comm=&quot;virtlogd&quot; name=&quot;sbin&quot; dev=&quot;dm-2&quot; ino=53969 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=dir permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtlogd_t ==============</span>
+allow virtlogd_t bin_t:dir search<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtlogd_t bin_t:dir search;&quot;</span> -c my_virt-manager_000004
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:54:28 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663365268.836:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663365268.836:60): item=0 name=&quot;/run/systemd/journal/socket&quot; nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663365268.836:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663365268.836:60): arch=c000003e syscall=21 success=no exit=-13 a0=7f7b39d1de7e a1=2 a2=1 a3=ce358e085363cd20 items=1 ppid=1 pid=1221 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663365268.836:60): avc:  denied  { search } for  pid=1221 comm=&quot;virtlogd&quot; name=&quot;journal&quot; dev=&quot;tmpfs&quot; ino=67 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:syslogd_runtime_t:s0 tclass=dir permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtlogd_t ==============</span>
+allow virtlogd_t syslogd_runtime_t:dir search<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtlogd_t syslogd_runtime_t:dir search;&quot;</span> -c my_virt-manager_000005
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Fri Sep 16 23:57:52 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663365472.796:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663365472.796:60): item=0 name=&quot;/run/systemd/journal/socket&quot; inode=69 dev=00:1a mode=0140666 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:devlog_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663365472.796:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663365472.796:60): arch=c000003e syscall=21 success=no exit=-13 a0=7fbf53001e7e a1=2 a2=1 a3=2f9a13ca77778bab items=1 ppid=1 pid=1258 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663365472.796:60): avc:  denied  { write } for  pid=1258 comm=&quot;virtlogd&quot; name=&quot;socket&quot; dev=&quot;tmpfs&quot; ino=69 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:devlog_t:s0 tclass=sock_file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtlogd_t ==============</span>
+allow virtlogd_t devlog_t:sock_file write<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtlogd_t devlog_t:sock_file write;&quot;</span> -c my_virt-manager_000006
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:01:05 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663365665.069:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663365665.069:60): arch=c000003e syscall=41 success=no exit=-13 a0=1 a1=2 a2=0 a3=7f3284482ac0 items=0 ppid=1 pid=1287 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663365665.069:60): avc:  denied  { create } for  pid=1287 comm=&quot;virtlogd&quot; scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:system_r:virtlogd_t:s0 tclass=unix_dgram_socket permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtlogd_t ==============</span>
+allow virtlogd_t self:unix_dgram_socket create<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtlogd_t self:unix_dgram_socket create;&quot;</span> -c my_virt-manager_000007
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:04:39 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663365879.139:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663365879.139:60): item=0 name=&quot;/etc/ssl/openssl.cnf&quot; nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663365879.139:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663365879.139:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=5579e68a4a90 a2=0 a3=0 items=1 ppid=1 pid=1255 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663365879.139:60): avc:  denied  { search } for  pid=1255 comm=&quot;virtlogd&quot; name=&quot;ssl&quot; dev=&quot;dm-3&quot; ino=456 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=dir permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:07:06 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663366026.166:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663366026.166:60): item=0 name=&quot;/etc/ssl/openssl.cnf&quot; inode=76254 dev=00:1f mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:cert_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663366026.166:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663366026.166:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=5636a04f1a90 a2=0 a3=0 items=1 ppid=1 pid=1234 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663366026.166:60): avc:  denied  { read } for  pid=1234 comm=&quot;virtlogd&quot; name=&quot;openssl.cnf&quot; dev=&quot;dm-3&quot; ino=76254 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=file permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:09:55 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663366195.780:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663366195.780:60): item=0 name=&quot;/etc/ssl/openssl.cnf&quot; inode=76254 dev=00:1f mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:cert_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663366195.780:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663366195.780:60): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=55a7ed6ffa90 a2=0 a3=0 items=1 ppid=1 pid=1249 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663366195.780:60): avc:  denied  { open } for  pid=1249 comm=&quot;virtlogd&quot; path=&quot;/etc/ssl/openssl.cnf&quot; dev=&quot;dm-0&quot; ino=76254 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=file permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:12:01 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663366321.463:60): proctitle=&quot;/usr/sbin/virtlogd&quot;</span>
+<span class=s>type=PATH msg=audit(1663366321.463:60): item=0 name=&quot;&quot; inode=76254 dev=00:1f mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:cert_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663366321.463:60): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663366321.463:60): arch=c000003e syscall=262 success=no exit=-13 a0=7 a1=7f168d651f13 a2=7ffd6c4a6040 a3=1000 items=1 ppid=1 pid=1235 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;virtlogd&quot; exe=&quot;/usr/sbin/virtlogd&quot; subj=system_u:system_r:virtlogd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663366321.463:60): avc:  denied  { getattr } for  pid=1235 comm=&quot;virtlogd&quot; path=&quot;/etc/ssl/openssl.cnf&quot; dev=&quot;dm-2&quot; ino=76254 scontext=system_u:system_r:virtlogd_t:s0 tcontext=system_u:object_r:cert_t:s0 tclass=file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtlogd_t ==============</span>
+allow virtlogd_t cert_t:dir search<span class=p>;</span>
+allow virtlogd_t cert_t:file <span class=o>{</span> getattr open <span class=nb>read</span> <span class=o>}</span><span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtlogd_t cert_t:dir search;&quot;</span> -c my_virt-manager_000008_dir
+❯ selocal -a <span class=s2>&quot;allow virtlogd_t cert_t:file { getattr open read };&quot;</span> -c my_virt-manager_000008_file
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:16:15 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663366575.140:63): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=PATH msg=audit(1663366575.140:63): item=0 name=&quot;/dev/urandom&quot; inode=6 dev=00:37 mode=020666 ouid=0 ogid=0 rdev=01:09 obj=system_u:object_r:urandom_device_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663366575.140:63): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663366575.140:63): arch=c000003e syscall=94 success=no exit=-13 a0=7fa59c01c990 a1=0 a2=0 a3=100 items=1 ppid=1190 pid=1267 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663366575.140:63): avc:  denied  { setattr } for  pid=1267 comm=&quot;rpc-libvirtd&quot; name=&quot;urandom&quot; dev=&quot;tmpfs&quot; ino=6 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:urandom_device_t:s0 tclass=chr_file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t urandom_device_t:chr_file setattr<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtd_t urandom_device_t:chr_file setattr;&quot;</span> -c my_virt-manager_000009
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:37:01 2022</span>
+<span class=s>type=AVC msg=audit(1663367821.716:65): avc:  denied  { connectto } for  pid=1060 comm=&quot;auditd&quot; path=&quot;/run/systemd/userdb/io.systemd.Machine&quot; scontext=system_u:system_r:auditd_t:s0 tcontext=system_u:system_r:systemd_machined_t:s0 tclass=unix_stream_socket permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= auditd_t ==============</span>
+allow auditd_t systemd_machined_t:unix_stream_socket connectto<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;systemd_connect_machined(auditd_t)&quot;</span> -c my_virt-manager_000010
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:40:50 2022</span>
+<span class=s>type=USER_AVC msg=audit(1663368050.436:63): pid=1076 uid=101 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0 msg=&#39;avc:  denied  { send_msg } for msgtype=method_call interface=org.freedesktop.machine1.Manager member=CreateMachineWithNetwork dest=org.freedesktop.machine1 spid=1215 tpid=1214 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:systemd_machined_t:s0 tclass=dbus permissive=0  exe=&quot;/usr/bin/dbus-daemon&quot; sauid=101 hostname=? addr=? terminal=?&#39;</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t systemd_machined_t:dbus send_msg<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;systemd_dbus_chat_machined(virtd_t)&quot;</span> -c my_virt-manager_000011
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:45:43 2022</span>
+<span class=s>type=USER_AVC msg=audit(1663368343.369:54): pid=1069 uid=101 auid=4294967295 ses=4294967295 subj=system_u:system_r:system_dbusd_t:s0 msg=&#39;avc:  denied  { send_msg } for msgtype=method_call interface=org.freedesktop.login1.Manager member=Inhibit dest=org.freedesktop.login1 spid=1227 tpid=1071 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:systemd_logind_t:s0 tclass=dbus permissive=0  exe=&quot;/usr/bin/dbus-daemon&quot; sauid=101 hostname=? addr=? terminal=?&#39;</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t systemd_logind_t:dbus send_msg<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;systemd_dbus_chat_logind(virtd_t)&quot;</span> -c my_virt-manager_000012
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 00:54:02 2022</span>
+<span class=s>type=USER_AVC msg=audit(1663368842.223:77): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg=&#39;avc:  denied  { start } for auid=n/a uid=0 gid=0 path=&quot;/run/systemd/transient/machine-qemu\x2d2\x2ddebian11.scope&quot; cmdline=&quot;/lib/systemd/systemd-machined&quot; function=&quot;bus_unit_queue_job&quot; scontext=system_u:system_r:systemd_machined_t:s0 tcontext=system_u:object_r:systemd_transient_unit_t:s0 tclass=service permissive=0  exe=&quot;/lib/systemd/systemd&quot; sauid=0 hostname=? addr=? terminal=?&#39;</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= systemd_machined_t ==============</span>
+allow systemd_machined_t systemd_transient_unit_t:service start<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;init_start_transient_units(systemd_machined_t)&quot;</span> -c my_virt-manager_000013
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 01:14:10 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663370050.736:71): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=SYSCALL msg=audit(1663370050.736:71): arch=c000003e syscall=321 success=yes exit=0 a0=10 a1=7f69d12cb3b0 a2=80 a3=0 items=0 ppid=1 pid=1231 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663370050.736:71): avc:  denied  { bpf } for  pid=1231 comm=&quot;rpc-libvirtd&quot; capability=39  scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=capability2 permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 01:20:26 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663370426.119:88): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=SYSCALL msg=audit(1663370426.119:88): arch=c000003e syscall=321 success=yes exit=31 a0=5 a1=7f8b9ce86380 a2=80 a3=40811 items=0 ppid=1 pid=1404 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=BPF msg=audit(1663370426.119:88): prog-id=33 op=LOAD</span>
+<span class=s>type=AVC msg=audit(1663370426.119:88): avc:  denied  { perfmon } for  pid=1404 comm=&quot;rpc-libvirtd&quot; capability=38  scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=capability2 permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t self:capability2 <span class=o>{</span> bpf perfmon <span class=o>}</span><span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtd_t self:capability2 { bpf perfmon };&quot;</span> -c my_virt-manager_000014
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 01:01:30 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663369290.669:76): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=SYSCALL msg=audit(1663369290.669:76): arch=c000003e syscall=321 success=no exit=-13 a0=0 a1=7faf1344e620 a2=80 a3=4 items=0 ppid=1 pid=1191 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663369290.669:76): avc:  denied  { map_create } for  pid=1191 comm=&quot;rpc-libvirtd&quot; scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=bpf permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 01:04:17 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663369457.883:76): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=SYSCALL msg=audit(1663369457.883:76): arch=c000003e syscall=321 success=no exit=-13 a0=0 a1=7f1fa0756620 a2=80 a3=4 items=0 ppid=1 pid=1192 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663369457.883:76): avc:  denied  { map_read map_write } for  pid=1192 comm=&quot;rpc-libvirtd&quot; scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=bpf permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 01:06:33 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663369593.086:76): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=SYSCALL msg=audit(1663369593.086:76): arch=c000003e syscall=321 success=no exit=-13 a0=5 a1=7fa821fcd380 a2=80 a3=0 items=0 ppid=1 pid=1195 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663369593.086:76): avc:  denied  { prog_load } for  pid=1195 comm=&quot;rpc-libvirtd&quot; scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=bpf permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 01:09:06 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663369746.156:76): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=SYSCALL msg=audit(1663369746.156:76): arch=c000003e syscall=321 success=no exit=-13 a0=5 a1=7f53e81bb380 a2=80 a3=0 items=0 ppid=1 pid=1192 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663369746.156:76): avc:  denied  { prog_run } for  pid=1192 comm=&quot;rpc-libvirtd&quot; scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:system_r:virtd_t:s0 tclass=bpf permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t self:bpf <span class=o>{</span> map_create map_read map_write prog_load prog_run <span class=o>}</span><span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow virtd_t self:bpf { map_create map_read map_write prog_load prog_run };&quot;</span> -c my_virt-manager_000015
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 01:26:04 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663370764.663:54): proctitle=2F7573722F7362696E2F6C69627669727464002D2D74696D656F757400313230</span>
+<span class=s>type=PATH msg=audit(1663370764.663:54): item=0 name=&quot;/sys/kernel/debug/kvm&quot; inode=19632 dev=00:07 mode=040755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:debugfs_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663370764.663:54): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663370764.663:54): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f0548001450 a2=90800 a3=0 items=1 ppid=1 pid=1190 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=&quot;rpc-libvirtd&quot; exe=&quot;/usr/sbin/libvirtd&quot; subj=system_u:system_r:virtd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663370764.663:54): avc:  denied  { read } for  pid=1190 comm=&quot;rpc-libvirtd&quot; name=&quot;kvm&quot; dev=&quot;debugfs&quot; ino=19632 scontext=system_u:system_r:virtd_t:s0 tcontext=system_u:object_r:debugfs_t:s0 tclass=dir permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= virtd_t ==============</span>
+allow virtd_t debugfs_t:dir read<span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;kernel_read_debugfs(virtd_t)&quot;</span> -c my_virt-manager_000016
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 01:36:24 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663371384.123:37): proctitle=737368643A206461766964</span>
+<span class=s>type=SOCKADDR msg=audit(1663371384.123:37): saddr=0A00170C000000000000000000000000000000000000000100000000</span>
+<span class=s>type=SYSCALL msg=audit(1663371384.123:37): arch=c000003e syscall=49 success=no exit=-13 a0=7 a1=55f1bf7fb9b0 a2=1c a3=0 items=0 ppid=1097 pid=1101 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=1 comm=&quot;sshd&quot; exe=&quot;/usr/sbin/sshd&quot; subj=system_u:system_r:sshd_t:s0 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663371384.123:37): avc:  denied  { name_bind } for  pid=1101 comm=&quot;sshd&quot; src=5900 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:vnc_port_t:s0 tclass=tcp_socket permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= sshd_t ==============</span>
+
+<span class=c1>#!!!! This avc can be allowed using the boolean &#39;sshd_port_forwarding&#39;</span>
+allow sshd_t vnc_port_t:tcp_socket name_bind<span class=p>;</span>
+
+❯ setsebool -P sshd_port_forwarding on
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 02:14:55 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663373695.646:89): proctitle=2F7573722F62696E2F71656D752D73797374656D2D7838365F3634002D6E616D650067756573743D64656269616E31312C64656275672D746872656164733D6F6E002D53002D6F626A656374007B22716F6D2D74797065223A22736563726574222C226964223A226D61737465724B657930222C22666F726D6174223A227261</span>
+<span class=s>type=PATH msg=audit(1663373695.646:89): item=0 name=&quot;/proc/sys/kernel/cap_last_cap&quot; nametype=UNKNOWN cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663373695.646:89): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663373695.646:89): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f4344a3802a a2=0 a3=0 items=1 ppid=1 pid=1377 auid=4294967295 uid=77 gid=77 euid=77 suid=77 fsuid=77 egid=77 sgid=77 fsgid=77 tty=(none) ses=4294967295 comm=&quot;qemu-system-x86&quot; exe=&quot;/usr/bin/qemu-system-x86_64&quot; subj=system_u:system_r:svirt_t:s0:c305,c965 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663373695.646:89): avc:  denied  { search } for  pid=1377 comm=&quot;qemu-system-x86&quot; name=&quot;kernel&quot; dev=&quot;proc&quot; ino=12981 scontext=system_u:system_r:svirt_t:s0:c305,c965 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=dir permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 02:23:14 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663374194.313:87): proctitle=2F7573722F62696E2F71656D752D73797374656D2D7838365F3634002D6E616D650067756573743D64656269616E31312C64656275672D746872656164733D6F6E002D53002D6F626A656374007B22716F6D2D74797065223A22736563726574222C226964223A226D61737465724B657930222C22666F726D6174223A227261</span>
+<span class=s>type=PATH msg=audit(1663374194.313:87): item=0 name=&quot;/proc/sys/kernel/cap_last_cap&quot; inode=12583 dev=00:16 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysctl_kernel_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663374194.313:87): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663374194.313:87): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7f4dc568102a a2=0 a3=0 items=1 ppid=1 pid=1260 auid=4294967295 uid=77 gid=77 euid=77 suid=77 fsuid=77 egid=77 sgid=77 fsgid=77 tty=(none) ses=4294967295 comm=&quot;qemu-system-x86&quot; exe=&quot;/usr/bin/qemu-system-x86_64&quot; subj=system_u:system_r:svirt_t:s0:c245,c487 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663374194.313:87): avc:  denied  { read } for  pid=1260 comm=&quot;qemu-system-x86&quot; name=&quot;cap_last_cap&quot; dev=&quot;proc&quot; ino=12583 scontext=system_u:system_r:svirt_t:s0:c245,c487 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 02:27:13 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663374433.816:87): proctitle=2F7573722F62696E2F71656D752D73797374656D2D7838365F3634002D6E616D650067756573743D64656269616E31312C64656275672D746872656164733D6F6E002D53002D6F626A656374007B22716F6D2D74797065223A22736563726574222C226964223A226D61737465724B657930222C22666F726D6174223A227261</span>
+<span class=s>type=PATH msg=audit(1663374433.816:87): item=0 name=&quot;/proc/sys/kernel/cap_last_cap&quot; inode=12478 dev=00:16 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysctl_kernel_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663374433.816:87): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663374433.816:87): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=7fea28e8e02a a2=0 a3=0 items=1 ppid=1 pid=1252 auid=4294967295 uid=77 gid=77 euid=77 suid=77 fsuid=77 egid=77 sgid=77 fsgid=77 tty=(none) ses=4294967295 comm=&quot;qemu-system-x86&quot; exe=&quot;/usr/bin/qemu-system-x86_64&quot; subj=system_u:system_r:svirt_t:s0:c168,c285 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663374433.816:87): avc:  denied  { open } for  pid=1252 comm=&quot;qemu-system-x86&quot; path=&quot;/proc/sys/kernel/cap_last_cap&quot; dev=&quot;proc&quot; ino=12478 scontext=system_u:system_r:svirt_t:s0:c168,c285 tcontext=system_u:object_r:sysctl_kernel_t:s0 tclass=file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= svirt_t ==============</span>
+allow svirt_t sysctl_kernel_t:dir search<span class=p>;</span>
+allow svirt_t sysctl_kernel_t:file <span class=o>{</span> open <span class=nb>read</span> <span class=o>}</span><span class=p>;</span>
+
+❯ selocal -a <span class=s2>&quot;allow svirt_t sysctl_kernel_t:dir search;&quot;</span> -c my_virt-manager_000017_dir
+❯ selocal -a <span class=s2>&quot;allow svirt_t sysctl_kernel_t:file { open read };&quot;</span> -c my_virt-manager_000017_file
+
+❯ selocal -b -L
+</code></pre></div> <div class=highlight><pre><span></span><code>❯ cat <span class=s>&lt;&lt;EOF | audit2allow</span>
+<span class=s>----</span>
+<span class=s>time-&gt;Sat Sep 17 02:29:45 2022</span>
+<span class=s>type=PROCTITLE msg=audit(1663374585.776:87): proctitle=2F7573722F62696E2F71656D752D73797374656D2D7838365F3634002D6E616D650067756573743D64656269616E31312C64656275672D746872656164733D6F6E002D53002D6F626A656374007B22716F6D2D74797065223A22736563726574222C226964223A226D61737465724B657930222C22666F726D6174223A227261</span>
+<span class=s>type=PATH msg=audit(1663374585.776:87): item=0 name=&quot;/sys/module/vhost/parameters/max_mem_regions&quot; inode=32904 dev=00:17 mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:sysfs_t:s0 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0</span>
+<span class=s>type=CWD msg=audit(1663374585.776:87): cwd=&quot;/&quot;</span>
+<span class=s>type=SYSCALL msg=audit(1663374585.776:87): arch=c000003e syscall=257 success=no exit=-13 a0=ffffff9c a1=56390eb16eb8 a2=0 a3=0 items=1 ppid=1 pid=1252 auid=4294967295 uid=77 gid=77 euid=77 suid=77 fsuid=77 egid=77 sgid=77 fsgid=77 tty=(none) ses=4294967295 comm=&quot;qemu-system-x86&quot; exe=&quot;/usr/bin/qemu-system-x86_64&quot; subj=system_u:system_r:svirt_t:s0:c210,c503 key=(null)</span>
+<span class=s>type=AVC msg=audit(1663374585.776:87): avc:  denied  { read } for  pid=1252 comm=&quot;qemu-system-x86&quot; name=&quot;max_mem_regions&quot; dev=&quot;sysfs&quot; ino=32904 scontext=system_u:system_r:svirt_t:s0:c210,c503 tcontext=system_u:object_r:sysfs_t:s0 tclass=file permissive=0</span>
+<span class=s>EOF</span>
+
+
+<span class=c1>#============= svirt_t ==============</span>
+
+<span class=c1>#!!!! This avc can be allowed using one of the these booleans:</span>
+<span class=c1>#     virt_use_sysfs, virt_use_usb</span>
+allow svirt_t sysfs_t:file read<span class=p>;</span>
+
+❯ setsebool -P virt_use_sysfs on
+</code></pre></div> <h3 id=945-denials-portage-hooks>9.4.5. Denials: portage hooks<a class=headerlink href=#945-denials-portage-hooks title="Permanent link">&para;</a></h3> <p>To make things simple I use this script to update the kernel in SELinux enforcing mode:</p> <div class=highlight><pre><span></span><code><span class=ch>#!/usr/bin/env bash</span>
+
+<span class=k>function</span> add_permissive_types<span class=o>()</span> <span class=o>{</span>
+    <span class=k>for</span> <span class=nb>type</span> <span class=k>in</span> dracut_t portage_t<span class=p>;</span> <span class=k>do</span>
+        <span class=k>if</span> ! grep -q <span class=s2>&quot;^</span><span class=si>${</span><span class=nv>type</span><span class=si>}</span>$<span class=s2>&quot;</span> &lt;<span class=o>(</span>semanage permissive --list --noheading<span class=o>)</span><span class=p>;</span> <span class=k>then</span>
+            <span class=nv>permissive_types</span><span class=o>+=(</span><span class=s2>&quot;</span><span class=si>${</span><span class=nv>type</span><span class=si>}</span><span class=s2>&quot;</span><span class=o>)</span>
+
+            <span class=k>if</span> ! semanage permissive --add <span class=s2>&quot;</span><span class=si>${</span><span class=nv>type</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>;</span> <span class=k>then</span>
+                <span class=k>return</span> <span class=m>1</span>
+            <span class=k>fi</span>
+        <span class=k>fi</span>
+    <span class=k>done</span>
+<span class=o>}</span>
+
+<span class=k>function</span> clear_permissive_types<span class=o>()</span> <span class=o>{</span>
+    <span class=k>for</span> <span class=nb>type</span> <span class=k>in</span> <span class=s2>&quot;</span><span class=si>${</span><span class=nv>permissive_types</span><span class=p>[@]</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>;</span> <span class=k>do</span>
+        semanage permissive --delete <span class=s2>&quot;</span><span class=si>${</span><span class=nv>type</span><span class=si>}</span><span class=s2>&quot;</span>
+    <span class=k>done</span>
+<span class=o>}</span>
+
+<span class=nb>declare</span> -a permissive_types
+<span class=nv>temp_dir</span><span class=o>=</span><span class=s2>&quot;</span><span class=k>$(</span>mktemp -d<span class=k>)</span><span class=s2>&quot;</span>
+
+<span class=nb>pushd</span> <span class=s2>&quot;</span><span class=si>${</span><span class=nv>temp_dir</span><span class=si>}</span><span class=s2>&quot;</span> <span class=o>||</span> <span class=o>{</span> <span class=nb>printf</span> <span class=s2>&quot;Failed to switch directory!&quot;</span> &gt;<span class=p>&amp;</span><span class=m>2</span><span class=p>;</span> <span class=nb>exit</span> <span class=m>1</span><span class=p>;</span> <span class=o>}</span>
+
+cat <span class=s>&lt;&lt;&#39;EOF&#39; &gt; my_kernel_build_policy.te</span>
+<span class=s>policy_module(my_kernel_build_policy, 1.0)</span>
+
+<span class=s>gen_require(`</span>
+<span class=s>    type gcc_config_t;</span>
+<span class=s>    type kmod_t;</span>
+<span class=s>    type ldconfig_t;</span>
+<span class=s>    type portage_tmp_t;</span>
+<span class=s>&#39;)</span>
+
+<span class=s>allow gcc_config_t self:capability dac_read_search;</span>
+<span class=s>allow kmod_t portage_tmp_t:dir { add_name getattr open read remove_name search write };</span>
+<span class=s>allow kmod_t portage_tmp_t:file { create getattr open rename write };</span>
+<span class=s>allow kmod_t self:capability dac_read_search;</span>
+<span class=s>allow ldconfig_t portage_tmp_t:dir { add_name getattr open read remove_name search write };</span>
+<span class=s>allow ldconfig_t portage_tmp_t:file { create open rename setattr write };</span>
+<span class=s>allow ldconfig_t portage_tmp_t:lnk_file read;</span>
+<span class=s>allow ldconfig_t self:capability dac_read_search;</span>
+<span class=s>EOF</span>
+
+<span class=k>if</span> b2sum --quiet -c <span class=o>&lt;&lt;&lt;</span><span class=s2>&quot;49b04d6dc0bc6bf7837a378b94e35005cf3eba6d48d744c29e50d9b98086e1bfa30a9fec5edc924bfd99800c4a722286ac34ad5a69fe78b9895ed29be214ba6e  my_kernel_build_policy.te&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+   make -f /usr/share/selinux/mcs/include/Makefile my_kernel_build_policy.pp <span class=o>&amp;&amp;</span> <span class=se>\</span>
+   semodule -i my_kernel_build_policy.pp <span class=o>&amp;&amp;</span> <span class=se>\</span>
+   add_permissive_types
+<span class=k>then</span>
+    emerge sys-kernel/gentoo-kernel-bin
+<span class=k>fi</span>
+
+clear_permissive_types
+semodule -r my_kernel_build_policy.pp
+
+<span class=nb>popd</span> <span class=o>||</span> <span class=o>{</span> <span class=nb>printf</span> <span class=s2>&quot;Failed to switch directory!&quot;</span> &gt;<span class=p>&amp;</span><span class=m>2</span><span class=p>;</span> <span class=nb>exit</span> <span class=m>1</span><span class=p>;</span> <span class=o>}</span>
+</code></pre></div> </article> </div> </div> </main> <footer class=md-footer> <nav class="md-footer__inner md-grid" aria-label=Footer> <a href=../post-boot_configuration/ class="md-footer__link md-footer__link--prev" aria-label="Previous: 8. Post-Boot Configuration" rel=prev> <div class="md-footer__button md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg> </div> <div class=md-footer__title> <div class=md-ellipsis> <span class=md-footer__direction> Previous </span> 8. Post-Boot Configuration </div> </div> </a> <a href=../other_gentoo_linux_repos/ class="md-footer__link md-footer__link--next" aria-label="Next: 10. Other Gentoo Linux repos" rel=next> <div class=md-footer__title> <div class=md-ellipsis> <span class=md-footer__direction> Next </span> 10. Other Gentoo Linux repos </div> </div> <div class="md-footer__button md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg> </div> </a> </nav> <div class="md-footer-meta md-typeset"> <div class="md-footer-meta__inner md-grid"> <div class=md-copyright> Made with <a href=https://squidfunk.github.io/mkdocs-material/ target=_blank rel=noopener> Material for MkDocs </a> </div> </div> </div> </footer> </div> <div class=md-dialog data-md-component=dialog> <div class="md-dialog__inner md-typeset"></div> </div> <script id=__config type=application/json>{"base": "..", "features": ["navigation.instant"], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script> <script src=../assets/javascripts/bundle.39f04ddb.min.js></script> </body> </html>
