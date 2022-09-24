@@ -40,5 +40,5 @@ nav:
   - 7. Cleanup And Reboot: cleanup_and_reboot.md
   - 8. Post-Boot Configuration: post-boot_configuration.md
   - 9. Virtual Server (optional): virtual_server.md
-  - 10. SELinux (optional) (WIP): selinux.md
+  - 10. SELinux (optional): selinux.md
   - 11. Other Gentoo Linux repos: other_gentoo_linux_repos.md
