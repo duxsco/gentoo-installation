@@ -1,0 +1,10 @@
+/chrooting                 /chrooting/                 301
+/cleanup_and_reboot        /cleanup_and_reboot/        301
+/disk_setup                /disk_setup/                301
+/live-cd_environment       /live-cd_environment/       301
+/other_gentoo_linux_repos  /other_gentoo_linux_repos/  301
+/post-boot_configuration   /post-boot_configuration/   301
+/rescue_system             /rescue_system/             301
+/selinux                   /selinux/                   301
+/system_setup              /system_setup/              301
+/virtual_server            /virtual_server/            301
