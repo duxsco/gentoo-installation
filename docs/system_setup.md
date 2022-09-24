@@ -100,6 +100,8 @@ eselect news list
 Switch over to hardened profile:
 
 ```shell
+env ACCEPT_KEYWORDS="~amd64" emerge -1a sys-apps/merge-usr
+merge-usr
 eselect profile set duxsco:hardened-systemd && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 emerge -1 sys-devel/gcc && \

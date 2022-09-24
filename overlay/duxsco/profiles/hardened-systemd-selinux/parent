@@ -1,2 +1,3 @@
 gentoo:default/linux/amd64/17.1/hardened/selinux
 gentoo:targets/systemd
+gentoo:features/merged-usr
