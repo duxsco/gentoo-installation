@@ -161,6 +161,6 @@ Create `/var/lib/sepolgen/interface_info` for `audit2why -R` to work:
 sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
 ```
 
-## 9.4. Helper scripts
+## 9.4. SELinux policies
 
-At this point, you can reboot into permissive mode again and use [selinux-policy-creator.sh](https://github.com/duxsco/selinux-policy-creator).
+At this point, you can reboot into permissive mode again and use the [selinux-policy-creator.sh](https://github.com/duxsco/selinux-policy-creator) script.
