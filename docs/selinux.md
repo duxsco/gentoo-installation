@@ -164,5 +164,3 @@ sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
 ## 9.4. Helper scripts
 
 At this point, you can reboot into permissive mode again and use [selinux-policy-creator.sh](https://github.com/duxsco/selinux-policy-creator).
-
-To make things simple I use [update_kernel.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/update_kernel.sh) to update the kernel in SELinux enforcing mode.
