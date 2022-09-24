@@ -1,10 +1,7 @@
-!!! note
-    I haven't taken a close look at all denials yet. First, I wanted to take care of all denials until I can login successfully. I need to check next whether all policies are necessary and make sure that PAM (see constraint violation below) is working correctly.
-
 ## 9.1. Enable SELinux
 
 !!! info
-    Currently, I only use SELinux on servers, and only `mcs` policy type to be able to "isolate" virtual machines from each other.
+    Currently, I only use SELinux on servers, and only `mcs` policy type to be able to better "isolate" virtual machines from each other.
 
 Reduce the number of services (copy&paste one after the other):
 
@@ -85,7 +82,7 @@ umount "$tmpdir" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-If `/proc` was listed by the code of the previous codeblock you have to relabel to avoid a denial:
+If `/proc` was listed by above codeblock you have to relabel to avoid a denial:
 
 ```shell
 ❯ cat <<EOF | audit2allow
@@ -164,71 +161,8 @@ Create `/var/lib/sepolgen/interface_info` for `audit2why -R` to work:
 sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
 ```
 
-## 9.4. SELinux policies
+## 9.4. Helper scripts
 
-!!! note
-    Use `create_policy.sh` to create your SELinux policies after booting into permissive mode. The script expects you to reboot into permissive mode after installation of each newly created policy module via `semodule -i <name>.pp`.
+At this point, you can reboot into permissive mode again and use [selinux-policy-creator.sh](https://github.com/duxsco/selinux-policy-creator).
 
-### 9.4.5. Denials: portage hooks
-
-To make things simple I use this script to update the kernel in SELinux enforcing mode:
-
-```shell
-#!/usr/bin/env bash
-
-function add_permissive_types() {
-    for type in dracut_t portage_t; do
-        if ! grep -q "^${type}$" <(semanage permissive --list --noheading); then
-            permissive_types+=("${type}")
-
-            if ! semanage permissive --add "${type}"; then
-                return 1
-            fi
-        fi
-    done
-}
-
-function clear_permissive_types() {
-    for type in "${permissive_types[@]}"; do
-        semanage permissive --delete "${type}"
-    done
-}
-
-declare -a permissive_types
-temp_dir="$(mktemp -d)"
-
-pushd "${temp_dir}" || { printf "Failed to switch directory!" >&2; exit 1; }
-
-cat <<'EOF' > my_kernel_build_policy.te
-policy_module(my_kernel_build_policy, 1.0)
-
-gen_require(`
-    type gcc_config_t;
-    type kmod_t;
-    type ldconfig_t;
-    type portage_tmp_t;
-')
-
-allow gcc_config_t self:capability dac_read_search;
-allow kmod_t portage_tmp_t:dir { add_name getattr open read remove_name search write };
-allow kmod_t portage_tmp_t:file { create getattr open rename write };
-allow kmod_t self:capability dac_read_search;
-allow ldconfig_t portage_tmp_t:dir { add_name getattr open read remove_name search write };
-allow ldconfig_t portage_tmp_t:file { create open rename setattr write };
-allow ldconfig_t portage_tmp_t:lnk_file read;
-allow ldconfig_t self:capability dac_read_search;
-EOF
-
-if b2sum --quiet -c <<<"49b04d6dc0bc6bf7837a378b94e35005cf3eba6d48d744c29e50d9b98086e1bfa30a9fec5edc924bfd99800c4a722286ac34ad5a69fe78b9895ed29be214ba6e  my_kernel_build_policy.te" && \
-   make -f /usr/share/selinux/mcs/include/Makefile my_kernel_build_policy.pp && \
-   semodule -i my_kernel_build_policy.pp && \
-   add_permissive_types
-then
-    emerge sys-kernel/gentoo-kernel-bin
-fi
-
-clear_permissive_types
-semodule -r my_kernel_build_policy.pp
-
-popd || { printf "Failed to switch directory!" >&2; exit 1; }
-```
+To make things simple I use [update_kernel.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/update_kernel.sh) to update the kernel in SELinux enforcing mode.
