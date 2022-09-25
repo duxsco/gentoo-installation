@@ -15,8 +15,8 @@ systemctl --no-reload <span class=nb>enable</span> systemd-networkd.service
 <span class=c1># https://wiki.archlinux.org/title/systemd-resolved</span>
 ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
-cp -av /etc/systemd/resolved.conf /etc/systemd/._cfg0000_resolved.conf
-
+<span class=hll>cp -av /etc/systemd/resolved.conf /etc/systemd/._cfg0000_resolved.conf
+</span>
 <span class=c1># https://www.kuketz-blog.de/empfehlungsecke/#dns</span>
 sed -i <span class=se>\</span>
 -e <span class=s1>&#39;s/#DNS=.*/DNS=2001:678:e68:f000::#dot.ffmuc.net 2001:678:ed0:f000::#dot.ffmuc.net 5.1.66.255#dot.ffmuc.net 185.150.99.255#dot.ffmuc.net/&#39;</span> <span class=se>\</span>

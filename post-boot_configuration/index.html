@@ -10,8 +10,8 @@
 <span class=s1>    systemctl disable systemd-timesyncd.service</span>
 <span class=s1>    echo $?</span>
 <span class=s1>else</span>
-<span class=s1>    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
-<span class=s1>    sed -i -e &quot;s/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/&quot; -e &quot;s/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/&quot; /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
+<span class=hll><span class=s1>    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
+</span><span class=s1>    sed -i -e &quot;s/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/&quot; -e &quot;s/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/&quot; /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
 <span class=s1>    timedatectl set-ntp true &amp;&amp; \</span>
 <span class=s1>    echo -e &quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 <span class=s1>fi &amp;&amp; \</span>
@@ -19,8 +19,8 @@
 <span class=s1>echo -e &quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 <span class=s1>&#39;</span>
 </code></pre></div> <p>Setup nftables:</p> <div class=highlight><pre><span></span><code>emerge net-firewall/nftables <span class=o>&amp;&amp;</span> <span class=se>\</span>
-rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables <span class=o>&amp;&amp;</span> <span class=se>\</span>
-sed -i <span class=s1>&#39;s/^SAVE_ON_STOP=&quot;yes&quot;$/SAVE_ON_STOP=&quot;no&quot;/&#39;</span> /etc/conf.d/._cfg0000_nftables <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=hll>rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</span>sed -i <span class=s1>&#39;s/^SAVE_ON_STOP=&quot;yes&quot;$/SAVE_ON_STOP=&quot;no&quot;/&#39;</span> /etc/conf.d/._cfg0000_nftables <span class=o>&amp;&amp;</span> <span class=se>\</span>
 /usr/local/sbin/firewall.nft <span class=o>&amp;&amp;</span> <span class=se>\</span>
 nft list ruleset &gt; /var/lib/nftables/rules-save <span class=o>&amp;&amp;</span> <span class=se>\</span>
 systemctl <span class=nb>enable</span> nftables-restore <span class=o>&amp;&amp;</span> <span class=se>\</span>

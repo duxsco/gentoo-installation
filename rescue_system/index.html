@@ -20,7 +20,8 @@ su -l meh -c <span class=s2>&quot;</span>
 <span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
 chown -R <span class=m>0</span>:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <h2 id=42-configuration>4.2. Configuration<a class=headerlink href=#42-configuration title="Permanent link">&para;</a></h2> <p>Create folder structure:</p> <div class=highlight><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/<span class=o>{</span>recipe/<span class=o>{</span>iso_delete,iso_add/<span class=o>{</span>autorun,sysresccd,sysrescue.d<span class=o>}</span>,iso_patch_and_script,build_into_srm/<span class=o>{</span>etc/<span class=o>{</span>ssh,sysctl.d<span class=o>}</span>,usr/local/sbin<span class=o>}}</span>,work<span class=o>}</span>
+</code></pre></div> <h2 id=42-configuration>4.2. Configuration<a class=headerlink href=#42-configuration title="Permanent link">&para;</a></h2> <p>Create folder structure:</p> <div class=highlight><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/<span class=o>{</span>recipe/<span class=o>{</span>iso_delete,iso_add/<span class=o>{</span>autorun,sysresccd,sysrescue.d<span class=o>}</span>,iso_patch_and_script,build_into_srm/<span class=o>{</span>etc/<span class=o>{</span>ssh,sysctl.d<span class=o>}</span>,usr/local/sbin<span class=o>}}</span>,work<span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>I you want to be able to access Gentoo Linux as well as the rescue system via SSH do (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 
 <span class=c1># add your ssh public keys to</span>
@@ -47,9 +48,12 @@ grep -q <span class=s2>&quot;^KbdInteractiveAuthentication no</span>$<span class
 <span class=s2>MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com&quot;</span> &gt;&gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=c1># create ssh_host_* files in build_into_srm/etc/ssh/</span>
 ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm <span class=o>&amp;&amp;</span> <span class=se>\</span>
-diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
-</code></pre></div> <p>Disable magic SysRq key for <a href=https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key>security sake</a>:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;kernel.sysrq = 0&quot;</span> &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
-</code></pre></div> <p>Copy <code>chroot.sh</code> created by <code>disk.sh</code>:</p> <div class=highlight><pre><span></span><code>rsync -av --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rwx,go<span class=o>=</span>r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/
+<span class=o>{</span> diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class=o>||</span> true<span class=p>;</span> <span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Disable magic SysRq key for <a href=https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key>security sake</a>:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;kernel.sysrq = 0&quot;</span> &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Copy <code>chroot.sh</code> created by <code>disk.sh</code>:</p> <div class=highlight><pre><span></span><code>rsync -av --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rwx,go<span class=o>=</span>r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/ <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Create settings YAML (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code><span class=c1># disable bash history</span>
 <span class=nb>set</span> +o <span class=nb>history</span>
 <span class=c1># replace &quot;MyPassWord123&quot; with the password you want to use to login via TTY on SystemRescueCD</span>
@@ -81,8 +85,10 @@ diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/rec
 <span class=c1># Delete variable</span>
 <span class=nb>unset</span> crypt_pass
 </code></pre></div> <p>Create firewall rules:</p> <div class=highlight><pre><span></span><code><span class=c1># set firewall rules upon bootup.</span>
-rsync -av --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rw,go<span class=o>=</span>r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
-</code></pre></div> <p>Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:</p> <div class=highlight><pre><span></span><code>find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name <span class=s2>&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class=o>{}</span> <span class=se>\;</span>
+rsync -av --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rw,go<span class=o>=</span>r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+</code></pre></div> <p>Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:</p> <div class=highlight><pre><span></span><code>find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name <span class=s2>&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class=o>{}</span> <span class=se>\;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Integrate additional packages:</p> <div class=highlight><pre><span></span><code>pacman -Sy clevis libpwquality luksmeta sbsigntools tpm2-tools <span class=o>&amp;&amp;</span> <span class=se>\</span>
 cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
