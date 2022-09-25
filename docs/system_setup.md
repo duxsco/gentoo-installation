@@ -7,7 +7,8 @@ rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
 sed -i \
 -e "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" \
 -e "s/merge=\"sdiff --suppress-common-lines --output='%s' '%s' '%s'\"/merge=\"vimdiff -c'saveas %s' -c next -c'setlocal noma readonly' -c prev %s %s\"/" \
-/etc/._cfg0000_dispatch-conf.conf
+/etc/._cfg0000_dispatch-conf.conf && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Install to be able to configure `/etc/portage/make.conf`:
@@ -66,7 +67,8 @@ done
 I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-pages`. Makes using Stackoverflow easier 😉.
 
 ```shell
-echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main
+echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Install `app-portage/eix`:
@@ -79,13 +81,15 @@ Mitigate [CVE-2022-29154](https://bugs.gentoo.org/show_bug.cgi?id=CVE-2022-29154
 
 ```shell
 echo 'net-misc/rsync ~amd64' >> /etc/portage/package.accept_keywords/main && \
-emerge -1 net-misc/rsync
+emerge -1 net-misc/rsync && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Execute `eix-sync`:
 
 ```shell
-eix-sync
+eix-sync && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Read Gentoo news items:
@@ -135,7 +139,8 @@ passwd david
 (Optional) Create your `authorized_keys`:
 
 ```shell
-rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/
+rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/ && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Setup sudo:
@@ -412,7 +417,8 @@ Set `/etc/hosts`:
 
 ```shell hl_lines="1"
 rsync -a /etc/hosts /etc/._cfg0000_hosts && \
-sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
+sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 (Optional) Enable ssh service:

@@ -52,7 +52,8 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Create folder structure:
 
 ```shell
-mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},usr/local/sbin}},work}
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},usr/local/sbin}},work} && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 I you want to be able to access Gentoo Linux as well as the rescue system via SSH do (copy&paste one after the other):
@@ -89,19 +90,22 @@ Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com" >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 # create ssh_host_* files in build_into_srm/etc/ssh/
 ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm && \
-diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config
+{ diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config || true; } && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Disable magic SysRq key for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
 ```shell
-echo "kernel.sysrq = 0" > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf
+echo "kernel.sysrq = 0" > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Copy `chroot.sh` created by `disk.sh`:
 
 ```shell
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/ && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Create settings YAML (copy&paste one after the other):
@@ -143,13 +147,15 @@ Create firewall rules:
 
 ```shell
 # set firewall rules upon bootup.
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
 
 ```shell
-find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
+find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \; && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Integrate additional packages:

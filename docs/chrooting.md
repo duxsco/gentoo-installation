@@ -1,7 +1,8 @@
 Set resolv.conf:
 
 ```shell
-cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+cp --dereference /etc/resolv.conf /mnt/gentoo/etc/ && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Set `.bashrc` etc.:
