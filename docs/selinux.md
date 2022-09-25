@@ -3,61 +3,67 @@
 !!! info
     Currently, I only use SELinux on servers, and only `mcs` policy type to be able to better "isolate" virtual machines from each other.
 
-Reduce the number of services (copy&paste one after the other):
+Reduce the number of services:
 
 ```shell hl_lines="3"
-systemctl mask user@.service
-systemctl disable systemd-userdbd.socket
-cp -av /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf
-sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/._cfg0000_nsswitch.conf
+systemctl mask user@.service && \
+systemctl disable systemd-userdbd.socket && \
+cp -av /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf && \
+sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/._cfg0000_nsswitch.conf && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Setup `make.conf`:
 
 ```shell hl_lines="1"
-cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
-echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf
-sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf
+cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
+echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf && \
+sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Initial SELinux install:
 
 ```shell
-eselect profile set "duxsco:hardened-systemd-selinux"
-echo 'sec-policy/* ~amd64' >> /etc/portage/package.accept_keywords/main
+eselect profile set "duxsco:hardened-systemd-selinux" && \
+echo 'sec-policy/* ~amd64' >> /etc/portage/package.accept_keywords/main && \
 
 # To get a nice looking html site in /usr/share/doc/selinux-base-<VERSION>/mcs/html:
-echo 'sec-policy/selinux-base doc' >> /etc/portage/package.use/main
+echo 'sec-policy/selinux-base doc' >> /etc/portage/package.use/main && \
 
-FEATURES="-selinux" emerge -1 selinux-base
+FEATURES="-selinux" emerge -1 selinux-base && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Configure SELinux:
 
 ```shell hl_lines="1"
-cp -av /etc/selinux/config /etc/selinux/._cfg0000_config
-sed -i 's/^SELINUXTYPE=strict$/SELINUXTYPE=mcs/' /etc/selinux/._cfg0000_config
+cp -av /etc/selinux/config /etc/selinux/._cfg0000_config && \
+sed -i 's/^SELINUXTYPE=strict$/SELINUXTYPE=mcs/' /etc/selinux/._cfg0000_config && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Update packages:
 
 ```shell
-FEATURES="-selinux -sesandbox" emerge -1 selinux-base
-FEATURES="-selinux -sesandbox" emerge -1 selinux-base-policy
+FEATURES="-selinux -sesandbox" emerge -1 selinux-base && \
+FEATURES="-selinux -sesandbox" emerge -1 selinux-base-policy && \
 emerge -atuDN @world
 ```
 
-Enable logging:
+Enable auditd logging:
 
 ```shell
-systemctl enable auditd.service
+systemctl enable auditd.service && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Rebuild the kernel with SELinux support:
 
 ```shell
 emerge sys-kernel/gentoo-kernel-bin && \
-rm -v /boot/efi*/EFI/Linux/gentoo-*-gentoo-dist.efi
+rm -v /boot/efi*/EFI/Linux/gentoo-*-gentoo-dist.efi && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Reboot with `permissive` kernel.
@@ -65,7 +71,11 @@ Reboot with `permissive` kernel.
 Make sure that UBAC gets disabled:
 
 ```shell
-bash -c '( cd /usr/share/selinux/mcs && semodule -i base.pp -i $(ls *.pp | grep -v base.pp) )'
+bash -c '(
+    cd /usr/share/selinux/mcs && \
+    semodule -i base.pp -i $(ls *.pp | grep -v base.pp) && \
+    echo -e "\e[1;32mSUCCESS\e[0m"
+)'
 ```
 
 ## 10.2. Relabel
@@ -146,8 +156,8 @@ user_u          user       s0         s0                             user_r
 Add the initial user to the [administration SELinux user](https://wiki.gentoo.org/wiki/SELinux/Installation#Define_the_administrator_accounts):
 
 ```shell
-semanage login -a -s staff_u david
-restorecon -RFv /home/david
+semanage login -a -s staff_u david && \
+restorecon -RFv /home/david && \
 bash -c 'echo "%wheel ALL=(ALL) TYPE=sysadm_t ROLE=sysadm_r ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel && \
 echo -e "\e[1;32mSUCCESS\e[0m"'
 ```
@@ -167,7 +177,8 @@ root                 root                 s0-s0:c0.c1023       *
 Create `/var/lib/sepolgen/interface_info` for `audit2why -R` to work:
 
 ```shell
-sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
+sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/ && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 10.4. SELinux policies
