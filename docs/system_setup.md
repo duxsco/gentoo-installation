@@ -440,6 +440,7 @@ echo '[hostname]
 ssh_only = false
 format =  "[$hostname](bold red) "
 ' | tee /root/.config/starship.toml > /home/david/.config/starship.toml && \
+starship preset nerd-font-symbols | tee -a /root/.config/starship.toml >> /home/david/.config/starship.toml && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
@@ -507,8 +508,6 @@ mkdir /usr/share/fonts/nerd-firacode && \
 rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.ttf /usr/share/fonts/nerd-firacode/ && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
-
-Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install.
 
 If you have `sys-fs/mdadm` installed:
 
