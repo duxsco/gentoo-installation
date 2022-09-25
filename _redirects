@@ -8,3 +8,6 @@
 /selinux                   /selinux/                   301
 /system_setup              /system_setup/              301
 /virtual_server            /virtual_server/            301
+
+/where_to_go_from_here     /where_to_go_from_here/     301
+/where_to_go_from_here/    /other_gentoo_linux_repos/  301
