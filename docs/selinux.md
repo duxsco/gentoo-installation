@@ -5,7 +5,7 @@
 
 Reduce the number of services (copy&paste one after the other):
 
-```shell
+```shell hl_lines="3"
 systemctl mask user@.service
 systemctl disable systemd-userdbd.socket
 cp -av /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf
@@ -14,7 +14,7 @@ sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/._cfg0000_
 
 Prepare for SELinux (copy&paste one after the other):
 
-```shell
+```shell hl_lines="1 15"
 cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf

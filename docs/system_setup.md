@@ -2,7 +2,7 @@
 
 Make `dispatch-conf` show diffs in color and use vimdiff for merging:
 
-```shell
+```shell hl_lines="1"
 rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
 sed -i \
 -e "s/diff=\"diff -Nu '%s' '%s'\"/diff=\"diff --color=always -Nu '%s' '%s'\"/" \
@@ -18,7 +18,7 @@ emerge -1 app-portage/cpuid2cpuflags
 
 Configure portage (copy&paste one after the other):
 
-```shell
+```shell hl_lines="1"
 rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 
 # If you use distcc, beware of:
@@ -150,7 +150,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Setup vim:
 
-```shell
+```shell hl_lines="4"
 USE="-verify-sig" emerge -1 dev-libs/libsodium && \
 emerge -1 dev-libs/libsodium app-editors/vim app-vim/molokai && \
 emerge --select --noreplace app-editors/vim app-vim/molokai && \
@@ -410,7 +410,7 @@ systemctl preset-all
 
 Set `/etc/hosts`:
 
-```shell
+```shell hl_lines="1"
 rsync -a /etc/hosts /etc/._cfg0000_hosts && \
 sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts
 ```
@@ -506,7 +506,7 @@ Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.ht
 
   - If you have `sys-fs/mdadm` installed:
 
-```shell
+```shell hl_lines="2"
 [[ -e /devSwapb ]] && \
 rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
 echo "" >> /etc/._cfg0000_mdadm.conf && \
@@ -516,7 +516,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
   - ssh:
 
-```shell
+```shell hl_lines="1"
 rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
 sed -i \
 -e 's/^#Port 22$/Port 50022/' \

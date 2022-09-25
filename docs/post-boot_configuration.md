@@ -15,7 +15,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Setup timedatectl:
 
-```shell
+```shell hl_lines="7"
 /bin/bash -c '
 timedatectl set-timezone Europe/Berlin && \
 if grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo); then
@@ -34,7 +34,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Setup nftables:
 
-```shell
+```shell hl_lines="2"
 emerge net-firewall/nftables && \
 rsync -a /etc/conf.d/nftables /etc/conf.d/._cfg0000_nftables && \
 sed -i 's/^SAVE_ON_STOP="yes"$/SAVE_ON_STOP="no"/' /etc/conf.d/._cfg0000_nftables && \

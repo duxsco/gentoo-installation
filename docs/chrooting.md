@@ -62,4 +62,4 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 ```
 
 !!! info "Application of configuration changes starting with chapter 6"
-    Execute `dispatch-conf` after every code block where a file with prefix `._cfg0000_` has been created.
+    Execute `dispatch-conf` after every code block where a file with prefix `._cfg0000_` has been created. {==The creation of "._cfg0000" prefixed files will be highlighted in yellow.==}

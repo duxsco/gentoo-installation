@@ -18,7 +18,7 @@ systemctl --no-reload enable systemd-networkd.service
 
   - Setup DNS (copy&paste one after the other):
 
-```shell
+```shell hl_lines="5"
 # https://wiki.gentoo.org/wiki/Resolv.conf
 # https://wiki.archlinux.org/title/systemd-resolved
 ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf

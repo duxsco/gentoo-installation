@@ -18,6 +18,7 @@ theme:
     repo: material/github
 markdown_extensions:
   - admonition
+  - pymdownx.critic
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.tabbed:
