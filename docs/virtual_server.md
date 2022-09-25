@@ -12,22 +12,19 @@ app-emulation/qemu -curl" >> /etc/portage/package.use/main
 I setup the internal network manually:
 
 ```shell
-❯ head /etc/systemd/network/br0.*
-==> /etc/systemd/network/br0.netdev <==
-[NetDev]
+echo '[NetDev]
 Name=br0
-Kind=bridge
-
-==> /etc/systemd/network/br0.network <==
-[Match]
+Kind=bridge' > /etc/systemd/network/br0.netdev && \
+echo '[Match]
 Name=br0
 
 [Network]
 Address=192.168.110.1/24
-ConfigureWithoutCarrier=true
+ConfigureWithoutCarrier=true' > /etc/systemd/network/br0.network && \
+echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Install:
+Install `app-emulation/libvirt`:
 
 ```shell
 emerge -av app-emulation/libvirt
@@ -37,13 +34,11 @@ Enable libvirt's [TCP transport](https://libvirt.org/remote.html#transports):
 
 ```shell
 systemctl enable libvirtd-tcp.socket && \
-systemctl start libvirtd-tcp.socket && \
 systemctl enable libvirt-guests.service && \
-systemctl start libvirt-guests.service && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-systemd should listen now on TCP port 16509:
+After the start of `libvirtd-tcp.socket`, systemd should listen on TCP port 16509:
 
 ```shell
 ❯ lsof -nP -iTCP -sTCP:LISTEN
