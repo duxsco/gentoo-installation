@@ -21,12 +21,11 @@ sysctl -w kernel.sysrq=0
 Do initial setup (copy&paste one after the other):
 
 ```shell
+# Start a screen session to better cope with networks disconnects
 screen -S install
 
-# If no network setup via DHCP done, use nmtui (recommended if DHCP not working) or...
-ip a add ...
-ip r add default ...
-echo nameserver ... > /etc/resolv.conf
+# If no automatic network setup has been done via DHCP...
+nmtui
 
 # Insert iptables rules at correct place for SystemRescueCD to accept SSH clients.
 # Verify with "iptables -L -v -n"
@@ -35,6 +34,9 @@ iptables -I INPUT 4 -p tcp --dport 22 -j ACCEPT -m conntrack --ctstate NEW
 # Alternatively, setup /root/.ssh/authorized_keys
 passwd root
 ```
+
+!!! info "Using screen"
+    You can detach from screen's session with ++ctrl+a+d++ and reattach with `screen -d -r install`. Scrolling works with ++ctrl+a+esc++ and ++up++ / ++down++ / ++page-up++ / ++page-down++ . You can exit scroll mode with ++esc++ .
 
 Print out fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
 
@@ -66,7 +68,7 @@ screen -d -r install
 passwd root
 
 # Execute "vlock" without any flags first.
-# If relogin doesn't work you can switch tty and set password again.
+# If relogin doesn't work you can switch tty and set a password again.
 # If relogin succeeds execute vlock with flag "-a" to lock all tty.
 vlock -a
 ```
@@ -79,7 +81,7 @@ Set date if system time is not correct:
 date --utc MMDDhhmmYYYY
 ```
 
-Update hardware clock:
+Update the hardware clock:
 
 ```shell
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
