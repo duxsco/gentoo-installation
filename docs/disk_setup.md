@@ -34,59 +34,108 @@ set -o history
 
 ## 3.3. /mnt/gentoo Content
 
-Result of a single disk setup:
+=== "single disk"
 
-```shell
-❯ tree -a /mnt/gentoo/
-/mnt/gentoo/
-├── devEfia -> /dev/sda1
-├── devRescue -> /dev/sda2
-├── devSwapa -> /dev/sda3
-├── devSystema -> /dev/sda4
-├── mapperRescue -> /dev/mapper/sda2
-├── mapperSwap -> /dev/mapper/sda3
-├── mapperSystem -> /dev/mapper/sda4
-├── portage-latest.tar.xz
-├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-systemd-20220529T170531Z.tar.xz
-└── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
+    ```shell
+    ❯ tree -a /mnt/gentoo/
+    /mnt/gentoo/
+    ├── devEfia -> /dev/sda1
+    ├── devRescue -> /dev/sda2
+    ├── devSwapa -> /dev/sda3
+    ├── devSystema -> /dev/sda4
+    ├── mapperRescue -> /dev/mapper/sda2
+    ├── mapperSwap -> /dev/mapper/sda3
+    ├── mapperSystem -> /dev/mapper/sda4
+    ├── portage-latest.tar.xz
+    ├── portage-latest.tar.xz.gpgsig
+    ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
+    └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-0 directories, 13 files
-```
+    0 directories, 11 files
+    ```
 
-Result of the four disk setup:
+=== "two disk"
 
-```shell
-❯ tree -a /mnt/gentoo/
-/mnt/gentoo/
-├── devEfia -> /dev/sda1
-├── devEfib -> /dev/sdb1
-├── devEfic -> /dev/sdc1
-├── devEfid -> /dev/sdd1
-├── devRescue -> /dev/md0
-├── devSwapa -> /dev/sda3
-├── devSwapb -> /dev/sdb3
-├── devSwapc -> /dev/sdc3
-├── devSwapd -> /dev/sdd3
-├── devSystema -> /dev/sda4
-├── devSystemb -> /dev/sdb4
-├── devSystemc -> /dev/sdc4
-├── devSystemd -> /dev/sdd4
-├── mapperRescue -> /dev/mapper/md0
-├── mapperSwap -> /dev/md1
-├── mapperSystem -> /dev/mapper/sda4
-├── portage-latest.tar.xz
-├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-systemd-20220529T170531Z.tar.xz
-└── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
+    ```shell
+    ❯ tree -a /mnt/gentoo/
+    /mnt/gentoo/
+    ├── devEfia -> /dev/sda1
+    ├── devEfib -> /dev/sdb1
+    ├── devRescue -> /dev/md0
+    ├── devSwapa -> /dev/sda3
+    ├── devSwapb -> /dev/sdb3
+    ├── devSystema -> /dev/sda4
+    ├── devSystemb -> /dev/sdb4
+    ├── mapperRescue -> /dev/mapper/md0
+    ├── mapperSwap -> /dev/md1
+    ├── mapperSystem -> /dev/mapper/sda4
+    ├── portage-latest.tar.xz
+    ├── portage-latest.tar.xz.gpgsig
+    ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
+    └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
 
-0 directories, 25 files
-```
+    0 directories, 14 files
+    ```
+
+=== "three disks"
+
+    ```shell
+    ❯ tree -a /mnt/gentoo/
+    /mnt/gentoo/
+    ├── devEfia -> /dev/sda1
+    ├── devEfib -> /dev/sdb1
+    ├── devEfic -> /dev/sdc1
+    ├── devRescue -> /dev/md0
+    ├── devSwapa -> /dev/sda3
+    ├── devSwapb -> /dev/sdb3
+    ├── devSwapc -> /dev/sdc3
+    ├── devSystema -> /dev/sda4
+    ├── devSystemb -> /dev/sdb4
+    ├── devSystemc -> /dev/sdc4
+    ├── mapperRescue -> /dev/mapper/md0
+    ├── mapperSwap -> /dev/md1
+    ├── mapperSystem -> /dev/mapper/sda4
+    ├── portage-latest.tar.xz
+    ├── portage-latest.tar.xz.gpgsig
+    ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
+    └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
+
+    0 directories, 17 files
+    ```
+
+=== "four disks"
+
+    ```shell
+    ❯ tree -a /mnt/gentoo/
+    /mnt/gentoo/
+    ├── devEfia -> /dev/sda1
+    ├── devEfib -> /dev/sdb1
+    ├── devEfic -> /dev/sdc1
+    ├── devEfid -> /dev/sdd1
+    ├── devRescue -> /dev/md0
+    ├── devSwapa -> /dev/sda3
+    ├── devSwapb -> /dev/sdb3
+    ├── devSwapc -> /dev/sdc3
+    ├── devSwapd -> /dev/sdd3
+    ├── devSystema -> /dev/sda4
+    ├── devSystemb -> /dev/sdb4
+    ├── devSystemc -> /dev/sdc4
+    ├── devSystemd -> /dev/sdd4
+    ├── mapperRescue -> /dev/mapper/md0
+    ├── mapperSwap -> /dev/md1
+    ├── mapperSystem -> /dev/mapper/sda4
+    ├── portage-latest.tar.xz
+    ├── portage-latest.tar.xz.gpgsig
+    ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
+    └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
+
+    0 directories, 20 files
+    ```
 
 ## 3.4. Tarball Extraction
 
 !!! info 
-    Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Download and extract your stage3 flavour if it fits your needs more, but choose a systemd flavour of stage3, because this is required later on. Check the official handbook for the steps to be taken, especially in regards to verification.
+    Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Later on, a switch to custom profile `hardened-systemd` and optionally `hardened-systemd-selinux` will be done ([link](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles)).
 
 Extract stage3 tarball and copy `firewall.nft`:
 
