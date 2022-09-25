@@ -34,101 +34,101 @@ Both boot options are available in the boot menu.
 
 ESPs each with their own EFI entry are created one for each disk. Except for ESP, Btrfs/mdadm RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
 
-- Single disk:
+=== "single disk"
 
-```
-PC∕Laptop
-└── ∕dev∕sda
-    ├── 1. EFI System Partition
-    ├── 2. LUKS
-    │   └── Btrfs (single)
-    │       └── rescue
-    ├── 3. LUKS
-    │   └── SWAP
-    └── 4. LUKS ("system" partition)
-        └── Btrfs (single)
-            └── subvolumes
-                ├── @binpkgs
-                ├── @distfiles
-                ├── @home
-                ├── @ebuilds
-                ├── @root
-                └── @var_tmp
-```
+    ```
+    PC∕Laptop
+    └── ∕dev∕sda
+        ├── 1. EFI System Partition
+        ├── 2. LUKS
+        │   └── Btrfs (single)
+        │       └── rescue
+        ├── 3. LUKS
+        │   └── SWAP
+        └── 4. LUKS ("system" partition)
+            └── Btrfs (single)
+                └── subvolumes
+                    ├── @binpkgs
+                    ├── @distfiles
+                    ├── @home
+                    ├── @ebuilds
+                    ├── @root
+                    └── @var_tmp
+    ```
 
-- Two disks:
+=== "two disks"
 
-```
-PC∕Laptop──────────────────────────┐
-└── ∕dev∕sda                       └── ∕dev∕sdb
-    ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
-    │   └── LUKS                       │   └── LUKS
-    │       └── Btrfs                  │       └── Btrfs
-    │           └── rescue             │           └── rescue
-    ├── 3. LUKS                        ├── 3. LUKS
-    │   └── MDADM RAID 1               │   └── MDADM RAID 1
-    │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
-        └── Btrfs raid1                    └── Btrfs raid1
-            └── subvolume                      └── subvolume
-                ├── @binpkgs                       ├── @binpkgs
-                ├── @distfiles                     ├── @distfiles
-                ├── @home                          ├── @home
-                ├── @ebuilds                       ├── @ebuilds
-                ├── @root                          ├── @root
-                └── @var_tmp                       └── @var_tmp
-```
+    ```
+    PC∕Laptop──────────────────────────┐
+    └── ∕dev∕sda                       └── ∕dev∕sdb
+        ├── 1. EFI System Partition        ├── 1. EFI System Partition
+        ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
+        │   └── LUKS                       │   └── LUKS
+        │       └── Btrfs                  │       └── Btrfs
+        │           └── rescue             │           └── rescue
+        ├── 3. LUKS                        ├── 3. LUKS
+        │   └── MDADM RAID 1               │   └── MDADM RAID 1
+        │       └── SWAP                   │       └── SWAP
+        └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
+            └── Btrfs raid1                    └── Btrfs raid1
+                └── subvolume                      └── subvolume
+                    ├── @binpkgs                       ├── @binpkgs
+                    ├── @distfiles                     ├── @distfiles
+                    ├── @home                          ├── @home
+                    ├── @ebuilds                       ├── @ebuilds
+                    ├── @root                          ├── @root
+                    └── @var_tmp                       └── @var_tmp
+    ```
 
-- Three disks:
+=== "three disks"
 
-```
-PC∕Laptop──────────────────────────┬──────────────────────────────────┐
-└── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc
-    ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
-    │   └── LUKS                       │   └── LUKS                       │   └── LUKS
-    │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
-    │           └── rescue             │           └── rescue             │           └── rescue
-    ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
-    │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5
-    │       └── SWAP                   │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
-        └── Btrfs raid1c3                  └── Btrfs raid1c3                  └── Btrfs raid1c3
-            └── subvolume                      └── subvolume                      └── subvolume
-                ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
-                ├── @distfiles                     ├── @distfiles                     ├── @distfiles
-                ├── @home                          ├── @home                          ├── @home
-                ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds
-                ├── @root                          ├── @root                          ├── @root
-                └── @var_tmp                       └── @var_tmp                       └── @var_tmp
-```
+    ```
+    PC∕Laptop──────────────────────────┬──────────────────────────────────┐
+    └── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc
+        ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
+        ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
+        │   └── LUKS                       │   └── LUKS                       │   └── LUKS
+        │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
+        │           └── rescue             │           └── rescue             │           └── rescue
+        ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
+        │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5
+        │       └── SWAP                   │       └── SWAP                   │       └── SWAP
+        └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
+            └── Btrfs raid1c3                  └── Btrfs raid1c3                  └── Btrfs raid1c3
+                └── subvolume                      └── subvolume                      └── subvolume
+                    ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
+                    ├── @distfiles                     ├── @distfiles                     ├── @distfiles
+                    ├── @home                          ├── @home                          ├── @home
+                    ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds
+                    ├── @root                          ├── @root                          ├── @root
+                    └── @var_tmp                       └── @var_tmp                       └── @var_tmp
+    ```
 
-- Four disks:
+=== "four disks"
 
-```
-PC∕Laptop──────────────────────────┬──────────────────────────────────┬──────────────────────────────────┐
-└── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc                       └── ∕dev∕sdd
-    ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
-    ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
-    │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
-    │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
-    │           └── rescue             │           └── rescue             │           └── rescue             │           └── rescue
-    ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
-    │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10
-    │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
-    └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
-        └── Btrfs raid1c4                  └── Btrfs raid1c4                  └── Btrfs raid1c4                  └── Btrfs raid1c4
-            └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
-                ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
-                ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
-                ├── @home                          ├── @home                          ├── @home                          ├── @home
-                ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds
-                ├── @root                          ├── @root                          ├── @root                          ├── @root
-                └── @var_tmp                       └── @var_tmp                       └── @var_tmp                       └── @var_tmp
-```
+    ```
+    PC∕Laptop──────────────────────────┬──────────────────────────────────┬──────────────────────────────────┐
+    └── ∕dev∕sda                       └── ∕dev∕sdb                       └── ∕dev∕sdc                       └── ∕dev∕sdd
+        ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition        ├── 1. EFI System Partition
+        ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
+        │   └── LUKS                       │   └── LUKS                       │   └── LUKS                       │   └── LUKS
+        │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs                  │       └── Btrfs
+        │           └── rescue             │           └── rescue             │           └── rescue             │           └── rescue
+        ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS                        ├── 3. LUKS
+        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10        │   └── MDADM RAID 1|5|6|10
+        │       └── SWAP                   │       └── SWAP                   │       └── SWAP                   │       └── SWAP
+        └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
+            └── Btrfs raid1c4                  └── Btrfs raid1c4                  └── Btrfs raid1c4                  └── Btrfs raid1c4
+                └── subvolume                      └── subvolume                      └── subvolume                      └── subvolume
+                    ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs                       ├── @binpkgs
+                    ├── @distfiles                     ├── @distfiles                     ├── @distfiles                     ├── @distfiles
+                    ├── @home                          ├── @home                          ├── @home                          ├── @home
+                    ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds                       ├── @ebuilds
+                    ├── @root                          ├── @root                          ├── @root                          ├── @root
+                    └── @var_tmp                       └── @var_tmp                       └── @var_tmp                       └── @var_tmp
+    ```
 
-- More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
+More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
 
 ## 1.5. LUKS Key Slots
 
