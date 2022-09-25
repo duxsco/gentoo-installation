@@ -1,4 +1,4 @@
-## 9.1. Enable SELinux
+## 10.1. Enable SELinux
 
 !!! info
     Currently, I only use SELinux on servers, and only `mcs` policy type to be able to better "isolate" virtual machines from each other.
@@ -59,7 +59,7 @@ Make sure that UBAC gets disabled:
 bash -c '( cd /usr/share/selinux/mcs && semodule -i base.pp -i $(ls *.pp | grep -v base.pp) )'
 ```
 
-## 9.2. Relabel
+## 10.2. Relabel
 
 [Relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel):
 
@@ -109,7 +109,7 @@ SELinux Port Type              Proto    Port Number
 ssh_port_t                     tcp      50022, 22
 ```
 
-## 9.3. Users and services
+## 10.3. Users and services
 
 Default `mcs` SELinux `login` and `user` settings:
 
@@ -161,6 +161,6 @@ Create `/var/lib/sepolgen/interface_info` for `audit2why -R` to work:
 sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/
 ```
 
-## 9.4. SELinux policies
+## 10.4. SELinux policies
 
 At this point, you can reboot into permissive mode again and use the [selinux-policy-creator.sh](https://github.com/duxsco/selinux-policy-creator) script.
