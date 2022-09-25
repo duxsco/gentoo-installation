@@ -12,27 +12,36 @@ cp -av /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf
 sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/._cfg0000_nsswitch.conf
 ```
 
-Prepare for SELinux (copy&paste one after the other):
+Setup `make.conf`:
 
-```shell hl_lines="1 15"
+```shell hl_lines="1"
 cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf
-# execute dispatch-conf
+```
 
+Initial SELinux install:
+
+```shell
 eselect profile set "duxsco:hardened-systemd-selinux"
-
 echo 'sec-policy/* ~amd64' >> /etc/portage/package.accept_keywords/main
 
 # To get a nice looking html site in /usr/share/doc/selinux-base-<VERSION>/mcs/html:
 echo 'sec-policy/selinux-base doc' >> /etc/portage/package.use/main
 
 FEATURES="-selinux" emerge -1 selinux-base
+```
 
+Configure SELinux:
+
+```shell hl_lines="1"
 cp -av /etc/selinux/config /etc/selinux/._cfg0000_config
 sed -i 's/^SELINUXTYPE=strict$/SELINUXTYPE=mcs/' /etc/selinux/._cfg0000_config
-# execute dispatch-conf
+```
 
+Update packages:
+
+```shell
 FEATURES="-selinux -sesandbox" emerge -1 selinux-base
 FEATURES="-selinux -sesandbox" emerge -1 selinux-base-policy
 emerge -atuDN @world
