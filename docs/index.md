@@ -15,6 +15,11 @@ The following installation guide results in a system that is/uses:
 - [x] **Fully encrypted**: Except ESP(s), all partitions are LUKS encrypted.
 - [x] **RAID**: If the number of disks is >=2, mdadm and Btrfs based RAID are used for all partitions other than ESP(s).
 - [x] **Rescue system** based on a **customised SystemRescueCD** that provides the [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/01dad0465eb76d04bd4107a5ec16d02f5b2de30e/bin/disk.sh#L202-L281) script to conveniently chroot into your Gentoo installation.
+- [x] **Hardened Gentoo Linux (optional)** ([link](https://wiki.gentoo.org/wiki/Project:Hardened))
+- [x] **SELinux (optional)** ([link](https://wiki.gentoo.org/wiki/Project:SELinux))
+
+!!! important
+    This guide requires the use of systemd for measured boot to work. If you don't want to switch over from OpenRC you can take a look at my [older documentation](https://github.com/duxsco/gentoo-installation/tree/v2.1.1). That isn't maintained anymore though.
 
 ## 1.3. SSH Connectivity
 
