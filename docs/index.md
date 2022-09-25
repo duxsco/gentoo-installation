@@ -10,11 +10,11 @@
 
 The following installation guide results in a system that is/uses:
 
-- **Secure Boot**: EFI binary/binaries in ESP(s) are Secure Boot signed.
-- **Measured Boot**: [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to check the system for manipulations via TPM2 PCRs (Platform Configuration Registers).
-- **Fully encrypted**: Except ESP(s), all partitions are LUKS encrypted.
-- **RAID**: If the number of disks is >=2, mdadm and Btrfs based RAID are used for all partitions other than ESP(s).
-- **Rescue system** based on a **customised SystemRescueCD** that provides the `chroot.sh` script to conveniently chroot into your Gentoo installation.
+- [x] **Secure Boot**: EFI binary/binaries in ESP(s) are Secure Boot signed.
+- [x] **Measured Boot**: [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to check the system for manipulations via TPM2 PCRs (Platform Configuration Registers).
+- [x] **Fully encrypted**: Except ESP(s), all partitions are LUKS encrypted.
+- [x] **RAID**: If the number of disks is >=2, mdadm and Btrfs based RAID are used for all partitions other than ESP(s).
+- [x] **Rescue system** based on a **customised SystemRescueCD** that provides the [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/01dad0465eb76d04bd4107a5ec16d02f5b2de30e/bin/disk.sh#L202-L281) script to conveniently chroot into your Gentoo installation.
 
 ## 1.3. SSH Connectivity
 
