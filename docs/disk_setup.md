@@ -2,11 +2,12 @@
 
 `disk.sh` expects the disks, where you want to install Gentoo Linux on, to be completely empty.
 
-If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk:
+If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk (copy&paste one after the other):
 
 ```shell
 # Change disk name to the one you want to wipe
 disk="/dev/sda"
+
 lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r | while read -r i; do wipefs -a "$i"; done
 ```
 

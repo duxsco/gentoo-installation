@@ -174,7 +174,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-## 6.3. Configuration Of /etc/fstab
+## 6.3. Configuration of /etc/fstab
 
 Setup /etc/fstab:
 
@@ -427,7 +427,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 systemctl --no-reload enable sshd.service
 ```
 
-  - starship:
+Install `app-shells/starship`:
 
 ```shell
 # If you have insufficient ressources, you may want to "emerge -1 dev-lang/rust-bin" beforehand.
@@ -443,7 +443,7 @@ format =  "[$hostname](bold red) "
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-  - fish shell:
+Install `app-shells/fish`:
 
 ```shell
 echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
@@ -494,7 +494,7 @@ sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | sour
 sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | source\nend/' /home/david/.config/fish/config.fish
 ```
 
-  - nerd fonts:
+Install nerd fonts:
 
 ```shell
 emerge media-libs/fontconfig && \
@@ -510,7 +510,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Download the [Nerd Font Symbols Preset](https://starship.rs/presets/nerd-font.html), verify the content and install.
 
-  - If you have `sys-fs/mdadm` installed:
+If you have `sys-fs/mdadm` installed:
 
 ```shell hl_lines="2"
 [[ -e /devSwapb ]] && \
@@ -520,7 +520,7 @@ mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-  - ssh:
+Setup `net-misc/openssh`:
 
 ```shell hl_lines="1"
 rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
@@ -565,13 +565,13 @@ chown david:david /home/david/.ssh/config && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-  - Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
+Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
 ```shell
 echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
 ```
 
-  - misc tools:
+Misc tools:
 
 ```shell
 emerge -at app-misc/screen app-portage/gentoolkit

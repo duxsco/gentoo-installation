@@ -60,7 +60,7 @@ Resume `screen`:
 screen -d -r install
 ```
 
-(Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**):
+(Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**) (copy&paste one after the other):
 
 ```shell
 # If you have set /root/.ssh/authorized_keys in the previous step
