@@ -35,103 +35,21 @@ set -o history
 
 ## 3.3. /mnt/gentoo Content
 
-=== "single disk"
+=== "four disks"
 
-    ```shell
-    ❯ tree -a /mnt/gentoo/
-    /mnt/gentoo/
-    ├── devEfia -> /dev/sda1
-    ├── devRescue -> /dev/sda2
-    ├── devSwapa -> /dev/sda3
-    ├── devSystema -> /dev/sda4
-    ├── mapperRescue -> /dev/mapper/sda2
-    ├── mapperSwap -> /dev/mapper/sda3
-    ├── mapperSystem -> /dev/mapper/sda4
-    ├── portage-latest.tar.xz
-    ├── portage-latest.tar.xz.gpgsig
-    ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
-    └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
-
-    0 directories, 11 files
-    ```
-
-=== "two disk"
-
-    ```shell
-    ❯ tree -a /mnt/gentoo/
-    /mnt/gentoo/
-    ├── devEfia -> /dev/sda1
-    ├── devEfib -> /dev/sdb1
-    ├── devRescue -> /dev/md0
-    ├── devSwapa -> /dev/sda3
-    ├── devSwapb -> /dev/sdb3
-    ├── devSystema -> /dev/sda4
-    ├── devSystemb -> /dev/sdb4
-    ├── mapperRescue -> /dev/mapper/md0
-    ├── mapperSwap -> /dev/md1
-    ├── mapperSystem -> /dev/mapper/sda4
-    ├── portage-latest.tar.xz
-    ├── portage-latest.tar.xz.gpgsig
-    ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
-    └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
-
-    0 directories, 14 files
-    ```
+    ![four disks content](/images/four_disks_content.png)
 
 === "three disks"
 
-    ```shell
-    ❯ tree -a /mnt/gentoo/
-    /mnt/gentoo/
-    ├── devEfia -> /dev/sda1
-    ├── devEfib -> /dev/sdb1
-    ├── devEfic -> /dev/sdc1
-    ├── devRescue -> /dev/md0
-    ├── devSwapa -> /dev/sda3
-    ├── devSwapb -> /dev/sdb3
-    ├── devSwapc -> /dev/sdc3
-    ├── devSystema -> /dev/sda4
-    ├── devSystemb -> /dev/sdb4
-    ├── devSystemc -> /dev/sdc4
-    ├── mapperRescue -> /dev/mapper/md0
-    ├── mapperSwap -> /dev/md1
-    ├── mapperSystem -> /dev/mapper/sda4
-    ├── portage-latest.tar.xz
-    ├── portage-latest.tar.xz.gpgsig
-    ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
-    └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
+    ![three disks content](/images/three_disks_content.png)
 
-    0 directories, 17 files
-    ```
+=== "two disks"
 
-=== "four disks"
+    ![two disks content](/images/two_disks_content.png)
 
-    ```shell
-    ❯ tree -a /mnt/gentoo/
-    /mnt/gentoo/
-    ├── devEfia -> /dev/sda1
-    ├── devEfib -> /dev/sdb1
-    ├── devEfic -> /dev/sdc1
-    ├── devEfid -> /dev/sdd1
-    ├── devRescue -> /dev/md0
-    ├── devSwapa -> /dev/sda3
-    ├── devSwapb -> /dev/sdb3
-    ├── devSwapc -> /dev/sdc3
-    ├── devSwapd -> /dev/sdd3
-    ├── devSystema -> /dev/sda4
-    ├── devSystemb -> /dev/sdb4
-    ├── devSystemc -> /dev/sdc4
-    ├── devSystemd -> /dev/sdd4
-    ├── mapperRescue -> /dev/mapper/md0
-    ├── mapperSwap -> /dev/md1
-    ├── mapperSystem -> /dev/mapper/sda4
-    ├── portage-latest.tar.xz
-    ├── portage-latest.tar.xz.gpgsig
-    ├── stage3-amd64-systemd-20220529T170531Z.tar.xz
-    └── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
+=== "single disk"
 
-    0 directories, 20 files
-    ```
+    ![single disk content](/images/single_disk_content.png)
 
 ## 3.4. Tarball Extraction
 
