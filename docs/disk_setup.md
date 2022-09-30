@@ -1,6 +1,6 @@
 ## 3.1. Wiping Disks
 
-`disk.sh` expects the disks, where you want to install Gentoo Linux on, to be completely empty.
+[disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh) expects the disks, where you want to install Gentoo Linux, to be completely empty.
 
 If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk (copy&paste one after the other):
 
@@ -19,6 +19,7 @@ lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r | while read -r i; do wip
 Prepare the disks (copy&paste one after the other):
 
 ```shell
+# lookup all options
 bash /tmp/disk.sh -h
 
 # disable bash history
@@ -31,9 +32,11 @@ bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d "/dev/sda /dev/sdb etc.
 set -o history
 ```
 
-`disk.sh` creates user "meh" which will be used later on to act as non-root.
+[disk.sh creates the user "meh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L174) which will be used later on to act as non-root.
 
 ## 3.3. /mnt/gentoo Content
+
+After executing "disk.sh", the btrfs subvolume "@root" should contain:
 
 === "four disks"
 
@@ -54,9 +57,9 @@ set -o history
 ## 3.4. Tarball Extraction
 
 !!! info 
-    Current `stage3-amd64-systemd-*.tar.xz` is downloaded by default. Later on, a switch to custom profile `hardened-systemd` and optionally `hardened-systemd-selinux` will be done ([link](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles)).
+    A recent [stage3-amd64-systemd-*.tar.xz](https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-systemd/) file is downloaded by [fetch_files.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/fetch_files.sh) which is called by [disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L177). If you work on another architecture, download the correct stage3 tarball (recommended: `stage-<architecture>-systemd-<timestamp>.tar.xz` and `stage-<architecture>-systemd-<timestamp>.tar.xz.asc`) manually and adjust below commands accordingly. Later on, an optional switch to the custom profile [hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) and [hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux) will be done, requiring [modifications of those custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles) if you use a stage3 tarball other than the ones previously recommended.
 
-Extract stage3 tarball and copy `firewall.nft`:
+[Extract the stage3 tarball](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Unpacking_the_stage_tarball) and copy custom files:
 
 ```shell
 tar -C /mnt/gentoo/ -xpvf /mnt/gentoo/stage3-*.tar.xz --xattrs-include='*.*' --numeric-owner && \
@@ -66,7 +69,7 @@ mkdir -p /mnt/gentoo/etc/gentoo-installation && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Extract portage tarball:
+Extract the portage tarball ([based on archived old handbook](https://web.archive.org/web/20081017141338/http://www.gentoo.org:80/doc/en/handbook/handbook-amd64.xml?full=1#book_part1_chap5__chap3_sect2)):
 
 ```shell
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
@@ -83,8 +86,13 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 3.5. Mounting
 
+Mount filesystems for the later chroot to work:
+
 ```shell
+# https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Mounting_the_root_partition
 mount -t tmpfs -o noatime,nodev,nosuid,mode=1777,uid=root,gid=root tmpfs /mnt/gentoo/tmp && \
+
+# https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Mounting_the_necessary_filesystems
 mount --types proc /proc /mnt/gentoo/proc && \
 mount --rbind /sys /mnt/gentoo/sys && \
 mount --make-rslave /mnt/gentoo/sys && \
@@ -93,14 +101,22 @@ mount --make-rslave /mnt/gentoo/dev && \
 mount --bind /run /mnt/gentoo/run && \
 mount --make-slave /mnt/gentoo/run && \
 
+# I put /home, /var/cache/binpkgs, /var/cache/distfiles and /var/tmp
+# on separate btrfs subvolumes to keep backups separate.
+
 mount -o noatime,subvol=@home /mnt/gentoo/mapperSystem /mnt/gentoo/home && \
 
+# https://wiki.gentoo.org/wiki//var/cache/binpkgs
+# https://wiki.gentoo.org/wiki/Binary_package_guide
 touch /mnt/gentoo/var/cache/binpkgs/.keep && \
 mount -o noatime,subvol=@binpkgs /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/binpkgs && \
 
+# https://wiki.gentoo.org/wiki//var/cache/distfiles
+# https://wiki.gentoo.org/wiki/DISTDIR
 touch /mnt/gentoo/var/cache/distfiles/.keep && \
 mount -o noatime,subvol=@distfiles /mnt/gentoo/mapperSystem /mnt/gentoo/var/cache/distfiles && \
 
+# https://wiki.gentoo.org/wiki/Portage_TMPDIR_on_tmpfs
 touch /mnt/gentoo/var/tmp/.keep && \
 mount -o noatime,subvol=@var_tmp /mnt/gentoo/mapperSystem /mnt/gentoo/var/tmp && \
 chmod 1777 /mnt/gentoo/var/tmp && \
