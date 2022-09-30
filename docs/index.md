@@ -21,12 +21,10 @@ The installation guide results in a system that is/uses:
 
 ## 1.3. SSH Connectivity
 
-After completion of this installation guide, SSH connections will be (optionally) possible via SSH public key authentication to the:
+After completion of this installation guide, optional SSH connections will be possible to the following systems using SSH public key authentication:
 
-- Gentoo Linux system: `ssh -p 50022 david@<IP address>`
+- Gentoo Linux installation: `ssh -p 50022 david@<IP address>`
 - Rescue system: `ssh -p 50023 root@<IP address>`
-
-Both boot options are available in the boot menu.
 
 ## 1.4. Disk Layout
 
