@@ -9,15 +9,15 @@
 
 ## 1.2. Technologies
 
-The following installation guide results in a system that is/uses:
+The installation guide results in a system that is/uses:
 
-- [x] **Secure Boot**: EFI binary/binaries in ESP(s) are Secure Boot signed.
-- [x] **Measured Boot**: [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to check the system for manipulations via TPM2 PCRs (Platform Configuration Registers).
-- [x] **Fully encrypted**: Except ESP(s), all partitions are LUKS encrypted.
-- [x] **RAID**: If the number of disks is >=2, mdadm and Btrfs based RAID are used for all partitions other than ESP(s).
-- [x] **Rescue system** based on a **customised SystemRescueCD** that provides the [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/01dad0465eb76d04bd4107a5ec16d02f5b2de30e/bin/disk.sh#L202-L281) script to conveniently chroot into your Gentoo installation.
-- [x] **Hardened Gentoo Linux (optional)** ([link](https://wiki.gentoo.org/wiki/Project:Hardened))
-- [x] **SELinux (optional)** ([link](https://wiki.gentoo.org/wiki/Project:SELinux))
+- [x] **Secure Boot**: Any EFI binary and unified kernel image is signed.
+- [x] **Measured Boot**: [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to check the system for manipulations via TPM 2.0 PCRs.
+- [x] **Fully encrypted**: Except for ESP(s), all partitions are LUKS encrypted.
+- [x] **RAID**: Except for ESP(s), btrfs and mdadm based RAID are used for all partitions if the number of disks is ≥2.
+- [x] **Rescue system**: A customised SystemRescueCD supports SSH logins and provides a convenient [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/01dad0465eb76d04bd4107a5ec16d02f5b2de30e/bin/disk.sh#L202-L281) script.
+- [x] **Hardened Gentoo Linux (optional)** for a highly secure, high stability production environment ([link](https://wiki.gentoo.org/wiki/Project:Hardened)).
+- [x] **SELinux (optional)** provides Mandatory Access Control using type enforcement and role-based access control ([link](https://wiki.gentoo.org/wiki/Project:SELinux)).
 
 ## 1.3. SSH Connectivity
 
