@@ -1,10 +1,11 @@
-## 1.1. Disclaimer
+!!! warning "Disclaimer"
+    Don't blindly copy&paste the commands! **Understand** what you are going to do **and adjust commands if required**! I point this out, even though it should go without saying...
 
-!!! warning
-    Don't blindly copy&paste the commands! Understand what you are going to do and adjust commands if required! I point this out, even though it should go without saying...
+## 1.1. System Requirements
 
-!!! info "System Requirements"
-    The installation guide builds heavily on `Secure Boot` and requires `TPM 2.0` for `Measured Boot`. Make sure that the system is in `Setup Mode` in order to be able to add your custom `Secure Boot` keys. You can, however, boot without `Setup Mode` and import the `Secure Boot` keys later on depending on the hardware in use. For this, you can follow the instructions in section [8.2. Secure Boot Setup](/post-boot_configuration/#82-secure-boot-setup).
+- **Secure Boot and TPM 2.0:** The installation guide builds heavily on "secure boot" and requires "TPM 2.0" for "measured boot". Make sure that the system is in "setup mode" in order to be able to add your custom "secure boot" keys. You can, however, boot without "setup mode" and import the "secure boot" keys later on depending on the hardware in use. For this, you can follow the instructions in section [8.2. Secure Boot Setup](/post-boot_configuration/#82-secure-boot-setup).
+
+- **systemd and Measured Boot:** The installation guide requires the use of systemd for "measured boot" to work. If you want to stay with OpenRC you can take a look at my [older documentation](https://github.com/duxsco/gentoo-installation/tree/v2.1.1). That, however, doesn't support "measured boot" and isn't maintained by me anymore.
 
 ## 1.2. Technologies
 
@@ -17,9 +18,6 @@ The following installation guide results in a system that is/uses:
 - [x] **Rescue system** based on a **customised SystemRescueCD** that provides the [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/01dad0465eb76d04bd4107a5ec16d02f5b2de30e/bin/disk.sh#L202-L281) script to conveniently chroot into your Gentoo installation.
 - [x] **Hardened Gentoo Linux (optional)** ([link](https://wiki.gentoo.org/wiki/Project:Hardened))
 - [x] **SELinux (optional)** ([link](https://wiki.gentoo.org/wiki/Project:SELinux))
-
-!!! important
-    This guide requires the use of systemd for measured boot to work. If you don't want to switch over from OpenRC you can take a look at my [older documentation](https://github.com/duxsco/gentoo-installation/tree/v2.1.1). That isn't maintained anymore though.
 
 ## 1.3. SSH Connectivity
 
