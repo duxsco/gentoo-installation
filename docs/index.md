@@ -3,9 +3,13 @@
 
 ## 1.1. System Requirements
 
+Beside [official hardware requirements](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Hardware_requirements), the installation guide has additional ones:
+
 - **Secure Boot and TPM 2.0:** The installation guide builds heavily on "secure boot" and requires "TPM 2.0" for "measured boot". Make sure that the system is in "setup mode" in order to be able to add your custom "secure boot" keys. You can, however, boot without "setup mode" and import the "secure boot" keys later on depending on the hardware in use. For this, you can follow the instructions in section [8.2. Secure Boot Setup](/post-boot_configuration/#82-secure-boot-setup).
 
 - **systemd and Measured Boot:** The installation guide requires the use of systemd for "measured boot" to work. If you want to stay with OpenRC you can take a look at my [older documentation](https://github.com/duxsco/gentoo-installation/tree/v2.1.1). That, however, doesn't support "measured boot" and isn't maintained by me anymore.
+
+To keep things simple, the installation guide presumes that you intend to install on a x86_64 system. If that's not the case, adjust commands accordingly and use, for example, the correct [systemd stage3 tarball for your hardware architecture](https://www.gentoo.org/downloads/#other-arches).
 
 ## 1.2. Technologies
 
