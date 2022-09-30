@@ -48,7 +48,7 @@ ESPs are created one for each disk. Except for them, [btrfs](https://btrfs.readt
 
 ## 1.5. LUKS Key Slots
 
-On the `rescue` partition, LUKS key slots are set as follows:
+On the "rescue" partition, LUKS key slots are set as follows:
 
   - 0: Rescue password
 
@@ -57,7 +57,7 @@ On all other LUKS volumes, LUKS key slots are set as follows:
   - 0: Fallback password for emergency
   - 1: Measured Boot
     - Option A: TPM 2.0 with optional pin to unlock with [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll)
-    - Option B: [Shamir Secret Sharing](https://github.com/latchset/clevis#pin-shamir-secret-sharing) combining [TPM2](https://github.com/latchset/clevis#pin-tpm2) and [Tang](https://github.com/latchset/clevis#pin-tang) pin ([Tang project](https://github.com/latchset/tang)) to automatically unlock with Clevis
+    - Option B: [Shamir Secret Sharing](https://github.com/latchset/clevis#pin-shamir-secret-sharing) combining [TPM 2.0](https://github.com/latchset/clevis#pin-tpm2) and [Tang](https://github.com/latchset/clevis#pin-tang) pin ([Tang project](https://github.com/latchset/tang)) to automatically unlock with Clevis
 
-The following steps are basically those in [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation) with some customisations added.
+This installation guide is based on [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation).
 
