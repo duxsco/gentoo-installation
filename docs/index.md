@@ -28,7 +28,7 @@ After completion of this installation guide, optional SSH connections will be po
 
 ## 1.4. Disk Layout
 
-ESPs each with their own EFI entry are created one for each disk. Except for ESP, Btrfs/mdadm RAID 1 is used for all other partitions with RAID 5, RAID 6 and RAID 10 being further options for `swap`.
+ESPs are created one for each disk. Except for them, [btrfs](https://btrfs.readthedocs.io/en/latest/mkfs.btrfs.html#profiles) or [mdadm](https://raid.wiki.kernel.org/index.php/Introduction#The_RAID_levels) based RAID 1 is used for all other partitions on a dual- or multi-disk setup with RAID 5, RAID 6 and RAID 10 being further options for the swap device.
 
 === "four disks"
 
@@ -45,8 +45,6 @@ ESPs each with their own EFI entry are created one for each disk. Except for ESP
 === "single disk"
 
     ![single disk](/images/single_disk.png)
-
-More disks can be used (see: `man mkfs.btrfs | sed -n '/^PROFILES$/,/^[[:space:]]*└/p'`). RAID 10 is only available to setups with an even number of disks.
 
 ## 1.5. LUKS Key Slots
 
