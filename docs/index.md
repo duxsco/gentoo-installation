@@ -1,5 +1,5 @@
 !!! warning "Disclaimer"
-    Don't blindly copy&paste the commands! **Understand** what you are going to do **and adjust commands if required**! I point this out, even though it should go without saying...
+    This installation guide is based on [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation). It is written with great care. Nevertheless, you are expected not to blindly copy&paste commands! Please, **understand** what you are going to do **and adjust commands if required**!
 
 ## 1.1. System Requirements
 
@@ -58,6 +58,3 @@ On all other LUKS volumes, LUKS key slots are set as follows:
   - 1: Measured Boot
     - Option A: TPM 2.0 with optional pin to unlock with [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll)
     - Option B: [Shamir Secret Sharing](https://github.com/latchset/clevis#pin-shamir-secret-sharing) combining [TPM 2.0](https://github.com/latchset/clevis#pin-tpm2) and [Tang](https://github.com/latchset/clevis#pin-tang) pin ([Tang project](https://github.com/latchset/tang)) to automatically unlock with Clevis
-
-This installation guide is based on [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation).
-
