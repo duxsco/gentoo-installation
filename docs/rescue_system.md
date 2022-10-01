@@ -1,7 +1,7 @@
 !!! info
-    A [feature request](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292) has been opened to get the rescue system support "measured boot".
+    A [feature request](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292) has been opened to have SystemRescueCD support "measured boot".
 
-While we are still on SystemRescueCD and not in chroot, download and customise the SystemRescueCD .iso file.
+While we are still on SystemRescueCD and not within chroot, download the SystemRescueCD .iso file and create a customised one out of it.
 
 ## 4.1. Downloads And Verification
 
@@ -13,7 +13,7 @@ chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Import Gnupg public key:
+Import the Gnupg public key used to sign the SystemRescueCD .iso:
 
 ```shell
 su -l meh -c "
@@ -25,7 +25,7 @@ echo -e '\e[1;32mSUCCESS\e[0m'
 "
 ```
 
-Download .iso and .asc file:
+Download the .iso and .asc files:
 
 ```shell
 rescue_system_version="$(su -l meh -c "curl -fsS --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && \
@@ -36,7 +36,7 @@ echo -e '\e[1;32mSUCCESS\e[0m'
 "
 ```
 
-Verify the .iso file:
+Verify the .iso file with GnuPG:
 
 ```shell
 su -l meh -c "
@@ -49,14 +49,14 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 4.2. Configuration
 
-Create folder structure:
+Create the folder structure which will contain SystemRescueCD customisations:
 
 ```shell
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},usr/local/sbin}},work} && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-I you want to be able to access Gentoo Linux as well as the rescue system via SSH do (copy&paste one after the other):
+If you want to be able to access Gentoo Linux as well as the rescue system over SSH do (copy&paste one after the other):
 
 ```shell
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
@@ -88,33 +88,37 @@ KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com" >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
+
 # create ssh_host_* files in build_into_srm/etc/ssh/
 ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm && \
+
 { diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config || true; } && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Disable magic SysRq key for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
+Disable "magic SysRq" for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
 ```shell
 echo "kernel.sysrq = 0" > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Copy `chroot.sh` created by `disk.sh`:
+Copy [chroot.sh created by disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281):
 
 ```shell
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/ && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Create settings YAML (copy&paste one after the other):
+Create the settings YAML (copy&paste one after the other):
 
 ```shell
 # disable bash history
 set +o history
-# replace "MyPassWord123" with the password you want to use to login via TTY on SystemRescueCD
+
+# replace "MyPassWord123" with the password you want to use to login via TTY on the SystemRescueCD system
 crypt_pass="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
+
 # enable bash history
 set -o history
 
@@ -139,11 +143,11 @@ autorun:
     ar_ignorefail: false\
 " > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml
 
-# Delete variable
+# unset the password variable
 unset crypt_pass
 ```
 
-Create firewall rules:
+Copy the [firewall script](https://github.com/duxsco/gentoo-installation/blob/main/bin/firewall.sh):
 
 ```shell
 # set firewall rules upon bootup.
@@ -158,7 +162,7 @@ find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/et
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Integrate additional packages:
+Integrate additional packages required for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/01dad0465eb76d04bd4107a5ec16d02f5b2de30e/bin/disk.sh#L202-L281) to work:
 
 ```shell
 pacman -Sy clevis libpwquality luksmeta sbsigntools tpm2-tools && \
@@ -167,6 +171,8 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 ## 4.3. Folder Structure
+
+After running through above installation steps, you should have:
 
 ```shell
 ❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
@@ -207,14 +213,14 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 4.4. ISO And Rescue Partition
 
-Create customised ISO:
+Create an installation medium with above changes:
 
 ```shell
 sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Copy ISO files to the `rescue` partition:
+Copy the content of the custom installation medium to the "rescue" partition:
 
 ```shell
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
@@ -227,7 +233,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 4.5 Kernel Installation
 
-Setup the unified kernel image:
+Create the [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image#Manually) which will be used to boot the rescue system:
 
 ```shell
 echo "cryptdevice=UUID=$(blkid -s UUID -o value /mnt/gentoo/devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y" > /tmp/my_cmdline && \
