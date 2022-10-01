@@ -1,4 +1,4 @@
-  - Setup [network](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
+Configure the [network connection](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
 
 ```shell
 echo "\
@@ -16,7 +16,7 @@ IPv6AcceptRA=no\
 systemctl --no-reload enable systemd-networkd.service
 ```
 
-  - Setup DNS (copy&paste one after the other):
+Setup [systemd-resolved](https://wiki.archlinux.org/title/systemd-resolved) for DNS (copy&paste one after the other):
 
 ```shell hl_lines="5"
 # https://wiki.gentoo.org/wiki/Resolv.conf
@@ -37,16 +37,16 @@ sed -i \
 systemctl --no-reload enable systemd-resolved.service
 ```
 
-After reboot into Gentoo Linux, test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)) and check `resolvectl status` output.
+After the reboot, you can test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)) and check `resolvectl status` output.
 
-  - stage3 and dev* files:
+Cleanup obsolete installation files and [symlinks to devices created by "disk.sh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L180-L199):
 
 ```shell
 rm -fv /stage3-* /portage-latest.tar.xz* /devEfi* /devRescue /devSystem* /devSwap* /mapperRescue /mapperSwap /mapperSystem && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-  - exit and reboot (copy&paste one after the other):
+[Exit and reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one after the other):
 
 ```shell
 exit
