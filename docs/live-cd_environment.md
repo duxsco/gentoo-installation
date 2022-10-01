@@ -1,4 +1,4 @@
-In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/), **not** the [official Gentoo Linux installation media](https://www.gentoo.org/downloads/). If not otherwise stated, commands are executed on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole codeblock, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
+In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/), **not** the [official Gentoo Linux installation media](https://www.gentoo.org/downloads/). If not otherwise stated, commands are executed as "root" on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole codeblock, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
 
 Boot into the SystemRescueCD and [set the correct keyboard layout](https://man7.org/linux/man-pages/man1/loadkeys.1.html):
 
