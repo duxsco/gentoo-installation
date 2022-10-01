@@ -20,8 +20,12 @@ extra_css:
   - stylesheets/extra.css
 markdown_extensions:
   - admonition
+  - attr_list
   - pymdownx.critic
   - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.keys
   - pymdownx.superfences
   - pymdownx.tabbed:
