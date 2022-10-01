@@ -1,29 +1,41 @@
 ## 8.1. Systemd Configuration
 
-Some configuration needs to be done after systemd has been started.
+Some configuration needs to be done **after** Gentoo's systemd has been started. In the previous chapter, systemd was running, but only the instance belonging to SystemRescueCD.
 
-Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale):
+Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale) (copy&paste one after the other):
 
 ```shell
+# set your language settings
+export my_lang="de_DE.UTF-8"
+export my_lc_messages="en_US.UTF-8" # I prefer English messages for easier googling around.
+
 /bin/bash -c '
-localectl set-locale LANG="de_DE.UTF-8" LC_COLLATE="C.UTF-8" LC_MESSAGES="en_US.UTF-8" && \
+localectl set-locale LANG="${my_lang}" LC_COLLATE="C.UTF-8" LC_MESSAGES="${my_lc_messages}" && \
 localectl status && \
 env-update && source /etc/profile && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
-Setup timedatectl:
+Setup [systemd-timesyncd](https://wiki.archlinux.org/title/systemd-timesyncd) (copy&paste one after the other):
 
-```shell hl_lines="7"
+```shell hl_lines="16"
+# set your timezone
+export my_timezone="Europe/Berlin"
+
+# list of ntp servers: https://www.ntppool.org/zone/@
+# set your (fallback) ntp servers
+export my_ntp_servers="0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org"
+export my_fallback_ntp_servers="0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org"
+
 /bin/bash -c '
-timedatectl set-timezone Europe/Berlin && \
+timedatectl set-timezone ${my_timezone} && \
 if grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo); then
     systemctl disable systemd-timesyncd.service
     echo $?
 else
     rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf && \
-    sed -i -e "s/#NTP=/NTP=0.de.pool.ntp.org 1.de.pool.ntp.org 2.de.pool.ntp.org 3.de.pool.ntp.org/" -e "s/#FallbackNTP=.*/FallbackNTP=0.europe.pool.ntp.org 1.europe.pool.ntp.org 2.europe.pool.ntp.org 3.europe.pool.ntp.org/" /etc/systemd/._cfg0000_timesyncd.conf && \
+    sed -i -e "s/#NTP=/NTP=${my_ntp_servers}/" -e "s/#FallbackNTP=.*/FallbackNTP=${my_fallback_ntp_servers}/" /etc/systemd/._cfg0000_timesyncd.conf && \
     timedatectl set-ntp true && \
     echo -e "\e[1;32mSUCCESS\e[0m"
 fi && \
@@ -32,7 +44,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
-Setup nftables:
+Setup [nftables](https://wiki.gentoo.org/wiki/Nftables) with [certain firewall rules](https://github.com/duxsco/gentoo-installation/blob/main/bin/firewall.nft):
 
 ```shell hl_lines="2"
 emerge net-firewall/nftables && \
@@ -46,9 +58,9 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 8.2. Secure Boot Setup
 
-If `efi-updatevar` failed in [one of the previous sections](/system_setup/#64-secure-boot), you can import Secure Boot files the following way.
+If "efi-updatevar" failed in section [6.4. Secure Boot](/system_setup/#64-secure-boot), you can import secure boot files the following way now.
 
-First, boot into the Gentoo Linux and save necessary files in `DER` form:
+First, boot into the Gentoo Linux and save necessary files in "DER" format on ESP:
 
 ```shell
 /bin/bash -c '
@@ -63,15 +75,15 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
-Reboot into `UEFI Firmware Settings` and import `db.der`, `KEK.der` and `PK.der`. Thereafter, enable Secure Boot. Upon successful boot with Secure Boot enabled, you can delete `db.der`, `KEK.der` and `PK.der` in `/boot/efia`.
+Reboot into "UEFI Firmware Settings" and import "db.der", "KEK.der" and "PK.der" in this order. Thereafter, enable Secure Boot. Upon successful boot with secure boot enabled, you can delete the ".der" files in `/boot/efia`.
 
-To check whether Secure Boot is enabled execute:
+To check whether secure boot is enabled execute:
 
 ```shell
 mokutil --sb-state
 ```
 
-To list the installed Secure Boot keys/certs:
+To list the installed secure boot keys/certs:
 
 ```shell
 efi-readvar
@@ -79,23 +91,22 @@ efi-readvar
 
 ## 8.3. Measured Boot
 
-You have two options for `Measured Boot`:
+You have two reasonable options for measured boot on systemd:
 
-- `systemd-cryptenroll`: I prefer this on local systems where I have access to tty and can take care of (optional) pin prompts which are supported with systemd >=251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with `systemd-cryptenroll` than with `clevis` due to the use of PBKDF2 (with secure keys), and you don't have to use the `app-crypt/clevis` package from (unofficial) [guru overlay](https://wiki.gentoo.org/wiki/Project:GURU).
-- `clevis`: I prefer this on remote systems, e.g. a server in colocation, where I can take care of auto-unlock via TPM 2.0 and Tang pin.
+- **systemd-cryptenroll**: I prefer this on **local systems** (e.g. laptops, desktop PCs) where I have access to tty and can take care of (optional) pin prompts which are supported with systemd ≥251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with systemd-cryptenroll than with clevis due to the use of PBKDF2 which is safe to use with the secure keys generated by systemd-cryptenroll. And, you don't have to use the "app-crypt/clevis" package from (unofficial) [guru overlay](https://wiki.gentoo.org/wiki/Project:GURU).
+- **clevis**: I prefer this on remote systems, e.g. a server in colocation, where I can take care of unlock via [Shamir Secret Sharing](https://github.com/latchset/clevis#pin-shamir-secret-sharing) which combines [TPM 2.0](https://github.com/latchset/clevis#pin-tpm2) and [Tang](https://github.com/latchset/clevis#pin-tang) pin ([Tang project](https://github.com/latchset/tang)).
 
-Use either `systemd-cryptenroll` or `clevis` in the following.
+Use **either systemd-cryptenroll or clevis** in the following.
 
 ### 8.3.1.a) systemd-cryptenroll
 
-Install `app-crypt/tpm2-tools`:
+Install "app-crypt/tpm2-tools":
 
 ```shell
-echo "=app-crypt/tpm2-tools-5.2-r1 ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge -av tpm2-tools
 ```
 
-Add support for TPM to dracut and systemd:
+Add support for TPM 2.0 to dracut and systemd:
 
 ```shell
 sed -i "s/\(sys-apps\/systemd \)/\1 tpm /" /etc/portage/package.use/main && \
@@ -103,7 +114,7 @@ echo 'add_dracutmodules+=" tpm2-tss "' >> /etc/dracut.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Update and make sure `sys-apps/systemd` got updated:
+Update and make sure "sys-apps/systemd" is listed among the packages:
 
 ```shell
 emerge -atuDN @world
@@ -115,7 +126,7 @@ Make sure that TPM 2.0 devices (should only be one) are recognised:
 systemd-cryptenroll --tpm2-device=list
 ```
 
-Make sure that the PCRs you are going to use have a valid hash and don't contain only zeroes:
+Make sure that the PCRs you are going to use have a valid hash and don't consist of zeroes only:
 
 ```shell
 tpm2_pcrread sha256
@@ -141,20 +152,20 @@ Reboot your system!
 
 ### 8.3.1.b) clevis
 
-If you don't have a DHCP server available to the new system, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the `CMDLINE` array variable in `/etc/dracut.conf`:
+If you don't have a DHCP server available to the new system, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the "CMDLINE" array variable in `/etc/dracut.conf`:
 
 ```
 ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
 ```
 
-Install `dev-vcs/git`:
+Install "dev-vcs/git":
 
 ```shell
 echo 'dev-vcs/git -webdav' >> /etc/portage/package.use/main && \
 emerge -at dev-vcs/git
 ```
 
-Install `app-crypt/clevis`:
+Install "app-crypt/clevis":
 
 ```shell
 echo "app-crypt/clevis ~amd64
@@ -164,7 +175,7 @@ app-crypt/tpm2-tools ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge -at app-crypt/clevis
 ```
 
-Make sure that the PCRs you are going to use have a valid hash and don't contain only zeroes:
+Make sure that the PCRs you are going to use have a valid hash and don't consist of zeroes only:
 
 ```shell
 tpm2_pcrread sha256
@@ -175,6 +186,11 @@ Bind all swap and system LUKS volumes.
 ```shell
 # I only use PCR7 as recommended in the first sentence after following table:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
+#
+# A simple tang server setup is shown at:
+# https://www.youtube.com/watch?v=y_9_iWNUBug
+#
+# I personally use AlmaLinux as tang server.
 #
 clevis luks bind -d /dev/sda3 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
 clevis luks bind -d /dev/sda4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
@@ -193,9 +209,9 @@ clevis luks list -d /dev/sdb4
 # etc.
 ```
 
-### 8.3.2. Rebuild Unified Kernel Image
+### 8.3.2. Unified Kernel Image Rebuild
 
-Rebuild the unified kernel image:
+Rebuild the unified kernel image to contain the changes for measured boot:
 
 ```shell
 emerge -at sys-kernel/gentoo-kernel-bin
@@ -203,8 +219,9 @@ emerge -at sys-kernel/gentoo-kernel-bin
 
 ## 8.4. Package Cleanup
 
-Remove extraneous packages (should be only `app-editors/nano`, `app-misc/yq` and `app-portage/cpuid2cpuflags`):
+Update packages and remove extraneous ones (should be only "app-editors/nano", "app-misc/yq", "app-portage/cpuid2cpuflags" and sys-apps/merge-usr) (copy&paste one after the other):
 
 ```shell
+emerge -atuDN @world
 emerge --depclean -a
 ```
