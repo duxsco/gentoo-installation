@@ -1,11 +1,11 @@
-Set resolv.conf:
+Setup the [/etc/resolv.conf](https://wiki.gentoo.org/wiki/Resolv.conf) file:
 
 ```shell
 cp --dereference /etc/resolv.conf /mnt/gentoo/etc/ && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Set `.bashrc` etc.:
+Setup [~/.bashrc](https://wiki.gentoo.org/wiki/Bash#Files):
 
 ```shell
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
@@ -30,7 +30,7 @@ fi' >> /mnt/gentoo/root/.bashrc && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Set locale:
+Take care of [localisation](https://wiki.gentoo.org/wiki/Localization/Guide#Generating_specific_locales):
 
 ```shell
 echo "C.UTF-8 UTF-8
@@ -43,7 +43,7 @@ chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Set `MAKEOPTS`:
+Setup [MAKEOPTS](https://wiki.gentoo.org/wiki/MAKEOPTS):
 
 ```shell
 ram_size="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)" && \
@@ -53,7 +53,7 @@ echo -e "\nMAKEOPTS=\"-j${jobs}\"" >> /mnt/gentoo/etc/portage/make.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Chroot (copy&paste one after the other):
+[Chroot](https://wiki.gentoo.org/wiki/Chroot) (copy&paste one after the other):
 
 ```shell
 chroot /mnt/gentoo /bin/bash
@@ -63,4 +63,4 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1"
 ```
 
 !!! info "Application of configuration changes starting with chapter 6"
-    Execute `dispatch-conf` after every code block where a file with prefix `._cfg0000_` has been created. {==The creation of "._cfg0000" prefixed files will be highlighted in yellow.==}
+    Execute [dispatch-conf](https://wiki.gentoo.org/wiki/Dispatch-conf) after every codeblock where a ["._cfg0000_" prefixed file](https://projects.gentoo.org/pms/8/pms.html#x1-14600013.3.3) has been created. {==The creation of "._cfg0000" prefixed files will be highlighted in yellow.==}
