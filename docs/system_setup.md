@@ -1,6 +1,6 @@
 ## 6.1. Portage Setup
 
-Make `dispatch-conf` show diffs in color and use vimdiff for merging:
+Make "dispatch-conf" show [diffs in color](https://wiki.gentoo.org/wiki/Dispatch-conf#Changing_diff_or_merge_tools) and use [vimdiff for merging](https://wiki.gentoo.org/wiki/Dispatch-conf#Use_.28g.29vimdiff_to_merge_changes):
 
 ```shell hl_lines="1"
 rsync -a /etc/dispatch-conf.conf /etc/._cfg0000_dispatch-conf.conf && \
@@ -11,16 +11,16 @@ sed -i \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Install to be able to configure `/etc/portage/make.conf`:
+Install [app-portage/cpuid2cpuflags](https://wiki.gentoo.org/wiki/CPU_FLAGS_X86#Using_cpuid2cpuflags) to further configure [make.conf](https://wiki.gentoo.org/wiki//etc/portage/make.conf) in the next codeblock:
 
 ```shell
-emerge -1 app-portage/cpuid2cpuflags
+emerge --oneshot app-portage/cpuid2cpuflags
 ```
 
-Configure portage (copy&paste one after the other):
+Configure [make.conf](https://wiki.gentoo.org/wiki//etc/portage/make.conf) (copy&paste one after the other):
 
 ```shell hl_lines="1"
-rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
+rsync -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 
 # If you use distcc, beware of:
 # https://wiki.gentoo.org/wiki/Distcc#-march.3Dnative
@@ -28,27 +28,51 @@ rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 # You could resolve "-march=native" with app-misc/resolve-march-native
 sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc/portage/._cfg0000_make.conf
 
-echo 'EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '\''*/*-bin sys-kernel/* virtual/*'\'' --noconfmem --with-bdeps=y --complete-graph=y"
+# https://wiki.gentoo.org/wiki/EMERGE_DEFAULT_OPTS
+# https://wiki.gentoo.org/wiki/Binary_package_guide#Excluding_creation_of_some_packages
+# for all other flags, take a look at "man emerge" or
+# https://gitweb.gentoo.org/proj/portage.git/tree/man/emerge.1
+echo 'EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '\''*/*-bin sys-kernel/* virtual/*'\'' --noconfmem --with-bdeps=y --complete-graph=y"' >> /etc/portage/._cfg0000_make.conf
 
+# https://wiki.gentoo.org/wiki/Localization/Guide#L10N
+# https://wiki.gentoo.org/wiki/Localization/Guide#LINGUAS
+echo '
 L10N="de"
-LINGUAS="${L10N}"
+LINGUAS="${L10N}"' >> /etc/portage/._cfg0000_make.conf
 
-GENTOO_MIRRORS="https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/"
-FETCHCOMMAND="curl --fail --silent --show-error --location --proto '\''=https'\'' --tlsv1.2 --ciphers '\''ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128'\'' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
-RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"
+# https://wiki.gentoo.org/wiki/GENTOO_MIRRORS
+# https://www.gentoo.org/downloads/mirrors/
+echo '
+GENTOO_MIRRORS="https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp.fau.de/gentoo/ https://ftp.tu-ilmenau.de/mirror/gentoo/"' >> /etc/portage/._cfg0000_make.conf
 
-USE_HARDENED="pie -sslv3 -suid verify-sig"
-USE="${USE_HARDENED} fish-completion"
-' >> /etc/portage/._cfg0000_make.conf
+# https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Portage#Fetch_commands
+#
+# Default values from /usr/share/portage/config/make.globals are:
+# FETCHCOMMAND="wget -t 3 -T 60 --passive-ftp -O \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
+# RESUMECOMMAND="wget -c -t 3 -T 60 --passive-ftp -O \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
+# File in git: https://gitweb.gentoo.org/proj/portage.git/tree/cnf/make.globals
+#
+# They are insufficient in my opinion.
+# Thus, I am enforcing TLSv1.2 or greater, secure TLSv1.2 cipher suites and https-only.
+# TLSv1.3 cipher suites are secure. Thus, I don't set "--tls13-ciphers".
+echo 'FETCHCOMMAND="curl --fail --silent --show-error --location --proto '\''=https'\'' --tlsv1.2 --ciphers '\''ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128'\'' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
+RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"' >> /etc/portage/._cfg0000_make.conf
 
+# Some useflags I set for personal use.
+# Feel free to adjust as with any other codeblock. 😄
+echo '
+USE_HARDENED="caps pie -sslv3 -suid verify-sig"
+USE="${USE_HARDENED} fish-completion"' >> /etc/portage/._cfg0000_make.conf
+
+# https://wiki.gentoo.org/wiki/CPU_FLAGS_X86#Invocation
 echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
 ```
 
-(Optional) Change `GENTOO_MIRRORS` in `/etc/portage/make.conf` (copy&paste one after the other):
+If you don't live in Germany, you probably should change [GENTOO_MIRRORS](https://wiki.gentoo.org/wiki/GENTOO_MIRRORS) previously set in above codeblock. You can pick the mirrors from the [mirror list](https://www.gentoo.org/downloads/mirrors/), use [mirrorselect](https://wiki.gentoo.org/wiki/Mirrorselect) or do as I do and select local/regional, IPv4/IPv6 dual-stack and TLSv1.3 supporting mirrors (copy&paste one after the other):
 
 ```shell
 # Install app-misc/yq
-ACCEPT_KEYWORDS=~amd64 emerge -1 app-misc/yq
+ACCEPT_KEYWORDS=~amd64 emerge --oneshot app-misc/yq
 
 # Get a list of country codes and names:
 curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r '.mirrors.mirrorgroup[] | "\(.["@country"]) \(.["@countryname"])"' | sort -k2.2
@@ -64,35 +88,35 @@ curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.x
 done
 ```
 
-I prefer English manpages and ignore above `L10N` setting for `sys-apps/man-pages`. Makes using Stackoverflow easier 😉.
+I prefer English manpages and ignore above [L10N](https://wiki.gentoo.org/wiki/Localization/Guide#L10N) setting for "sys-apps/man-pages". Makes using Stackoverflow easier :wink:.
 
 ```shell
 echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Install `app-portage/eix`:
+Mitigate [CVE-2022-29154](https://bugs.gentoo.org/show_bug.cgi?id=CVE-2022-29154) among others before using "rsync" via "eix-sync":
+
+```shell
+echo 'net-misc/rsync ~amd64' >> /etc/portage/package.accept_keywords/main && \
+emerge --oneshot net-misc/rsync && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+Install [app-portage/eix](https://wiki.gentoo.org/wiki/Eix):
 
 ```shell
 emerge -at app-portage/eix
 ```
 
-Mitigate [CVE-2022-29154](https://bugs.gentoo.org/show_bug.cgi?id=CVE-2022-29154) among others before using `rsync` via `eix-sync`:
-
-```shell
-echo 'net-misc/rsync ~amd64' >> /etc/portage/package.accept_keywords/main && \
-emerge -1 net-misc/rsync && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-Execute `eix-sync`:
+Execute ["eix-sync"](https://wiki.gentoo.org/wiki/Eix#Method_2:_Using_eix-sync):
 
 ```shell
 eix-sync && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Read Gentoo news items:
+Read [Gentoo news items](https://www.gentoo.org/glep/glep-0042.html):
 
 ```shell
 eselect news list
@@ -101,31 +125,38 @@ eselect news list
 # etc.
 ```
 
-Switch over to hardened profile:
+Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) and [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) profile. Additional ressources:
+
+- [My custom profiles](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles)
+- [Creating custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles)
+- [Switching to a hardened profile](https://wiki.gentoo.org/wiki/Hardened_Gentoo#Switching_to_a_Hardened_profile)
+- [Switching to merged-usr](https://groups.google.com/g/linux.gentoo.dev/c/xqZYsMmCoME/m/XlplgAnTAwAJ)
 
 ```shell
-env ACCEPT_KEYWORDS="~amd64" emerge -1 sys-apps/merge-usr && \
+env ACCEPT_KEYWORDS="~amd64" emerge --oneshot sys-apps/merge-usr && \
 merge-usr && \
 eselect profile set duxsco:hardened-systemd && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
-emerge -1 sys-devel/gcc && \
-emerge -1 sys-devel/binutils sys-libs/glibc && \
+emerge --oneshot sys-devel/gcc && \
+emerge --oneshot sys-devel/binutils sys-libs/glibc && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 emerge -e @world && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Update system:
+Update the system:
 
 ```shell
 touch /etc/sysctl.conf && \
+
+# add LUKS volume and systemd-boot support
 echo "sys-apps/systemd cryptsetup gnuefi" >> /etc/portage/package.use/main && \
 emerge -atuDN @world
 ```
 
 ## 6.2. Non-Root User Creation
 
-Create a non-root user and set a password you can use with English keyboard layout for now. You can set a secure password after rebooting and taking care of localisation.
+Create a [non-root user](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Optional:_User_accounts) with ["wheel" group membership and thus the privilege to use "sudo"](https://wiki.gentoo.org/wiki/FAQ#How_do_I_add_a_normal_user.3F) and set a temporary password compatible with English keyboard layout. Later on, you have to [take care of localisation](/post-boot_configuration/#81-systemd-configuration) and will be able to set a secure password of your choice thereafter.
 
 ```shell
 useradd -m -G wheel -s /bin/bash david && \
@@ -136,14 +167,14 @@ echo 'source "${HOME}/.bash_aliases"' >> /home/david/.bashrc && \
 passwd david
 ```
 
-(Optional) Create your `authorized_keys`:
+(Optional, but recommended if you want to use SSH) Create your [~/.ssh/authorized_keys](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication):
 
 ```shell
 rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/ && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup sudo:
+Setup [app-admin/sudo](https://wiki.gentoo.org/wiki/Sudo):
 
 ```shell
 echo "app-admin/sudo -sendmail" >> /etc/portage/package.use/main && \
@@ -153,11 +184,11 @@ echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup vim:
+Setup [app-editors/vim](https://wiki.gentoo.org/wiki/Vim):
 
 ```shell hl_lines="4"
-USE="-verify-sig" emerge -1 dev-libs/libsodium && \
-emerge -1 dev-libs/libsodium app-editors/vim app-vim/molokai && \
+USE="-verify-sig" emerge --oneshot dev-libs/libsodium && \
+emerge --oneshot dev-libs/libsodium app-editors/vim app-vim/molokai && \
 emerge --select --noreplace app-editors/vim app-vim/molokai && \
 cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
 sed -i 's/^USE="\([^"]*\)"$/USE="\1 vim-syntax"/' /etc/portage/._cfg0000_make.conf && \
@@ -176,7 +207,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 6.3. Configuration of /etc/fstab
 
-Setup /etc/fstab:
+Setup [/etc/fstab](https://wiki.gentoo.org/wiki//etc/fstab):
 
 ```shell
 SWAP_UUID="$(blkid -s UUID -o value /mapperSwap)" && \
@@ -205,16 +236,16 @@ Credits:
 - [https://www.rodsbooks.com/efi-bootloaders/secureboot.html](https://www.rodsbooks.com/efi-bootloaders/secureboot.html)
 - [https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot)
 
-In order to add your custom keys `Setup Mode` must have been enabled in your `UEFI Firmware Settings` before booting into SystemRescueCD. But, you can install Secure Boot files later on if you missed enabling `Setup Mode`. In the following, however, you have to generate Secure Boot files either way.
+In order to add your custom keys, "setup mode" must have been enabled in your "UEFI Firmware Settings" before booting into SystemRescueCD. But, you can [install secure boot files later on](/post-boot_configuration/#82-secure-boot-setup) if you missed enabling "setup mode". In the following, however, you have to generate secure boot files either way.
 
-Install required tools on your system:
+Install required tools:
 
 ```shell
 echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
 ```
 
-Create Secure Boot keys and certificates:
+Create secure boot files:
 
 ```shell
 mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
@@ -233,11 +264,12 @@ cert-to-efi-sig-list -g "${uuid}" db.crt db.esl && \
 sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
 sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
 sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
+
 popd && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-If the following commands don't work you have to install `db.auth`, `KEK.auth` and `PK.auth` over the `UEFI Firmware Settings` upon reboot after the completion of this installation guide. Further information can be found at the end of this installation guide. Beware that the following commands delete all existing keys.
+If the following commands don't work, you have to install "db.auth", "KEK.auth" and "PK.auth" over the "UEFI Firmware Settings" later on. Further information can be found in chapter [8.2. Secure Boot Setup](/post-boot_configuration/#82-secure-boot-setup). Beware that the following commands delete all existing secure boot keys and databases.
 
 ```shell
 pushd /etc/gentoo-installation/secureboot && \
@@ -252,6 +284,7 @@ efi-updatevar -f PK.auth PK && \
 
 # Make them immutable
 { chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* || true; } && \
+
 popd && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
@@ -268,18 +301,31 @@ Setup ESP(s):
 
 ```shell
 while read -r my_esp; do
+  # install the EFI boot manager:
+  # https://wiki.archlinux.org/title/systemd-boot#Installing_the_EFI_boot_manager
   bootctl --esp-path="/boot/${my_esp}" install && \
+
+  # create the boot entry
+  # https://wiki.gentoo.org/wiki/Efibootmgr#Creating_a_boot_entry
   efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "/${my_esp/efi/devEfi}")")" --part 1 --label "gentoo31415efi ${my_esp}" --loader '\EFI\systemd\systemd-bootx64.efi' && \
+
+  # setup systemd-boot
+  # https://wiki.gentoo.org/wiki/Systemd-boot#loader.conf
   echo -e "timeout 10\neditor no" > "/boot/${my_esp}/loader/loader.conf" && \
+
+  # move the precreated EFI binary of the rescue system into ESP
   mv "/boot/${my_esp}/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/" && \
+
+  # secure boot sign EFI binaries
   sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
   sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
   sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" && \
+
   echo -e "\e[1;32mSUCCESS\e[0m"
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 ```
 
-Microcode updates are not necessary for virtual machines. Otherwise, install `sys-firmware/intel-microcode` if you have an Intel CPU. Or, follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
+Microcode updates are [not necessary for virtual machines](https://unix.stackexchange.com/a/572757). If on bare-metal, install "sys-firmware/intel-microcode" if you have an Intel CPU or follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
 
 ```shell
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
@@ -290,7 +336,7 @@ emerge -at sys-firmware/intel-microcode && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup portage hook:
+Setup [portage hooks](https://github.com/duxsco/gentoo-installation/blob/main/bin/portage_hook_kernel) that take care of [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image) creation and [secure boot signing](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Manually_with_sbsigntools):
 
 ```shell
 mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel && \
@@ -323,7 +369,7 @@ fi' > /etc/portage/env/sys-apps/systemd && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup `sys-kernel/dracut` (copy&paste one after the other):
+Setup [sys-kernel/dracut](https://wiki.gentoo.org/wiki/Dracut). If you don't wear tin foil hats :wink:, you may want to change the [line "mitigations=auto,nosmt"](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html) below (copy&paste one after the other):
 
 ```shell
 emerge -at sys-kernel/dracut
@@ -337,19 +383,29 @@ unset my_systemd_cryptenroll
 # If you intend to use systemd-cryptenroll, define this variable:
 # my_systemd_cryptenroll=",tpm2-device=auto"
 
-echo "\
-
+echo "
+# make a generic image, but use custom kernel command-line parameters
 hostonly=no
 hostonly_cmdline=yes
+
 use_fstab=yes
 compress=xz
 show_modules=yes
 
+# create an unified kernel image
 uefi=yes
+
+# integrate microcode updates
 early_microcode=yes
+
+# point to the correct UEFI stub loader
 uefi_stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub
+
+# set files used to secure boot sign
 uefi_secureboot_cert=/etc/gentoo-installation/secureboot/db.crt
 uefi_secureboot_key=/etc/gentoo-installation/secureboot/db.key
+
+# kernel command-line parameters
 CMDLINE=(
   ro
   root=UUID=${system_uuid}
@@ -364,26 +420,35 @@ kernel_cmdline="\${CMDLINE[*]}"
 unset CMDLINE" >> /etc/dracut.conf
 ```
 
-Install tools required for booting:
+(Optional) Use [LTS (longterm) kernels](https://kernel.org/category/releases.html):
 
 ```shell
-export install_lts_kernel="true" && \
-echo "sys-fs/btrfs-progs ~amd64
-sys-kernel/gentoo-kernel-bin ~amd64
-sys-kernel/linux-headers ~amd64
-virtual/dist-kernel ~amd64" >> /etc/portage/package.accept_keywords/main && \
-{
-[ $install_lts_kernel = true ] && \
 echo "\
 >=sys-fs/btrfs-progs-5.16
 >=sys-kernel/gentoo-kernel-bin-5.16
 >=sys-kernel/linux-headers-5.16
->=virtual/dist-kernel-5.16" >> /etc/portage/package.mask/main || \
-true
-} && \
+>=virtual/dist-kernel-5.16" >> /etc/portage/package.mask/main
+```
+
+Install packages required for booting:
+
+```shell
+echo "sys-fs/btrfs-progs ~amd64
+sys-kernel/gentoo-kernel-bin ~amd64
+sys-kernel/linux-headers ~amd64
+virtual/dist-kernel ~amd64" >> /etc/portage/package.accept_keywords/main && \
+
+# I prefer to create a "fresh" btrfs FS instead of converting
+# reiserfs and ext2/3/4 to btrfs.
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
+
+# Dracut will take care of initramfs creation.
 echo "sys-kernel/gentoo-kernel-bin -initramfs" >> /etc/portage/package.use/main && \
+
+# Accept required licenses.
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
+
+# Install packages
 {
   [ -e /devSwapb ] && \
   emerge -at sys-fs/btrfs-progs sys-fs/mdadm sys-kernel/linux-firmware || \
@@ -391,7 +456,7 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 }
 ```
 
-Install the [kernel](https://www.kernel.org/category/releases.html):
+Install the [kernel](https://wiki.gentoo.org/wiki/Kernel):
 
 ```shell
 emerge -at sys-kernel/gentoo-kernel-bin
@@ -405,32 +470,39 @@ Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configurati
 systemd-firstboot --prompt --setup-machine-id
 ```
 
-If you dont't intend to use SELinux, reset all installed unit files.
+If you **don't** plan to keep your setup slim for the later [SELinux setup](/selinux/), the use of preset files may be s.th. to consider:
+
+> Most services are disabled when systemd is first installed. A "preset" file is provided, and may be used to enable a reasonable set of default services. ([source](https://wiki.gentoo.org/wiki/Systemd#Preset_services))
 
 ```shell
 systemctl preset-all
+# or
+systemctl preset-all --preset-mode=enable-only
 ```
 
 ## 6.7. Additional Packages
 
-Set `/etc/hosts`:
+Setup [/etc/hosts](https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#The_hosts_file) (copy&paste one after the other):
 
-```shell hl_lines="1"
+```shell hl_lines="5"
+# Set the hostname of your choice
+my_hostname="micro"
+
 rsync -a /etc/hosts /etc/._cfg0000_hosts && \
-sed -i 's/localhost$/localhost micro/' /etc/._cfg0000_hosts && \
+sed -i "s/localhost$/localhost ${my_hostname}/" /etc/._cfg0000_hosts && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-(Optional) Enable ssh service:
+(Optional) Enable the SSH service:
 
 ```shell
 systemctl --no-reload enable sshd.service
 ```
 
-Install `app-shells/starship`:
+Install [app-shells/starship](https://starship.rs/):
 
 ```shell
-# If you have insufficient ressources, you may want to "emerge -1 dev-lang/rust-bin" beforehand.
+# If you have insufficient ressources, you may want to execute "emerge --oneshot dev-lang/rust-bin" beforehand.
 echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/starship && \
 mkdir --mode=0700 /home/david/.config /root/.config && \
@@ -444,7 +516,7 @@ starship preset nerd-font-symbols | tee -a /root/.config/starship.toml >> /home/
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Install `app-shells/fish`:
+Install [app-shells/fish](https://wiki.gentoo.org/wiki/Fish):
 
 ```shell
 echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
@@ -472,15 +544,13 @@ fi' >> /home/david/.bashrc && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-`root` setup:
+Setup [auto-completion for the fish shell](https://wiki.archlinux.org/title/fish#Command_completion) (copy&paste one after the other):
 
 ```shell
+# root
 /bin/fish -c fish_update_completions
-```
 
-`non-root` setup:
-
-```shell
+# non-root
 su -l david -c "/bin/fish -c fish_update_completions"
 ```
 
@@ -495,7 +565,7 @@ sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | sour
 sed -i 's/^end$/    source "$HOME\/.bash_aliases"\n    starship init fish | source\nend/' /home/david/.config/fish/config.fish
 ```
 
-Install nerd fonts:
+Install [nerd fonts](https://www.nerdfonts.com/):
 
 ```shell
 emerge media-libs/fontconfig && \
@@ -509,7 +579,7 @@ rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.ttf /usr/share/fonts/nerd-firac
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-If you have `sys-fs/mdadm` installed:
+If you have "sys-fs/mdadm" installed ([link](https://wiki.gentoo.org/wiki/Gentoo_installation_tips_and_tricks#Software_RAID)):
 
 ```shell hl_lines="2"
 [[ -e /devSwapb ]] && \
@@ -519,7 +589,7 @@ mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup `net-misc/openssh`:
+Setup "net-misc/openssh":
 
 ```shell hl_lines="1"
 rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
@@ -564,7 +634,7 @@ chown david:david /home/david/.ssh/config && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Disable `sysrq` for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
+Disable "magic SysRq" for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
 ```shell
 echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
