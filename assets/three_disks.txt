@@ -1,0 +1,39 @@
+PC∕Laptop──────────────────────────┐
+├── ∕dev∕sda                       └── ∕dev∕sdb
+│   ├── 1. EFI System Partition        ├── 1. EFI System Partition
+│   ├── 2. MDADM RAID 1                ├── 2. MDADM RAID 1
+│   │   └── LUKS                       │   └── LUKS
+│   │       └── Btrfs                  │       └── Btrfs
+│   │           └── rescue             │           └── rescue
+│   ├── 3. LUKS                        ├── 3. LUKS
+│   │   └── MDADM RAID 1|5             │   └── MDADM RAID 1|5
+│   │       └── SWAP                   │       └── SWAP
+│   └── 4. LUKS ("system" partition)   └── 4. LUKS ("system" partition)
+│       └── Btrfs raid1c3                  └── Btrfs raid1c3
+│           └── subvolume                      └── subvolume
+│               ├── @binpkgs                       ├── @binpkgs
+│               ├── @distfiles                     ├── @distfiles
+│               ├── @home                          ├── @home
+│               ├── @ebuilds                       ├── @ebuilds
+│               ├── @root                          ├── @root
+│               └── @var_tmp                       └── @var_tmp
+│
+│
+└── ∕dev∕sdc
+    ├── 1. EFI System Partition
+    ├── 2. MDADM RAID 1
+    │   └── LUKS
+    │       └── Btrfs
+    │           └── rescue
+    ├── 3. LUKS
+    │   └── MDADM RAID 1|5
+    │       └── SWAP
+    └── 4. LUKS ("system" partition)
+        └── Btrfs raid1c3
+            └── subvolume
+                ├── @binpkgs
+                ├── @distfiles
+                ├── @home
+                ├── @ebuilds
+                ├── @root
+                └── @var_tmp

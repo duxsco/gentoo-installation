@@ -1,0 +1,50 @@
+PC∕Laptop
+└── ∕dev∕sda
+    ├── 1. EFI System Partition
+    ├── 2. LUKS
+    │   └── Btrfs (single)
+    │       └── rescue
+    ├── 3. LUKS
+    │   └── SWAP
+    └── 4. LUKS ("system" partition)
+        └── Btrfs (single)
+            └── subvolumes
+                ├── @binpkgs
+                ├── @distfiles
+                ├── @home
+                ├── @ebuilds
+                ├── @root
+                └── @var_tmp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
