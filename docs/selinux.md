@@ -16,7 +16,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Setup "make.conf":
 
 ```shell hl_lines="1"
-cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
+cp -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
 echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf && \
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
