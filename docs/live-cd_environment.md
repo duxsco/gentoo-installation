@@ -68,8 +68,8 @@ screen -d -r install
 passwd root
 
 # Execute "vlock" without any flags first.
-# If relogin doesn't work you can switch tty and set a password again.
-# If relogin succeeds execute vlock with flag "-a" to lock all tty.
+# If relogin doesn't work you can switch TTY and set a password again.
+# If relogin succeeds execute vlock with flag "-a" to lock all TTY.
 vlock -a
 ```
 
