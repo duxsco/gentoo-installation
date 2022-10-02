@@ -19,7 +19,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Setup [systemd-timesyncd](https://wiki.archlinux.org/title/systemd-timesyncd) (copy&paste one after the other):
 
-```shell hl_lines="16"
+```shell hl_lines="15"
 # set your timezone
 export my_timezone="Europe/Berlin"
 
