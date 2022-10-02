@@ -1,19 +1,19 @@
+!!! info
+    This chapter basically follows [SELinux/Installation](https://wiki.gentoo.org/wiki/SELinux/Installation). Currently, I only use SELinux on servers, and only "mcs" policy type to be able to better isolate virtual machines from each other.
+
 ## 10.1. Enable SELinux
 
-!!! info
-    Currently, I only use SELinux on servers, and only `mcs` policy type to be able to better "isolate" virtual machines from each other.
-
-Reduce the number of services:
+Reduce the number of services by disabling some unneeded ones in order to avoid a few SELinux denials. This may not be desired on "desktop" systems.
 
 ```shell hl_lines="3"
 systemctl mask user@.service && \
 systemctl disable systemd-userdbd.socket && \
-cp -av /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf && \
+cp -a /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf && \
 sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/._cfg0000_nsswitch.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup `make.conf`:
+Setup "make.conf":
 
 ```shell hl_lines="1"
 cp -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
@@ -22,23 +22,43 @@ sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/port
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Initial SELinux install:
+For the switch to a SELinux profile, you have two options depending on the profile currently in use:
+
+=== "duxsco:hardened-systemd"
+
+    If you have switched to [duxsco:hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) in section [6.1. Portage Setup](https://gentoo.duxsco.de/system_setup/#61-portage-setup), you can easily "add" SELinux features with a simple switch to [duxsco:hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux):
+
+    ```shell
+    eselect profile set "duxsco:hardened-systemd-selinux"
+    ```
+
+=== "default/linux/amd64/17.1/systemd"
+
+    If you stayed with the profile that came with the stage3 tarball which is most likely "default/linux/amd64/17.1/systemd" you can select the SELinux profile with:
+
+    ```shell
+    eselect profile set --force "default/linux/amd64/17.1/systemd/selinux"
+    ```
+
+These commands are more or less required irrespective of the SELinux profile in use:
 
 ```shell
-eselect profile set "duxsco:hardened-systemd-selinux" && \
+# (Recommended) Use the most recent SELinux policies
 echo 'sec-policy/* ~amd64' >> /etc/portage/package.accept_keywords/main && \
 
-# To get a nice looking html site in /usr/share/doc/selinux-base-<VERSION>/mcs/html:
+# (Optional) To get a nice looking html site in /usr/share/doc/selinux-base-<VERSION>/mcs/html:
 echo 'sec-policy/selinux-base doc' >> /etc/portage/package.use/main && \
 
-FEATURES="-selinux" emerge -1 selinux-base && \
+# Definitely required:
+FEATURES="-selinux" emerge --oneshot selinux-base && \
+
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 Configure SELinux:
 
 ```shell hl_lines="1"
-cp -av /etc/selinux/config /etc/selinux/._cfg0000_config && \
+cp -a /etc/selinux/config /etc/selinux/._cfg0000_config && \
 sed -i 's/^SELINUXTYPE=strict$/SELINUXTYPE=mcs/' /etc/selinux/._cfg0000_config && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
@@ -46,8 +66,8 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Update packages:
 
 ```shell
-FEATURES="-selinux -sesandbox" emerge -1 selinux-base && \
-FEATURES="-selinux -sesandbox" emerge -1 selinux-base-policy && \
+FEATURES="-selinux -sesandbox" emerge --oneshot selinux-base && \
+FEATURES="-selinux -sesandbox" emerge --oneshot selinux-base-policy && \
 emerge -atuDN @world
 ```
 
@@ -66,7 +86,7 @@ rm -v /boot/efi*/EFI/Linux/gentoo-*-gentoo-dist.efi && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Reboot with `permissive` kernel.
+Reboot with **permissive kernel**.
 
 Make sure that UBAC gets disabled:
 
@@ -91,7 +111,7 @@ rlpkg -a -r && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Make sure that nothing (except `.keep` files) is unlabeled:
+Make sure that nothing (except perhaps ".keep" files) is unlabeled:
 
 ```shell
 export tmpdir="$(mktemp -d)" && \
@@ -101,7 +121,7 @@ umount "$tmpdir" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-If `/proc` was listed by above codeblock you have to relabel to avoid a denial:
+If "/proc" was listed by above codeblock you have to relabel to avoid a denial:
 
 ```shell
 ❯ cat <<EOF | audit2allow
@@ -116,7 +136,7 @@ allow init_t unlabeled_t:dir mounton;
 ❯ export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-In the [custom Gentoo Linux installation](https://github.com/duxsco/gentoo-installation), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
+In section [6.7. Additional Packages](/system_setup/#67-additional-packages), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
 
 ```shell
 ❯ semanage port -l | grep -e ssh -e Port
@@ -130,7 +150,7 @@ ssh_port_t                     tcp      50022, 22
 
 ## 10.3. Users and services
 
-Default `mcs` SELinux `login` and `user` settings:
+Default "mcs" SELinux "login" and "user" settings:
 
 ```shell
 ❯ semanage login -l
@@ -174,7 +194,7 @@ david                staff_u              s0-s0:c0.c1023       *
 root                 root                 s0-s0:c0.c1023       *
 ```
 
-Create `/var/lib/sepolgen/interface_info` for `audit2why -R` to work:
+Create "/var/lib/sepolgen/interface_info" for "audit2why -R" to work:
 
 ```shell
 sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/ && \
