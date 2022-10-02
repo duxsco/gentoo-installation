@@ -22,9 +22,9 @@
 <span class=s1>    systemctl disable systemd-timesyncd.service</span>
 <span class=s1>    echo $?</span>
 <span class=s1>else</span>
-<span class=s1>    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
-<span class=hll><span class=s1>    sed -i -e &quot;s/#NTP=/NTP=${my_ntp_servers}/&quot; -e &quot;s/#FallbackNTP=.*/FallbackNTP=${my_fallback_ntp_servers}/&quot; /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
-</span><span class=s1>    timedatectl set-ntp true &amp;&amp; \</span>
+<span class=hll><span class=s1>    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
+</span><span class=s1>    sed -i -e &quot;s/#NTP=/NTP=${my_ntp_servers}/&quot; -e &quot;s/#FallbackNTP=.*/FallbackNTP=${my_fallback_ntp_servers}/&quot; /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
+<span class=s1>    timedatectl set-ntp true &amp;&amp; \</span>
 <span class=s1>    echo -e &quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 <span class=s1>fi &amp;&amp; \</span>
 <span class=s1>timedatectl &amp;&amp; \</span>
