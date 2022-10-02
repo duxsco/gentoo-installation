@@ -125,7 +125,7 @@ eselect news list
 # etc.
 ```
 
-Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) and [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) profile. Additional ressources:
+(Optional) Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) and [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) profile. Additional ressources:
 
 - [My custom profiles](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles)
 - [Creating custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles)
