@@ -23,7 +23,7 @@ Setup [systemd-resolved](https://wiki.archlinux.org/title/systemd-resolved) for 
 # https://wiki.archlinux.org/title/systemd-resolved
 ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
-cp -av /etc/systemd/resolved.conf /etc/systemd/._cfg0000_resolved.conf
+rsync -av /etc/systemd/resolved.conf /etc/systemd/._cfg0000_resolved.conf
 
 # https://www.kuketz-blog.de/empfehlungsecke/#dns
 sed -i \

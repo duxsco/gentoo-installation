@@ -8,7 +8,7 @@ Reduce the number of services by disabling some unneeded ones in order to avoid 
 ```shell hl_lines="3"
 systemctl mask user@.service && \
 systemctl disable systemd-userdbd.socket && \
-cp -a /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf && \
+rsync -a /etc/nsswitch.conf /etc/._cfg0000_nsswitch.conf && \
 sed -i 's/^hosts:\([[:space:]]*\)mymachines \(.*\)$/hosts:\1\2/' /etc/._cfg0000_nsswitch.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
@@ -16,7 +16,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Setup "make.conf":
 
 ```shell hl_lines="1"
-cp -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
+rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
 echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf && \
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
@@ -58,7 +58,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Configure SELinux:
 
 ```shell hl_lines="1"
-cp -a /etc/selinux/config /etc/selinux/._cfg0000_config && \
+rsync -a /etc/selinux/config /etc/selinux/._cfg0000_config && \
 sed -i 's/^SELINUXTYPE=strict$/SELINUXTYPE=mcs/' /etc/selinux/._cfg0000_config && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```

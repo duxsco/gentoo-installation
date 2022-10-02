@@ -190,7 +190,7 @@ Setup [app-editors/vim](https://wiki.gentoo.org/wiki/Vim):
 USE="-verify-sig" emerge --oneshot dev-libs/libsodium && \
 emerge --oneshot dev-libs/libsodium app-editors/vim app-vim/molokai && \
 emerge --select --noreplace app-editors/vim app-vim/molokai && \
-cp -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
+rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
 sed -i 's/^USE="\([^"]*\)"$/USE="\1 vim-syntax"/' /etc/portage/._cfg0000_make.conf && \
 echo "filetype plugin on
 filetype indent on
