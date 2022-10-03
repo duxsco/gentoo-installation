@@ -134,6 +134,11 @@ eselect news list
 
 ```shell
 # anchor link (1)
+
+# install newer baselayout-2.9 due to:
+# https://github.com/gentoo-mirror/gentoo/commit/b607b26fff6dd73d886f2dc0afc1cf439510e509
+echo "=sys-apps/baselayout-2.9 ~amd64" >> /etc/portage/package.accept_keywords/main && \
+
 env ACCEPT_KEYWORDS="~amd64" emerge --oneshot sys-apps/merge-usr && \
 merge-usr && \
 eselect profile set duxsco:hardened-systemd && \
