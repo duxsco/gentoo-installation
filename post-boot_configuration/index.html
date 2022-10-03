@@ -8,6 +8,7 @@
 <span class=s1>env-update &amp;&amp; source /etc/profile &amp;&amp; \</span>
 <span class=s1>echo -e &quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 <span class=s1>&#39;</span>
+</code></pre></div> <p>After taking care of localisation, you can set a secure password of your choice:</p> <div class=highlight><pre><span></span><code>passwd david
 </code></pre></div> <p>Setup <a href=https://wiki.archlinux.org/title/systemd-timesyncd>systemd-timesyncd</a> (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code><span class=c1># set your timezone</span>
 <span class=nb>export</span> <span class=nv>my_timezone</span><span class=o>=</span><span class=s2>&quot;Europe/Berlin&quot;</span>
 
@@ -19,8 +20,8 @@
 /bin/bash -c <span class=s1>&#39;</span>
 <span class=s1>timedatectl set-timezone ${my_timezone} &amp;&amp; \</span>
 <span class=s1>if grep -q -w &quot;hypervisor&quot; &lt;(grep &quot;^flags[[:space:]]*:[[:space:]]*&quot; /proc/cpuinfo); then</span>
-<span class=s1>    systemctl disable systemd-timesyncd.service</span>
-<span class=s1>    echo $?</span>
+<span class=s1>    systemctl disable systemd-timesyncd.service &amp;&amp; \</span>
+<span class=s1>    echo -e &quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 <span class=s1>else</span>
 <span class=hll><span class=s1>    rsync -av /etc/systemd/timesyncd.conf /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
 </span><span class=s1>    sed -i -e &quot;s/#NTP=/NTP=${my_ntp_servers}/&quot; -e &quot;s/#FallbackNTP=.*/FallbackNTP=${my_fallback_ntp_servers}/&quot; /etc/systemd/._cfg0000_timesyncd.conf &amp;&amp; \</span>
@@ -37,17 +38,17 @@
 nft list ruleset &gt; /var/lib/nftables/rules-save <span class=o>&amp;&amp;</span> <span class=se>\</span>
 systemctl <span class=nb>enable</span> nftables-restore <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <h2 id=82-secure-boot-setup>8.2. Secure Boot Setup<a class=headerlink href=#82-secure-boot-setup title="Permanent link">&para;</a></h2> <p>If "efi-updatevar" failed in section <a href=/system_setup/#64-secure-boot>6.4. Secure Boot</a>, you can import secure boot files the following way now.</p> <p>First, boot into the Gentoo Linux and save necessary files in "DER" format on ESP:</p> <div class=highlight><pre><span></span><code>/bin/bash -c <span class=s1>&#39;</span>
-<span class=s1>(</span>
+</code></pre></div> <p>If you don't run a SSH server, comment out the line containing <code>tcp dport 50022 accept</code> in "/usr/local/sbin/firewall.nft".</p> <h2 id=82-secure-boot-setup>8.2. Secure Boot Setup<a class=headerlink href=#82-secure-boot-setup title="Permanent link">&para;</a></h2> <p>If "sbctl enroll-keys" failed in section <a href=/system_setup/#64-secure-boot>6.4. Secure Boot</a>, you can import secure boot files the following way now.</p> <p>First, boot into the Gentoo Linux and save necessary files in "DER" format on ESP:</p> <div class=highlight><pre><span></span><code>/bin/bash -c <span class=s1>&#39;</span>
+<span class=s1>{</span>
 <span class=s1>! mountpoint --quiet /boot/efia &amp;&amp; \</span>
 <span class=s1>mount /boot/efia || true</span>
-<span class=s1>) &amp;&amp; \</span>
+<span class=s1>} &amp;&amp; \</span>
 <span class=s1>openssl x509 -outform der -in /usr/share/secureboot/keys/db/db.pem -out /boot/efia/db.der &amp;&amp; \</span>
 <span class=s1>openssl x509 -outform der -in /usr/share/secureboot/keys/KEK/KEK.pem -out /boot/efia/KEK.der &amp;&amp; \</span>
 <span class=s1>openssl x509 -outform der -in /usr/share/secureboot/keys/PK/PK.pem -out /boot/efia/PK.der &amp;&amp; \</span>
 <span class=s1>echo -e &quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 <span class=s1>&#39;</span>
-</code></pre></div> <p>Reboot into "UEFI Firmware Settings" and import "db.der", "KEK.der" and "PK.der" in this order. Thereafter, enable Secure Boot. Upon successful boot with secure boot enabled, you can delete the ".der" files in <code>/boot/efia</code>.</p> <p>To check whether secure boot is enabled execute:</p> <div class=highlight><pre><span></span><code>❯ sbctl status
+</code></pre></div> <p>Reboot into "UEFI Firmware Settings" and import "db.der", "KEK.der" and "PK.der" in this order. Thereafter, enable secure boot. Upon successful boot with secure boot enabled, you can delete the ".der" files in <code>/boot/efia</code>.</p> <p>To check whether secure boot is enabled execute:</p> <div class=highlight><pre><span></span><code>❯ sbctl status
 Installed:  ✓ sbctl is installed
 Owner GUID: 4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
 Setup Mode: ✓ Disabled
@@ -55,8 +56,9 @@ Secure Boot:    ✓ Enabled
 </code></pre></div> <p>(Optional) To list the installed secure boot keys/certs (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code>emerge -at app-crypt/efitools
 
 efi-readvar
-</code></pre></div> <h2 id=83-measured-boot>8.3. Measured Boot<a class=headerlink href=#83-measured-boot title="Permanent link">&para;</a></h2> <p>You have two reasonable options for measured boot on systemd:</p> <ul> <li><strong>systemd-cryptenroll</strong>: I prefer this on <strong>local systems</strong> (e.g. laptops, desktop PCs) where I have access to TTY and can take care of (optional) pin prompts which are supported with systemd ≥251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with systemd-cryptenroll than with clevis due to the use of PBKDF2 which is safe to use with the secure keys generated by systemd-cryptenroll. And, you don't have to use the "app-crypt/clevis" package from (unofficial) <a href=https://wiki.gentoo.org/wiki/Project:GURU>guru overlay</a>.</li> <li><strong>clevis</strong>: I prefer this on remote systems, e.g. a server in colocation, where I can take care of unlock via <a href=https://github.com/latchset/clevis#pin-shamir-secret-sharing>Shamir Secret Sharing</a> which combines <a href=https://github.com/latchset/clevis#pin-tpm2>TPM 2.0</a> and <a href=https://github.com/latchset/clevis#pin-tang>Tang</a> pin (<a href=https://github.com/latchset/tang>Tang project</a>).</li> </ul> <p>Use <strong>either systemd-cryptenroll or clevis</strong> in the following.</p> <h3 id=831a-systemd-cryptenroll>8.3.1.a) systemd-cryptenroll<a class=headerlink href=#831a-systemd-cryptenroll title="Permanent link">&para;</a></h3> <p>Install "app-crypt/tpm2-tools":</p> <div class=highlight><pre><span></span><code>emerge -av tpm2-tools
-</code></pre></div> <p>Add support for TPM 2.0 to dracut and systemd:</p> <div class=highlight><pre><span></span><code>sed -i <span class=s2>&quot;s/\(sys-apps\/systemd \)/\1 tpm /&quot;</span> /etc/portage/package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</code></pre></div> <h2 id=83-measured-boot>8.3. Measured Boot<a class=headerlink href=#83-measured-boot title="Permanent link">&para;</a></h2> <p>You have two reasonable options for measured boot on systemd:</p> <ul> <li><strong>systemd-cryptenroll</strong>: I prefer this on <strong>local systems</strong> (e.g. laptops, desktop PCs) where I have access to TTY and can take care of (optional) pin prompts which are supported with systemd ≥251. With pins, you don't have the problem of your laptop, for example, getting stolen and auto-unlocking upon boot. Furthermore, I experienced faster boot with systemd-cryptenroll than with clevis due to the use of PBKDF2 which is safe to use with the secure keys generated by systemd-cryptenroll. And, you don't have to use the "app-crypt/clevis" package from (unofficial) <a href=https://wiki.gentoo.org/wiki/Project:GURU>guru overlay</a>.</li> <li><strong>clevis</strong>: I prefer this on <strong>remote systems</strong>, e.g. a server in colocation, where I can take care of unlock via <a href=https://github.com/latchset/clevis#pin-shamir-secret-sharing>Shamir Secret Sharing</a> which combines <a href=https://github.com/latchset/clevis#pin-tpm2>TPM 2.0</a> and <a href=https://github.com/latchset/clevis#pin-tang>Tang</a> pin (<a href=https://github.com/latchset/tang>Tang project</a>).</li> </ul> <p>Use <strong>either systemd-cryptenroll or clevis</strong> in the following.</p> <h3 id=831a-systemd-cryptenroll>8.3.1.a) systemd-cryptenroll<a class=headerlink href=#831a-systemd-cryptenroll title="Permanent link">&para;</a></h3> <p>Install "app-crypt/tpm2-tools":</p> <div class=highlight><pre><span></span><code>emerge -av tpm2-tools
+</code></pre></div> <p>Add support for TPM 2.0 to dracut and systemd:</p> <div class=highlight><pre><span></span><code><span class=hll>rsync -a /etc/portage/package.use/main /etc/portage/._cfg0000_package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</span>sed -i <span class=s2>&quot;s/\(sys-apps\/systemd \)/\1 tpm /&quot;</span> /etc/portage/._cfg0000_package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> <span class=s1>&#39;add_dracutmodules+=&quot; tpm2-tss &quot;&#39;</span> &gt;&gt; /etc/dracut.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Update and make sure "sys-apps/systemd" is listed among the packages:</p> <div class=highlight><pre><span></span><code>emerge -atuDN @world
