@@ -78,7 +78,7 @@ systemctl enable auditd.service && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Rebuild the kernel with SELinux support:
+Rebuild the [kernel with SELinux support](https://github.com/duxsco/gentoo-installation/blob/main/bin/portage_hook_kernel#L13-L15):
 
 ```shell
 emerge -at --oneshot \
