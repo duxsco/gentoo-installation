@@ -235,63 +235,46 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 6.4. Secure Boot
 
-Credits:
+!!! danger "Warnings on OptionROM"
 
-- [https://www.funtoo.org/Secure_Boot](https://www.funtoo.org/Secure_Boot)
-- [https://www.rodsbooks.com/efi-bootloaders/secureboot.html](https://www.rodsbooks.com/efi-bootloaders/secureboot.html)
-- [https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot)
+    While using sbctl, take warnings such as the following serious and make sure to understand the implications:
+
+    > Could not find any TPM Eventlog in the system. This means we do not know if there is any OptionROM present on the system.
+
+    > etc.
+
+    > Please read the FAQ for more information: https://github.com/Foxboron/sbctl/wiki/FAQ#option-rom
 
 In order to add your custom keys, "setup mode" must have been enabled in your "UEFI Firmware Settings" before booting into SystemRescueCD. But, you can [install secure boot files later on](/post-boot_configuration/#82-secure-boot-setup) if you missed enabling "setup mode". In the following, however, you have to generate secure boot files either way.
 
-Install required tools:
+Install "app-crypt/sbctl":
 
 ```shell
-echo "sys-boot/mokutil ~amd64" >> /etc/portage/package.accept_keywords/main && \
-emerge -at app-crypt/efitools app-crypt/sbsigntools sys-boot/mokutil
+emerge -at app-crypt/sbctl
 ```
 
-Create secure boot files:
+Create and enroll secure boot files ([link](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl)):
 
 ```shell
-mkdir --mode=0700 /etc/gentoo-installation/secureboot && \
-pushd /etc/gentoo-installation/secureboot && \
+❯ sbctl status
+Installed:      ✗ sbctl is not installed
+Setup Mode:     ✗ Enabled
+Secure Boot:    ✗ Disabled
 
-# Create the keys
-openssl req -new -x509 -newkey rsa:3072 -subj "/CN=PK/"  -keyout PK.key  -out PK.crt  -days 7300 -nodes -sha256 && \
-openssl req -new -x509 -newkey rsa:3072 -subj "/CN=KEK/" -keyout KEK.key -out KEK.crt -days 7300 -nodes -sha256 && \
-openssl req -new -x509 -newkey rsa:3072 -subj "/CN=db/"  -keyout db.key  -out db.crt  -days 7300 -nodes -sha256 && \
+❯ sbctl create-keys
+Created Owner UUID 4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
+Creating secure boot keys...✓
+Secure boot keys created!
 
-# Prepare installation in EFI
-uuid="$(uuidgen --random)" && \
-cert-to-efi-sig-list -g "${uuid}" PK.crt PK.esl && \
-cert-to-efi-sig-list -g "${uuid}" KEK.crt KEK.esl && \
-cert-to-efi-sig-list -g "${uuid}" db.crt db.esl && \
-sign-efi-sig-list -k PK.key  -c PK.crt  PK  PK.esl  PK.auth && \
-sign-efi-sig-list -k PK.key  -c PK.crt  KEK KEK.esl KEK.auth && \
-sign-efi-sig-list -k KEK.key -c KEK.crt db  db.esl  db.auth && \
+❯ sbctl enroll-keys
+Enrolling keys to EFI variables...✓
+Enrolled keys to the EFI variables!
 
-popd && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-If the following commands don't work, you have to install "db.auth", "KEK.auth" and "PK.auth" over the "UEFI Firmware Settings" later on. Further information can be found in chapter [8.2. Secure Boot Setup](/post-boot_configuration/#82-secure-boot-setup). Beware that the following commands delete all existing secure boot keys and databases.
-
-```shell
-pushd /etc/gentoo-installation/secureboot && \
-
-# Make them mutable
-{ chattr -i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* || true; } && \
-
-# Install keys into EFI (PK last as it will enable Custom Mode locking out further unsigned changes)
-efi-updatevar -f db.auth db && \
-efi-updatevar -f KEK.auth KEK && \
-efi-updatevar -f PK.auth PK && \
-
-# Make them immutable
-{ chattr +i /sys/firmware/efi/efivars/{PK,KEK,db,dbx}* || true; } && \
-
-popd && \
-echo -e "\e[1;32mSUCCESS\e[0m"
+❯ sbctl status
+Installed:      ✓ sbctl is installed
+Owner GUID:     4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
+Setup Mode:     ✓ Disabled
+Secure Boot:    ✗ Disabled
 ```
 
 ## 6.5. Kernel Installation
@@ -322,9 +305,9 @@ while read -r my_esp; do
   mv "/boot/${my_esp}/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/" && \
 
   # secure boot sign EFI binaries
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
-  sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" && \
+  sbctl sign "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
+  sbctl sign "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
+  sbctl sign "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" && \
 
   echo -e "\e[1;32mSUCCESS\e[0m"
 done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
@@ -352,8 +335,8 @@ rm -f /root/portage_hook_kernel && \
 echo 'if [[ ${EBUILD_PHASE} == postinst ]]; then
     while read -r my_esp; do
         bootctl --esp-path="/boot/${my_esp}" --no-variables --graceful update && \
-        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
-        sbsign --key /etc/gentoo-installation/secureboot/db.key --cert /etc/gentoo-installation/secureboot/db.crt --output "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI"
+        sbctl sign "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
+        sbctl sign "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI"
 
         if [[ $? -ne 0 ]]; then
 cat <<'\''EOF'\''
@@ -377,7 +360,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Setup [sys-kernel/dracut](https://wiki.gentoo.org/wiki/Dracut). If you don't wear tin foil hats :wink:, you may want to change the [line "mitigations=auto,nosmt"](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html) below (copy&paste one after the other):
 
 ```shell
-emerge -at sys-kernel/dracut
+emerge -at app-crypt/sbsigntools sys-kernel/dracut
 
 system_uuid="$(blkid -s UUID -o value /mapperSystem)"
 my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
@@ -407,8 +390,8 @@ early_microcode=yes
 uefi_stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub
 
 # set files used to secure boot sign
-uefi_secureboot_cert=/etc/gentoo-installation/secureboot/db.crt
-uefi_secureboot_key=/etc/gentoo-installation/secureboot/db.key
+uefi_secureboot_cert=/usr/share/secureboot/keys/db/db.pem
+uefi_secureboot_key=/usr/share/secureboot/keys/db/db.key
 
 # kernel command-line parameters
 CMDLINE=(

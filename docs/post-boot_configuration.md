@@ -68,9 +68,9 @@ First, boot into the Gentoo Linux and save necessary files in "DER" format on ES
 ! mountpoint --quiet /boot/efia && \
 mount /boot/efia || true
 ) && \
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/db.crt -out /boot/efia/db.der && \
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/KEK.crt -out /boot/efia/KEK.der && \
-openssl x509 -outform der -in /etc/gentoo-installation/secureboot/PK.crt -out /boot/efia/PK.der && \
+openssl x509 -outform der -in /usr/share/secureboot/keys/db/db.pem -out /boot/efia/db.der && \
+openssl x509 -outform der -in /usr/share/secureboot/keys/KEK/KEK.pem -out /boot/efia/KEK.der && \
+openssl x509 -outform der -in /usr/share/secureboot/keys/PK/PK.pem -out /boot/efia/PK.der && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
@@ -80,12 +80,18 @@ Reboot into "UEFI Firmware Settings" and import "db.der", "KEK.der" and "PK.der"
 To check whether secure boot is enabled execute:
 
 ```shell
-mokutil --sb-state
+❯ sbctl status
+Installed:	✓ sbctl is installed
+Owner GUID:	4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
+Setup Mode:	✓ Disabled
+Secure Boot:	✓ Enabled
 ```
 
-To list the installed secure boot keys/certs:
+(Optional) To list the installed secure boot keys/certs (copy&paste one after the other):
 
 ```shell
+emerge -at app-crypt/efitools
+
 efi-readvar
 ```
 
