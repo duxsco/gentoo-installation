@@ -219,7 +219,7 @@ emerge -at sys-kernel/gentoo-kernel-bin
 
 ## 8.4. Package Cleanup
 
-Update packages and remove extraneous ones (should be only "app-editors/nano", "app-misc/yq", "app-portage/cpuid2cpuflags" and sys-apps/merge-usr) (copy&paste one after the other):
+Update packages and remove extraneous ones (copy&paste one after the other):
 
 ```shell
 emerge -atuDN @world

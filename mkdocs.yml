@@ -12,6 +12,7 @@ theme:
   locale: en
   use_directory_urls: true
   features:
+    - content.code.annotate
     - navigation.instant
   font: false
   icon:

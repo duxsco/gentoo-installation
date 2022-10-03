@@ -133,6 +133,7 @@ eselect news list
 - [Switching to merged-usr](https://groups.google.com/g/linux.gentoo.dev/c/xqZYsMmCoME/m/XlplgAnTAwAJ)
 
 ```shell
+# anchor link (1)
 env ACCEPT_KEYWORDS="~amd64" emerge --oneshot sys-apps/merge-usr && \
 merge-usr && \
 eselect profile set duxsco:hardened-systemd && \
@@ -141,8 +142,11 @@ emerge --oneshot sys-devel/gcc && \
 emerge --oneshot sys-devel/binutils sys-libs/glibc && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 emerge -e @world && \
+env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
+
+1.  :man_raising_hand: I'm an anchor link!
 
 Update the system:
 
@@ -151,6 +155,7 @@ touch /etc/sysctl.conf && \
 
 # add LUKS volume and systemd-boot support
 echo "sys-apps/systemd cryptsetup gnuefi" >> /etc/portage/package.use/main && \
+
 emerge -atuDN @world
 ```
 
