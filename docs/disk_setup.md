@@ -8,7 +8,13 @@ If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/
 # Change disk name to the one you want to wipe
 disk="/dev/sda"
 
-lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r | while read -r i; do wipefs -a "$i"; done
+while read -r i; do
+    read -r -p "Do you want to wipe \"$i\"? Type uppercase \"yes\" to confirm. " wipe
+
+    if [[ ${wipe} == YES ]]; then
+        wipefs -a "$i"
+    fi
+done < <(lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r)
 ```
 
 !!! tip
