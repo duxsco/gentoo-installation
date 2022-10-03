@@ -324,11 +324,12 @@ emerge -at sys-firmware/intel-microcode && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup [portage hooks](https://github.com/duxsco/gentoo-installation/blob/main/bin/portage_hook_kernel) that take care of [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image) creation and [secure boot signing](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Manually_with_sbsigntools):
+Setup [portage hooks](https://github.com/duxsco/gentoo-installation/blob/main/bin/portage_hook_kernel) that take care of [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image) creation and [secure boot signing](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl):
 
 ```shell
 mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin && \
 rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/linux-firmware && \
 rm -f /root/portage_hook_kernel && \
@@ -413,6 +414,7 @@ unset CMDLINE" >> /etc/dracut.conf
 ```shell
 echo "\
 >=sys-fs/btrfs-progs-5.16
+>=sys-kernel/gentoo-kernel-5.16
 >=sys-kernel/gentoo-kernel-bin-5.16
 >=sys-kernel/linux-headers-5.16
 >=virtual/dist-kernel-5.16" >> /etc/portage/package.mask/main
@@ -422,6 +424,7 @@ Install packages required for booting:
 
 ```shell
 echo "sys-fs/btrfs-progs ~amd64
+sys-kernel/gentoo-kernel ~amd64
 sys-kernel/gentoo-kernel-bin ~amd64
 sys-kernel/linux-headers ~amd64
 virtual/dist-kernel ~amd64" >> /etc/portage/package.accept_keywords/main && \
@@ -431,6 +434,7 @@ virtual/dist-kernel ~amd64" >> /etc/portage/package.accept_keywords/main && \
 echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
 
 # Dracut will take care of initramfs creation.
+echo "sys-kernel/gentoo-kernel -initramfs" >> /etc/portage/package.use/main && \
 echo "sys-kernel/gentoo-kernel-bin -initramfs" >> /etc/portage/package.use/main && \
 
 # Accept required licenses.
@@ -444,11 +448,20 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 }
 ```
 
-Install the [kernel](https://wiki.gentoo.org/wiki/Kernel):
+For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](#__code_10_annotation_1):
 
-```shell
-emerge -at sys-kernel/gentoo-kernel-bin
-```
+=== "hardened profile"
+
+    ```shell
+    # This package makes use of "hardened" useflag.
+    emerge -at sys-kernel/gentoo-kernel
+    ```
+
+=== "non-hardened profile"
+
+    ```shell
+    emerge -at sys-kernel/gentoo-kernel-bin
+    ```
 
 ## 6.6. Initial systemd configuration
 

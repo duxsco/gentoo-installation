@@ -220,7 +220,9 @@ clevis luks list -d /dev/sdb4
 Rebuild the unified kernel image to contain the changes for measured boot:
 
 ```shell
-emerge -at sys-kernel/gentoo-kernel-bin
+emerge -at --oneshot \
+$(qlist -eI sys-kernel/gentoo-kernel-bin >/dev/null && echo sys-kernel/gentoo-kernel-bin) \
+$(qlist -eI sys-kernel/gentoo-kernel >/dev/null && echo sys-kernel/gentoo-kernel)
 ```
 
 ## 8.4. Package Cleanup

@@ -81,8 +81,9 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Rebuild the kernel with SELinux support:
 
 ```shell
-emerge sys-kernel/gentoo-kernel-bin && \
-rm -v /boot/efi*/EFI/Linux/gentoo-*-gentoo-dist.efi && \
+emerge -at --oneshot \
+$(qlist -eI sys-kernel/gentoo-kernel-bin >/dev/null && echo sys-kernel/gentoo-kernel-bin) \
+$(qlist -eI sys-kernel/gentoo-kernel >/dev/null && echo sys-kernel/gentoo-kernel) && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
