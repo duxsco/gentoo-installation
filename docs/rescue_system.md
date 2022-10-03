@@ -162,7 +162,7 @@ find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/et
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Integrate additional packages required for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/01dad0465eb76d04bd4107a5ec16d02f5b2de30e/bin/disk.sh#L202-L281) to work:
+Integrate additional packages required for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281) to work:
 
 ```shell
 pacman -Sy clevis libpwquality luksmeta sbctl sbsigntools tpm2-tools && \
