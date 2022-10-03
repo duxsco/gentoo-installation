@@ -309,9 +309,9 @@ systemctl preset-all --preset-mode<span class=o>=</span>enable-only
 </code></pre></div> <h2 id=67-additional-packages>6.7. Additional Packages<a class=headerlink href=#67-additional-packages title="Permanent link">&para;</a></h2> <p>Setup <a href=https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#The_hosts_file>/etc/hosts</a> (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code><span class=c1># Set the hostname of your choice</span>
 <span class=nv>my_hostname</span><span class=o>=</span><span class=s2>&quot;micro&quot;</span>
 
-rsync -a /etc/hosts /etc/._cfg0000_hosts <span class=o>&amp;&amp;</span> <span class=se>\</span>
-<span class=hll>sed -i <span class=s2>&quot;s/localhost</span>$<span class=s2>/localhost </span><span class=si>${</span><span class=nv>my_hostname</span><span class=si>}</span><span class=s2>/&quot;</span> /etc/._cfg0000_hosts <span class=o>&amp;&amp;</span> <span class=se>\</span>
-</span><span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
+<span class=hll>rsync -a /etc/hosts /etc/._cfg0000_hosts <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</span>sed -i <span class=s2>&quot;s/localhost</span>$<span class=s2>/localhost </span><span class=si>${</span><span class=nv>my_hostname</span><span class=si>}</span><span class=s2>/&quot;</span> /etc/._cfg0000_hosts <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>(Optional) Enable the SSH service:</p> <div class=highlight><pre><span></span><code>systemctl --no-reload <span class=nb>enable</span> sshd.service
 </code></pre></div> <p>Install <a href=https://starship.rs/ >app-shells/starship</a>:</p> <div class=highlight><pre><span></span><code><span class=c1># If you have insufficient ressources, you may want to execute &quot;emerge --oneshot dev-lang/rust-bin&quot; beforehand.</span>
 <span class=nb>echo</span> <span class=s2>&quot;app-shells/starship ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class=o>&amp;&amp;</span> <span class=se>\</span>

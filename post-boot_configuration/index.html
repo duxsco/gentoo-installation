@@ -75,7 +75,7 @@ systemd-cryptenroll --tpm2-device<span class=o>=</span>auto --tpm2-pcrs<span cla
 systemd-cryptenroll --tpm2-device<span class=o>=</span>auto --tpm2-pcrs<span class=o>=</span><span class=m>7</span> --tpm2-with-pin<span class=o>=</span>yes /dev/sdb3
 systemd-cryptenroll --tpm2-device<span class=o>=</span>auto --tpm2-pcrs<span class=o>=</span><span class=m>7</span> --tpm2-with-pin<span class=o>=</span>yes /dev/sdb4
 <span class=c1># etc.</span>
-</code></pre></div> <p>Reboot your system!</p> <h3 id=831b-clevis>8.3.1.b) clevis<a class=headerlink href=#831b-clevis title="Permanent link">&para;</a></h3> <p>If you don't have a DHCP server available to the new system, add <a href=https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN>the following network settings</a> to the "CMDLINE" array variable in <code>/etc/dracut.conf</code>:</p> <div class=highlight><pre><span></span><code>ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
+</code></pre></div> <p>Reboot your system!</p> <h3 id=831b-clevis>8.3.1.b) clevis<a class=headerlink href=#831b-clevis title="Permanent link">&para;</a></h3> <div class="admonition info"> <p class=admonition-title>System Requirement: Tang Server</p> <p>This section requires a <a href=https://github.com/latchset/tang>tang server</a> to preexist and be reachable from this system. A <a href="https://www.youtube.com/watch?v=y_9_iWNUBug">simple tang server setup</a> is shown by RedHat on YouTube. I personally use AlmaLinux as tang server, but any <a href=https://github.com/latchset/tang#getting-started>supported system</a> can do.</p> </div> <p>If you don't have a DHCP server available to the new system, add <a href=https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN>the following network settings</a> to the "CMDLINE" array variable in <code>/etc/dracut.conf</code>:</p> <div class=highlight><pre><span></span><code>ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
 </code></pre></div> <p>Install "dev-vcs/git":</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s1>&#39;dev-vcs/git -webdav&#39;</span> &gt;&gt; /etc/portage/package.use/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
 emerge -at dev-vcs/git
 </code></pre></div> <p>Install "app-crypt/clevis":</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;app-crypt/clevis ~amd64</span>
@@ -86,11 +86,6 @@ emerge -at app-crypt/clevis
 </code></pre></div> <p>Make sure that the PCRs you are going to use have a valid hash and don't consist of zeroes only:</p> <div class=highlight><pre><span></span><code>tpm2_pcrread sha256
 </code></pre></div> <p>Bind all swap and system LUKS volumes.</p> <div class=highlight><pre><span></span><code><span class=c1># I only use PCR7 as recommended in the first sentence after following table:</span>
 <span class=c1># https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2</span>
-<span class=c1>#</span>
-<span class=c1># A simple tang server setup is shown at:</span>
-<span class=c1># https://www.youtube.com/watch?v=y_9_iWNUBug</span>
-<span class=c1>#</span>
-<span class=c1># I personally use AlmaLinux as tang server.</span>
 <span class=c1>#</span>
 clevis luks <span class=nb>bind</span> -d /dev/sda3 sss <span class=s1>&#39;{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}&#39;</span>
 clevis luks <span class=nb>bind</span> -d /dev/sda4 sss <span class=s1>&#39;{&quot;t&quot;: 2, &quot;pins&quot;: {&quot;tpm2&quot;: {&quot;pcr_bank&quot;:&quot;sha256&quot;,&quot;pcr_ids&quot;:&quot;7&quot;}, &quot;tang&quot;: {&quot;url&quot;: &quot;http://tang.local&quot;}}}&#39;</span>

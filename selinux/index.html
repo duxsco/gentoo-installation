@@ -27,7 +27,7 @@ sed -i <span class=s1>&#39;s/^USE_HARDENED=&quot;\(.*\)&quot;/USE_HARDENED=&quot
 emerge -atuDN @world
 </code></pre></div> <p>Enable auditd logging:</p> <div class=highlight><pre><span></span><code>systemctl <span class=nb>enable</span> auditd.service <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <p>Rebuild the kernel with SELinux support:</p> <div class=highlight><pre><span></span><code>emerge -at --oneshot <span class=se>\</span>
+</code></pre></div> <p>Rebuild the <a href=https://github.com/duxsco/gentoo-installation/blob/main/bin/portage_hook_kernel#L13-L15>kernel with SELinux support</a>:</p> <div class=highlight><pre><span></span><code>emerge -at --oneshot <span class=se>\</span>
 <span class=k>$(</span>qlist -eI sys-kernel/gentoo-kernel-bin &gt;/dev/null <span class=o>&amp;&amp;</span> <span class=nb>echo</span> sys-kernel/gentoo-kernel-bin<span class=k>)</span> <span class=se>\</span>
 <span class=k>$(</span>qlist -eI sys-kernel/gentoo-kernel &gt;/dev/null <span class=o>&amp;&amp;</span> <span class=nb>echo</span> sys-kernel/gentoo-kernel<span class=k>)</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
