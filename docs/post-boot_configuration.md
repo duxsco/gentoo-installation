@@ -167,6 +167,10 @@ Reboot your system!
 
 ### 8.3.1.b) clevis
 
+!!! info "System Requirement: Tang Server"
+
+    This section requires a [tang server](https://github.com/latchset/tang) to preexist and be reachable from this system. A [simple tang server setup](https://www.youtube.com/watch?v=y_9_iWNUBug) is shown by RedHat on YouTube. I personally use AlmaLinux as tang server, but any [supported system](https://github.com/latchset/tang#getting-started) can do.
+
 If you don't have a DHCP server available to the new system, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the "CMDLINE" array variable in `/etc/dracut.conf`:
 
 ```
@@ -201,11 +205,6 @@ Bind all swap and system LUKS volumes.
 ```shell
 # I only use PCR7 as recommended in the first sentence after following table:
 # https://www.freedesktop.org/software/systemd/man/systemd-cryptenroll.html#id-1.7.3.10.2.2
-#
-# A simple tang server setup is shown at:
-# https://www.youtube.com/watch?v=y_9_iWNUBug
-#
-# I personally use AlmaLinux as tang server.
 #
 clevis luks bind -d /dev/sda3 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
 clevis luks bind -d /dev/sda4 sss '{"t": 2, "pins": {"tpm2": {"pcr_bank":"sha256","pcr_ids":"7"}, "tang": {"url": "http://tang.local"}}}'
