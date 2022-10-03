@@ -490,7 +490,7 @@ systemctl preset-all --preset-mode=enable-only
 
 Setup [/etc/hosts](https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#The_hosts_file) (copy&paste one after the other):
 
-```shell hl_lines="5"
+```shell hl_lines="4"
 # Set the hostname of your choice
 my_hostname="micro"
 
