@@ -32,7 +32,7 @@ After completion of this installation guide, optional SSH connections will be po
 
 ## 1.4. Disk Layout
 
-ESPs are created one for each disk. Except for them, [btrfs](https://btrfs.readthedocs.io/en/latest/mkfs.btrfs.html#profiles) or [mdadm](https://raid.wiki.kernel.org/index.php/Introduction#The_RAID_levels) based RAID 1 is used for all other partitions on a dual- or multi-disk setup with RAID 5, RAID 6 and RAID 10 being further options for the swap device.
+ESPs are created one for each disk. Except for them, [btrfs](https://btrfs.readthedocs.io/en/latest/mkfs.btrfs.html#profiles) or [mdadm](https://raid.wiki.kernel.org/index.php/Introduction#The_RAID_levels) based RAID 1 is used for all other partitions on a dual- or multi-disk setup with RAID 5, RAID 6 and RAID 10 being further options for the swap device. The 2nd partition doesn't make use of btrfs RAID due to [limitations of SystemRescueCD](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292#note_1036225171).
 
 === "four disks"
 
