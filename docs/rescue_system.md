@@ -172,44 +172,72 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 4.3. Folder Structure
 
-After running through above installation steps, you should have:
+After running through above installation steps, you should have the following file/folder structure:
 
-```shell
-❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
-/mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
-├── build_into_srm
-│   ├── etc
-│   │   ├── ssh
-│   │   │   ├── sshd_config
-│   │   │   ├── ssh_host_dsa_key
-│   │   │   ├── ssh_host_dsa_key.pub
-│   │   │   ├── ssh_host_ecdsa_key
-│   │   │   ├── ssh_host_ecdsa_key.pub
-│   │   │   ├── ssh_host_ed25519_key
-│   │   │   ├── ssh_host_ed25519_key.pub
-│   │   │   ├── ssh_host_rsa_key
-│   │   │   └── ssh_host_rsa_key.pub
-│   │   └── sysctl.d
-│   │       └── 99sysrq.conf
-│   ├── root
-│   │   └── .ssh
-│   │       └── authorized_keys
-│   └── usr
-│       └── local
-│           └── sbin
-│               └── chroot.sh
-├── iso_add
-│   ├── autorun
-│   │   └── autorun
-│   ├── sysresccd
-│   │   └── zz_additional_packages.srm
-│   └── sysrescue.d
-│       └── 500-settings.yaml
-├── iso_delete
-└── iso_patch_and_script
+=== "SSH setup"
 
-15 directories, 15 files
-```
+    ```shell
+    ❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+    /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+    ├── build_into_srm
+    │   ├── etc
+    │   │   ├── ssh
+    │   │   │   ├── sshd_config
+    │   │   │   ├── ssh_host_dsa_key
+    │   │   │   ├── ssh_host_dsa_key.pub
+    │   │   │   ├── ssh_host_ecdsa_key
+    │   │   │   ├── ssh_host_ecdsa_key.pub
+    │   │   │   ├── ssh_host_ed25519_key
+    │   │   │   ├── ssh_host_ed25519_key.pub
+    │   │   │   ├── ssh_host_rsa_key
+    │   │   │   └── ssh_host_rsa_key.pub
+    │   │   └── sysctl.d
+    │   │       └── 99sysrq.conf
+    │   ├── root
+    │   │   └── .ssh
+    │   │       └── authorized_keys
+    │   └── usr
+    │       └── local
+    │           └── sbin
+    │               └── chroot.sh
+    ├── iso_add
+    │   ├── autorun
+    │   │   └── autorun
+    │   ├── sysresccd
+    │   │   └── zz_additional_packages.srm
+    │   └── sysrescue.d
+    │       └── 500-settings.yaml
+    ├── iso_delete
+    └── iso_patch_and_script
+    
+    15 directories, 15 files
+    ```
+
+=== "non-SSH setup"
+
+    ```shell
+    ❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+    /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+    ├── build_into_srm
+    │   ├── etc
+    │   │   └── sysctl.d
+    │   │       └── 99sysrq.conf
+    │   └── usr
+    │       └── local
+    │           └── sbin
+    │               └── chroot.sh
+    ├── iso_add
+    │   ├── autorun
+    │   │   └── autorun
+    │   ├── sysresccd
+    │   │   └── zz_additional_packages.srm
+    │   └── sysrescue.d
+    │       └── 500-settings.yaml
+    ├── iso_delete
+    └── iso_patch_and_script
+    
+    12 directories, 5 files
+    ```
 
 ## 4.4. ISO And Rescue Partition
 
