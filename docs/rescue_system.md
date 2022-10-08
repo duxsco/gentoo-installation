@@ -155,7 +155,7 @@ rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gent
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
+If you previously prepared the SystemRescueCD system for SSH, write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
 
 ```shell
 find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \; && \
