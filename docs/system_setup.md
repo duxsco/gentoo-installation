@@ -187,6 +187,21 @@ echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
+Setup client SSH config:
+
+```shell
+echo "AddKeysToAgent no
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+HashKnownHosts no
+StrictHostKeyChecking ask
+VisualHostKey yes" > /home/david/.ssh/config && \
+chown david:david /home/david/.ssh/config && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
 Setup [app-editors/vim](https://wiki.gentoo.org/wiki/Vim):
 
 ```shell hl_lines="4"
@@ -580,21 +595,6 @@ If you have "sys-fs/mdadm" installed ([link](https://wiki.gentoo.org/wiki/Gentoo
 rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
 echo "" >> /etc/._cfg0000_mdadm.conf && \
 mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-Setup client SSH config:
-
-```shell
-echo "AddKeysToAgent no
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
-HashKnownHosts no
-StrictHostKeyChecking ask
-VisualHostKey yes" > /home/david/.ssh/config && \
-chown david:david /home/david/.ssh/config && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
