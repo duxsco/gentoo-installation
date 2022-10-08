@@ -125,8 +125,8 @@ emerge -av tpm2-tools
 Add support for TPM 2.0 to dracut and systemd:
 
 ```shell hl_lines="1"
-rsync -a /etc/portage/package.use/main /etc/portage/._cfg0000_package.use/main && \
-sed -i "s/\(sys-apps\/systemd \)/\1 tpm /" /etc/portage/._cfg0000_package.use/main && \
+rsync -a /etc/portage/package.use/main /etc/portage/package.use/._cfg0000_main && \
+sed -i "s/\(sys-apps\/systemd \)/\1 tpm /" /etc/portage/package.use/._cfg0000_main && \
 echo 'add_dracutmodules+=" tpm2-tss "' >> /etc/dracut.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
