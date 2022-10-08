@@ -239,6 +239,15 @@ After running through above installation steps, you should have the following fi
     12 directories, 5 files
     ```
 
+!!! note "Close port 50023 on non-SSH setup"
+
+    Comment out or remove the following two lines in above "autorun" file if you are not going to use SSH on the SystemRescueCD system:
+    
+    ```
+    iptables  -A INPUT -p tcp --dport 50023 -j ACCEPT
+    ip6tables -A INPUT -p tcp --dport 50023 -j ACCEPT
+    ```
+
 ## 4.4. ISO And Rescue Partition
 
 Create an installation medium with above changes:
