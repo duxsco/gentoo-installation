@@ -596,7 +596,7 @@ mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup "net-misc/openssh":
+(Optional) Setup "net-misc/openssh":
 
 ```shell hl_lines="1"
 rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
@@ -620,7 +620,7 @@ sshd -t && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
+(Optional) Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
 
 ```shell
 find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
