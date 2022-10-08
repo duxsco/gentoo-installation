@@ -62,7 +62,9 @@ systemctl enable nftables-restore && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-If you don't run a SSH server, comment out the line containing `tcp dport 50022 accept` in "/usr/local/sbin/firewall.nft".
+!!! note "Close port 50022 on non-SSH setup"
+
+    If you don't run a SSH server, comment out the line containing `tcp dport 50022 accept` in "/usr/local/sbin/firewall.nft", execute "/usr/local/sbin/firewall.nft" and save rules via "nft list ruleset > /var/lib/nftables/rules-save".
 
 ## 8.2. Secure Boot Setup
 
