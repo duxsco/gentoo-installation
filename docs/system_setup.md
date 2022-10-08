@@ -511,7 +511,8 @@ Install [app-shells/starship](https://starship.rs/):
 # If you have insufficient ressources, you may want to execute "emerge --oneshot dev-lang/rust-bin" beforehand.
 echo "app-shells/starship ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/starship && \
-mkdir --mode=0700 /home/david/.config /root/.config && \
+{ [[ -d /home/david/.config ]] || mkdir --mode=0700 /home/david/.config; } && \
+{ [[ -d /root/.config ]] || mkdir --mode=0700 /root/.config; } && \
 touch /home/david/.config/starship.toml && \
 chown -R david:david /home/david/.config && \
 echo '[hostname]
