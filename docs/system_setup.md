@@ -177,13 +177,6 @@ echo 'source "${HOME}/.bash_aliases"' >> /home/david/.bashrc && \
 passwd david
 ```
 
-(Optional, but recommended if you want to use SSH) Create your [~/.ssh/authorized_keys](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication):
-
-```shell
-rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/ && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
 Setup [app-admin/sudo](https://wiki.gentoo.org/wiki/Sudo):
 
 ```shell
@@ -499,12 +492,6 @@ sed -i "s/localhost$/localhost ${my_hostname}/" /etc/._cfg0000_hosts && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-(Optional) Enable the SSH service:
-
-```shell
-systemctl --no-reload enable sshd.service
-```
-
 Install [app-shells/starship](https://starship.rs/):
 
 ```shell
@@ -596,36 +583,6 @@ mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-(Optional) Setup "net-misc/openssh":
-
-```shell hl_lines="1"
-rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
-sed -i \
--e 's/^#Port 22$/Port 50022/' \
--e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
--e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config && \
-grep -q "^PasswordAuthentication no$" /etc/ssh/._cfg0000_sshd_config && \
-echo "
-AuthenticationMethods publickey
-
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
-
-AllowUsers david" >> /etc/ssh/._cfg0000_sshd_config && \
-ssh-keygen -A && \
-sshd -t && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-(Optional) Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
-
-```shell
-find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
-```
-
 Setup client SSH config:
 
 ```shell
@@ -651,4 +608,44 @@ Misc tools:
 
 ```shell
 emerge -at app-misc/screen app-portage/gentoolkit
+```
+
+## 6.8. (Optional) SSH Server
+
+Create your [~/.ssh/authorized_keys](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication):
+
+```shell
+rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/ && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+Setup "net-misc/openssh":
+
+```shell hl_lines="1"
+rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
+sed -i \
+-e 's/^#Port 22$/Port 50022/' \
+-e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
+-e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config && \
+grep -q "^PasswordAuthentication no$" /etc/ssh/._cfg0000_sshd_config && \
+echo "
+AuthenticationMethods publickey
+
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+
+AllowUsers david" >> /etc/ssh/._cfg0000_sshd_config && \
+ssh-keygen -A && \
+sshd -t && \
+systemctl --no-reload enable sshd.service && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
+
+```shell
+find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
