@@ -410,7 +410,7 @@ CMDLINE=(
   rootflags=subvol=@root
   mitigations=auto,nosmt
 )
-kernel_cmdline="\${CMDLINE[*]}"
+kernel_cmdline=\"\${CMDLINE[*]}\"
 unset CMDLINE" >> /etc/dracut.conf
 ```
 
