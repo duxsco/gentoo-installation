@@ -101,58 +101,37 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 </code></pre></div> <h2 id=43-folder-structure>4.3. Folder Structure<a class=headerlink href=#43-folder-structure title="Permanent link">&para;</a></h2> <p>After running through above installation steps, you should have:</p> <div class=highlight><pre><span></span><code>❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├── build_into_srm
-│   ├── etc
-│   │   ├── ssh
-│   │   │   ├── sshd_config
-│   │   │   ├── ssh_host_dsa_key
-│   │   │   ├── ssh_host_dsa_key.pub
-│   │   │   ├── ssh_host_ecdsa_key
-│   │   │   ├── ssh_host_ecdsa_key.pub
-│   │   │   ├── ssh_host_ed25519_key
-│   │   │   ├── ssh_host_ed25519_key.pub
-│   │   │   ├── ssh_host_rsa_key
-│   │   │   └── ssh_host_rsa_key.pub
-│   │   └── sysctl.d
-│   │       └── 99sysrq.conf
-│   ├── root
-│   │   └── .ssh
-│   │       └── authorized_keys
-│   └── usr
-│       └── <span class=nb>local</span>
-│           └── sbin
-│               └── chroot.sh
+│   ├── etc
+│   │   ├── ssh
+│   │   │   ├── sshd_config
+│   │   │   ├── ssh_host_dsa_key
+│   │   │   ├── ssh_host_dsa_key.pub
+│   │   │   ├── ssh_host_ecdsa_key
+│   │   │   ├── ssh_host_ecdsa_key.pub
+│   │   │   ├── ssh_host_ed25519_key
+│   │   │   ├── ssh_host_ed25519_key.pub
+│   │   │   ├── ssh_host_rsa_key
+│   │   │   └── ssh_host_rsa_key.pub
+│   │   └── sysctl.d
+│   │       └── 99sysrq.conf
+│   ├── root
+│   │   └── .ssh
+│   │       └── authorized_keys
+│   └── usr
+│       └── <span class=nb>local</span>
+│           └── sbin
+│               └── chroot.sh
 ├── iso_add
-│   ├── autorun
-│   │   └── autorun
-│   ├── sysresccd
-│   │   └── zz_additional_packages.srm
-│   └── sysrescue.d
-│       └── <span class=m>500</span>-settings.yaml
+│   ├── autorun
+│   │   └── autorun
+│   ├── sysresccd
+│   │   └── zz_additional_packages.srm
+│   └── sysrescue.d
+│       └── <span class=m>500</span>-settings.yaml
 ├── iso_delete
 └── iso_patch_and_script
 
 <span class=m>15</span> directories, <span class=m>15</span> files
-</code></pre></div> <p>If SSH not enabled: remove line opening port 50023</p> <div class=highlight><pre><span></span><code>tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
-/mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
-├── build_into_srm
-│   ├── etc
-│   │   └── sysctl.d
-│   │       └── 99sysrq.conf
-│   └── usr
-│       └── <span class=nb>local</span>
-│           └── sbin
-│               └── chroot.sh
-├── iso_add
-│   ├── autorun
-│   │   └── autorun
-│   ├── sysresccd
-│   │   └── zz_additional_packages.srm
-│   └── sysrescue.d
-│       └── <span class=m>500</span>-settings.yaml
-├── iso_delete
-└── iso_patch_and_script
-
-<span class=m>12</span> directories, <span class=m>5</span> files
 </code></pre></div> <h2 id=44-iso-and-rescue-partition>4.4. ISO And Rescue Partition<a class=headerlink href=#44-iso-and-rescue-partition title="Permanent link">&para;</a></h2> <p>Create an installation medium with above changes:</p> <div class=highlight><pre><span></span><code>sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Copy the content of the custom installation medium to the "rescue" partition:</p> <div class=highlight><pre><span></span><code>mkdir /mnt/iso /mnt/gentoo/mnt/rescue <span class=o>&amp;&amp;</span> <span class=se>\</span>

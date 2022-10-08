@@ -78,7 +78,7 @@ emerge --oneshot net-misc/rsync <span class=o>&amp;&amp;</span> <span class=se>\
 <span class=c1># eselect news read 1</span>
 <span class=c1># eselect news read 2</span>
 <span class=c1># etc.</span>
-</code></pre></div> <p>(Optional) Switch over to the custom <a href=https://wiki.gentoo.org/wiki/Project:Hardened>hardened</a> and <a href=https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/ >merged-usr</a> profile. Additional ressources:</p> <ul> <li><a href=https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles>My custom profiles</a></li> <li><a href=https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles>Creating custom profiles</a></li> <li><a href=https://wiki.gentoo.org/wiki/Hardened_Gentoo#Switching_to_a_Hardened_profile>Switching to a hardened profile</a></li> <li><a href=https://groups.google.com/g/linux.gentoo.dev/c/xqZYsMmCoME/m/XlplgAnTAwAJ>Switching to merged-usr</a></li> </ul> <p>desktop profiles</p> <div class=highlight><pre><span></span><code><span class=c1># anchor link (1)</span>
+</code></pre></div> <p>(Optional) Switch over to the custom <a href=https://wiki.gentoo.org/wiki/Project:Hardened>hardened</a> and <a href=https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/ >merged-usr</a> profile. Additional ressources:</p> <ul> <li><a href=https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles>My custom profiles</a></li> <li><a href=https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles>Creating custom profiles</a></li> <li><a href=https://wiki.gentoo.org/wiki/Hardened_Gentoo#Switching_to_a_Hardened_profile>Switching to a hardened profile</a></li> <li><a href=https://groups.google.com/g/linux.gentoo.dev/c/xqZYsMmCoME/m/XlplgAnTAwAJ>Switching to merged-usr</a></li> </ul> <div class=highlight><pre><span></span><code><span class=c1># anchor link (1)</span>
 
 <span class=c1># install newer baselayout-2.9 due to:</span>
 <span class=c1># https://github.com/gentoo-mirror/gentoo/commit/b607b26fff6dd73d886f2dc0afc1cf439510e509</span>
@@ -268,7 +268,7 @@ rm -f /root/portage_hook_kernel <span class=o>&amp;&amp;</span> <span class=se>\
 <span class=s2>  rootflags=subvol=@root</span>
 <span class=s2>  mitigations=auto,nosmt</span>
 <span class=s2>)</span>
-<span class=s2>kernel_cmdline=\&quot;\${CMDLINE[*]}\&quot;</span>
+<span class=s2>kernel_cmdline=&quot;</span><span class=se>\$</span><span class=o>{</span>CMDLINE<span class=o>[</span>*<span class=o>]}</span><span class=s2>&quot;</span>
 <span class=s2>unset CMDLINE&quot;</span> &gt;&gt; /etc/dracut.conf
 </code></pre></div> <p>(Optional) Use <a href=https://kernel.org/category/releases.html>LTS (longterm) kernels</a>:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;\</span>
 <span class=s2>&gt;=sys-fs/btrfs-progs-5.16</span>
@@ -302,7 +302,7 @@ rm -f /root/portage_hook_kernel <span class=o>&amp;&amp;</span> <span class=se>\
 </code></pre></div> <p>For <a href=https://wiki.gentoo.org/wiki/Kernel>kernel</a> installation, you have two reasonable choices depending on whether you use a <a href=#__code_10_annotation_1>hardened profile or not</a>:</p> <div class="tabbed-set tabbed-alternate" data-tabs=1:2><input checked=checked id=__tabbed_1_1 name=__tabbed_1 type=radio><input id=__tabbed_1_2 name=__tabbed_1 type=radio><div class=tabbed-labels><label for=__tabbed_1_1>hardened profile</label><label for=__tabbed_1_2>non-hardened profile</label></div> <div class=tabbed-content> <div class=tabbed-block> <div class=highlight><pre><span></span><code><span class=c1># This package makes use of &quot;hardened&quot; useflag.</span>
 emerge -at sys-kernel/gentoo-kernel
 </code></pre></div> </div> <div class=tabbed-block> <div class=highlight><pre><span></span><code>emerge -at sys-kernel/gentoo-kernel-bin
-</code></pre></div> </div> </div> </div> <h2 id=66-initial-systemd-configuration>6.6. Initial systemd configuration<a class=headerlink href=#66-initial-systemd-configuration title="Permanent link">&para;</a></h2> <p>Do some <a href=https://wiki.gentoo.org/wiki/Systemd#Configuration>initial configuration</a>:</p> <div class=highlight><pre><span></span><code>systemd-firstboot --prompt --setup-machine-id de-latin-nodeadkeys -&gt; perhaps safe password from the beginning?
+</code></pre></div> </div> </div> </div> <h2 id=66-initial-systemd-configuration>6.6. Initial systemd configuration<a class=headerlink href=#66-initial-systemd-configuration title="Permanent link">&para;</a></h2> <p>Do some <a href=https://wiki.gentoo.org/wiki/Systemd#Configuration>initial configuration</a>:</p> <div class=highlight><pre><span></span><code>systemd-firstboot --prompt --setup-machine-id
 </code></pre></div> <p>If you <strong>don't</strong> plan to keep your setup slim for the later <a href=/selinux/ >SELinux setup</a>, the use of preset files may be s.th. to consider:</p> <blockquote> <p>Most services are disabled when systemd is first installed. A "preset" file is provided, and may be used to enable a reasonable set of default services. (<a href=https://wiki.gentoo.org/wiki/Systemd#Preset_services>source</a>)</p> </blockquote> <div class=highlight><pre><span></span><code>systemctl preset-all
 <span class=c1># or</span>
 systemctl preset-all --preset-mode<span class=o>=</span>enable-only
@@ -316,7 +316,6 @@ systemctl preset-all --preset-mode<span class=o>=</span>enable-only
 </code></pre></div> <p>Install <a href=https://starship.rs/ >app-shells/starship</a>:</p> <div class=highlight><pre><span></span><code><span class=c1># If you have insufficient ressources, you may want to execute &quot;emerge --oneshot dev-lang/rust-bin&quot; beforehand.</span>
 <span class=nb>echo</span> <span class=s2>&quot;app-shells/starship ~amd64&quot;</span> &gt;&gt; /etc/portage/package.accept_keywords/main <span class=o>&amp;&amp;</span> <span class=se>\</span>
 emerge app-shells/starship <span class=o>&amp;&amp;</span> <span class=se>\</span>
-<span class=c1># create only if not existing</span>
 mkdir --mode<span class=o>=</span><span class=m>0700</span> /home/david/.config /root/.config <span class=o>&amp;&amp;</span> <span class=se>\</span>
 touch /home/david/.config/starship.toml <span class=o>&amp;&amp;</span> <span class=se>\</span>
 chown -R david:david /home/david/.config <span class=o>&amp;&amp;</span> <span class=se>\</span>
@@ -374,7 +373,7 @@ rsync -a --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span clas
 </span><span class=nb>echo</span> <span class=s2>&quot;&quot;</span> &gt;&gt; /etc/._cfg0000_mdadm.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
 mdadm --detail --scan &gt;&gt; /etc/._cfg0000_mdadm.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <p>(Optional) Setup "net-misc/openssh":</p> <div class=highlight><pre><span></span><code><span class=hll>rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</code></pre></div> <p>Setup "net-misc/openssh":</p> <div class=highlight><pre><span></span><code><span class=hll>rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
 </span>sed -i <span class=se>\</span>
 -e <span class=s1>&#39;s/^#Port 22$/Port 50022/&#39;</span> <span class=se>\</span>
 -e <span class=s1>&#39;s/^#PermitRootLogin prohibit-password$/PermitRootLogin no/&#39;</span> <span class=se>\</span>
@@ -393,7 +392,7 @@ grep -q <span class=s2>&quot;^PasswordAuthentication no</span>$<span class=s2>&q
 ssh-keygen -A <span class=o>&amp;&amp;</span> <span class=se>\</span>
 sshd -t <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <p>(Optional) Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:</p> <div class=highlight><pre><span></span><code>find /etc/ssh/ -type f -name <span class=s2>&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class=o>{}</span> <span class=se>\;</span>
+</code></pre></div> <p>Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:</p> <div class=highlight><pre><span></span><code>find /etc/ssh/ -type f -name <span class=s2>&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class=o>{}</span> <span class=se>\;</span>
 </code></pre></div> <p>Setup client SSH config:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;AddKeysToAgent no</span>
 <span class=s2>KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
 <span class=s2>HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256</span>
