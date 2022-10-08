@@ -30,7 +30,9 @@ chown -R <span class=m>0</span>:0 /mnt/gentoo/etc/gentoo-installation/systemresc
 <span class=c1># set correct modes</span>
 chmod <span class=nv>u</span><span class=o>=</span>rwx,g<span class=o>=</span>rx,o<span class=o>=</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
 chmod -R <span class=nv>u</span><span class=o>=</span>rwX,go<span class=o>=</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
-</code></pre></div> <p>Configure OpenSSH if you decided to setup public key authentication in the previous step:</p> <div class=highlight><pre><span></span><code>rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</code></pre></div> <p>Configure OpenSSH if you decided to setup public key authentication in the previous step:</p> <div class=highlight><pre><span></span><code><span class=c1># anchor link (1)</span>
+
+rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
 
 <span class=c1># do some ssh server hardening</span>
 sed -i <span class=se>\</span>
@@ -52,7 +54,7 @@ ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build
 
 <span class=o>{</span> diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class=o>||</span> true<span class=p>;</span> <span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <p>Disable "magic SysRq" for <a href=https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key>security sake</a>:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;kernel.sysrq = 0&quot;</span> &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</code></pre></div> <ol> <li><img alt=🙋‍♂️ class=twemoji src=https://twemoji.maxcdn.com/v/latest/svg/1f64b-200d-2642-fe0f.svg title=:man_raising_hand:> I'm an anchor link!</li> </ol> <p>Disable "magic SysRq" for <a href=https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key>security sake</a>:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;kernel.sysrq = 0&quot;</span> &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Copy <a href=https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281>chroot.sh created by disk.sh</a>:</p> <div class=highlight><pre><span></span><code>rsync -av --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rwx,go<span class=o>=</span>r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/ <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
@@ -91,7 +93,7 @@ ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build
 </code></pre></div> <p>Copy the <a href=https://github.com/duxsco/gentoo-installation/blob/main/bin/firewall.sh>firewall script</a>:</p> <div class=highlight><pre><span></span><code><span class=c1># set firewall rules upon bootup.</span>
 rsync -av --numeric-ids --chown<span class=o>=</span><span class=m>0</span>:0 --chmod<span class=o>=</span><span class=nv>u</span><span class=o>=</span>rw,go<span class=o>=</span>r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <p>Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:</p> <div class=highlight><pre><span></span><code>find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name <span class=s2>&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class=o>{}</span> <span class=se>\;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</code></pre></div> <p>If you <a href=/rescue_system/#__code_7_annotation_1>prepared the SystemRescueCD system for SSH</a>, write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:</p> <div class=highlight><pre><span></span><code>find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name <span class=s2>&quot;ssh_host*\.pub&quot;</span> -exec ssh-keygen -vlf <span class=o>{}</span> <span class=se>\;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Integrate additional packages required for <a href=https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281>chroot.sh</a> to work:</p> <div class=highlight><pre><span></span><code>pacman -Sy clevis libpwquality luksmeta sbctl sbsigntools tpm2-tools <span class=o>&amp;&amp;</span> <span class=se>\</span>
 cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm <span class=o>&amp;&amp;</span> <span class=se>\</span>
@@ -99,37 +101,58 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 </code></pre></div> <h2 id=43-folder-structure>4.3. Folder Structure<a class=headerlink href=#43-folder-structure title="Permanent link">&para;</a></h2> <p>After running through above installation steps, you should have:</p> <div class=highlight><pre><span></span><code>❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├── build_into_srm
-│   ├── etc
-│   │   ├── ssh
-│   │   │   ├── sshd_config
-│   │   │   ├── ssh_host_dsa_key
-│   │   │   ├── ssh_host_dsa_key.pub
-│   │   │   ├── ssh_host_ecdsa_key
-│   │   │   ├── ssh_host_ecdsa_key.pub
-│   │   │   ├── ssh_host_ed25519_key
-│   │   │   ├── ssh_host_ed25519_key.pub
-│   │   │   ├── ssh_host_rsa_key
-│   │   │   └── ssh_host_rsa_key.pub
-│   │   └── sysctl.d
-│   │       └── 99sysrq.conf
-│   ├── root
-│   │   └── .ssh
-│   │       └── authorized_keys
-│   └── usr
-│       └── <span class=nb>local</span>
-│           └── sbin
-│               └── chroot.sh
+│   ├── etc
+│   │   ├── ssh
+│   │   │   ├── sshd_config
+│   │   │   ├── ssh_host_dsa_key
+│   │   │   ├── ssh_host_dsa_key.pub
+│   │   │   ├── ssh_host_ecdsa_key
+│   │   │   ├── ssh_host_ecdsa_key.pub
+│   │   │   ├── ssh_host_ed25519_key
+│   │   │   ├── ssh_host_ed25519_key.pub
+│   │   │   ├── ssh_host_rsa_key
+│   │   │   └── ssh_host_rsa_key.pub
+│   │   └── sysctl.d
+│   │       └── 99sysrq.conf
+│   ├── root
+│   │   └── .ssh
+│   │       └── authorized_keys
+│   └── usr
+│       └── <span class=nb>local</span>
+│           └── sbin
+│               └── chroot.sh
 ├── iso_add
-│   ├── autorun
-│   │   └── autorun
-│   ├── sysresccd
-│   │   └── zz_additional_packages.srm
-│   └── sysrescue.d
-│       └── <span class=m>500</span>-settings.yaml
+│   ├── autorun
+│   │   └── autorun
+│   ├── sysresccd
+│   │   └── zz_additional_packages.srm
+│   └── sysrescue.d
+│       └── <span class=m>500</span>-settings.yaml
 ├── iso_delete
 └── iso_patch_and_script
 
 <span class=m>15</span> directories, <span class=m>15</span> files
+</code></pre></div> <p>If SSH not enabled: remove line opening port 50023</p> <div class=highlight><pre><span></span><code>tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+/mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
+├── build_into_srm
+│   ├── etc
+│   │   └── sysctl.d
+│   │       └── 99sysrq.conf
+│   └── usr
+│       └── <span class=nb>local</span>
+│           └── sbin
+│               └── chroot.sh
+├── iso_add
+│   ├── autorun
+│   │   └── autorun
+│   ├── sysresccd
+│   │   └── zz_additional_packages.srm
+│   └── sysrescue.d
+│       └── <span class=m>500</span>-settings.yaml
+├── iso_delete
+└── iso_patch_and_script
+
+<span class=m>12</span> directories, <span class=m>5</span> files
 </code></pre></div> <h2 id=44-iso-and-rescue-partition>4.4. ISO And Rescue Partition<a class=headerlink href=#44-iso-and-rescue-partition title="Permanent link">&para;</a></h2> <p>Create an installation medium with above changes:</p> <div class=highlight><pre><span></span><code>sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Copy the content of the custom installation medium to the "rescue" partition:</p> <div class=highlight><pre><span></span><code>mkdir /mnt/iso /mnt/gentoo/mnt/rescue <span class=o>&amp;&amp;</span> <span class=se>\</span>
