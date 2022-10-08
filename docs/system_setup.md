@@ -166,7 +166,7 @@ emerge -atuDN @world
 
 ## 6.2. Non-Root User Creation
 
-Create a [non-root user](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Optional:_User_accounts) with ["wheel" group membership and thus the privilege to use "sudo"](https://wiki.gentoo.org/wiki/FAQ#How_do_I_add_a_normal_user.3F) and set a temporary password compatible with English keyboard layout. Later on, you have to [take care of localisation](/post-boot_configuration/#81-systemd-configuration) and will be able to set a secure password of your choice thereafter.
+Create a [non-root user](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Optional:_User_accounts) with ["wheel" group membership and thus the privilege to use "sudo"](https://wiki.gentoo.org/wiki/FAQ#How_do_I_add_a_normal_user.3F):
 
 ```shell
 useradd -m -G wheel -s /bin/bash david && \
