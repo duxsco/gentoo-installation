@@ -26,7 +26,7 @@ For the switch to a SELinux profile, you have two options depending on the profi
 
 === "duxsco:hardened-systemd"
 
-    If you have switched to [duxsco:hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) in section [6.1. Portage Setup](/system_setup/#__code_10_annotation_1), you can easily "add" SELinux features with a simple switch to [duxsco:hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux):
+    If you have switched to [duxsco:hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) in section [6.1. Portage Setup](/system_setup/#61-portage-setup), you can easily "add" SELinux features with a simple switch to [duxsco:hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux):
 
     ```shell
     eselect profile set "duxsco:hardened-systemd-selinux"

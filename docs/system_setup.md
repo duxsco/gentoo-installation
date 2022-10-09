@@ -133,8 +133,6 @@ eselect news list
 - [Switching to merged-usr](https://groups.google.com/g/linux.gentoo.dev/c/xqZYsMmCoME/m/XlplgAnTAwAJ)
 
 ```shell
-# anchor link (1)
-
 # install newer baselayout-2.9 due to:
 # https://github.com/gentoo-mirror/gentoo/commit/b607b26fff6dd73d886f2dc0afc1cf439510e509
 echo "=sys-apps/baselayout-2.9 ~amd64" >> /etc/portage/package.accept_keywords/main && \
@@ -150,8 +148,6 @@ emerge -e @world && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
-
-1.  :man_raising_hand: I'm an anchor link!
 
 Update the system:
 
@@ -461,7 +457,7 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 }
 ```
 
-For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](#__code_10_annotation_1):
+For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](#61-portage-setup):
 
 === "hardened profile"
 
