@@ -52,10 +52,14 @@ nav:
   - 3. Disk Setup: disk_setup.md
   - 4. Rescue System: rescue_system.md
   - 5. Chrooting: chrooting.md
-  - 6. System Setup: system_setup.md
-  - 7. Cleanup And Reboot: cleanup_and_reboot.md
-  - 8. Post-Boot Configuration: post-boot_configuration.md
-  - 9. Virtual Server (optional): virtual_server.md
-  - 10. SELinux (optional): selinux.md
-  - 11. Desktop profiles (optional): desktop_profiles.md
-  - 12. Other Gentoo Linux repos: other_gentoo_linux_repos.md
+  - 6. Portage Setup: portage_setup.md
+  - 7. Non-Root User: non-root_user.md
+  - 8. Bootup Setup: bootup_setup.md
+  - 9. Unified Kernel Image: unified_kernel_image.md
+  - 10. SSH Server (optional): ssh_server.md
+  - 11. Cleanup And Reboot: cleanup_and_reboot.md
+  - 12. Post-Boot Configuration: post-boot_configuration.md
+  - 13. Virtual Server (optional): virtual_server.md
+  - 14. SELinux (optional): selinux.md
+  - 15. Desktop profiles (optional): desktop_profiles.md
+  - 16. Other Gentoo Linux repos: other_gentoo_linux_repos.md

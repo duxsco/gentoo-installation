@@ -1,7 +1,7 @@
 !!! info
     This chapter basically follows [SELinux/Installation](https://wiki.gentoo.org/wiki/SELinux/Installation). Currently, I only use SELinux on servers, and only "mcs" policy type to be able to better isolate virtual machines from each other.
 
-## 10.1. Enable SELinux
+## 14.1. Enable SELinux
 
 Reduce the number of services by disabling some unneeded ones in order to avoid a few SELinux denials. This may not be desired on "desktop" systems.
 
@@ -99,7 +99,7 @@ bash -c '(
 )'
 ```
 
-## 10.2. Relabel
+## 14.2. Relabel
 
 [Relabel the entire system](https://wiki.gentoo.org/wiki/SELinux/Installation#Relabel):
 
@@ -149,7 +149,7 @@ SELinux Port Type              Proto    Port Number
 ssh_port_t                     tcp      50022, 22
 ```
 
-## 10.3. Users and services
+## 14.3. Users and services
 
 Default "mcs" SELinux "login" and "user" settings:
 
@@ -202,6 +202,6 @@ sepolgen-ifgen -i /usr/share/selinux/mcs/include/support/ && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-## 10.4. SELinux policies
+## 14.4. SELinux policies
 
 At this point, you can reboot into permissive mode again and use the [selinux-policy-creator.sh](https://github.com/duxsco/selinux-policy-creator) script.

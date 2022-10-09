@@ -1,4 +1,4 @@
-## 8.1. Systemd Configuration
+## 12.1. systemd Configuration
 
 Some configuration needs to be done **after** Gentoo's systemd has been started. In the previous chapter, systemd was running, but only the instance belonging to SystemRescueCD.
 
@@ -66,7 +66,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
     If you don't run a SSH server, comment out the line containing `tcp dport 50022 accept` in "/usr/local/sbin/firewall.nft", execute "/usr/local/sbin/firewall.nft" and save rules via "nft list ruleset > /var/lib/nftables/rules-save".
 
-## 8.2. Secure Boot Setup
+## 12.2. Secure Boot Setup
 
 If "sbctl enroll-keys" failed in section [6.4. Secure Boot](/system_setup/#64-secure-boot), you can import secure boot files the following way now.
 
@@ -105,7 +105,7 @@ emerge -at app-crypt/efitools
 efi-readvar
 ```
 
-## 8.3. Measured Boot
+## 12.3. Measured Boot
 
 You have two reasonable options for measured boot on systemd:
 
@@ -114,7 +114,7 @@ You have two reasonable options for measured boot on systemd:
 
 Use **either systemd-cryptenroll or clevis** in the following.
 
-### 8.3.1.a) systemd-cryptenroll
+### 12.3.1.a) systemd-cryptenroll
 
 Install "app-crypt/tpm2-tools":
 
@@ -167,7 +167,7 @@ systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sd
 
 Reboot your system!
 
-### 8.3.1.b) clevis
+### 12.3.1.b) clevis
 
 !!! info "System Requirement: Tang Server"
 
@@ -225,7 +225,7 @@ clevis luks list -d /dev/sdb4
 # etc.
 ```
 
-### 8.3.2. Unified Kernel Image Rebuild
+### 12.3.2. Kernel Rebuild
 
 Rebuild the unified kernel image to contain the changes for measured boot:
 
@@ -235,7 +235,7 @@ $(qlist -eI sys-kernel/gentoo-kernel-bin >/dev/null && echo sys-kernel/gentoo-ke
 $(qlist -eI sys-kernel/gentoo-kernel >/dev/null && echo sys-kernel/gentoo-kernel)
 ```
 
-## 8.4. Package Cleanup
+## 12.4. Package Cleanup
 
 Update packages and remove extraneous ones (copy&paste one after the other):
 
