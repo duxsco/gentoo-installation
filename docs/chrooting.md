@@ -61,6 +61,3 @@ source /etc/profile
 su -
 env-update && source /etc/profile && export PS1="(chroot) $PS1"
 ```
-
-!!! info "Application of configuration changes starting with chapter 6"
-    Execute [dispatch-conf](https://wiki.gentoo.org/wiki/Dispatch-conf) after every codeblock where a ["._cfg0000_" prefixed file](https://projects.gentoo.org/pms/8/pms.html#x1-14600013.3.3) has been created. {==The creation of "._cfg0000" prefixed files will be highlighted in yellow.==}

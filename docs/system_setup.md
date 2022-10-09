@@ -1,4 +1,6 @@
-## 6.1. Portage Setup
+!!! info "Application of configuration changes"
+
+    Starting with this chapter, **execute [dispatch-conf](https://wiki.gentoo.org/wiki/Dispatch-conf) after every codeblock** where a ["._cfg0000_" prefixed file](https://projects.gentoo.org/pms/8/pms.html#x1-14600013.3.3) has been created. {==The creation of "._cfg0000" prefixed files will be highlighted in yellow.==} Alternatively, [etc-update](https://wiki.gentoo.org/wiki/Handbook:X86/Portage/Tools#etc-update) or [cfg-update](https://wiki.gentoo.org/wiki/Cfg-update) is s.th. to consider, but I haven't tested those.
 
 Make "dispatch-conf" show [diffs in color](https://wiki.gentoo.org/wiki/Dispatch-conf#Changing_diff_or_merge_tools) and use [vimdiff for merging](https://wiki.gentoo.org/wiki/Dispatch-conf#Use_.28g.29vimdiff_to_merge_changes):
 
@@ -11,11 +13,9 @@ sed -i \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Install [app-portage/cpuid2cpuflags](https://wiki.gentoo.org/wiki/CPU_FLAGS_X86#Using_cpuid2cpuflags) to further configure [make.conf](https://wiki.gentoo.org/wiki//etc/portage/make.conf) in the next codeblock:
+## 6.1. Portage Setup
 
-```shell
-emerge --oneshot app-portage/cpuid2cpuflags
-```
+### 6.1.1. Portage Configuration
 
 Configure [make.conf](https://wiki.gentoo.org/wiki//etc/portage/make.conf) (copy&paste one after the other):
 
@@ -63,12 +63,26 @@ RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"' >> /etc/portage/._cfg0000_make.
 echo '
 USE_HARDENED="caps pie -sslv3 -suid verify-sig"
 USE="${USE_HARDENED} fish-completion"' >> /etc/portage/._cfg0000_make.conf
-
-# https://wiki.gentoo.org/wiki/CPU_FLAGS_X86#Invocation
-echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
 ```
 
-If you don't live in Germany, you probably should change [GENTOO_MIRRORS](https://wiki.gentoo.org/wiki/GENTOO_MIRRORS) previously set in above codeblock. You can pick the mirrors from the [mirror list](https://www.gentoo.org/downloads/mirrors/), use [mirrorselect](https://wiki.gentoo.org/wiki/Mirrorselect) or do as I do and select local/regional, IPv4/IPv6 dual-stack and TLSv1.3 supporting mirrors (copy&paste one after the other):
+I prefer English manpages and ignore above [L10N](https://wiki.gentoo.org/wiki/Localization/Guide#L10N) setting for "sys-apps/man-pages". Makes using Stackoverflow easier :wink:.
+
+```shell
+echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+Set [CPU flags](https://wiki.gentoo.org/wiki/CPU_FLAGS_X86#Using_cpuid2cpuflags):
+
+```shell
+emerge --oneshot app-portage/cpuid2cpuflags && \
+echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+### 6.1.2. (Optional) non-German Mirrors
+
+If you don't live in Germany, you probably should change [GENTOO_MIRRORS](https://wiki.gentoo.org/wiki/GENTOO_MIRRORS) previously set in [6.1.1. Portage Configuration](#611-portage-configuration). You can pick the mirrors from the [mirror list](https://www.gentoo.org/downloads/mirrors/), use [mirrorselect](https://wiki.gentoo.org/wiki/Mirrorselect) or do as I do and select local/regional, IPv4/IPv6 dual-stack and TLSv1.3 supporting mirrors (copy&paste one after the other):
 
 ```shell
 # Install app-misc/yq
@@ -88,12 +102,7 @@ curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.x
 done
 ```
 
-I prefer English manpages and ignore above [L10N](https://wiki.gentoo.org/wiki/Localization/Guide#L10N) setting for "sys-apps/man-pages". Makes using Stackoverflow easier :wink:.
-
-```shell
-echo "sys-apps/man-pages -l10n_de" >> /etc/portage/package.use/main && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
+### 6.1.3. Repo Syncing
 
 Mitigate [CVE-2022-29154](https://bugs.gentoo.org/show_bug.cgi?id=CVE-2022-29154) among others before using "rsync" via "eix-sync":
 
@@ -125,7 +134,13 @@ eselect news list
 # etc.
 ```
 
-(Optional) Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) and [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) profile. Additional ressources:
+### 6.1.4. (Optional) Hardened Portage Profiles
+
+!!! info "Desktop Profiles"
+
+    To make things simple, hardened desktop profiles are only considered for selection at the end of this guide in chapter [11. Desktop profiles (optional)](/desktop_profiles/).
+
+Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) and [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) profile. Additional ressources:
 
 - [My custom profiles](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles)
 - [Creating custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles)
@@ -149,18 +164,9 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Update the system:
+## 6.2. Non-Root User
 
-```shell
-touch /etc/sysctl.conf && \
-
-# add LUKS volume and systemd-boot support
-echo "sys-apps/systemd cryptsetup gnuefi" >> /etc/portage/package.use/main && \
-
-emerge -atuDN @world
-```
-
-## 6.2. Non-Root User Creation
+### 6.2.1. Account Creation
 
 Create a [non-root user](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Optional:_User_accounts) with ["wheel" group membership and thus the privilege to use "sudo"](https://wiki.gentoo.org/wiki/FAQ#How_do_I_add_a_normal_user.3F):
 
@@ -172,6 +178,8 @@ chown david:david /home/david/.bash_aliases && \
 echo 'source "${HOME}/.bash_aliases"' >> /home/david/.bashrc && \
 passwd david
 ```
+
+### 6.2.2. Access Control
 
 Setup [app-admin/sudo](https://wiki.gentoo.org/wiki/Sudo):
 
@@ -198,6 +206,8 @@ chown david:david /home/david/.ssh/config && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
+### 6.2.3. VIM Editor
+
 Setup [app-editors/vim](https://wiki.gentoo.org/wiki/Vim):
 
 ```shell hl_lines="4"
@@ -219,289 +229,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-## 6.3. Configuration of /etc/fstab
-
-Setup [/etc/fstab](https://wiki.gentoo.org/wiki//etc/fstab):
-
-```shell
-SWAP_UUID="$(blkid -s UUID -o value /mapperSwap)" && \
-SYSTEM_UUID="$(blkid -s UUID -o value /mapperSystem)" && \
-echo "" >> /etc/fstab && \
-echo "
-$(find /devEfi* -maxdepth 0 | while read -r i; do
-  echo "UUID=$(blkid -s UUID -o value "$i") ${i/devE/boot\/e} vfat noatime,dmask=0022,fmask=0133 0 0"
-done)
-UUID=${SWAP_UUID}   none                 swap  sw                        0 0
-UUID=${SYSTEM_UUID} /                    btrfs noatime,subvol=@root      0 0
-UUID=${SYSTEM_UUID} /home                btrfs noatime,subvol=@home      0 0
-UUID=${SYSTEM_UUID} /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs   0 0
-UUID=${SYSTEM_UUID} /var/cache/distfiles btrfs noatime,subvol=@distfiles 0 0
-UUID=${SYSTEM_UUID} /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0
-UUID=${SYSTEM_UUID} /var/tmp             btrfs noatime,subvol=@var_tmp   0 0
-" | column -o " " -t >> /etc/fstab && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-## 6.4. Secure Boot
-
-!!! danger "Warnings on OptionROM"
-
-    While using sbctl, take warnings such as the following serious and make sure to understand the implications:
-
-    > Could not find any TPM Eventlog in the system. This means we do not know if there is any OptionROM present on the system.
-
-    > etc.
-
-    > Please read the FAQ for more information: https://github.com/Foxboron/sbctl/wiki/FAQ#option-rom
-
-In order to add your custom keys, "setup mode" must have been enabled in your "UEFI Firmware Settings" before booting into SystemRescueCD. But, you can [install secure boot files later on](/post-boot_configuration/#82-secure-boot-setup) if you missed enabling "setup mode". In the following, however, you have to generate secure boot files either way.
-
-Install "app-crypt/sbctl":
-
-```shell
-emerge -at app-crypt/sbctl
-```
-
-Create and enroll secure boot files ([link](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl)):
-
-```shell
-❯ sbctl status
-Installed:      ✗ sbctl is not installed
-Setup Mode:     ✗ Enabled
-Secure Boot:    ✗ Disabled
-
-❯ sbctl create-keys
-Created Owner UUID 4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
-Creating secure boot keys...✓
-Secure boot keys created!
-
-❯ sbctl enroll-keys
-Enrolling keys to EFI variables...✓
-Enrolled keys to the EFI variables!
-
-❯ sbctl status
-Installed:      ✓ sbctl is installed
-Owner GUID:     4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
-Setup Mode:     ✓ Disabled
-Secure Boot:    ✗ Disabled
-```
-
-## 6.5. Kernel Installation
-
-Install `sys-boot/efibootmgr`:
-
-```shell
-emerge -at sys-boot/efibootmgr
-```
-
-Setup ESP(s):
-
-```shell
-while read -r my_esp; do
-  # install the EFI boot manager:
-  # https://wiki.archlinux.org/title/systemd-boot#Installing_the_EFI_boot_manager
-  bootctl --esp-path="/boot/${my_esp}" install && \
-
-  # create the boot entry
-  # https://wiki.gentoo.org/wiki/Efibootmgr#Creating_a_boot_entry
-  efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "/${my_esp/efi/devEfi}")")" --part 1 --label "gentoo31415efi ${my_esp}" --loader '\EFI\systemd\systemd-bootx64.efi' && \
-
-  # setup systemd-boot
-  # https://wiki.gentoo.org/wiki/Systemd-boot#loader.conf
-  echo -e "timeout 10\neditor no" > "/boot/${my_esp}/loader/loader.conf" && \
-
-  # move the precreated EFI binary of the rescue system into ESP
-  mv "/boot/${my_esp}/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/" && \
-
-  # secure boot sign EFI binaries
-  sbctl sign "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
-  sbctl sign "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
-  sbctl sign "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" && \
-
-  echo -e "\e[1;32mSUCCESS\e[0m"
-done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
-```
-
-Microcode updates are [not necessary for virtual machines](https://unix.stackexchange.com/a/572757). If on bare-metal, install "sys-firmware/intel-microcode" if you have an Intel CPU or follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
-
-```shell
-! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
-grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
-echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
-echo "sys-firmware/intel-microcode hostonly" >> /etc/portage/package.use/main && \
-emerge -at sys-firmware/intel-microcode && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-Setup [portage hooks](https://github.com/duxsco/gentoo-installation/blob/main/bin/portage_hook_kernel) that take care of [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image) creation and [secure boot signing](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl):
-
-```shell
-mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin && \
-rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/linux-firmware && \
-rm -f /root/portage_hook_kernel && \
-echo 'if [[ ${EBUILD_PHASE} == postinst ]]; then
-    while read -r my_esp; do
-        bootctl --esp-path="/boot/${my_esp}" --no-variables --graceful update && \
-        sbctl sign "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
-        sbctl sign "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI"
-
-        if [[ $? -ne 0 ]]; then
-cat <<'\''EOF'\''
-
-  ___________________________
-< Failed to Secure Boot sign! >
-  ---------------------------
-         \   ^__^ 
-          \  (oo)\_______
-             (__)\       )\/\
-                 ||----w |
-                 ||     ||
-
-EOF
-        fi
-    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
-fi' > /etc/portage/env/sys-apps/systemd && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-Setup [sys-kernel/dracut](https://wiki.gentoo.org/wiki/Dracut). If you don't wear tin foil hats :wink:, you may want to change the [line "mitigations=auto,nosmt"](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html) below (copy&paste one after the other):
-
-```shell
-emerge -at app-crypt/sbsigntools sys-kernel/dracut
-
-system_uuid="$(blkid -s UUID -o value /mapperSystem)"
-my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
-my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
-
-unset my_systemd_cryptenroll
-
-# If you intend to use systemd-cryptenroll, define this variable:
-# my_systemd_cryptenroll=",tpm2-device=auto"
-
-echo "
-# make a generic image, but use custom kernel command-line parameters
-hostonly=no
-hostonly_cmdline=yes
-
-use_fstab=yes
-compress=xz
-show_modules=yes
-
-# create an unified kernel image
-uefi=yes
-
-# integrate microcode updates
-early_microcode=yes
-
-# point to the correct UEFI stub loader
-uefi_stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub
-
-# set files used to secure boot sign
-uefi_secureboot_cert=/usr/share/secureboot/keys/db/db.pem
-uefi_secureboot_key=/usr/share/secureboot/keys/db/db.key
-
-# kernel command-line parameters
-CMDLINE=(
-  ro
-  root=UUID=${system_uuid}
-  ${my_crypt_root}
-  ${my_crypt_swap}
-  rd.luks.options=password-echo=no${my_systemd_cryptenroll}
-  rootfstype=btrfs
-  rootflags=subvol=@root
-  mitigations=auto,nosmt
-)
-kernel_cmdline=\"\${CMDLINE[*]}\"
-unset CMDLINE" >> /etc/dracut.conf
-```
-
-(Optional) Use [LTS (longterm) kernels](https://kernel.org/category/releases.html):
-
-```shell
-echo "\
->=sys-fs/btrfs-progs-5.16
->=sys-kernel/gentoo-kernel-5.16
->=sys-kernel/gentoo-kernel-bin-5.16
->=sys-kernel/linux-headers-5.16
->=virtual/dist-kernel-5.16" >> /etc/portage/package.mask/main
-```
-
-Install packages required for booting:
-
-```shell
-echo "sys-fs/btrfs-progs ~amd64
-sys-kernel/gentoo-kernel ~amd64
-sys-kernel/gentoo-kernel-bin ~amd64
-sys-kernel/linux-headers ~amd64
-virtual/dist-kernel ~amd64" >> /etc/portage/package.accept_keywords/main && \
-
-# I prefer to create a "fresh" btrfs FS instead of converting
-# reiserfs and ext2/3/4 to btrfs.
-echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
-
-# Dracut will take care of initramfs creation.
-echo "sys-kernel/gentoo-kernel -initramfs" >> /etc/portage/package.use/main && \
-echo "sys-kernel/gentoo-kernel-bin -initramfs" >> /etc/portage/package.use/main && \
-
-# Accept required licenses.
-echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license && \
-
-# Install packages
-{
-  [ -e /devSwapb ] && \
-  emerge -at sys-fs/btrfs-progs sys-fs/mdadm sys-kernel/linux-firmware || \
-  emerge -at sys-fs/btrfs-progs sys-kernel/linux-firmware
-}
-```
-
-For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](#61-portage-setup):
-
-=== "hardened profile"
-
-    ```shell
-    # This package makes use of "hardened" useflag.
-    emerge -at sys-kernel/gentoo-kernel
-    ```
-
-=== "non-hardened profile"
-
-    ```shell
-    emerge -at sys-kernel/gentoo-kernel-bin
-    ```
-
-## 6.6. Initial systemd configuration
-
-Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configuration):
-
-```shell
-systemd-firstboot --prompt --setup-machine-id
-```
-
-If you **don't** plan to keep your setup slim for the later [SELinux setup](/selinux/), the use of preset files may be s.th. to consider:
-
-> Most services are disabled when systemd is first installed. A "preset" file is provided, and may be used to enable a reasonable set of default services. ([source](https://wiki.gentoo.org/wiki/Systemd#Preset_services))
-
-```shell
-systemctl preset-all
-# or
-systemctl preset-all --preset-mode=enable-only
-```
-
-## 6.7. Additional Packages
-
-Setup [/etc/hosts](https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#The_hosts_file) (copy&paste one after the other):
-
-```shell hl_lines="4"
-# Set the hostname of your choice
-my_hostname="micro"
-
-rsync -a /etc/hosts /etc/._cfg0000_hosts && \
-sed -i "s/localhost$/localhost ${my_hostname}/" /etc/._cfg0000_hosts && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
+### 6.2.4. Interactive Shell
 
 Install [app-shells/starship](https://starship.rs/):
 
@@ -584,13 +312,39 @@ rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.ttf /usr/share/fonts/nerd-firac
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-If you have "sys-fs/mdadm" installed ([link](https://wiki.gentoo.org/wiki/Gentoo_installation_tips_and_tricks#Software_RAID)):
+## 6.3. Bootup Setup
 
-```shell hl_lines="2"
-[[ -e /devSwapb ]] && \
-rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
-echo "" >> /etc/._cfg0000_mdadm.conf && \
-mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
+### 6.3.1. Basic Configuration
+
+Setup [/etc/fstab](https://wiki.gentoo.org/wiki//etc/fstab):
+
+```shell
+SWAP_UUID="$(blkid -s UUID -o value /mapperSwap)" && \
+SYSTEM_UUID="$(blkid -s UUID -o value /mapperSystem)" && \
+echo "" >> /etc/fstab && \
+echo "
+$(find /devEfi* -maxdepth 0 | while read -r i; do
+  echo "UUID=$(blkid -s UUID -o value "$i") ${i/devE/boot\/e} vfat noatime,dmask=0022,fmask=0133 0 0"
+done)
+UUID=${SWAP_UUID}   none                 swap  sw                        0 0
+UUID=${SYSTEM_UUID} /                    btrfs noatime,subvol=@root      0 0
+UUID=${SYSTEM_UUID} /home                btrfs noatime,subvol=@home      0 0
+UUID=${SYSTEM_UUID} /var/cache/binpkgs   btrfs noatime,subvol=@binpkgs   0 0
+UUID=${SYSTEM_UUID} /var/cache/distfiles btrfs noatime,subvol=@distfiles 0 0
+UUID=${SYSTEM_UUID} /var/db/repos/gentoo btrfs noatime,subvol=@ebuilds   0 0
+UUID=${SYSTEM_UUID} /var/tmp             btrfs noatime,subvol=@var_tmp   0 0
+" | column -o " " -t >> /etc/fstab && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+Setup [/etc/hosts](https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#The_hosts_file) (copy&paste one after the other):
+
+```shell hl_lines="4"
+# Set the hostname of your choice
+my_hostname="micro"
+
+rsync -a /etc/hosts /etc/._cfg0000_hosts && \
+sed -i "s/localhost$/localhost ${my_hostname}/" /etc/._cfg0000_hosts && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
@@ -606,7 +360,286 @@ Misc tools:
 emerge -at app-misc/screen app-portage/gentoolkit
 ```
 
-## 6.8. (Optional) SSH Server
+### 6.3.2. systemd Preparation
+
+Apply systemd useflags:
+
+```shell
+touch /etc/sysctl.conf && \
+
+# add LUKS volume and systemd-boot support
+echo "sys-apps/systemd cryptsetup gnuefi" >> /etc/portage/package.use/main && \
+
+emerge -atuDN @world
+```
+
+Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configuration):
+
+```shell
+systemd-firstboot --prompt --setup-machine-id
+```
+
+If you **don't** plan to keep your setup slim for the later [SELinux setup](/selinux/), the use of preset files may be s.th. to consider:
+
+> Most services are disabled when systemd is first installed. A "preset" file is provided, and may be used to enable a reasonable set of default services. ([source](https://wiki.gentoo.org/wiki/Systemd#Preset_services))
+
+```shell
+systemctl preset-all
+# or
+systemctl preset-all --preset-mode=enable-only
+```
+
+### 6.3.3. Secure Boot
+
+!!! danger "Warnings on OptionROM"
+
+    While using sbctl, take warnings such as the following serious and make sure to understand the implications:
+
+    > Could not find any TPM Eventlog in the system. This means we do not know if there is any OptionROM present on the system.
+
+    > etc.
+
+    > Please read the FAQ for more information: https://github.com/Foxboron/sbctl/wiki/FAQ#option-rom
+
+In order to add your custom keys, "setup mode" must have been enabled in your "UEFI Firmware Settings" before booting into SystemRescueCD. But, you can [install secure boot files later on](/post-boot_configuration/#82-secure-boot-setup) if you missed enabling "setup mode". In the following, however, you have to generate secure boot files either way.
+
+Install "app-crypt/sbctl":
+
+```shell
+emerge -at app-crypt/sbctl
+```
+
+Create and enroll secure boot files ([link](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl)):
+
+```shell
+❯ sbctl status
+Installed:      ✗ sbctl is not installed
+Setup Mode:     ✗ Enabled
+Secure Boot:    ✗ Disabled
+
+❯ sbctl create-keys
+Created Owner UUID 4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
+Creating secure boot keys...✓
+Secure boot keys created!
+
+❯ sbctl enroll-keys
+Enrolling keys to EFI variables...✓
+Enrolled keys to the EFI variables!
+
+❯ sbctl status
+Installed:      ✓ sbctl is installed
+Owner GUID:     4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
+Setup Mode:     ✓ Disabled
+Secure Boot:    ✗ Disabled
+```
+
+## 6.4. Unified Kernel Image
+
+### 6.4.1 systemd-boot and SystemRescueCD Image
+
+Install `sys-boot/efibootmgr`:
+
+```shell
+emerge -at sys-boot/efibootmgr
+```
+
+Setup ESP(s):
+
+```shell
+while read -r my_esp; do
+  # install the EFI boot manager:
+  # https://wiki.archlinux.org/title/systemd-boot#Installing_the_EFI_boot_manager
+  bootctl --esp-path="/boot/${my_esp}" install && \
+
+  # create the boot entry
+  # https://wiki.gentoo.org/wiki/Efibootmgr#Creating_a_boot_entry
+  efibootmgr --create --disk "/dev/$(lsblk -ndo pkname "$(readlink -f "/${my_esp/efi/devEfi}")")" --part 1 --label "gentoo31415efi ${my_esp}" --loader '\EFI\systemd\systemd-bootx64.efi' && \
+
+  # setup systemd-boot
+  # https://wiki.gentoo.org/wiki/Systemd-boot#loader.conf
+  echo -e "timeout 10\neditor no" > "/boot/${my_esp}/loader/loader.conf" && \
+
+  # move the precreated EFI binary of the rescue system into ESP
+  mv "/boot/${my_esp}/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/" && \
+
+  # secure boot sign EFI binaries
+  sbctl sign "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
+  sbctl sign "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI" && \
+  sbctl sign "/boot/${my_esp}/EFI/Linux/systemrescuecd.efi" && \
+
+  echo -e "\e[1;32mSUCCESS\e[0m"
+done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+```
+
+### 6.4.2. CPU Microcode
+
+Microcode updates are [not necessary for virtual machines](https://unix.stackexchange.com/a/572757). If on bare-metal, install "sys-firmware/intel-microcode" if you have an Intel CPU or follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
+
+```shell
+! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
+grep -q "^vendor_id[[:space:]]*:[[:space:]]*GenuineIntel$" /proc/cpuinfo && \
+echo "sys-firmware/intel-microcode intel-ucode" >> /etc/portage/package.license && \
+echo "sys-firmware/intel-microcode hostonly" >> /etc/portage/package.use/main && \
+emerge -at sys-firmware/intel-microcode && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+### 6.4.3. Portage Hooks
+
+Setup [portage hooks](https://github.com/duxsco/gentoo-installation/blob/main/bin/portage_hook_kernel) that take care of [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image) creation and [secure boot signing](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl):
+
+```shell
+mkdir -p /etc/portage/env/sys-apps /etc/portage/env/sys-firmware /etc/portage/env/sys-kernel && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-firmware/intel-microcode && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/gentoo-kernel-bin && \
+rsync -a --numeric-ids --chown=0:0 --chmod=u=rw,go=r /root/portage_hook_kernel /etc/portage/env/sys-kernel/linux-firmware && \
+rm -f /root/portage_hook_kernel && \
+echo 'if [[ ${EBUILD_PHASE} == postinst ]]; then
+    while read -r my_esp; do
+        bootctl --esp-path="/boot/${my_esp}" --no-variables --graceful update && \
+        sbctl sign "/boot/${my_esp}/EFI/systemd/systemd-bootx64.efi" && \
+        sbctl sign "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI"
+
+        if [[ $? -ne 0 ]]; then
+cat <<'\''EOF'\''
+
+  ___________________________
+< Failed to Secure Boot sign! >
+  ---------------------------
+         \   ^__^ 
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+
+EOF
+        fi
+    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+fi' > /etc/portage/env/sys-apps/systemd && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+### 6.4.4. Dracut
+
+Setup [sys-kernel/dracut](https://wiki.gentoo.org/wiki/Dracut). If you don't wear tin foil hats :wink:, you may want to change the [line "mitigations=auto,nosmt"](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html) below (copy&paste one after the other):
+
+```shell
+emerge -at app-crypt/sbsigntools sys-kernel/dracut
+
+system_uuid="$(blkid -s UUID -o value /mapperSystem)"
+my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
+my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
+
+unset my_systemd_cryptenroll
+
+# If you intend to use systemd-cryptenroll, define this variable:
+# my_systemd_cryptenroll=",tpm2-device=auto"
+
+echo "
+# make a generic image, but use custom kernel command-line parameters
+hostonly=no
+hostonly_cmdline=yes
+
+use_fstab=yes
+compress=xz
+show_modules=yes
+
+# create an unified kernel image
+uefi=yes
+
+# integrate microcode updates
+early_microcode=yes
+
+# point to the correct UEFI stub loader
+uefi_stub=/usr/lib/systemd/boot/efi/linuxx64.efi.stub
+
+# set files used to secure boot sign
+uefi_secureboot_cert=/usr/share/secureboot/keys/db/db.pem
+uefi_secureboot_key=/usr/share/secureboot/keys/db/db.key
+
+# kernel command-line parameters
+CMDLINE=(
+  ro
+  root=UUID=${system_uuid}
+  ${my_crypt_root}
+  ${my_crypt_swap}
+  rd.luks.options=password-echo=no${my_systemd_cryptenroll}
+  rootfstype=btrfs
+  rootflags=subvol=@root
+  mitigations=auto,nosmt
+)
+kernel_cmdline=\"\${CMDLINE[*]}\"
+unset CMDLINE" >> /etc/dracut.conf
+```
+
+### 6.4.5. Kernel, Filesystem and Firmware Packages
+
+(Optional) Use [LTS (longterm) kernels](https://kernel.org/category/releases.html):
+
+```shell
+echo "\
+>=sys-fs/btrfs-progs-5.16
+>=sys-kernel/gentoo-kernel-5.16
+>=sys-kernel/gentoo-kernel-bin-5.16
+>=sys-kernel/linux-headers-5.16
+>=virtual/dist-kernel-5.16" >> /etc/portage/package.mask/main
+```
+
+Install packages required for booting:
+
+```shell
+echo "sys-fs/btrfs-progs ~amd64
+sys-kernel/gentoo-kernel ~amd64
+sys-kernel/gentoo-kernel-bin ~amd64
+sys-kernel/linux-headers ~amd64
+virtual/dist-kernel ~amd64" >> /etc/portage/package.accept_keywords/main && \
+
+# I prefer to create a "fresh" btrfs FS instead of converting
+# reiserfs and ext2/3/4 to btrfs.
+echo "sys-fs/btrfs-progs -convert" >> /etc/portage/package.use/main && \
+
+# Dracut will take care of initramfs creation.
+echo "sys-kernel/gentoo-kernel -initramfs" >> /etc/portage/package.use/main && \
+echo "sys-kernel/gentoo-kernel-bin -initramfs" >> /etc/portage/package.use/main && \
+
+# Accept required licenses.
+echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license
+```
+
+### 6.4.6. Kernel Installation
+
+Install additional required packages:
+
+```shell hl_lines="3"
+if [[ -e /devSwapb ]]; then
+  emerge -at sys-fs/btrfs-progs sys-fs/mdadm sys-kernel/linux-firmware && \
+  rsync -a /etc/mdadm.conf /etc/._cfg0000_mdadm.conf && \
+  echo "" >> /etc/._cfg0000_mdadm.conf && \
+  mdadm --detail --scan >> /etc/._cfg0000_mdadm.conf && \
+  echo -e "\e[1;32mSUCCESS\e[0m"
+else
+  emerge -at sys-fs/btrfs-progs sys-kernel/linux-firmware && \
+  echo -e "\e[1;32mSUCCESS\e[0m"
+fi
+```
+
+For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](#61-portage-setup):
+
+=== "hardened profile"
+
+    ```shell
+    # This package makes use of "hardened" useflag.
+    emerge -at sys-kernel/gentoo-kernel
+    ```
+
+=== "non-hardened profile"
+
+    ```shell
+    emerge -at sys-kernel/gentoo-kernel-bin
+    ```
+
+## 6.5. (Optional) SSH Server
 
 Create your [~/.ssh/authorized_keys](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication):
 
