@@ -1,6 +1,6 @@
 ## 3.1. Wiping Disks
 
-[disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh) expects the disks, where you want to install Gentoo Linux, to be completely empty.
+[disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh) expects the disks, where you want to install Gentoo Linux on, to be completely empty.
 
 If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk (copy&paste one after the other):
 
@@ -38,11 +38,13 @@ bash /tmp/disk.sh -f fallbackfallback -r rescuerescue -d "/dev/sda /dev/sdb etc.
 set -o history
 ```
 
-[disk.sh creates the user "meh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L174) which will be used later on to act as non-root.
+!!! info
+
+    [disk.sh creates the user "meh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L174) which will be used later on to act as non-root.
 
 ## 3.3. /mnt/gentoo Content
 
-After executing "disk.sh", the btrfs subvolume "@root" should contain:
+After executing "disk.sh", the btrfs subvolume "@root" [mounted by "disk.sh" at "/mnt/gentoo/"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L172) should contain:
 
 === "four disks"
 
@@ -63,7 +65,7 @@ After executing "disk.sh", the btrfs subvolume "@root" should contain:
 ## 3.4. Tarball Extraction
 
 !!! info 
-    A recent [stage3-amd64-systemd-*.tar.xz](https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-systemd/) file is downloaded by [fetch_files.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/fetch_files.sh) which is called by [disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L177). If you work on another architecture, download the correct stage3 tarball (recommended: `stage-<architecture>-systemd-<timestamp>.tar.xz` and `stage-<architecture>-systemd-<timestamp>.tar.xz.asc`) manually and adjust below commands accordingly. Later on, an optional switch to the custom profile [hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) and [hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux) both of which making use of [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) will be done, requiring [modifications of those custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles) if you use a stage3 tarball other than the ones previously recommended.
+    A recent [stage3-amd64-systemd-*.tar.xz](https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-systemd/) file was downloaded by [fetch_files.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/fetch_files.sh) which is called by [disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L177). If you work on another architecture, download the correct stage3 tarball (recommended: `stage-<architecture>-systemd-<timestamp>.tar.xz` and `stage-<architecture>-systemd-<timestamp>.tar.xz.asc`) manually and adjust below commands accordingly. Later on, an optional switch to the custom profile [hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) and [hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux) both of which making use of [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) will be done, requiring [modifications of those custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles) if you use a stage3 tarball other than the ones previously recommended.
 
 [Extract the stage3 tarball](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Unpacking_the_stage_tarball) and copy custom files:
 
