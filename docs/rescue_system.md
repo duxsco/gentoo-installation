@@ -56,46 +56,6 @@ mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-If you want to be able to access Gentoo Linux as well as the rescue system over SSH do (copy&paste one after the other):
-
-```shell
-mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
-
-# add your ssh public keys to
-# /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
-
-# set correct modes
-chmod u=rwx,g=rx,o= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
-chmod -R u=rwX,go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
-```
-
-Configure OpenSSH if you decided to setup public key authentication in the previous step:
-
-```shell
-rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
-
-# do some ssh server hardening
-sed -i \
--e 's/^#Port 22$/Port 50023/' \
--e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
-
-grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  && \
-echo "
-AuthenticationMethods publickey
-
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
-Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
-MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com" >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
-
-# create ssh_host_* files in build_into_srm/etc/ssh/
-ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm && \
-
-{ diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config || true; } && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
 Disable "magic SysRq" for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
 ```shell
@@ -107,6 +67,14 @@ Copy [chroot.sh created by disk.sh](https://github.com/duxsco/gentoo-installatio
 
 ```shell
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/ && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+Copy the [firewall script](https://github.com/duxsco/gentoo-installation/blob/main/bin/firewall.sh):
+
+```shell
+# set firewall rules upon bootup.
+rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
@@ -147,21 +115,6 @@ autorun:
 unset crypt_pass
 ```
 
-Copy the [firewall script](https://github.com/duxsco/gentoo-installation/blob/main/bin/firewall.sh):
-
-```shell
-# set firewall rules upon bootup.
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-If you previously prepared the SystemRescueCD system for SSH, write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
-
-```shell
-find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \; && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
 Integrate additional packages required for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281) to work:
 
 ```shell
@@ -170,7 +123,68 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-## 4.3. Folder Structure
+## 4.3 (Optional) SSH Server
+
+!!! info
+
+    This section is only required if you want to access the SystemRescueCD system over SSH.
+
+Take care of public key authentication (copy&paste one after the other):
+
+```shell
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
+
+# add your ssh public keys to
+# /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys
+
+# set correct modes
+chmod u=rwx,g=rx,o= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
+chmod -R u=rwX,go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
+```
+
+Configure the SSH server:
+
+```shell
+rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
+
+# do some ssh server hardening
+sed -i \
+-e 's/^#Port 22$/Port 50023/' \
+-e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
+-e 's/^#X11Forwarding no$/X11Forwarding no/' /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
+
+grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  && \
+echo "
+AuthenticationMethods publickey
+
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com" >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
+
+# create ssh_host_* files in build_into_srm/etc/ssh/
+ssh-keygen -A -f /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm && \
+
+{ diff /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config || true; } && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+Open the SSH port:
+
+```shell
+echo "
+iptables  -A INPUT -p tcp --dport 50023 -j ACCEPT
+ip6tables -A INPUT -p tcp --dport 50023 -j ACCEPT" >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
+```
+
+Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
+
+```shell
+find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \; && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
+## 4.4. Folder Structure
 
 After running through above installation steps, you should have the following file/folder structure:
 
@@ -239,21 +253,17 @@ After running through above installation steps, you should have the following fi
     12 directories, 5 files
     ```
 
-!!! note "Close port 50023 on non-SSH setup"
-
-    Comment out or remove the following two lines in above "autorun" file if you are not going to use SSH on the SystemRescueCD system:
-    
-    ```
-    iptables  -A INPUT -p tcp --dport 50023 -j ACCEPT
-    ip6tables -A INPUT -p tcp --dport 50023 -j ACCEPT
-    ```
-
-## 4.4. ISO And Rescue Partition
+## 4.5. ISO And Rescue Partition
 
 Create an installation medium with above changes:
 
 ```shell
-sysrescue-customize --auto --overwrite -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work && \
+sysrescue-customize \
+    --auto --overwrite \
+    -s /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \
+    -d /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_custom.iso \
+    -r /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe \
+    -w /mnt/gentoo/etc/gentoo-installation/systemrescuecd/work && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
@@ -261,16 +271,16 @@ Copy the content of the custom installation medium to the "rescue" partition:
 
 ```shell
 mkdir /mnt/iso /mnt/gentoo/mnt/rescue && \
-mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_ssh.iso /mnt/iso && \
+mount -o loop,ro /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue_custom.iso /mnt/iso && \
 mount -o noatime /mnt/gentoo/mapperRescue /mnt/gentoo/mnt/rescue && \
 rsync -HAXSacv --delete /mnt/iso/{autorun,sysresccd,sysrescue.d} /mnt/gentoo/mnt/rescue/ && \
 umount /mnt/iso && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-## 4.5 Kernel Installation
+## 4.6. Kernel Installation
 
-Create the [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image#Manually) which will be used to boot the rescue system:
+Create the [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image#Manually) which will be used to boot the SystemRescueCD system:
 
 ```shell
 echo "cryptdevice=UUID=$(blkid -s UUID -o value /mnt/gentoo/devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y" > /tmp/my_cmdline && \
