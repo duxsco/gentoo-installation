@@ -17,12 +17,6 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
-After taking care of localisation, you can set a secure password of your choice:
-
-```shell
-passwd david
-```
-
 Setup [systemd-timesyncd](https://wiki.archlinux.org/title/systemd-timesyncd) (copy&paste one after the other):
 
 ```shell hl_lines="15"
