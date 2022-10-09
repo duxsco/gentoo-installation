@@ -62,10 +62,6 @@ systemctl enable nftables-restore && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-!!! note "Close port 50022 on non-SSH setup"
-
-    If you don't run a SSH server, comment out the line containing `tcp dport 50022 accept` in "/usr/local/sbin/firewall.nft", execute "/usr/local/sbin/firewall.nft" and save rules via "nft list ruleset > /var/lib/nftables/rules-save".
-
 ## 12.2. Secure Boot Setup
 
 If "sbctl enroll-keys" failed in section [6.4. Secure Boot](/system_setup/#64-secure-boot), you can import secure boot files the following way now.

@@ -30,6 +30,14 @@ systemctl --no-reload enable sshd.service && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
+Open the SSH port:
+
+```shell hl_lines="1"
+rsync -a /usr/local/sbin/firewall.nft /usr/local/sbin/._cfg0000_firewall.nft && \
+sed -i 's/^#\([[:space:]]*\)tcp dport 50022 accept$/\1tcp dport 50022 accept/' /usr/local/sbin/._cfg0000_firewall.nft && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
 Write down fingerprints to double check upon initial SSH connection to the Gentoo Linux machine:
 
 ```shell
