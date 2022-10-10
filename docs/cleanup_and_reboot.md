@@ -1,3 +1,9 @@
+Before rebooting, fetch "net-firewall/nftables" to be able to setup the firewall before connecting to the network with Gentoo Linux for the first time:
+
+```shell
+emerge --fetchonly net-firewall/nftables
+```
+
 Configure the [network connection](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
 
 ```shell
@@ -44,12 +50,6 @@ Cleanup obsolete installation files and [symlinks to devices created by "disk.sh
 ```shell
 rm -fv /stage3-* /portage-latest.tar.xz* /devEfi* /devRescue /devSystem* /devSwap* /mapperRescue /mapperSwap /mapperSystem && \
 echo -e "\e[1;32mSUCCESS\e[0m"
-```
-
-Before rebooting, fetch "net-firewall/nftables" to be able to setup the firewall before connecting to the network with Gentoo Linux for the first time:
-
-```shell
-emerge --fetchonly net-firewall/nftables
 ```
 
 [Exit and reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one after the other):
