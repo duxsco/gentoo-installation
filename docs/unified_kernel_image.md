@@ -149,7 +149,7 @@ echo "\
 >=virtual/dist-kernel-5.16" >> /etc/portage/package.mask/main
 ```
 
-Install packages required for booting:
+Configure packages required for booting:
 
 ```shell
 echo "sys-fs/btrfs-progs ~amd64
@@ -172,7 +172,7 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 
 ## 9.6. Kernel Installation
 
-Install additional required packages:
+Install required packages:
 
 ```shell hl_lines="3"
 if [[ -e /devSwapb ]]; then
@@ -187,7 +187,7 @@ else
 fi
 ```
 
-For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](#61-portage-setup):
+For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](/portage_setup/#64-optional-hardened-profiles):
 
 === "hardened profile"
 
