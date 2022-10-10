@@ -7,9 +7,9 @@ SWAP_UUID="$(blkid -s UUID -o value /mapperSwap)" && \
 SYSTEM_UUID="$(blkid -s UUID -o value /mapperSystem)" && \
 echo "" >> /etc/fstab && \
 echo "
-$(find /devEfi* -maxdepth 0 | while read -r i; do
+$(while read -r i; do
   echo "UUID=$(blkid -s UUID -o value "$i") ${i/devE/boot\/e} vfat noatime,dmask=0022,fmask=0133 0 0"
-done)
+done < <(find /devEfi* -maxdepth 0))
 UUID=${SWAP_UUID}   none                 swap  sw                        0 0
 UUID=${SYSTEM_UUID} /                    btrfs noatime,subvol=@root      0 0
 UUID=${SYSTEM_UUID} /home                btrfs noatime,subvol=@home      0 0
@@ -85,7 +85,7 @@ systemctl preset-all --preset-mode=enable-only
 
     > Please read the FAQ for more information: https://github.com/Foxboron/sbctl/wiki/FAQ#option-rom
 
-In order to add your custom keys, "setup mode" must have been enabled in your "UEFI Firmware Settings" before booting into SystemRescueCD. But, you can [install secure boot files later on](/post-boot_configuration/#82-secure-boot-setup) if you missed enabling "setup mode". In the following, however, you have to generate secure boot files either way.
+In order to add your custom keys, "setup mode" must have been enabled in your "UEFI Firmware Settings" before booting into SystemRescueCD. But, you can [install secure boot files later on](/post-boot_configuration/#122-secure-boot-setup) if you missed enabling "setup mode". In the following, however, you have to generate secure boot files either way.
 
 Install "app-crypt/sbctl":
 
