@@ -35,7 +35,7 @@ Take care of [localisation](https://wiki.gentoo.org/wiki/Localization/Guide#Gene
 ```shell
 echo "C.UTF-8 UTF-8
 de_DE.UTF-8 UTF-8
-en_US.UTF-8 UTF-8" > /mnt/gentoo/etc/locale.gen && \
+en_US.UTF-8 UTF-8" >> /mnt/gentoo/etc/locale.gen && \
 echo 'LANG="de_DE.UTF-8"
 LC_COLLATE="C.UTF-8"
 LC_MESSAGES="en_US.UTF-8"' > /mnt/gentoo/etc/env.d/02locale && \
