@@ -17,7 +17,7 @@ Setup "make.conf":
 
 ```shell hl_lines="1"
 rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
-echo -e 'POLICY_TYPES="mcs"\n' >> /etc/portage/._cfg0000_make.conf && \
+echo -e '\nPOLICY_TYPES="mcs"' >> /etc/portage/._cfg0000_make.conf && \
 sed -i 's/^USE_HARDENED="\(.*\)"/USE_HARDENED="\1 -ubac -unconfined"/' /etc/portage/._cfg0000_make.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
@@ -26,7 +26,7 @@ For the switch to a SELinux profile, you have two options depending on the profi
 
 === "duxsco:hardened-systemd"
 
-    If you have switched to [duxsco:hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) in section [6.1. Portage Setup](/system_setup/#61-portage-setup), you can easily "add" SELinux features with a simple switch to [duxsco:hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux):
+    If you have switched to [duxsco:hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) in section [6.4. (Optional) Hardened Profiles](/portage_setup/#64-optional-hardened-profiles), you can easily "add" SELinux features with a simple switch to [duxsco:hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux):
 
     ```shell
     eselect profile set "duxsco:hardened-systemd-selinux"
@@ -137,7 +137,7 @@ allow init_t unlabeled_t:dir mounton;
 ❯ export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-In section [6.7. Additional Packages](/system_setup/#67-additional-packages), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
+In section [10. SSH Server (optional)](/ssh_server/), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
 
 ```shell
 ❯ semanage port -l | grep -e ssh -e Port
