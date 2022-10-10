@@ -58,7 +58,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 12.2. Secure Boot Setup
 
-If "sbctl enroll-keys" failed in section [6.4. Secure Boot](/system_setup/#64-secure-boot), you can import secure boot files the following way now.
+If "sbctl enroll-keys" failed in section [8.3. Secure Boot](/bootup_setup/#83-secure-boot), you can import secure boot files the following way now.
 
 First, boot into the Gentoo Linux and save necessary files in "DER" format on ESP:
 
