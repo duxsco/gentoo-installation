@@ -1,3 +1,7 @@
+!!! note
+
+    If you haven't setup [SSH for the SystemRescueCD system](/rescue_system/#43-optional-ssh-server) you have to create "/home/david/.ssh/authorized_keys" manually instead of copying out of "/etc/gentoo-installation/systemrescuecd/" as suggested in the following codeblock.
+
 Create your [~/.ssh/authorized_keys](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication):
 
 ```shell
@@ -29,6 +33,14 @@ sshd -t && \
 systemctl --no-reload enable sshd.service && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
+
+!!! note
+
+    For "dispatch-conf" to work for the change in "/usr/local/sbin", you need to execute the following command after creation of "/usr/local/sbin/._cfg0000_firewall.nft":
+    
+    ```shell
+    dispatch-conf /usr/local/sbin
+    ```
 
 Open the SSH port:
 
