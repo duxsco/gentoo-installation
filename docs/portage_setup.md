@@ -80,11 +80,11 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 6.2. (Optional) Custom Mirrors
 
-If you don't live in Germany, you probably should change [GENTOO_MIRRORS](https://wiki.gentoo.org/wiki/GENTOO_MIRRORS) previously set in [6.1.1. Portage Configuration](#611-portage-configuration). You can pick the mirrors from the [mirror list](https://www.gentoo.org/downloads/mirrors/), use [mirrorselect](https://wiki.gentoo.org/wiki/Mirrorselect) or do as I do and select local/regional, IPv4/IPv6 dual-stack and TLSv1.3 supporting mirrors (copy&paste one after the other):
+If you don't live in Germany, you probably should change [GENTOO_MIRRORS](https://wiki.gentoo.org/wiki/GENTOO_MIRRORS) previously set in [6.1. Portage Configuration](#61-portage-configuration). You can pick the mirrors from the [mirror list](https://www.gentoo.org/downloads/mirrors/), use [mirrorselect](https://wiki.gentoo.org/wiki/Mirrorselect) or do as I do and select local/regional, IPv4/IPv6 dual-stack and TLSv1.3 supporting mirrors (copy&paste one after the other):
 
 ```shell
 # Install app-misc/yq
-ACCEPT_KEYWORDS=~amd64 emerge --oneshot app-misc/yq
+ACCEPT_KEYWORDS="~amd64" emerge --oneshot app-misc/yq
 
 # Get a list of country codes and names:
 curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r '.mirrors.mirrorgroup[] | "\(.["@country"]) \(.["@countryname"])"' | sort -k2.2
@@ -93,11 +93,14 @@ curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.x
 country='"AU","BE","BR","CA","CH","CL","CN","CZ","DE","DK","ES","FR","GR","HK","IL","IT","JP","KR","KZ","LU","NA","NC","NL","PH","PL","PT","RO","RU","SG","SK","TR","TW","UK","US","ZA"'
 
 # Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support
-curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | xq -r ".mirrors.mirrorgroup[] | select([.\"@country\"] | inside([${country}])) | .mirror | if type==\"array\" then .[] else . end | .uri | if type==\"array\" then .[] else . end | select(.\"@protocol\" == \"http\" and .\"@ipv4\" == \"y\" and .\"@ipv6\" == \"y\" and (.\"#text\" | startswith(\"https://\"))) | .\"#text\"" | while read -r i; do
+while read -r i; do
   if curl -fs --proto '=https' --tlsv1.3 -I "${i}" >/dev/null; then
     echo "${i}"
   fi
-done
+done < <(
+  curl -fsSL --proto '=https' --tlsv1.3 https://api.gentoo.org/mirrors/distfiles.xml | \
+  xq -r ".mirrors.mirrorgroup[] | select([.\"@country\"] | inside([${country}])) | .mirror | if type==\"array\" then .[] else . end | .uri | if type==\"array\" then .[] else . end | select(.\"@protocol\" == \"http\" and .\"@ipv4\" == \"y\" and .\"@ipv6\" == \"y\" and (.\"#text\" | startswith(\"https://\"))) | .\"#text\""
+)
 ```
 
 ## 6.3. Repo Syncing
@@ -136,7 +139,7 @@ eselect news list
 
 !!! info "Desktop Profiles"
 
-    To make things simple, hardened desktop profiles are only considered for selection at the end of this guide in chapter [11. Desktop profiles (optional)](/desktop_profiles/).
+    To make things simple, hardened desktop profiles are only considered for selection at the end of this guide in chapter [15. Desktop profiles (optional)](/desktop_profiles/).
 
 Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) and [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) profile. Additional ressources:
 
@@ -150,7 +153,7 @@ Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Harden
 # https://github.com/gentoo-mirror/gentoo/commit/b607b26fff6dd73d886f2dc0afc1cf439510e509
 echo "=sys-apps/baselayout-2.9 ~amd64" >> /etc/portage/package.accept_keywords/main && \
 
-env ACCEPT_KEYWORDS="~amd64" emerge --oneshot sys-apps/merge-usr && \
+ACCEPT_KEYWORDS="~amd64" emerge --oneshot sys-apps/merge-usr && \
 merge-usr && \
 eselect profile set duxsco:hardened-systemd && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
