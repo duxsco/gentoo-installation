@@ -13,7 +13,7 @@ chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Import the Gnupg public key used to sign the SystemRescueCD .iso:
+Import the GnuPG public key used to sign the SystemRescueCD .iso:
 
 ```shell
 su -l meh -c "
@@ -84,7 +84,7 @@ Create the settings YAML (copy&paste one after the other):
 # disable bash history
 set +o history
 
-# replace "MyPassWord123" with the password you want to use to login via TTY on the SystemRescueCD system
+# replace "MyPassWord123" with the password you want to use to login via TTY on the rescue system
 crypt_pass="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
 
 # enable bash history
@@ -127,9 +127,9 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 !!! info
 
-    This section is only required if you want to access the SystemRescueCD system over SSH.
+    This section is only required if you want to access the rescue system over SSH.
 
-Take care of public key authentication (copy&paste one after the other):
+Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication) (copy&paste one after the other):
 
 ```shell
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
@@ -177,7 +177,7 @@ iptables  -A INPUT -p tcp --dport 50023 -j ACCEPT
 ip6tables -A INPUT -p tcp --dport 50023 -j ACCEPT" >> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/autorun/autorun
 ```
 
-Write down fingerprints to double check upon initial SSH connection to the SystemRescueCD system:
+Write down fingerprints to double check upon initial SSH connection to the rescue system:
 
 ```shell
 find /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \; && \
@@ -280,7 +280,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 4.6. Kernel Installation
 
-Create the [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image#Manually) which will be used to boot the SystemRescueCD system:
+Create the [unified kernel image](https://wiki.archlinux.org/title/Unified_kernel_image#Manually) which will be used to boot the rescue system:
 
 ```shell
 echo "cryptdevice=UUID=$(blkid -s UUID -o value /mnt/gentoo/devRescue):root root=/dev/mapper/root archisobasedir=sysresccd archisolabel=rescue31415fs noautologin loadsrm=y" > /tmp/my_cmdline && \

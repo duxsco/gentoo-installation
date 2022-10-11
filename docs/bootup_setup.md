@@ -38,7 +38,7 @@ Disable "magic SysRq" for [security sake](https://wiki.gentoo.org/wiki/Vlock#Dis
 echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
 ```
 
-Misc tools:
+Install miscellaneous tools:
 
 ```shell
 emerge -at app-misc/screen app-portage/gentoolkit

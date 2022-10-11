@@ -5,10 +5,10 @@
 
 Beside [official hardware requirements](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Hardware_requirements), the guide has additional ones:
 
-- **Secure Boot and TPM 2.0:** It builds heavily on "secure boot" and requires "TPM 2.0" not only for "secure boot" but also for "measured boot" to function. Make sure that the system is in "setup mode" in order to be able to add your custom "secure boot" keys. You can, however, boot without "setup mode" and import them later on depending on the hardware in use. For this, you can follow the instructions in section [8.2. Secure Boot Setup](/post-boot_configuration/#82-secure-boot-setup) at that point in time.
+- **Secure Boot and TPM 2.0:** It builds heavily on "secure boot" and requires "TPM 2.0" not only for "secure boot" but also for "measured boot" to function. Make sure that the system is in "setup mode" in order to be able to add your custom "secure boot" keys. You can, however, boot without "setup mode" and import the keys later on depending on the hardware in use. For this, you can follow the instructions in section [12.2. Secure Boot Setup](/post-boot_configuration/#122-secure-boot-setup) at that point in time.
 
 - **systemd and Measured Boot:** The guide requires the use of systemd for "measured boot" to work without restrictions. [Clevis](https://wiki.gentoo.org/wiki/Trusted_Platform_Module) may be an option if you want to stay with OpenRC. But, I haven't tested this. Alternatively, you can take a look at my [older documentation](https://github.com/duxsco/gentoo-installation/tree/v2.1.1) which, however, doesn't support "measured boot" and isn't maintained by me anymore.
-- **x86_64 Architecture:** To keep things simple, the guide presumes that you intend to install on a x86_64 system. This is the only architecture that has been tested by me! And, it's the only architecture still [actively supported by SystemRescueCD](https://www.system-rescue.org/Download/).
+- **x86_64 Architecture:** To keep things simple, the guide presumes that you intend to install on a x86_64 system. This is the only architecture that has been tested by me! And, it's the only architecture still [actively supported by SystemRescueCD](https://www.system-rescue.org/Download/). SystemRescueCD is used for the rescue system with its custom [chroot.sh script](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281).
 
 ## 1.2. Technologies
 
@@ -32,7 +32,7 @@ After completion of this guide, optional SSH connections will be possible to the
     ssh -p 50022 david@<IP address>
     ```
 
-=== "SystemRescueCD installation"
+=== "Rescue System"
 
     ```shell
     ssh -p 50023 root@<IP address>

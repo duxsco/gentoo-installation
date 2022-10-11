@@ -5,7 +5,7 @@ Boot into the SystemRescueCD and [set the correct keyboard layout](https://man7.
 ```shell
 loadkeys de-latin1-nodeadkeys
 
-# Alternatively, if you started xfce with "startx":
+# Alternatively, if you started Xfce with "startx":
 setxkbmap de
 ```
 

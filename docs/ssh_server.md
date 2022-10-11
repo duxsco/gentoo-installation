@@ -2,14 +2,14 @@
 
     If you haven't setup [SSH for the SystemRescueCD system](/rescue_system/#43-optional-ssh-server) you have to create "/home/david/.ssh/authorized_keys" manually instead of copying out of "/etc/gentoo-installation/systemrescuecd/" as suggested in the following codeblock.
 
-Create your [~/.ssh/authorized_keys](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication):
+Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication):
 
 ```shell
 rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/ && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup "net-misc/openssh":
+Configure the SSH server:
 
 ```shell hl_lines="1"
 rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
@@ -36,7 +36,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 !!! note
 
-    For "dispatch-conf" to work for the change in "/usr/local/sbin", you need to execute the following command after creation of "/usr/local/sbin/._cfg0000_firewall.nft":
+    For "dispatch-conf" to work for the following change in "/usr/local/sbin", you need to execute the following command after creation of "/usr/local/sbin/._cfg0000_firewall.nft":
     
     ```shell
     dispatch-conf /usr/local/sbin

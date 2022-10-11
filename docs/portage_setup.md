@@ -1,6 +1,6 @@
 !!! info "Application of configuration changes"
 
-    Starting with this chapter, **execute [dispatch-conf](https://wiki.gentoo.org/wiki/Dispatch-conf) after every codeblock** where a ["._cfg0000_" prefixed file](https://projects.gentoo.org/pms/8/pms.html#x1-14600013.3.3) has been created. {==The creation of "._cfg0000" prefixed files will be highlighted in yellow.==} Alternatively, [etc-update](https://wiki.gentoo.org/wiki/Handbook:X86/Portage/Tools#etc-update) or [cfg-update](https://wiki.gentoo.org/wiki/Cfg-update) is s.th. to consider, but I haven't tested those.
+    Starting with this chapter, **execute [dispatch-conf](https://wiki.gentoo.org/wiki/Dispatch-conf) after every codeblock** where a ["._cfg0000_" prefixed file](https://projects.gentoo.org/pms/8/pms.html#x1-14600013.3.3) has been created. {==The creation of "._cfg0000" prefixed files will be highlighted in yellow.==} Alternatively, [etc-update](https://wiki.gentoo.org/wiki/Handbook:X86/Portage/Tools#etc-update) or [cfg-update](https://wiki.gentoo.org/wiki/Cfg-update) might be s.th. to consider, but I haven't tested those.
 
 Make "dispatch-conf" show [diffs in color](https://wiki.gentoo.org/wiki/Dispatch-conf#Changing_diff_or_merge_tools) and use [vimdiff for merging](https://wiki.gentoo.org/wiki/Dispatch-conf#Use_.28g.29vimdiff_to_merge_changes):
 
