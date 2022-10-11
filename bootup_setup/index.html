@@ -21,7 +21,7 @@
 </span>sed -i <span class=s2>&quot;s/localhost</span>$<span class=s2>/localhost </span><span class=si>${</span><span class=nv>my_hostname</span><span class=si>}</span><span class=s2>/&quot;</span> /etc/._cfg0000_hosts <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Disable "magic SysRq" for <a href=https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key>security sake</a>:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;kernel.sysrq = 0&quot;</span> &gt; /etc/sysctl.d/99sysrq.conf
-</code></pre></div> <p>Misc tools:</p> <div class=highlight><pre><span></span><code>emerge -at app-misc/screen app-portage/gentoolkit
+</code></pre></div> <p>Install miscellaneous tools:</p> <div class=highlight><pre><span></span><code>emerge -at app-misc/screen app-portage/gentoolkit
 </code></pre></div> <h2 id=82-systemd-preparation>8.2. systemd Preparation<a class=headerlink href=#82-systemd-preparation title="Permanent link">&para;</a></h2> <p>Apply systemd useflags:</p> <div class=highlight><pre><span></span><code>touch /etc/sysctl.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
 
 <span class=c1># add LUKS volume and systemd-boot support</span>
