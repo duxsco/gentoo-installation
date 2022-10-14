@@ -53,7 +53,11 @@ filetype indent on
 set number
 set paste
 syntax on
-colorscheme molokai" | tee -a /root/.vimrc >> /home/david/.vimrc  && \
+colorscheme molokai
+
+if &diff
+  colorscheme murphy
+endif" | tee -a /root/.vimrc >> /home/david/.vimrc  && \
 chown david:david /home/david/.vimrc && \
 eselect editor set vi && \
 eselect vi set vim && \
