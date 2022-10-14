@@ -29,7 +29,11 @@ emerge --select --noreplace app-editors/vim app-vim/molokai <span class=o>&amp;&
 <span class=s2>set number</span>
 <span class=s2>set paste</span>
 <span class=s2>syntax on</span>
-<span class=s2>colorscheme molokai&quot;</span> <span class=p>|</span> tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  <span class=o>&amp;&amp;</span> <span class=se>\</span>
+<span class=s2>colorscheme molokai</span>
+
+<span class=s2>if &amp;diff</span>
+<span class=s2>  colorscheme murphy</span>
+<span class=s2>endif&quot;</span> <span class=p>|</span> tee -a /root/.vimrc &gt;&gt; /home/david/.vimrc  <span class=o>&amp;&amp;</span> <span class=se>\</span>
 chown david:david /home/david/.vimrc <span class=o>&amp;&amp;</span> <span class=se>\</span>
 eselect editor <span class=nb>set</span> vi <span class=o>&amp;&amp;</span> <span class=se>\</span>
 eselect vi <span class=nb>set</span> vim <span class=o>&amp;&amp;</span> <span class=se>\</span>
