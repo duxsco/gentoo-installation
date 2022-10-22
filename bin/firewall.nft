@@ -22,15 +22,14 @@ table inet filter {
 		type filter hook forward priority filter; policy drop;
 		ct state vmap { invalid : drop, established : accept, related : accept, untracked : drop }
 
-#		iifname "br0" oifname "wlan0" meta nfproto ipv4 jump virt-manager
+#		iifname "br0" oifname "wlan0" meta nfproto ipv4 jump shared-internet
 	}
 
 	chain output {
 		type filter hook output priority filter; policy accept;
 	}
 
-#	chain virt-manager {
-#		ip daddr 192.168.0.1 meta l4proto {tcp, udp} th dport 53 accept
+#	chain shared-internet {
 #		ip daddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 169.254.0.0/16 } reject
 #		accept
 #	}
