@@ -1,6 +1,6 @@
-In the following, I am using the [SystemRescueCD](https://www.system-rescue.org/), **not** the [official Gentoo Linux installation media](https://www.gentoo.org/downloads/), in order to make use of its capability to create custom installation media and setup the "rescue" partition with it's [chroot.sh script](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281). If not otherwise stated, commands are executed as "root" on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole codeblock, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
+In the following, I am using the [SystemRescue](https://www.system-rescue.org/), **not** the [official Gentoo Linux installation media](https://www.gentoo.org/downloads/), in order to make use of its capability to create custom installation media and setup the "rescue" partition with it's [chroot.sh script](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281). If not otherwise stated, commands are executed as "root" on the remote machine where Gentoo Linux needs to be installed, in the beginning via TTY, later on over SSH. Most of the time, you can copy&paste the whole codeblock, but understand the commands first and make adjustments (e.g. IP address, disk names) if required.
 
-Boot into the SystemRescueCD and [set the correct keyboard layout](https://man7.org/linux/man-pages/man1/loadkeys.1.html):
+Boot into the SystemRescue and [set the correct keyboard layout](https://man7.org/linux/man-pages/man1/loadkeys.1.html):
 
 ```shell
 loadkeys de-latin1-nodeadkeys
@@ -30,7 +30,7 @@ screen -S install
 # If no automatic network setup has been done via DHCP...
 nmtui
 
-# Insert iptables rules at the correct place for SystemRescueCD to accept SSH connection requests.
+# Insert iptables rules at the correct place for SystemRescue to accept SSH connection requests.
 # Verify with "iptables -L -v -n"
 iptables -I INPUT 4 -p tcp --dport 22 -j ACCEPT -m conntrack --ctstate NEW
 
@@ -41,7 +41,7 @@ passwd root
 !!! info "Using screen"
     You can detach from screen's session with ++ctrl+a+d++ and reattach with `screen -d -r install`. Scrolling works with ++ctrl+a+esc++ followed by ++up++ / ++down++ / ++page-up++ / ++page-down++ . You can exit "scroll mode" with ++esc++ .
 
-Print out fingerprints to be able to double check later on upon initial SSH connection to the SystemRescueCD system:
+Print out fingerprints to be able to double check later on upon initial SSH connection to the SystemRescue system:
 
 ```shell
 find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;

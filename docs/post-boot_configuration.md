@@ -1,6 +1,6 @@
 ## 12.1. systemd Configuration
 
-Some configuration needs to be done **after** Gentoo's systemd has been started. In the previous chapter, systemd was running, but only the instance belonging to SystemRescueCD.
+Some configuration needs to be done **after** Gentoo's systemd has been started. In the previous chapter, systemd was running, but only the instance belonging to SystemRescue.
 
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale) (copy&paste one after the other):
 

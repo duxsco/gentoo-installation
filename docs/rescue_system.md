@@ -1,7 +1,7 @@
 !!! info
-    A [feature request](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292) has been opened to have SystemRescueCD support "measured boot".
+    A [feature request](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292) has been opened to have SystemRescue support "measured boot".
 
-While we are still on SystemRescueCD and not within chroot, download the SystemRescueCD .iso file and create a customised one out of it.
+While we are still on SystemRescue and not within chroot, download the SystemRescue .iso file and create a customised one out of it.
 
 ## 4.1. Downloads And Verification
 
@@ -13,7 +13,7 @@ chown meh:meh /mnt/gentoo/etc/gentoo-installation/systemrescuecd && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Import the GnuPG public key used to sign the SystemRescueCD .iso:
+Import the GnuPG public key used to sign the SystemRescue .iso:
 
 ```shell
 su -l meh -c "
@@ -49,7 +49,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 4.2. Configuration
 
-Create the folder structure which will contain SystemRescueCD customisations:
+Create the folder structure which will contain SystemRescue customisations:
 
 ```shell
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},usr/local/sbin}},work} && \
