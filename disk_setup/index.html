@@ -8,7 +8,10 @@
         wipefs -a <span class=s2>&quot;</span><span class=nv>$i</span><span class=s2>&quot;</span>
     <span class=k>fi</span>
 <span class=k>done</span> &lt; &lt;<span class=o>(</span>lsblk -npo kname <span class=s2>&quot;</span><span class=si>${</span><span class=nv>disk</span><span class=si>}</span><span class=s2>&quot;</span> <span class=p>|</span> grep <span class=s2>&quot;^</span><span class=si>${</span><span class=nv>disk</span><span class=si>}</span><span class=s2>&quot;</span> <span class=p>|</span> sort -r<span class=o>)</span>
-</code></pre></div> <div class="admonition tip"> <p class=admonition-title>Tip</p> <p>If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like <code>dd</code>, e.g. <a href=https://wiki.archlinux.org/title/Securely_wipe_disk>https://wiki.archlinux.org/title/Securely_wipe_disk</a>!</p> </div> <h2 id=32-partitioning-and-formating>3.2. Partitioning And Formating<a class=headerlink href=#32-partitioning-and-formating title="Permanent link">&para;</a></h2> <p>Prepare the disks (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code><span class=c1># lookup all options</span>
+</code></pre></div> <div class="admonition tip"> <p class=admonition-title>Tip</p> <p>If you have confidential data stored in a non-encrypted way on HDD(s) and don't want to risk the data landing in foreign hands I recommend the use of something like <code>dd</code>, e.g. <a href=https://wiki.archlinux.org/title/Securely_wipe_disk>https://wiki.archlinux.org/title/Securely_wipe_disk</a>!</p> </div> <h2 id=32-partitioning-and-formating>3.2. Partitioning And Formating<a class=headerlink href=#32-partitioning-and-formating title="Permanent link">&para;</a></h2> <p>Prepare the disks (copy&amp;paste one after the other):</p> <div class=highlight><pre><span></span><code><span class=c1># list devices</span>
+fdisk -l
+
+<span class=c1># lookup all options</span>
 bash /tmp/disk.sh -h
 
 <span class=c1># disable bash history</span>

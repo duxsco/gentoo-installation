@@ -9,7 +9,7 @@ emerge app-admin/sudo <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=o>{</span> <span class=o>[[</span> -d /etc/sudoers.d <span class=o>]]</span> <span class=o>||</span> mkdir -m <span class=nv>u</span><span class=o>=</span>rwx,g<span class=o>=</span>rx,o<span class=o>=</span> /etc/sudoers.d<span class=p>;</span> <span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> <span class=s2>&quot;%wheel ALL=(ALL) ALL&quot;</span> <span class=p>|</span> <span class=nv>EDITOR</span><span class=o>=</span><span class=s2>&quot;tee&quot;</span> visudo -f /etc/sudoers.d/wheel <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <p>Setup client SSH config:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;AddKeysToAgent no</span>
+</code></pre></div> <p>Setup SSH client config:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;AddKeysToAgent no</span>
 <span class=s2>KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org</span>
 <span class=s2>HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256</span>
 <span class=s2>Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com</span>

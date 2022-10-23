@@ -20,7 +20,7 @@ su -l meh -c <span class=s2>&quot;</span>
 <span class=s2>&quot;</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
 chown -R <span class=m>0</span>:0 /mnt/gentoo/etc/gentoo-installation/systemrescuecd <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
-</code></pre></div> <h2 id=42-configuration>4.2. Configuration<a class=headerlink href=#42-configuration title="Permanent link">&para;</a></h2> <p>Create the folder structure which will contain SystemRescue customisations:</p> <div class=highlight><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/<span class=o>{</span>recipe/<span class=o>{</span>iso_delete,iso_add/<span class=o>{</span>autorun,sysresccd,sysrescue.d<span class=o>}</span>,iso_patch_and_script,build_into_srm/<span class=o>{</span>etc/<span class=o>{</span>ssh,sysctl.d<span class=o>}</span>,usr/local/sbin<span class=o>}}</span>,work<span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</code></pre></div> <h2 id=42-configuration>4.2. Configuration<a class=headerlink href=#42-configuration title="Permanent link">&para;</a></h2> <p>Create the folder structure which will contain SystemRescue customisations:</p> <div class=highlight><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/<span class=o>{</span>recipe/<span class=o>{</span>iso_delete,iso_add/<span class=o>{</span>autorun,sysresccd,sysrescue.d<span class=o>}</span>,iso_patch_and_script,build_into_srm/<span class=o>{</span>etc/sysctl.d,usr/local/sbin<span class=o>}}</span>,work<span class=o>}</span> <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
 </code></pre></div> <p>Disable "magic SysRq" for <a href=https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key>security sake</a>:</p> <div class=highlight><pre><span></span><code><span class=nb>echo</span> <span class=s2>&quot;kernel.sysrq = 0&quot;</span> &gt; /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/sysctl.d/99sysrq.conf <span class=o>&amp;&amp;</span> <span class=se>\</span>
 <span class=nb>echo</span> -e <span class=s2>&quot;\e[1;32mSUCCESS\e[0m&quot;</span>
@@ -72,7 +72,9 @@ cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/
 <span class=c1># set correct modes</span>
 chmod <span class=nv>u</span><span class=o>=</span>rwx,g<span class=o>=</span>rx,o<span class=o>=</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root
 chmod -R <span class=nv>u</span><span class=o>=</span>rwX,go<span class=o>=</span> /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
-</code></pre></div> <p>Configure the SSH server:</p> <div class=highlight><pre><span></span><code>rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
+</code></pre></div> <p>Configure the SSH server:</p> <div class=highlight><pre><span></span><code>mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh <span class=o>&amp;&amp;</span> <span class=se>\</span>
+
+rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config <span class=o>&amp;&amp;</span> <span class=se>\</span>
 
 <span class=c1># do some ssh server hardening</span>
 sed -i <span class=se>\</span>
