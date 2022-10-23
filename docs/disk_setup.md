@@ -1,6 +1,6 @@
 ## 3.1. Wiping Disks
 
-[disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh) expects the disks, where you want to install Gentoo Linux on, to be completely empty.
+[disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh) expects the disks, where you want to install Gentoo Linux on, to be completely empty. If that's not the case continue reading. Otherwise, continue with [3.2. Partitioning And Formating](#32-partitioning-and-formating).
 
 If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk (copy&paste one after the other):
 
@@ -83,7 +83,7 @@ Extract the portage tarball ([based on archived old handbook](https://web.archiv
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
 mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
-tar --transform 's/^portage/gentoo/' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz && \
+tar --transform 's#^portage/#gentoo/#' --transform 's#^portage$#gentoo#' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz && \
 rsync -av --numeric-ids --chown=250:250 /tmp/overlay/duxsco /mnt/gentoo/var/db/repos/ && \
 mkdir /mnt/gentoo/etc/portage/repos.conf && \
 echo '[duxsco]
