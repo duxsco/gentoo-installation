@@ -197,8 +197,6 @@ After running through above installation steps, you should have the following fi
     │   ├── etc
     │   │   ├── ssh
     │   │   │   ├── sshd_config
-    │   │   │   ├── ssh_host_dsa_key
-    │   │   │   ├── ssh_host_dsa_key.pub
     │   │   │   ├── ssh_host_ecdsa_key
     │   │   │   ├── ssh_host_ecdsa_key.pub
     │   │   │   ├── ssh_host_ed25519_key
@@ -224,7 +222,7 @@ After running through above installation steps, you should have the following fi
     ├── iso_delete
     └── iso_patch_and_script
     
-    15 directories, 15 files
+    15 directories, 13 files
     ```
 
 === "non-SSH setup"
@@ -255,7 +253,7 @@ After running through above installation steps, you should have the following fi
 
 ## 4.5. ISO And Rescue Partition
 
-Create an installation medium with above changes:
+[Create an installation medium](https://www.system-rescue.org/scripts/sysrescue-customize/) with above changes:
 
 ```shell
 sysrescue-customize \
