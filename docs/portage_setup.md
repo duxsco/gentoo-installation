@@ -1,6 +1,6 @@
 !!! info "Application of configuration changes"
 
-    Starting with this chapter, **execute [dispatch-conf](https://wiki.gentoo.org/wiki/Dispatch-conf) after every codeblock** where a ["._cfg0000_" prefixed file](https://projects.gentoo.org/pms/8/pms.html#x1-14600013.3.3) has been created. {==The creation of "._cfg0000" prefixed files will be highlighted in yellow.==} Alternatively, [etc-update](https://wiki.gentoo.org/wiki/Handbook:X86/Portage/Tools#etc-update) or [cfg-update](https://wiki.gentoo.org/wiki/Cfg-update) might be s.th. to consider, but I haven't tested those.
+    Starting with this chapter, **execute [dispatch-conf](https://wiki.gentoo.org/wiki/Dispatch-conf) after every codeblock** where a [".\_cfg0000_" prefixed file](https://projects.gentoo.org/pms/8/pms.html#x1-14600013.3.3) has been created. {==The creation of ".\_cfg0000_" prefixed files will be highlighted in yellow.==} Alternatively, [etc-update](https://wiki.gentoo.org/wiki/Handbook:X86/Portage/Tools#etc-update) or [cfg-update](https://wiki.gentoo.org/wiki/Cfg-update) might be s.th. to consider, but I haven't tested those.
 
 Make "dispatch-conf" show [diffs in color](https://wiki.gentoo.org/wiki/Dispatch-conf#Changing_diff_or_merge_tools) and use [vimdiff for merging](https://wiki.gentoo.org/wiki/Dispatch-conf#Use_.28g.29vimdiff_to_merge_changes):
 
@@ -28,7 +28,8 @@ sed -i 's/COMMON_FLAGS="-O2 -pipe"/COMMON_FLAGS="-march=native -O2 -pipe"/' /etc
 
 # https://wiki.gentoo.org/wiki/EMERGE_DEFAULT_OPTS
 # https://wiki.gentoo.org/wiki/Binary_package_guide#Excluding_creation_of_some_packages
-# for all other flags, take a look at "man emerge" or
+#
+# For all other flags, take a look at "man emerge" or
 # https://gitweb.gentoo.org/proj/portage.git/tree/man/emerge.1
 echo 'EMERGE_DEFAULT_OPTS="--buildpkg --buildpkg-exclude '\''*/*-bin sys-kernel/* virtual/*'\'' --noconfmem --with-bdeps=y --complete-graph=y"' >> /etc/portage/._cfg0000_make.conf
 
@@ -48,6 +49,7 @@ GENTOO_MIRRORS="https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp
 # Default values from /usr/share/portage/config/make.globals are:
 # FETCHCOMMAND="wget -t 3 -T 60 --passive-ftp -O \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
 # RESUMECOMMAND="wget -c -t 3 -T 60 --passive-ftp -O \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
+#
 # File in git: https://gitweb.gentoo.org/proj/portage.git/tree/cnf/make.globals
 #
 # They are insufficient in my opinion.
@@ -94,7 +96,7 @@ country='"AU","BE","BR","CA","CH","CL","CN","CZ","DE","DK","ES","FR","GR","HK","
 
 # Get a list of mirrors available over IPv4/IPv6 dual-stack in the countries of your choice with TLSv1.3 support
 while read -r i; do
-  if curl -fs --proto '=https' --tlsv1.3 -I "${i}" >/dev/null; then
+  if curl -fsL --proto '=https' --tlsv1.3 -I "${i}" >/dev/null; then
     echo "${i}"
   fi
 done < <(
@@ -113,18 +115,26 @@ emerge --oneshot net-misc/rsync && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Install [app-portage/eix](https://wiki.gentoo.org/wiki/Eix):
+I personally prefer syncing the repo via ["eix-sync"](https://wiki.gentoo.org/wiki/Eix#Method_2:_Using_eix-sync) which is provided by [app-portage/eix](https://wiki.gentoo.org/wiki/Eix). But, there are [some of other options](https://wiki.gentoo.org/wiki/Gentoo_Cheat_Sheet#Sync_methods):
 
-```shell
-emerge -at app-portage/eix
-```
+=== "eix-sync"
 
-Execute ["eix-sync"](https://wiki.gentoo.org/wiki/Eix#Method_2:_Using_eix-sync):
+    ```shell
+    emerge app-portage/eix && \
+    eix-sync
+    ```
 
-```shell
-eix-sync && \
-echo -e "\e[1;32mSUCCESS\e[0m"
-```
+=== "emaint (replaced "emerge --sync")"
+
+    ```shell
+    emaint --auto sync
+    ```
+
+=== "emerge-webrsync"
+
+    ```shell
+    emerge-webrsync
+    ```
 
 Read [Gentoo news items](https://www.gentoo.org/glep/glep-0042.html):
 
