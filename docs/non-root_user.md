@@ -63,10 +63,8 @@ fi' >> /root/.bashrc
 
 Setup [app-editors/vim](https://wiki.gentoo.org/wiki/Vim):
 
-```shell hl_lines="4"
-USE="-verify-sig" emerge --oneshot dev-libs/libsodium && \
-emerge --oneshot dev-libs/libsodium app-editors/vim app-vim/molokai && \
-emerge --select --noreplace app-editors/vim app-vim/molokai && \
+```shell hl_lines="2"
+emerge -at app-editors/vim app-vim/molokai && \
 rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
 sed -i 's/^USE="\([^"]*\)"$/USE="\1 vim-syntax"/' /etc/portage/._cfg0000_make.conf && \
 echo "filetype plugin on

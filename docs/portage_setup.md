@@ -61,7 +61,7 @@ RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"' >> /etc/portage/._cfg0000_make.
 # Some useflags I set for personal use.
 # Feel free to adjust as with any other codeblock. 😄
 echo '
-USE_HARDENED="caps pie -sslv3 -suid verify-sig"
+USE_HARDENED="caps pie -sslv3 -suid"
 USE="${USE_HARDENED}"' >> /etc/portage/._cfg0000_make.conf
 ```
 
