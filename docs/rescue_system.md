@@ -52,7 +52,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Create the folder structure which will contain SystemRescue customisations:
 
 ```shell
-mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/{ssh,sysctl.d},usr/local/sbin}},work} && \
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/{recipe/{iso_delete,iso_add/{autorun,sysresccd,sysrescue.d},iso_patch_and_script,build_into_srm/{etc/sysctl.d,usr/local/sbin}},work} && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
@@ -144,6 +144,8 @@ chmod -R u=rwX,go= /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/bui
 Configure the SSH server:
 
 ```shell
+mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh && \
+
 rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 
 # do some ssh server hardening

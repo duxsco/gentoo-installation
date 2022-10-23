@@ -126,7 +126,7 @@ Print out fingerprints to be able to double check later on upon initial SSH conn
 find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
-Execute following "rsync" and "ssh" commands **on your local machine** (copy&paste one after the other):
+Execute following "rsync" and "ssh" commands **on your local machine from within the checked out ["gentoo-installation" repo](https://github.com/duxsco/gentoo-installation/)** (copy&paste one after the other):
 
 ```shell
 # Copy installation files to remote machine. Don't forget to set the correct IP.

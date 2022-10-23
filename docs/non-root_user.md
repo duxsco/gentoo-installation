@@ -23,7 +23,7 @@ echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup client SSH config:
+Setup SSH client config:
 
 ```shell
 echo "AddKeysToAgent no

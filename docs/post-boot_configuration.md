@@ -116,7 +116,7 @@ Add support for TPM 2.0 to dracut and systemd:
 
 ```shell hl_lines="1"
 rsync -a /etc/portage/package.use/main /etc/portage/package.use/._cfg0000_main && \
-sed -i "s/\(sys-apps\/systemd \)/\1 tpm /" /etc/portage/package.use/._cfg0000_main && \
+sed -i "s/^\(sys-apps\/systemd.*\)$/\1 tpm/" /etc/portage/package.use/._cfg0000_main && \
 echo 'add_dracutmodules+=" tpm2-tss "' >> /etc/dracut.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
@@ -216,7 +216,7 @@ clevis luks list -d /dev/sdb4
 
 ### 12.3.2. Kernel Rebuild
 
-Rebuild the unified kernel image to contain the changes for measured boot:
+Rebuild the unified kernel image to integrate the changes for measured boot:
 
 ```shell
 emerge -at --oneshot \

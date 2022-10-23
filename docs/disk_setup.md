@@ -18,13 +18,16 @@ done < <(lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r)
 ```
 
 !!! tip
-    If you have confidential data stored in a non-encrypted way and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. [https://wiki.archlinux.org/title/Securely_wipe_disk](https://wiki.archlinux.org/title/Securely_wipe_disk)!
+    If you have confidential data stored in a non-encrypted way on HDD(s) and don't want to risk the data landing in foreign hands I recommend the use of something like `dd`, e.g. [https://wiki.archlinux.org/title/Securely_wipe_disk](https://wiki.archlinux.org/title/Securely_wipe_disk)!
 
 ## 3.2. Partitioning And Formating
 
 Prepare the disks (copy&paste one after the other):
 
 ```shell
+# list devices
+fdisk -l
+
 # lookup all options
 bash /tmp/disk.sh -h
 
