@@ -108,10 +108,12 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Install [app-shells/fish](https://wiki.gentoo.org/wiki/Fish):
 
-```shell
+```shell hl_lines="4"
 echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
 echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/fish && \
+rsync -a /etc/portage/make.conf /etc/portage/._cfg0000_make.conf && \
+sed -i 's/^USE="\([^"]*\)"$/USE="\1 fish-completion"/' /etc/portage/._cfg0000_make.conf && \
 echo '
 # Use fish in place of bash
 # keep this line at the bottom of ~/.bashrc

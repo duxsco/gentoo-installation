@@ -62,7 +62,7 @@ RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"' >> /etc/portage/._cfg0000_make.
 # Feel free to adjust as with any other codeblock. 😄
 echo '
 USE_HARDENED="caps pie -sslv3 -suid verify-sig"
-USE="${USE_HARDENED} fish-completion"' >> /etc/portage/._cfg0000_make.conf
+USE="${USE_HARDENED}"' >> /etc/portage/._cfg0000_make.conf
 ```
 
 I prefer English manpages and ignore above [L10N](https://wiki.gentoo.org/wiki/Localization/Guide#L10N) setting for "sys-apps/man-pages". Makes using Stackoverflow easier :wink:.
