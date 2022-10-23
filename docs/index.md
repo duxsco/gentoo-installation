@@ -18,7 +18,7 @@ The guide results in a system that is/uses:
 - [x] **Measured Boot**: [systemd-cryptenroll](https://wiki.archlinux.org/title/Trusted_Platform_Module#systemd-cryptenroll) or [clevis](https://github.com/latchset/clevis) is used to check the system for manipulations via TPM 2.0 PCRs.
 - [x] **Fully encrypted**: Except for ESP(s), all partitions are LUKS encrypted.
 - [x] **RAID**: Except for ESP(s), btrfs and mdadm based RAID are used for all partitions if the number of disks is ≥2.
-- [x] **Rescue system**: A customised SystemRescue supports SSH logins and provides a convenient [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281) script.
+- [x] **Rescue system**: A customised SystemRescue supports optional SSH logins and provides a convenient [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281) script.
 - [x] **Hardened Gentoo Linux (optional)** for a highly secure, high stability production environment ([link](https://wiki.gentoo.org/wiki/Project:Hardened)).
 - [x] **SELinux (optional)** provides Mandatory Access Control using type enforcement and role-based access control ([link](https://wiki.gentoo.org/wiki/Project:SELinux)).
 
@@ -40,7 +40,7 @@ After completion of this guide, optional SSH connections will be possible to the
 
 ## 1.4. Disk Layout
 
-ESPs are created one for each disk. Except for them, [btrfs](https://btrfs.readthedocs.io/en/latest/mkfs.btrfs.html#profiles) or [mdadm](https://raid.wiki.kernel.org/index.php/Introduction#The_RAID_levels) based RAID 1 is used for all other partitions on a dual- or multi-disk setup with RAID 5, RAID 6 and RAID 10 being further options for the swap device. The 2nd partition doesn't make use of btrfs RAID due to [limitations of SystemRescue](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292#note_1036225171).
+Independent ESPs are created one for each disk to provide for redundancy, because there is the risk of data corruption with the redundancy provided by mdadm RAID (further info: [5.1 ESP on software RAID1](https://wiki.archlinux.org/title/EFI_system_partition#ESP_on_software_RAID1)). Except for ESPs, [btrfs](https://btrfs.readthedocs.io/en/latest/mkfs.btrfs.html#profiles) or [mdadm](https://raid.wiki.kernel.org/index.php/Introduction#The_RAID_levels) based RAID 1 is used for all other partitions on a dual- or multi-disk setup with RAID 5, RAID 6 and RAID 10 being further options for the swap device. The 2nd partition doesn't make use of btrfs RAID due to [limitations of SystemRescue](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292#note_1036225171).
 
 === "four disks"
 
