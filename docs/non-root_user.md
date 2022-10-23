@@ -38,7 +38,28 @@ chown david:david /home/david/.ssh/config && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-## 7.3. VIM Editor
+## 7.3. ~/.bashrc and chroot
+
+Add the following to "/root/.bashrc"
+for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L281) to work:
+
+```shell
+echo '
+# Use fish in place of bash
+# keep this line at the bottom of ~/.bashrc
+if [[ -z ${chrooted} ]]; then
+    if [[ -x /bin/fish ]]; then
+        SHELL=/bin/fish exec /bin/fish
+    fi
+elif [[ -z ${chrooted_su} ]]; then
+    export chrooted_su=true
+    source /etc/profile && su --login --whitelist-environment=chrooted,chrooted_su
+else
+    env-update && source /etc/profile && export PS1="(chroot) $PS1"
+fi' >> /root/.bashrc
+```
+
+## 7.4. (Optional) VIM Editor
 
 Setup [app-editors/vim](https://wiki.gentoo.org/wiki/Vim):
 
@@ -65,7 +86,7 @@ env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-## 7.4. Interactive Shell
+## 7.5. (Optional) starship, fish shell and nerd fonts
 
 Install [app-shells/starship](https://starship.rs/):
 
@@ -91,19 +112,6 @@ Install [app-shells/fish](https://wiki.gentoo.org/wiki/Fish):
 echo "=dev-libs/libpcre2-$(qatom -F "%{PVR}" "$(portageq best_visible / dev-libs/libpcre2)") pcre32" >> /etc/portage/package.use/main && \
 echo "app-shells/fish ~amd64" >> /etc/portage/package.accept_keywords/main && \
 emerge app-shells/fish && \
-echo '
-# Use fish in place of bash
-# keep this line at the bottom of ~/.bashrc
-if [[ -z ${chrooted} ]]; then
-    if [[ -x /bin/fish ]]; then
-        SHELL=/bin/fish exec /bin/fish
-    fi
-elif [[ -z ${chrooted_su} ]]; then
-    export chrooted_su=true
-    source /etc/profile && su --login --whitelist-environment=chrooted,chrooted_su
-else
-    env-update && source /etc/profile && export PS1="(chroot) $PS1"
-fi' >> /root/.bashrc && \
 echo '
 # Use fish in place of bash
 # keep this line at the bottom of ~/.bashrc
