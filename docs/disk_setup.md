@@ -39,7 +39,6 @@ set -o history
 ```
 
 !!! info
-
     [disk.sh creates the user "meh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L174) which will be used later on to act as non-root.
 
 ## 3.3. /mnt/gentoo Content
@@ -47,19 +46,15 @@ set -o history
 After executing "disk.sh", the btrfs subvolume "@root" [mounted by "disk.sh" at "/mnt/gentoo/"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L172) should contain:
 
 === "four disks"
-
     ![four disks content](/images/four_disks_content.png)
 
 === "three disks"
-
     ![three disks content](/images/three_disks_content.png)
 
 === "two disks"
-
     ![two disks content](/images/two_disks_content.png)
 
 === "single disk"
-
     ![single disk content](/images/single_disk_content.png)
 
 ## 3.4. Tarball Extraction

@@ -76,7 +76,6 @@ systemctl preset-all --preset-mode=enable-only
 ## 8.3. Secure Boot
 
 !!! danger "Warnings on OptionROM"
-
     While using sbctl, take warnings such as the following serious and make sure to understand the implications:
 
     > Could not find any TPM Eventlog in the system. This means we do not know if there is any OptionROM present on the system.

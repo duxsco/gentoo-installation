@@ -1,5 +1,4 @@
 !!! info "Application of configuration changes"
-
     Starting with this chapter, **execute [dispatch-conf](https://wiki.gentoo.org/wiki/Dispatch-conf) after every codeblock** where a [".\_cfg0000_" prefixed file](https://projects.gentoo.org/pms/8/pms.html#x1-14600013.3.3) has been created. {==The creation of ".\_cfg0000_" prefixed files will be highlighted in yellow.==} Alternatively, [etc-update](https://wiki.gentoo.org/wiki/Handbook:X86/Portage/Tools#etc-update) or [cfg-update](https://wiki.gentoo.org/wiki/Cfg-update) might be s.th. to consider, but I haven't tested those.
 
 Make "dispatch-conf" show [diffs in color](https://wiki.gentoo.org/wiki/Dispatch-conf#Changing_diff_or_merge_tools) and use [vimdiff for merging](https://wiki.gentoo.org/wiki/Dispatch-conf#Use_.28g.29vimdiff_to_merge_changes):
@@ -118,20 +117,17 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 I personally prefer syncing the repo via ["eix-sync"](https://wiki.gentoo.org/wiki/Eix#Method_2:_Using_eix-sync) which is provided by [app-portage/eix](https://wiki.gentoo.org/wiki/Eix). But, there are [some of other options](https://wiki.gentoo.org/wiki/Gentoo_Cheat_Sheet#Sync_methods):
 
 === "eix-sync"
-
     ```shell
     emerge app-portage/eix && \
     eix-sync
     ```
 
 === "emaint (replaced "emerge --sync")"
-
     ```shell
     emaint --auto sync
     ```
 
 === "emerge-webrsync"
-
     ```shell
     emerge-webrsync
     ```
@@ -148,7 +144,6 @@ eselect news list
 ## 6.4. (Optional) Hardened Profiles
 
 !!! info "Desktop Profiles"
-
     To make things simple, hardened desktop profiles are only considered for selection at the end of this guide in chapter [15. Desktop profiles (optional)](/desktop_profiles/).
 
 Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) and [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) profile. Additional ressources:

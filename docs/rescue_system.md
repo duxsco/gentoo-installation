@@ -126,7 +126,6 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 ## 4.3 (Optional) SSH Server
 
 !!! info
-
     This section is only required if you want to access the rescue system over SSH.
 
 Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication) (copy&paste one after the other):
@@ -189,7 +188,6 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 After running through above installation steps, you should have the following file/folder structure:
 
 === "SSH setup"
-
     ```shell
     ❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
     /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
@@ -226,7 +224,6 @@ After running through above installation steps, you should have the following fi
     ```
 
 === "non-SSH setup"
-
     ```shell
     ❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
     /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe

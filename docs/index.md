@@ -27,13 +27,11 @@ The guide results in a system that is/uses:
 After completion of this guide, optional SSH connections will be possible to the following systems using SSH public key authentication:
 
 === "Gentoo Linux installation"
-
     ```shell
     ssh -p 50022 david@<IP address>
     ```
 
 === "Rescue System"
-
     ```shell
     ssh -p 50023 root@<IP address>
     ```
@@ -43,19 +41,15 @@ After completion of this guide, optional SSH connections will be possible to the
 Independent ESPs are created one for each disk to provide for redundancy, because there is the risk of data corruption with the redundancy provided by mdadm RAID (further info: [5.1 ESP on software RAID1](https://wiki.archlinux.org/title/EFI_system_partition#ESP_on_software_RAID1)). Except for ESPs, [btrfs](https://btrfs.readthedocs.io/en/latest/mkfs.btrfs.html#profiles) or [mdadm](https://raid.wiki.kernel.org/index.php/Introduction#The_RAID_levels) based RAID 1 is used for all other partitions on a dual- or multi-disk setup with RAID 5, RAID 6 and RAID 10 being further options for the swap device. The 2nd partition doesn't make use of btrfs RAID due to [limitations of SystemRescue](https://gitlab.com/systemrescue/systemrescue-sources/-/issues/292#note_1036225171).
 
 === "four disks"
-
     ![four disks](/images/four_disks.png)
 
 === "three disks"
-
     ![three disks](/images/three_disks.png)
 
 === "two disks"
-
     ![two disks](/images/two_disks.png)
 
 === "single disk"
-
     ![single disk](/images/single_disk.png)
 
 ## 1.5. LUKS Key Slots

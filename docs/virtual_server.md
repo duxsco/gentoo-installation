@@ -1,9 +1,7 @@
 !!! note
-
     I connect to libvirtd via TCP and tunnel the connection over SSH, because I want to use my SSH key which is secured on a hardware token, and "virt-manager" doesn't seem to support it directly. Thus, I can't use s.th. like `qemu+ssh://david@192.168.10.3:50022/system`.
 
 !!! tip
-
     You might want to consider having "/var/lib/libvirt" on a separate btrfs subvolume.
 
 I prefer managing installation media downloads and network myself:

@@ -25,7 +25,6 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 For the switch to a SELinux profile, you have two options depending on the profile currently in use:
 
 === "duxsco:hardened-systemd"
-
     If you have switched to [duxsco:hardened-systemd](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd) in section [6.4. (Optional) Hardened Profiles](/portage_setup/#64-optional-hardened-profiles), you can easily "add" SELinux features with a simple switch to [duxsco:hardened-systemd-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-selinux):
 
     ```shell
@@ -33,7 +32,6 @@ For the switch to a SELinux profile, you have two options depending on the profi
     ```
 
 === "default/linux/amd64/17.1/systemd"
-
     If you stayed with the profile that came with the stage3 tarball which is most likely "default/linux/amd64/17.1/systemd" you can select the SELinux profile with:
 
     ```shell
