@@ -36,7 +36,7 @@ done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[
 
 ## 9.2. CPU Microcode
 
-Microcode updates are [not necessary for virtual machines](https://unix.stackexchange.com/a/572757). If on bare-metal, install "sys-firmware/intel-microcode" if you have an Intel CPU or follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
+Microcode updates are [not necessary for virtual machines](https://unix.stackexchange.com/a/572757). On bare-metal, however, install "sys-firmware/intel-microcode" for Intel CPUs or follow the [Gentoo wiki instruction](https://wiki.gentoo.org/wiki/AMD_microcode) to update the microcode on AMD systems.
 
 ```shell
 ! grep -q -w "hypervisor" <(grep "^flags[[:space:]]*:[[:space:]]*" /proc/cpuinfo) && \
