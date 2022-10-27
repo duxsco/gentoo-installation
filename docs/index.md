@@ -1,6 +1,15 @@
 !!! warning "Disclaimer"
     This installation guide, **called "guide" in the following**, builds upon [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation). It's written with great care. Nevertheless, you are expected not to blindly copy&paste commands! Please, **understand** what you are going to do **and adjust commands if required**!
 
+!!! note
+    All Git commits and tags as well as release files auto-created by GitHub are GnuPG signed. [Release files are checked](https://github.com/duxsco/gentoo-installation/blob/main/assets/check_sign_release.sh) prior to signing.
+
+    You can fetch my GnuPG public key the following way:
+
+    ```shell
+    gpg --auto-key-locate clear,dane,wkd --locate-external-keys "d at myGitHubUsername dot de"
+    ```
+
 ## 1.1. System Requirements
 
 Beside [official hardware requirements](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Hardware_requirements), the guide has additional ones:
