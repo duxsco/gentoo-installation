@@ -16,6 +16,13 @@
     gpg --auto-key-locate clear,wkd --locate-external-keys "d at myGitHubUsername dot de"
     ```
 
+    If it still doesn't work due to reasons:
+
+    ```shell
+    curl --tlsv1.3 -o duxsco.asc https://openpgpkey.duxsco.de/.well-known/openpgpkey/duxsco.de/hu/8o5dopsxjamgc3ujwjq4fyfbo3qn4kdw
+    gpg --import duxsco.asc
+    ```
+
 ## 1.1. System Requirements
 
 Beside [official hardware requirements](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Hardware_requirements), the guide has additional ones:
