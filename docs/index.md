@@ -10,7 +10,7 @@
     gpg --locate-external-keys "d at myGitHubUsername dot de"
     ```
 
-    If above command doesn't work, because you disabled WKD in "gpg.conf" you can do:
+    If above command doesn't work, because you disabled [WKD](https://wiki.gnupg.org/WKD) in "gpg.conf" you can do:
 
     ```shell
     gpg --auto-key-locate clear,wkd --locate-external-keys "d at myGitHubUsername dot de"
