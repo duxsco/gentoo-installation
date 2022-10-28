@@ -7,7 +7,7 @@
     You can fetch my GnuPG public key the following way:
 
     ```shell
-    gpg --auto-key-locate clear,dane,wkd --locate-external-keys "d at myGitHubUsername dot de"
+    gpg --auto-key-locate clear,wkd --locate-external-keys "d at myGitHubUsername dot de"
     ```
 
 ## 1.1. System Requirements
