@@ -16,11 +16,16 @@
     gpg --auto-key-locate clear,wkd --locate-external-keys "d at myGitHubUsername dot de"
     ```
 
-    If it still doesn't work due to reasons:
+    If it still doesn't work due to reasons (copy&paste one after the other):
 
     ```shell
     curl --tlsv1.3 -o duxsco.asc https://openpgpkey.duxsco.de/.well-known/openpgpkey/duxsco.de/hu/8o5dopsxjamgc3ujwjq4fyfbo3qn4kdw
-    gpg --import duxsco.asc
+
+    # Check whether everything is kosher before importing for real:
+    gpg --import-options show-only --import duxsco.asc
+
+    # If everything is fine, import the public key:
+    gpg --key-origin wkd --import duxsco.asc
     ```
 
 ## 1.1. System Requirements
