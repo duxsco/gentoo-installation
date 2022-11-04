@@ -62,4 +62,4 @@ fi
 
 gpgconf --homedir "${temp_gpg_homedir}" --kill all
 
-popd || (echo 'Failed to move out of directory "/mnt/gentoo"! Aborting...' >&2; exit 1)
+popd || { echo 'Failed to move out of directory "/mnt/gentoo"! Aborting...' >&2; exit 1; }
