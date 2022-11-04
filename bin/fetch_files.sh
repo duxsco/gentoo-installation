@@ -2,11 +2,11 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset current_stage3 temp_gpg_homedir
+unset current_stage3
 
 function gpg_verify() {
     grep -q "^GOODSIG TRUST_ULTIMATE VALIDSIG$" < <(
-        gpg --homedir "${temp_gpg_homedir}" --status-fd 1 --verify "$1" "$2" 2>/dev/null | \
+        gpg --status-fd 1 --verify "$1" "$2" 2>/dev/null | \
         grep -Po "^\[GNUPG:\][[:space:]]+\K(GOODSIG|VALIDSIG|TRUST_ULTIMATE)(?=[[:space:]])" | \
         sort | \
         paste -d " " -s -
@@ -15,14 +15,14 @@ function gpg_verify() {
 
 pushd /mnt/gentoo || { echo 'Failed to move to directory "/mnt/gentoo"! Aborting...' >&2; exit 1; }
 
-temp_gpg_homedir="$(mktemp -d)"
+GNUPGHOME="$(mktemp -d)"
+export GNUPGHOME
 
 # prepare gnupg
-if  gpg --homedir "${temp_gpg_homedir}" \
-        --locate-external-keys infrastructure@gentoo.org releng@gentoo.org >/dev/null 2>&1
+if  gpg --locate-external-keys infrastructure@gentoo.org releng@gentoo.org >/dev/null 2>&1
 then
     echo -e "13EBBDBEDE7A12775DFDB1BABB572E0E2D182910:6:\nDCD05B71EAB94199527F44ACDB6B8C1F96D8BF6D:6:" | \
-        gpg --homedir "${temp_gpg_homedir}" --import-ownertrust --quiet
+        gpg --import-ownertrust --quiet
 else
     echo "Failed to fetch GnuPG public keys! Aborting..." >&2
     exit 1
@@ -59,6 +59,6 @@ then
     exit 1
 fi
 
-gpgconf --homedir "${temp_gpg_homedir}" --kill all
+gpgconf --kill all
 
 popd || { echo 'Failed to move out of directory "/mnt/gentoo"! Aborting...' >&2; exit 1; }
