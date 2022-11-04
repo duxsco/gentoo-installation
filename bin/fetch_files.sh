@@ -6,7 +6,7 @@ unset current_stage3
 
 function gpg_verify() {
     grep -q "^GOODSIG TRUST_ULTIMATE VALIDSIG$" < <(
-        gpg --status-fd 1 --verify "$1" "$2" 2>/dev/null | \
+        gpg --batch --status-fd 1 --verify "$1" "$2" 2>/dev/null | \
         grep -Po "^\[GNUPG:\][[:space:]]+\K(GOODSIG|VALIDSIG|TRUST_ULTIMATE)(?=[[:space:]])" | \
         sort | \
         paste -d " " -s -
@@ -19,10 +19,10 @@ GNUPGHOME="$(mktemp -d)"
 export GNUPGHOME
 
 # prepare gnupg
-if  gpg --locate-external-keys infrastructure@gentoo.org releng@gentoo.org >/dev/null 2>&1
+if  gpg --batch --locate-external-keys infrastructure@gentoo.org releng@gentoo.org >/dev/null 2>&1
 then
     echo -e "13EBBDBEDE7A12775DFDB1BABB572E0E2D182910:6:\nDCD05B71EAB94199527F44ACDB6B8C1F96D8BF6D:6:" | \
-        gpg --import-ownertrust --quiet
+        gpg --batch --import-ownertrust --quiet
 else
     echo "Failed to fetch GnuPG public keys! Aborting..." >&2
     exit 1
