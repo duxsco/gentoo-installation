@@ -5,12 +5,10 @@
 unset current_stage3
 
 function gpg_verify() {
-    grep -q "^GOODSIG TRUST_ULTIMATE VALIDSIG$" < <(
-        gpg --batch --status-fd 1 --verify "$1" "$2" 2>/dev/null | \
-        grep -Po "^\[GNUPG:\][[:space:]]+\K(GOODSIG|VALIDSIG|TRUST_ULTIMATE)(?=[[:space:]])" | \
-        sort | \
-        paste -d " " -s -
-    )
+    gpg_status="$(gpg --batch --status-fd 1 --verify "$1" "$2" 2>/dev/null)" && \
+    grep -E -q "^\[GNUPG:\][[:space:]]+GOODSIG[[:space:]]+" <<< "${gpg_status}" && \
+    grep -E -q "^\[GNUPG:\][[:space:]]+VALIDSIG[[:space:]]+" <<< "${gpg_status}" && \
+    grep -E -q "^\[GNUPG:\][[:space:]]+TRUST_ULTIMATE[[:space:]]+" <<< "${gpg_status}"
 }
 
 pushd /mnt/gentoo || { echo 'Failed to move to directory "/mnt/gentoo"! Aborting...' >&2; exit 1; }
