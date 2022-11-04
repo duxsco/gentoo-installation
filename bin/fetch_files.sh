@@ -19,7 +19,6 @@ temp_gpg_homedir="$(mktemp -d)"
 
 # prepare gnupg
 if  gpg --homedir "${temp_gpg_homedir}" \
-        --auto-key-locate clear,hkps://keys.gentoo.org,wkd \
         --locate-external-keys infrastructure@gentoo.org releng@gentoo.org >/dev/null 2>&1
 then
     echo -e "13EBBDBEDE7A12775DFDB1BABB572E0E2D182910:6:\nDCD05B71EAB94199527F44ACDB6B8C1F96D8BF6D:6:" | \
