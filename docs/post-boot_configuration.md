@@ -133,7 +133,7 @@ Update and make sure "sys-apps/systemd" is listed among the packages:
 emerge -atuDN @world
 ```
 
-With systemd >=252, mask certain services to be able to boot. You can unmask them after configuring them correctly.
+With systemd >=252, mask certain services [to be able to boot](https://bugs.gentoo.org/879229). You can unmask them after configuring them correctly.
 
 ```shell
 systemctl mask systemd-pcrphase-initrd.service && \
