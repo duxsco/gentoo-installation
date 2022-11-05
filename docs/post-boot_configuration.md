@@ -133,6 +133,15 @@ Update and make sure "sys-apps/systemd" is listed among the packages:
 emerge -atuDN @world
 ```
 
+Mask certain services to be able to boot. You can unmask them after configuring them correctly.
+
+```shell
+systemctl mask systemd-pcrphase-initrd.service && \
+systemctl mask systemd-pcrphase-sysinit.service && \
+systemctl mask systemd-pcrphase.service && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
 Make sure that TPM 2.0 devices (should only be one) are recognised:
 
 ```shell
