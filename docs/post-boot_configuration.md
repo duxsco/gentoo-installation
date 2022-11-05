@@ -112,6 +112,12 @@ Install "app-crypt/tpm2-tools":
 emerge -av tpm2-tools
 ```
 
+Make sure to install systemd >=252 to only have to [type in the TPM 2.0 pin once](https://github.com/systemd/systemd/pull/23511):
+
+```shell
+echo "<sys-apps/systemd-253 ~amd64" >> /etc/portage/package.accept_keywords/main
+```
+
 Add support for TPM 2.0 to dracut and systemd:
 
 ```shell hl_lines="1"
