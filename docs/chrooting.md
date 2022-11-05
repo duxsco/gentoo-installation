@@ -30,6 +30,19 @@ fi' >> /mnt/gentoo/root/.bashrc && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
+Take care of [localisation](https://wiki.gentoo.org/wiki/Localization/Guide#Generating_specific_locales):
+
+```shell
+echo "C.UTF-8 UTF-8
+de_DE.UTF-8 UTF-8
+en_US.UTF-8 UTF-8" >> /mnt/gentoo/etc/locale.gen && \
+echo 'LANG="de_DE.UTF-8"
+LC_COLLATE="C.UTF-8"
+LC_MESSAGES="en_US.UTF-8"' > /mnt/gentoo/etc/env.d/02locale && \
+chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen" && \
+echo -e "\e[1;32mSUCCESS\e[0m"
+```
+
 Setup [MAKEOPTS](https://wiki.gentoo.org/wiki/MAKEOPTS):
 
 ```shell
