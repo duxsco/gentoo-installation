@@ -55,9 +55,9 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 [Exit and reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one after the other):
 
 ```shell
-exit
-exit
-exit
+[[ -f /portage-latest.tar.xz ]] && exit
+[[ -f /portage-latest.tar.xz ]] && exit
+[[ -f /portage-latest.tar.xz ]] && exit
 cd
 umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
