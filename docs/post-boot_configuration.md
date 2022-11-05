@@ -112,7 +112,7 @@ Install "app-crypt/tpm2-tools":
 emerge -av tpm2-tools
 ```
 
-Make sure to install systemd >=252 to only have to [type in the TPM 2.0 pin once](https://github.com/systemd/systemd/pull/23511):
+If you use TPM 2.0 pins, make sure to install systemd >=252 to only have to [type TPM 2.0 pins once](https://github.com/systemd/systemd/pull/23511):
 
 ```shell
 echo "<sys-apps/systemd-253 ~amd64" >> /etc/portage/package.accept_keywords/main
@@ -133,7 +133,7 @@ Update and make sure "sys-apps/systemd" is listed among the packages:
 emerge -atuDN @world
 ```
 
-Mask certain services to be able to boot. You can unmask them after configuring them correctly.
+With systemd >=252, mask certain services to be able to boot. You can unmask them after configuring them correctly.
 
 ```shell
 systemctl mask systemd-pcrphase-initrd.service && \
