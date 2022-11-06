@@ -1,32 +1,8 @@
 !!! warning "Disclaimer"
     This installation guide, **called "guide" in the following**, builds upon [the official Gentoo Linux installation handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation). It's written with great care. Nevertheless, you are expected not to blindly copy&paste commands! Please, **understand** what you are going to do **and adjust commands if required**!
 
-??? note "Fetching maintainer's GnuPG public key"
-    All Git commits and tags as well as release files auto-created by GitHub are GnuPG signed. [Release files are checked](https://github.com/duxsco/gentoo-installation/blob/main/assets/check_sign_release.sh) prior to signing.
-
-    You can fetch my GnuPG public key the following way:
-
-    ```shell
-    gpg --locate-external-keys "d at myGitHubUsername dot de"
-    ```
-
-    If above command doesn't work due to disabled [WKD](https://wiki.gnupg.org/WKD) in "gpg.conf" you can do:
-
-    ```shell
-    gpg --auto-key-locate clear,wkd --locate-external-keys "d at myGitHubUsername dot de"
-    ```
-
-    If it still doesn't work due to reasons (copy&paste one after the other):
-
-    ```shell
-    curl --tlsv1.3 -o duxsco.asc "https://openpgpkey.duxsco.de/.well-known/openpgpkey/duxsco.de/hu/8o5dopsxjamgc3ujwjq4fyfbo3qn4kdw?l=d"
-
-    # Check whether everything is kosher before importing for real:
-    gpg --import-options show-only --import duxsco.asc
-
-    # If everything is fine, import the public key:
-    gpg --key-origin wkd --import duxsco.asc
-    ```
+!!! info
+    Information on my GnuPG public key can be found in my [GitHub profile page](https://github.com/duxsco/).
 
 ## 1.1. System Requirements
 
