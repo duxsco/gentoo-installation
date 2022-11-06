@@ -19,7 +19,7 @@
     If it still doesn't work due to reasons (copy&paste one after the other):
 
     ```shell
-    curl --tlsv1.3 -o duxsco.asc https://openpgpkey.duxsco.de/.well-known/openpgpkey/duxsco.de/hu/8o5dopsxjamgc3ujwjq4fyfbo3qn4kdw
+    curl --tlsv1.3 -o duxsco.asc "https://openpgpkey.duxsco.de/.well-known/openpgpkey/duxsco.de/hu/8o5dopsxjamgc3ujwjq4fyfbo3qn4kdw?l=d"
 
     # Check whether everything is kosher before importing for real:
     gpg --import-options show-only --import duxsco.asc
