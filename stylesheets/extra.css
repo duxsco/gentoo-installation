@@ -42,3 +42,6 @@
   --md-text-font: "Ubuntu";
   --md-code-font: "Ubuntu Mono";
 }
+img.my-mastodon-image {
+  vertical-align: bottom;
+}
