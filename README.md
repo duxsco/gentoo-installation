@@ -6,6 +6,8 @@ The documentation can be found in the "docs/" folder. To run the site locally do
 
 ```shell
 echo "dev-python/mkdocs ~amd64
+dev-python/mkdocs-material-extensions ~amd64
+dev-python/mkdocs-minify-plugin ~amd64
 dev-python/mkdocs-material ~amd64" >> /etc/portage/package.accept_keywords/main
 
 emerge -av dev-python/mkdocs dev-python/mkdocs-material dev-python/mkdocs-minify-plugin
