@@ -16,3 +16,7 @@ emerge -av dev-python/mkdocs dev-python/mkdocs-material dev-python/mkdocs-minify
 ```shell
 mkdocs serve
 ```
+
+## Other Gentoo Linux repos
+
+https://github.com/duxsco?tab=repositories&q=gentoo-
