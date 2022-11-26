@@ -47,7 +47,7 @@ Setup [MAKEOPTS](https://wiki.gentoo.org/wiki/MAKEOPTS):
 
 ```shell
 ram_size="$(dmidecode -t memory | grep -Pio "^[[:space:]]Size:[[:space:]]+\K[0-9]*(?=[[:space:]]*GB$)" | paste -d '+' -s - | bc)" && \
-number_cores="$(nproc --all)" && \
+number_cores="$(grep -cE "^processor[[:space:]]+:[[:space:]]+[0-9]+$" /proc/cpuinfo)" && \
 [[ $((number_cores*2)) -le ${ram_size} ]] && jobs="${number_cores}" || jobs="$(bc <<<"${ram_size} / 2")" && \
 echo -e "\nMAKEOPTS=\"-j${jobs}\"" >> /mnt/gentoo/etc/portage/make.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
