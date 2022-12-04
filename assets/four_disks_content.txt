@@ -18,7 +18,7 @@
 ├── mapperSystem -> /dev/mapper/sda4
 ├── portage-latest.tar.xz
 ├── portage-latest.tar.xz.gpgsig
-├── stage3-amd64-systemd-20220529T170531Z.tar.xz
-└── stage3-amd64-systemd-20220529T170531Z.tar.xz.asc
+├── stage3-amd64-systemd-mergedusr-20220529T170531Z.tar.xz
+└── stage3-amd64-systemd-mergedusr-20220529T170531Z.tar.xz.asc
 
 0 directories, 20 files

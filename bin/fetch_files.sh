@@ -32,7 +32,7 @@ if ! current_stage3="$(
             curl \
                 --fail --silent --show-error --location \
                 --proto '=https' --tlsv1.3 \
-                "https://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64-systemd.txt"
+                "https://distfiles.gentoo.org/releases/amd64/autobuilds/latest-stage3-amd64-systemd-mergedusr.txt"
         )
     )"
 then

@@ -160,7 +160,7 @@ echo "=sys-apps/baselayout-2.9 ~amd64" >> /etc/portage/package.accept_keywords/m
 
 ACCEPT_KEYWORDS="~amd64" emerge --oneshot sys-apps/merge-usr && \
 merge-usr && \
-eselect profile set duxsco:hardened-systemd && \
+eselect profile set duxsco:hardened-systemd-merged-usr && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 emerge --oneshot sys-devel/gcc && \
 emerge --oneshot sys-devel/binutils sys-libs/glibc && \

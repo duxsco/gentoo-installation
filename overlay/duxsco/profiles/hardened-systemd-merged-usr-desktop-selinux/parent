@@ -1,0 +1,3 @@
+gentoo:default/linux/amd64/17.1/desktop/systemd/merged-usr
+gentoo:features/hardened
+gentoo:features/selinux
