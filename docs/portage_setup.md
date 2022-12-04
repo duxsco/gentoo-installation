@@ -146,20 +146,13 @@ eselect news list
 !!! info "Desktop Profiles"
     To make things simple, hardened desktop profiles are only considered for selection at the end of this guide in chapter [15. Desktop profiles (optional)](/desktop_profiles/).
 
-Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) and [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) profile. Additional ressources:
+Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) profile. Additional ressources:
 
 - [My custom profiles](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles)
 - [Creating custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles)
 - [Switching to a hardened profile](https://wiki.gentoo.org/wiki/Hardened_Gentoo#Switching_to_a_Hardened_profile)
-- [Switching to merged-usr](https://groups.google.com/g/linux.gentoo.dev/c/xqZYsMmCoME/m/XlplgAnTAwAJ)
 
 ```shell
-# install newer baselayout-2.9 due to:
-# https://github.com/gentoo-mirror/gentoo/commit/b607b26fff6dd73d886f2dc0afc1cf439510e509
-echo "=sys-apps/baselayout-2.9 ~amd64" >> /etc/portage/package.accept_keywords/main && \
-
-ACCEPT_KEYWORDS="~amd64" emerge --oneshot sys-apps/merge-usr && \
-merge-usr && \
 eselect profile set duxsco:hardened-systemd-merged-usr && \
 env-update && source /etc/profile && export PS1="(chroot) $PS1" && \
 emerge --oneshot sys-devel/gcc && \
