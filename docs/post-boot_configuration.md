@@ -59,7 +59,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 ## 12.2. Secure Boot Setup
 
 !!! danger "Warnings on OptionROM"
-    Make sure to prepare your graphics card for secure boot. Otherwise, you may [soft-brick your device](https://github.com/Foxboron/sbctl/wiki/FAQ).
+    Make sure to prepare your graphics card for secure boot. Otherwise, you may [soft-brick your device](https://github.com/Foxboron/sbctl/wiki/FAQ#option-rom).
 
 If "sbctl enroll-keys" failed in section [8.3. Secure Boot](/bootup_setup/#83-secure-boot), you can import secure boot files the following way now.
 
