@@ -1,46 +1,50 @@
 function post_pkg_postinst() {
-    my_kernel_version="$(</usr/src/linux/include/config/kernel.release)"
-
-    while read -r my_esp; do
-        if ! mountpoint --quiet "/boot/${my_esp}"; then
-            mount "/boot/${my_esp}"
-            my_umount_esp="true"
-        else
-            my_umount_esp="false"
-        fi
-
-        if mountpoint --quiet "/boot/${my_esp}"; then
-            if grep -q selinux <(eselect profile show); then
-                dracut --force --kver "${my_kernel_version}" --kernel-cmdline "${kernel_cmdline} lsm=selinux enforcing=0" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}_0_permissive.efi"
-                dracut --force --kver "${my_kernel_version}" --kernel-cmdline "${kernel_cmdline} lsm=selinux enforcing=1" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}_1_enforcing.efi"
-            else
-                dracut --force --kver "${my_kernel_version}" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}.efi"
-            fi
-
-            if [[ ${my_umount_esp} == true ]]; then
-                umount "/boot/${my_esp}"
-            fi
-        else
-cat <<EOF
-
-  _____________________
-/ Failed to install     \\
-| unified kernel image  |
-\ in "/boot/${my_esp}"!      /
-  ---------------------
-         \   ^__^
+    cowsay_warning='
+  _______________________________________
+< Failed to install unified kernel image! >
+  ---------------------------------------
+         \   ^__^ 
           \  (oo)\_______
-             (__)\       )\/\\
+             (__)\       )\/\
                  ||----w |
                  ||     ||
+'
 
-EOF
-        fi
-    done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+    if my_kernel_version="$(</usr/src/linux/include/config/kernel.release)"; then
+        while read -r my_esp; do
+            if ! mountpoint --quiet "/boot/${my_esp}"; then
+                mount "/boot/${my_esp}"
+                my_umount_esp="true"
+            else
+                my_umount_esp="false"
+            fi
 
-    for my_boot_file in /boot/{config,vmlinuz,System.map}-${my_kernel_version}{,.old}; do
-        if [[ -f ${my_boot_file} ]]; then
-            rm -fv "${my_boot_file}"
-        fi
-    done
+            if mountpoint --quiet "/boot/${my_esp}"; then
+                if grep -q selinux <(eselect profile show); then
+                    # shellcheck disable=SC2154
+                    if  ! dracut --force --kver "${my_kernel_version}" --kernel-cmdline "${kernel_cmdline} lsm=selinux enforcing=0" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}_0_permissive.efi" || \
+                        ! dracut --force --kver "${my_kernel_version}" --kernel-cmdline "${kernel_cmdline} lsm=selinux enforcing=1" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}_1_enforcing.efi"
+                    then
+                        echo "${cowsay_warning}"
+                    fi
+                elif ! dracut --force --kver "${my_kernel_version}" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}.efi"; then
+                    echo "${cowsay_warning}"
+                fi
+
+                if [[ ${my_umount_esp} == true ]]; then
+                    umount "/boot/${my_esp}"
+                fi
+            else
+                echo "${cowsay_warning}"
+            fi
+        done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
+
+        for my_boot_file in /boot/{config,vmlinuz,System.map}-${my_kernel_version}{,.old}; do
+            if [[ -f ${my_boot_file} ]]; then
+                rm -fv "${my_boot_file}"
+            fi
+        done
+    else
+        echo "${cowsay_warning}"
+    fi
 }
