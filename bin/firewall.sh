@@ -17,18 +17,18 @@ iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
 
 # https://datatracker.ietf.org/doc/html/rfc4890#section-4.4.1
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 128 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 133 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 134 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 135 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 136 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 141 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 142 -j ACCEPT
+ip6tables -A INPUT -p icmpv6 --icmpv6-type 133 -j ACCEPT -m hl --hl-eq 255
+ip6tables -A INPUT -p icmpv6 --icmpv6-type 134 -j ACCEPT -m hl --hl-eq 255
+ip6tables -A INPUT -p icmpv6 --icmpv6-type 135 -j ACCEPT -m hl --hl-eq 255
+ip6tables -A INPUT -p icmpv6 --icmpv6-type 136 -j ACCEPT -m hl --hl-eq 255
+ip6tables -A INPUT -p icmpv6 --icmpv6-type 141 -j ACCEPT -m hl --hl-eq 255
+ip6tables -A INPUT -p icmpv6 --icmpv6-type 142 -j ACCEPT -m hl --hl-eq 255
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 130 -j ACCEPT -s fe80::/10
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 131 -j ACCEPT -s fe80::/10
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 132 -j ACCEPT -s fe80::/10
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 143 -j ACCEPT -s fe80::/10
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 148 -j ACCEPT
-ip6tables -A INPUT -p icmpv6 --icmpv6-type 149 -j ACCEPT
+ip6tables -A INPUT -p icmpv6 --icmpv6-type 148 -j ACCEPT -m hl --hl-eq 255
+ip6tables -A INPUT -p icmpv6 --icmpv6-type 149 -j ACCEPT -m hl --hl-eq 255
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 151 -j ACCEPT -s fe80::/10
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 152 -j ACCEPT -s fe80::/10
 ip6tables -A INPUT -p icmpv6 --icmpv6-type 153 -j ACCEPT -s fe80::/10
