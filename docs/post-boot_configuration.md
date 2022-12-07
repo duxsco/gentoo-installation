@@ -58,6 +58,9 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 12.2. Secure Boot Setup
 
+!!! danger "Warnings on OptionROM"
+    Make sure to prepare your graphics card for secure boot. Otherwise, you may [soft-brick your device](https://github.com/Foxboron/sbctl/wiki/FAQ).
+
 If "sbctl enroll-keys" failed in section [8.3. Secure Boot](/bootup_setup/#83-secure-boot), you can import secure boot files the following way now.
 
 First, boot into the Gentoo Linux and save necessary files in "DER" format on ESP:
@@ -170,7 +173,7 @@ systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sd
 # etc.
 ```
 
-Reboot your system!
+Reboot your system and use your fallback passphrase for LUKS unlock this time!
 
 ### 12.3.1.b) clevis
 
@@ -238,6 +241,9 @@ emerge -at --oneshot \
 $(qlist -eI sys-kernel/gentoo-kernel-bin >/dev/null && echo sys-kernel/gentoo-kernel-bin) \
 $(qlist -eI sys-kernel/gentoo-kernel >/dev/null && echo sys-kernel/gentoo-kernel)
 ```
+
+!!! note
+    If you decided in favor of [systemd-cryptenroll](#1231a-systemd-cryptenroll), you can use the TPM 2.0 pin upon boot from this point onwards.
 
 ## 12.4. Package Cleanup
 
