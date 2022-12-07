@@ -20,7 +20,7 @@ while read -r my_esp; do
 
   # setup systemd-boot
   # https://wiki.gentoo.org/wiki/Systemd-boot#loader.conf
-  echo -e "timeout 10\neditor no" > "/boot/${my_esp}/loader/loader.conf" && \
+  echo -e "timeout 5\neditor no" > "/boot/${my_esp}/loader/loader.conf" && \
 
   # move the precreated EFI binary of the rescue system into ESP
   mv "/boot/${my_esp}/systemrescuecd.efi" "/boot/${my_esp}/EFI/Linux/" && \
