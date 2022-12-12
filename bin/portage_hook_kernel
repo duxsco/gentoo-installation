@@ -25,17 +25,17 @@ function post_pkg_postinst() {
                     if  ! dracut --force --kver "${my_kernel_version}" --kernel-cmdline "${kernel_cmdline} lsm=selinux enforcing=0" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}_0_permissive.efi" || \
                         ! dracut --force --kver "${my_kernel_version}" --kernel-cmdline "${kernel_cmdline} lsm=selinux enforcing=1" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}_1_enforcing.efi"
                     then
-                        echo "${cowsay_warning}"
+                        echo "${cowsay_warning}" >&2
                     fi
                 elif ! dracut --force --kver "${my_kernel_version}" "/boot/${my_esp}/EFI/Linux/gentoo-${my_kernel_version}.efi"; then
-                    echo "${cowsay_warning}"
+                    echo "${cowsay_warning}" >&2
                 fi
 
                 if [[ ${my_umount_esp} == true ]]; then
                     umount "/boot/${my_esp}"
                 fi
             else
-                echo "${cowsay_warning}"
+                echo "${cowsay_warning}" >&2
             fi
         done < <(grep -Po "^UUID=[0-9A-F]{4}-[0-9A-F]{4}[[:space:]]+/boot/\Kefi[a-z](?=[[:space:]]+vfat[[:space:]]+)" /etc/fstab)
 
@@ -45,6 +45,6 @@ function post_pkg_postinst() {
             fi
         done
     else
-        echo "${cowsay_warning}"
+        echo "${cowsay_warning}" >&2
     fi
 }

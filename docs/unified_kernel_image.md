@@ -65,7 +65,7 @@ echo 'if [[ ${EBUILD_PHASE} == postinst ]]; then
         sbctl sign "/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI"
 
         if [[ $? -ne 0 ]]; then
-cat <<'\''EOF'\''
+cat <<'\''EOF'\'' >&2
 
   ___________________________
 < Failed to Secure Boot sign! >
