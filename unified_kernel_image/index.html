@@ -41,7 +41,7 @@ rm -f /root/portage_hook_kernel <span class=o>&amp;&amp;</span> <span class=se>\
 <span class=s1>        sbctl sign &quot;/boot/${my_esp}/EFI/BOOT/BOOTX64.EFI&quot;</span>
 
 <span class=s1>        if [[ $? -ne 0 ]]; then</span>
-<span class=s1>cat &lt;&lt;&#39;</span><span class=se>\&#39;</span><span class=s1>&#39;EOF&#39;</span><span class=se>\&#39;</span><span class=s1>&#39;</span>
+<span class=s1>cat &lt;&lt;&#39;</span><span class=se>\&#39;</span><span class=s1>&#39;EOF&#39;</span><span class=se>\&#39;</span><span class=s1>&#39; &gt;&amp;2</span>
 
 <span class=s1>  ___________________________</span>
 <span class=s1>&lt; Failed to Secure Boot sign! &gt;</span>
