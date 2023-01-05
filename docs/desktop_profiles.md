@@ -1,12 +1,12 @@
-At this point, you can consider the switch to a hardened desktop profile:
+At this point, you can consider the switch to a hardened desktop profile coming from:
 
-=== "non-SELinux profile"
+=== "duxsco:hardened-systemd-merged-usr"
     ```shell
     eselect profile set duxsco:hardened-systemd-merged-usr-desktop && \
     emerge -atuDN @world
     ```
 
-=== "SELinux profile"
+=== "duxsco:hardened-systemd-merged-usr-selinux"
     ```shell
     eselect profile set duxsco:hardened-systemd-merged-usr-desktop-selinux && \
     emerge -atuDN @world
