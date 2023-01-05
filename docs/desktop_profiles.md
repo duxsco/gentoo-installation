@@ -1,3 +1,5 @@
+# 15. Desktop Profiles (optional)
+
 At this point, you can consider the switch to a hardened desktop profile coming from:
 
 === "duxsco:hardened-systemd-merged-usr"

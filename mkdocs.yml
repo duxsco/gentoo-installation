@@ -62,5 +62,5 @@ nav:
   - 12. Post-Boot Configuration: post-boot_configuration.md
   - 13. Virtual Server (optional): virtual_server.md
   - 14. SELinux (optional): selinux.md
-  - 15. Desktop profiles (optional): desktop_profiles.md
-  - 16. Other Gentoo Linux repos: other_gentoo_linux_repos.md
+  - 15. Desktop Profiles (optional): desktop_profiles.md
+  - 16. Other Gentoo Linux Repos: other_gentoo_linux_repos.md
