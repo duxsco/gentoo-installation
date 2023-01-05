@@ -31,11 +31,11 @@ For the switch to a SELinux profile, you have two options depending on the profi
     eselect profile set "duxsco:hardened-systemd-merged-usr-selinux"
     ```
 
-=== "default/linux/amd64/17.1/systemd"
-    If you stayed with the profile that came with the stage3 tarball which is most likely "default/linux/amd64/17.1/systemd" you can select the SELinux profile with:
+=== "default/linux/amd64/17.1/systemd/merged-usr"
+    If you stayed with the profile that came with the stage3 tarball which is most likely "default/linux/amd64/17.1/systemd/merged-usr" you can select the SELinux profile with:
 
     ```shell
-    eselect profile set --force "default/linux/amd64/17.1/systemd/selinux"
+    eselect profile set --force "default/linux/amd64/17.1/systemd/selinux/merged-usr"
     ```
 
 These commands are more or less required irrespective of the SELinux profile in use:
