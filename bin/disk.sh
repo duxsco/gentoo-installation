@@ -217,7 +217,7 @@ function luksOpen() {
             /usr/lib/systemd/systemd-cryptsetup attach "\$1" "/dev/disk/by-uuid/\$1" - tpm2-device=auto
         fi
 
-        if  [[ ! -e \$(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*\${short_uuid}*") ]] && \
+        if  [[ ! -e \$(find /dev/disk/by-id -maxdepth 1 -name "dm-uuid-*\${short_uuid}*") ]] && \\
             [[ " \${token_type[*]} " =~ " clevis " ]]; then
             clevis luks unlock -d "/dev/disk/by-uuid/\$1"
         fi
