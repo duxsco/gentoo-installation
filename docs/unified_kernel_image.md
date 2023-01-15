@@ -170,6 +170,44 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 
 ## 9.6. Kernel Installation
 
+??? note "Kernel Upgrade And Old Kernel Cleanup"
+    After a kernel upgrade and system reboot, an `emerge --depclean` will leave certain files and folders on the system which you cannot delete with [eclean-kernel](https://wiki.gentoo.org/wiki/Kernel/Removal):
+
+    ```shell
+    ❯ sudo -i eclean-kernel -n 1
+    eclean-kernel has met the following issue:
+
+      SystemError('No vmlinuz found. This seems ridiculous, aborting.')
+
+    If you believe that the mentioned issue is a bug, please report it
+    to https://github.com/mgorny/eclean-kernel/issues. If possible,
+    please attach the output of 'eclean-kernel --list-kernels' and your
+    regular eclean-kernel call with additional '--debug' argument.
+    ```
+
+    In following example, you have to delete the 5.15.87 kernel files and folders manually:
+
+    ```shell
+    ❯ ls -1 /boot/efi*/EFI/Linux/ /usr/src/ /lib/modules/
+    /boot/efia/EFI/Linux/:
+    gentoo-5.15.87-gentoo-dist-hardened.efi
+    gentoo-5.15.88-gentoo-dist-hardened.efi
+    systemrescuecd.efi
+
+    /boot/efib/EFI/Linux/:
+    gentoo-5.15.87-gentoo-dist-hardened.efi
+    gentoo-5.15.88-gentoo-dist-hardened.efi
+    systemrescuecd.efi
+
+    /lib/modules/:
+    5.15.87-gentoo-dist-hardened/
+    5.15.88-gentoo-dist-hardened/
+
+    /usr/src/:
+    linux@
+    linux-5.15.88-gentoo-dist-hardened/
+    ```
+
 Install required packages:
 
 ```shell hl_lines="3"
