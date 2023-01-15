@@ -2,82 +2,82 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://gentoo.duxsco.de/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/bootup_setup/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/chrooting/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/cleanup_and_reboot/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/desktop_profiles/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/disk_setup/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/live-cd_environment/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/non-root_user/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/other_gentoo_linux_repos/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/portage_setup/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/post-boot_configuration/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/rescue_system/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/selinux/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/ssh_server/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/unified_kernel_image/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://gentoo.duxsco.de/virtual_server/</loc>
-         <lastmod>2023-01-05</lastmod>
+         <lastmod>2023-01-15</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
