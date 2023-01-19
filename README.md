@@ -1,5 +1,7 @@
 # Gentoo Linux Installation
 
+> ️⚠️ You can find information on my GnuPG public key in my [GitHub profile README](https://github.com/duxsco/)! ⚠️
+
 The documentation can be found in the "docs/" folder. To run the site locally do:
 
 1. Install as "root":
