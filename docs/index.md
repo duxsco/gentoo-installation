@@ -8,8 +8,8 @@
 !!! info "GnuPG Public Key"
     You can find information on my GnuPG public key in my [GitHub profile README](https://github.com/duxsco/)!
 
-!!! info "Developer Information"
-    You can contact me under "duxsco" at [Libera Chat](https://libera.chat) or [OFTC](https://www.oftc.net/). I am also on <a rel="me" href="https://digitalcourage.social/@duxsco"><img alt="Mastodon" class="my-mastodon-image" src="https://img.shields.io/mastodon/follow/109303789608719853?domain=https%3A%2F%2Fdigitalcourage.social&label=Mastodon&style=social"></a>. Information on my GnuPG public key can be found in my [GitHub profile page](https://github.com/duxsco/).
+!!! info "Developer Contacts"
+    You can contact me under "duxsco" at [Libera Chat](https://libera.chat) or [OFTC](https://www.oftc.net/). I am also on <a rel="me" href="https://digitalcourage.social/@duxsco"><img alt="Mastodon" class="my-mastodon-image" src="https://img.shields.io/mastodon/follow/109303789608719853?domain=https%3A%2F%2Fdigitalcourage.social&label=Mastodon&style=social"></a>.
 
 ## 1.1. System Requirements
 
