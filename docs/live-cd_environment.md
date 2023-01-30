@@ -108,7 +108,7 @@ If no automatic network setup has been done via DHCP, you have to use [nmtui](ht
 nmtui
 ```
 
-Insert iptables rules at the correct place for SystemRescue to accept SSH connection requests:
+Insert an iptables rule at the correct place for SystemRescue to accept SSH connection requests:
 
 ```shell
 iptables -I INPUT 4 -p tcp --dport 22 -j ACCEPT -m conntrack --ctstate NEW
