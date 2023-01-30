@@ -85,7 +85,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Setup [sys-kernel/dracut](https://wiki.gentoo.org/wiki/Dracut). If you don't wear tin foil hats :wink:, you may want to change the [line "mitigations=auto,nosmt"](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html) below (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 emerge -at app-crypt/sbsigntools sys-kernel/dracut
 
 system_uuid="$(blkid -s UUID -o value /mapperSystem)"
@@ -173,7 +173,7 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 ??? note "Kernel Upgrade And Old Kernel Cleanup"
     After a kernel upgrade and system reboot, an `emerge --depclean` will leave certain files and folders on the system which you cannot delete with [eclean-kernel](https://wiki.gentoo.org/wiki/Kernel/Removal):
 
-    ```shell
+    ``` { .shell .no-copy }
     ❯ sudo -i eclean-kernel -n 1
     eclean-kernel has met the following issue:
 
@@ -187,7 +187,7 @@ echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc
 
     In following example, you have to delete the 5.15.87 kernel files and folders manually:
 
-    ```shell
+    ``` { .shell .no-copy }
     ❯ ls -1 /boot/efi*/EFI/Linux/ /usr/src/ /lib/modules/
     /boot/efia/EFI/Linux/:
     gentoo-5.15.87-gentoo-dist-hardened.efi

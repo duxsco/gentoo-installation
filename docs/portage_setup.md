@@ -16,7 +16,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Configure [make.conf](https://wiki.gentoo.org/wiki//etc/portage/make.conf) (copy&paste one after the other):
 
-```shell hl_lines="1"
+``` { .shell hl_lines="1" .no-copy }
 rsync -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
 
 # If you use distcc, beware of:
@@ -83,7 +83,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 If you don't live in Germany, you probably should change [GENTOO_MIRRORS](https://wiki.gentoo.org/wiki/GENTOO_MIRRORS) previously set in [6.1. Portage Configuration](#61-portage-configuration). You can pick the mirrors from the [mirror list](https://www.gentoo.org/downloads/mirrors/), use [mirrorselect](https://wiki.gentoo.org/wiki/Mirrorselect) or do as I do and select local/regional, IPv4/IPv6 dual-stack and TLSv1.3 supporting mirrors (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 # Install app-misc/yq
 ACCEPT_KEYWORDS="~amd64" emerge --oneshot app-misc/yq
 

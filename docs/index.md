@@ -33,12 +33,12 @@ The guide results in a system that is/uses:
 After completion of this guide, optional SSH connections will be possible to the following systems using SSH public key authentication:
 
 === "Gentoo Linux installation"
-    ```shell
+    ``` { .shell .no-copy }
     ssh -p 50022 david@<IP address>
     ```
 
 === "Rescue System"
-    ```shell
+    ``` { .shell .no-copy }
     ssh -p 50023 root@<IP address>
     ```
 

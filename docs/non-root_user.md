@@ -123,7 +123,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Setup [auto-completion for the fish shell](https://wiki.archlinux.org/title/fish#Command_completion) (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 # root
 /bin/fish -c fish_update_completions
 
@@ -133,7 +133,7 @@ su -l david -c "/bin/fish -c fish_update_completions"
 
 Enable aliases and starship (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 su -
 exit
 su - david

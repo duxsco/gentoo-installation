@@ -74,7 +74,7 @@ loadkeys de-latin1-nodeadkeys
 
 (Optional) Start Xfce (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 startx
 
 # Open up a terminal in Xfce and set the keyboard layout:
@@ -128,7 +128,7 @@ find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 
 Execute following "rsync" and "ssh" commands **on your local machine from within the checked out ["gentoo-installation" repo](https://github.com/duxsco/gentoo-installation/)** (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 # Copy installation files to remote machine. Don't forget to set the correct IP.
 rsync -e "ssh -o VisualHostKey=yes" -av --numeric-ids --chown=0:0 {bin/{portage_hook_kernel,disk.sh,fetch_files.sh,firewall.nft,firewall.sh},overlay} root@XXX:/tmp/
 
@@ -144,7 +144,7 @@ screen -d -r install
 
 (Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**) (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 # Execute "vlock" without any flags first.
 vlock
 

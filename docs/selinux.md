@@ -122,7 +122,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 If "/proc" was listed by above codeblock you have to relabel to avoid a denial:
 
-```shell
+``` { .shell .no-copy }
 ❯ cat <<EOF | audit2allow
 [   19.902620] audit: type=1400 audit(1663630933.439:3): avc:  denied  { mounton } for  pid=1062 comm="(auditd)" path="/run/systemd/unit-root/proc" dev="dm-3" ino=67581 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=1
 EOF
@@ -137,7 +137,7 @@ allow init_t unlabeled_t:dir mounton;
 
 In section [10. SSH Server (optional)](/ssh_server/), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
 
-```shell
+``` { .shell .no-copy }
 ❯ semanage port -l | grep -e ssh -e Port
 SELinux Port Type              Proto    Port Number
 ssh_port_t                     tcp      22
@@ -151,7 +151,7 @@ ssh_port_t                     tcp      50022, 22
 
 Default "mcs" SELinux "login" and "user" settings:
 
-```shell
+``` { .shell .no-copy }
 ❯ semanage login -l
 
 Login Name           SELinux User         MLS/MCS Range        Service
@@ -183,7 +183,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"'
 
 Now, we should have:
 
-```shell
+``` { .shell .no-copy }
 ❯ semanage login -l
 
 Login Name           SELinux User         MLS/MCS Range        Service

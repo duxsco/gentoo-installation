@@ -80,7 +80,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Create the settings YAML (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 # disable bash history
 set +o history
 
@@ -130,7 +130,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication) (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
 
 # add your ssh public keys to
@@ -190,7 +190,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 After running through above installation steps, you should have the following file/folder structure:
 
 === "SSH setup"
-    ```shell
+    ``` { .shell .no-copy }
     ❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
     /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
     ├── build_into_srm
@@ -226,7 +226,7 @@ After running through above installation steps, you should have the following fi
     ```
 
 === "non-SSH setup"
-    ```shell
+    ``` { .shell .no-copy }
     ❯ tree -a /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
     /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
     ├── build_into_srm

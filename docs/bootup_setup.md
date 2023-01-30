@@ -23,7 +23,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Setup [/etc/hosts](https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#The_hosts_file) (copy&paste one after the other):
 
-```shell hl_lines="4"
+``` { .shell hl_lines="4" .no-copy }
 # Set the hostname of your choice
 my_hostname="micro"
 
@@ -67,7 +67,7 @@ If you **don't** plan to keep your setup slim for the later [SELinux setup](/sel
 
 > Most services are disabled when systemd is first installed. A "preset" file is provided, and may be used to enable a reasonable set of default services. ([source](https://wiki.gentoo.org/wiki/Systemd#Preset_services))
 
-```shell
+``` { .shell .no-copy }
 systemctl preset-all
 # or
 systemctl preset-all --preset-mode=enable-only
@@ -92,9 +92,9 @@ Install "app-crypt/sbctl":
 emerge -at app-crypt/sbctl
 ```
 
-Create and enroll secure boot files ([link](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl)):
+Create and enroll secure boot files ([link](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl)) (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 ❯ sbctl status
 Installed:      ✗ sbctl is not installed
 Setup Mode:     ✗ Enabled

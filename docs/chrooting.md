@@ -55,7 +55,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 [Chroot](https://wiki.gentoo.org/wiki/Chroot) (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 chroot /mnt/gentoo /bin/bash
 source /etc/profile
 su -

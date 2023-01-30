@@ -44,7 +44,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 After the start of "libvirtd-tcp.socket", systemd should listen on TCP port 16509:
 
-```shell
+``` { .shell .no-copy }
 ❯ lsof -nP -iTCP -sTCP:LISTEN
 COMMAND    PID            USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
 systemd      1            root   48u  IPv6  50548      0t0  TCP *:16509 (LISTEN)

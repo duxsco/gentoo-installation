@@ -4,7 +4,7 @@ Some configuration needs to be done **after** Gentoo's systemd has been started.
 
 Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale) (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 # set your language settings
 export my_lang="de_DE.UTF-8"
 export my_lc_messages="en_US.UTF-8" # I prefer English messages for easier googling around.
@@ -19,7 +19,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Setup [systemd-timesyncd](https://wiki.archlinux.org/title/systemd-timesyncd) (copy&paste one after the other):
 
-```shell hl_lines="15"
+``` { .shell hl_lines="15" .no-copy }
 # set your timezone
 export my_timezone="Europe/Berlin"
 
@@ -82,7 +82,7 @@ Reboot into "UEFI Firmware Settings" and import "db.der", "KEK.der" and "PK.der"
 
 To check whether secure boot is enabled execute:
 
-```shell
+``` { .shell .no-copy }
 ❯ sbctl status
 Installed:	✓ sbctl is installed
 Owner GUID:	4cdeb60c-d2ce-4ed9-af89-2b659c21f6e4
@@ -92,7 +92,7 @@ Secure Boot:	✓ Enabled
 
 (Optional) To list the installed secure boot keys/certs (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 emerge -at app-crypt/efitools
 
 efi-readvar
@@ -252,7 +252,7 @@ $(qlist -eI sys-kernel/gentoo-kernel >/dev/null && echo sys-kernel/gentoo-kernel
 
 Update packages and remove extraneous ones (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 emerge -atuDN @world
 emerge --depclean -a
 ```

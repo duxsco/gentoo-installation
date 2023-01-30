@@ -6,7 +6,7 @@ emerge --fetchonly net-firewall/nftables
 
 Configure the [network connection](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 echo "\
 [Match]
 Name=enp1s0
@@ -24,7 +24,7 @@ systemctl --no-reload enable systemd-networkd.service
 
 Setup [systemd-resolved](https://wiki.archlinux.org/title/systemd-resolved) for DNS (copy&paste one after the other):
 
-```shell hl_lines="5"
+``` { .shell hl_lines="5" .no-copy }
 # https://wiki.gentoo.org/wiki/Resolv.conf
 # https://wiki.archlinux.org/title/systemd-resolved
 ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
@@ -47,7 +47,7 @@ After the reboot, you can test DNS resolving ([link](https://openwrt.org/docs/gu
 
 Exit, cleanup obsolete installation files as well as [symlinks to devices created by "disk.sh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L180-L199) and [reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one after the other):
 
-```shell
+``` { .shell .no-copy }
 [[ -f /portage-latest.tar.xz ]] && exit
 [[ -f /portage-latest.tar.xz ]] && exit
 [[ -f /portage-latest.tar.xz ]] && exit
