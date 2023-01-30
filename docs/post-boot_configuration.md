@@ -167,7 +167,7 @@ systemd-cryptenroll --tpm2-device=auto --tpm2-pcrs=7 --tpm2-with-pin=yes /dev/sd
 # etc.
 ```
 
-Reboot your system and use your fallback passphrase for LUKS unlock this time!
+Reboot your system and use your fallback passphrase for LUKS unlock again this time!
 
 ### 12.3.1.b) clevis
 
