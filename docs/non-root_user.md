@@ -146,8 +146,8 @@ Install [nerd fonts](https://www.nerdfonts.com/):
 
 ```shell
 emerge media-libs/fontconfig && \
-su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraCode.zip" && \
-b2sum -c <<<"9f8ada87945ff10d9eced99369f7c6d469f9eaf2192490623a93b2397fe5b6ee3f0df6923b59eb87e92789840a205adf53c6278e526dbeeb25d0a6d307a07b18  /tmp/FiraCode.zip" && \
+su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/FiraCode.zip" && \
+b2sum -c <<<"35d5c556f24b9b2b7be91e59292ee8d058ca0f621ca662bb6a9f1da3be05aed88561f071eeb41260d993f022b30a15b9c89fa8bed9b181ec939f8a775cc37991  /tmp/FiraCode.zip" && \
 mkdir /tmp/FiraCode && \
 unzip -d /tmp/FiraCode /tmp/FiraCode.zip && \
 rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* && \
