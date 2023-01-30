@@ -65,6 +65,7 @@ Update packages:
 
 ```shell
 FEATURES="-selinux -sesandbox" emerge --oneshot selinux-base && \
+FEATURES="-selinux -sesandbox" emerge --oneshot selinux-dbus && \
 FEATURES="-selinux -sesandbox" emerge --oneshot selinux-base-policy && \
 emerge -atuDN @world
 ```
