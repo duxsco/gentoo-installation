@@ -140,11 +140,11 @@ unset CMDLINE" >> /etc/dracut.conf
 
 ```shell
 echo "\
->=sys-fs/btrfs-progs-5.16
->=sys-kernel/gentoo-kernel-5.16
->=sys-kernel/gentoo-kernel-bin-5.16
->=sys-kernel/linux-headers-5.16
->=virtual/dist-kernel-5.16" >> /etc/portage/package.mask/main
+>=sys-fs/btrfs-progs-6.2
+>=sys-kernel/gentoo-kernel-6.2
+>=sys-kernel/gentoo-kernel-bin-6.2
+>=sys-kernel/linux-headers-6.2
+>=virtual/dist-kernel-6.2" >> /etc/portage/package.mask/main
 ```
 
 Configure packages required for booting:
