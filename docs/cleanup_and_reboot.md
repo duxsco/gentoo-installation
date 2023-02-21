@@ -33,8 +33,8 @@ rsync -av /etc/systemd/resolved.conf /etc/systemd/._cfg0000_resolved.conf
 
 # https://www.kuketz-blog.de/empfehlungsecke/#dns
 sed -i \
--e 's/#DNS=.*/DNS=2a05:fc84::42#dns.digitale-gesellschaft.ch 2a05:fc84::43#dns.digitale-gesellschaft.ch 185.95.218.42#dns.digitale-gesellschaft.ch 185.95.218.43#dns.digitale-gesellschaft.ch/' \
--e 's/#FallbackDNS=.*/FallbackDNS=91.239.100.100#anycast.uncensoreddns.org 2001:67c:28a4::#anycast.uncensoreddns.org/' \
+-e 's/#DNS=.*/DNS=2001:678:e68:f000::#dot.ffmuc.net 2001:678:ed0:f000::#dot.ffmuc.net 5.1.66.255#dot.ffmuc.net 185.150.99.255#dot.ffmuc.net/' \
+-e 's/#FallbackDNS=.*/FallbackDNS=2a01:4f8:251:554::2#dns3.digitalcourage.de 5.9.164.112#dns3.digitalcourage.de/' \
 -e 's/#Domains=.*/Domains=~./' \
 -e 's/#DNSSEC=.*/DNSSEC=true/' \
 -e 's/#DNSOverTLS=.*/DNSOverTLS=true/' \
