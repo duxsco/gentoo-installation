@@ -60,7 +60,7 @@ If you want to use a virtual machine for the upcoming setup either to test thing
     ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_10.png)
 
 === "12."
-    The virtual machine should have bootet into SystemRescue:
+    The virtual machine should have booted into SystemRescue:
 
     ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_11.png)
 
