@@ -9,7 +9,6 @@ Setup [~/.bashrc](https://wiki.gentoo.org/wiki/Bash#Files):
 
 ```shell
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /mnt/gentoo/etc/skel/.bash* /mnt/gentoo/root/ && \
-rsync -av --numeric-ids --chown=0:0 --chmod=u=rwX,go= /mnt/gentoo/etc/skel/.ssh /mnt/gentoo/root/ && \
 echo -e 'alias cp="cp -i"\nalias mv="mv -i"\nalias rm="rm -i"' >> /mnt/gentoo/root/.bash_aliases && \
 echo 'source "${HOME}/.bash_aliases"
 
