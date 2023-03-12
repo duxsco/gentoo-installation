@@ -81,7 +81,7 @@ Extract the portage tarball ([based on archived old handbook](https://web.archiv
 mkdir /mnt/gentoo/var/db/repos/gentoo && \
 touch /mnt/gentoo/var/db/repos/gentoo/.keep && \
 mount -o noatime,subvol=@ebuilds /mnt/gentoo/mapperSystem /mnt/gentoo/var/db/repos/gentoo && \
-tar --transform 's#^portage/#gentoo/#' --transform 's#^portage$#gentoo#' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/portage-latest.tar.xz && \
+tar --transform 's#^gentoo-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/#gentoo/#' --transform 's#^gentoo-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$#gentoo#' -C /mnt/gentoo/var/db/repos/ -xvpJf /mnt/gentoo/gentoo-latest.tar.xz && \
 rsync -av --numeric-ids --chown=250:250 /tmp/overlay/duxsco /mnt/gentoo/var/db/repos/ && \
 mkdir /mnt/gentoo/etc/portage/repos.conf && \
 echo '[duxsco]

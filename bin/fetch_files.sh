@@ -43,7 +43,7 @@ elif ! curl \
         --proto '=https' --tlsv1.3 \
         --remote-name-all \
         "https://mirror.leaseweb.com/gentoo/releases/amd64/autobuilds/${current_stage3}{,.asc}" \
-        "https://mirror.leaseweb.com/gentoo/snapshots/portage-latest.tar.xz{,.gpgsig}"
+        "https://mirror.leaseweb.com/gentoo/snapshots/gentoo-latest.tar.xz{,.gpgsig}"
 then
     echo "Failed to fetch files! Aborting..." >&2
     exit 1
@@ -51,7 +51,7 @@ fi
 
 # gnupg verify
 if  ! gpg_verify "${current_stage3##*/}.asc" "${current_stage3##*/}" || \
-    ! gpg_verify portage-latest.tar.xz.gpgsig portage-latest.tar.xz
+    ! gpg_verify gentoo-latest.tar.xz.gpgsig gentoo-latest.tar.xz
 then
     echo "Failed to verify GnuPG signature! Aborting..." >&2
     exit 1

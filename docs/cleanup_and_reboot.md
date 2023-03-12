@@ -48,11 +48,11 @@ After the reboot, you can test DNS resolving ([link](https://openwrt.org/docs/gu
 Exit, cleanup obsolete installation files as well as [symlinks to devices created by "disk.sh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L180-L199) and [reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one after the other):
 
 ``` { .shell .no-copy }
-[[ -f /portage-latest.tar.xz ]] && exit
-[[ -f /portage-latest.tar.xz ]] && exit
-[[ -f /portage-latest.tar.xz ]] && exit
+[[ -f /gentoo-latest.tar.xz ]] && exit
+[[ -f /gentoo-latest.tar.xz ]] && exit
+[[ -f /gentoo-latest.tar.xz ]] && exit
 cd
-rm -fv /mnt/gentoo/{stage3-*,portage-latest.tar.xz*,devEfi*,devRescue,devSystem*,devSwap*,mapperRescue,mapperSwap,mapperSystem}
+rm -fv /mnt/gentoo/{stage3-*,gentoo-latest.tar.xz*,devEfi*,devRescue,devSystem*,devSwap*,mapperRescue,mapperSwap,mapperSystem}
 umount -l /mnt/gentoo/dev{/shm,/pts,}
 umount -R /mnt/gentoo
 reboot
