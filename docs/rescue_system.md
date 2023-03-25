@@ -90,9 +90,6 @@ set +o history
 # replace "MyPassWord123" with the password you want to use to login via TTY on the rescue system
 crypt_pass="$(python3 -c 'import crypt; print(crypt.crypt("MyPassWord123", crypt.mksalt(crypt.METHOD_SHA512)))')"
 
-# enable bash history
-set -o history
-
 # set default settings
 echo "\
 ---
@@ -113,6 +110,9 @@ autorun:
     ar_nodel: false
     ar_ignorefail: false\
 " > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysrescue.d/500-settings.yaml
+
+# enable bash history
+set -o history
 
 # unset the password variable
 unset crypt_pass
