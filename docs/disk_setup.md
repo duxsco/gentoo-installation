@@ -22,6 +22,9 @@ done < <(lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r)
 
 ## 3.2. Partitioning And Formating
 
+!!! note
+    You may want to execute the following codeblock outside `screen` and execute `clear` right after in order for confidential data not to show up when scrolling up.
+
 Prepare the disks (copy&paste one after the other):
 
 ``` { .shell .no-copy }

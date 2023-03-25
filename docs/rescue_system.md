@@ -78,6 +78,9 @@ rsync -av --numeric-ids --chown=0:0 --chmod=u=rw,go=r /tmp/firewall.sh /mnt/gent
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
+!!! note
+    You may want to execute the following codeblock outside `screen` and execute `clear` right after in order for confidential data not to show up when scrolling up.
+
 Create the settings YAML (copy&paste one after the other):
 
 ``` { .shell .no-copy }
