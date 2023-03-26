@@ -84,7 +84,7 @@ systemctl preset-all --preset-mode=enable-only
 
     > Please read the FAQ for more information: https://github.com/Foxboron/sbctl/wiki/FAQ#option-rom
 
-In order to add your custom keys, "setup mode" must have been enabled in your "UEFI Firmware Settings" before booting into SystemRescue. But, you can [install secure boot files later on](/post-boot_configuration/#122-secure-boot-setup) if you missed enabling "setup mode". In the following, however, you have to generate secure boot files either way.
+In order to add your custom keys, "setup mode" must have been enabled in your "UEFI Firmware Settings" before booting into SystemRescue.
 
 Install "app-crypt/sbctl":
 
