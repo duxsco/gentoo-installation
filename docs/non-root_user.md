@@ -26,6 +26,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Setup SSH client config:
 
 ```shell
+mkdir /home/david/.ssh && \
 echo "AddKeysToAgent no
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
@@ -34,7 +35,7 @@ MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 HashKnownHosts no
 StrictHostKeyChecking ask
 VisualHostKey yes" > /home/david/.ssh/config && \
-chown david:david /home/david/.ssh/config && \
+chown -R david:david /home/david/.ssh && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
