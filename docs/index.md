@@ -11,16 +11,7 @@
 !!! info "Developer Contacts"
     You can contact me under "duxsco" at [Libera Chat](https://libera.chat) or [OFTC](https://www.oftc.net/). I am also on <a rel="me" href="https://digitalcourage.social/@duxsco"><img alt="Mastodon" class="my-mastodon-image" src="https://img.shields.io/mastodon/follow/109303789608719853?domain=https%3A%2F%2Fdigitalcourage.social&label=Mastodon&style=social"></a>.
 
-## 1.1. System Requirements
-
-Beside [official hardware requirements](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Hardware_requirements), the guide has additional ones:
-
-- **Secure Boot:** It builds heavily on "secure boot". Without that "measured boot" cannot be used. Make sure that the system is in "setup mode" in order to be able to add your custom "secure boot" keys.
-- **TPM 2.0:** "TPM 2.0" is required for "measured boot".
-- **systemd:** The guide requires the use of systemd for "measured boot" to work without restrictions. [Clevis](https://wiki.gentoo.org/wiki/Trusted_Platform_Module) may be an option if you want to stay with OpenRC. But, I haven't tested this. Alternatively, you can take a look at my [older documentation](https://github.com/duxsco/gentoo-installation/tree/v2.1.1) which, however, doesn't support "measured boot" and isn't maintained by me anymore.
-- **x86_64 Architecture:** To keep things simple, the guide presumes that you intend to install on a x86_64 system. This is the only architecture that has been tested by me! And, it's the only architecture still [actively supported by SystemRescue](https://www.system-rescue.org/Download/). SystemRescue is used for the rescue system with its custom [chroot.sh script](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281).
-
-## 1.2. Technologies
+## 1.1. Technologies
 
 The guide results in a system that is/uses:
 
@@ -31,6 +22,15 @@ The guide results in a system that is/uses:
 - [x] **Rescue system**: A customised SystemRescue supports optional SSH logins and provides a convenient [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281) script.
 - [x] **Hardened Gentoo Linux (optional)** for a highly secure, high stability production environment ([link](https://wiki.gentoo.org/wiki/Project:Hardened)).
 - [x] **SELinux (optional)** provides Mandatory Access Control using type enforcement and role-based access control ([link](https://wiki.gentoo.org/wiki/Project:SELinux)).
+
+## 1.2. System Requirements
+
+Beside [official hardware requirements](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Hardware_requirements), the guide has additional ones:
+
+- **Secure Boot:** It builds heavily on "secure boot". Without that "measured boot" cannot be used. Make sure that the system is in "setup mode" in order to be able to add your custom "secure boot" keys.
+- **TPM 2.0:** "TPM 2.0" is required for "measured boot".
+- **systemd:** The guide requires the use of systemd for "measured boot" to work without restrictions. [Clevis](https://wiki.gentoo.org/wiki/Trusted_Platform_Module) may be an option if you want to stay with OpenRC. But, I haven't tested this. Alternatively, you can take a look at my [older documentation](https://github.com/duxsco/gentoo-installation/tree/v2.1.1) which, however, doesn't support "measured boot" and isn't maintained by me anymore.
+- **x86_64 Architecture:** To keep things simple, the guide presumes that you intend to install on a x86_64 system. This is the only architecture that has been tested by me! And, it's the only architecture still [actively supported by SystemRescue](https://www.system-rescue.org/Download/). SystemRescue is used for the rescue system with its custom [chroot.sh script](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281).
 
 ## 1.3. SSH Connectivity
 
