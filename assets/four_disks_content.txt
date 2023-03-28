@@ -13,12 +13,12 @@
 ├── devSystemb -> /dev/sdb4
 ├── devSystemc -> /dev/sdc4
 ├── devSystemd -> /dev/sdd4
+├── gentoo-latest.tar.xz
+├── gentoo-latest.tar.xz.gpgsig
 ├── mapperRescue -> /dev/mapper/md0
 ├── mapperSwap -> /dev/md1
 ├── mapperSystem -> /dev/mapper/sda4
-├── portage-latest.tar.xz
-├── portage-latest.tar.xz.gpgsig
 ├── stage3-amd64-systemd-mergedusr-20220529T170531Z.tar.xz
 └── stage3-amd64-systemd-mergedusr-20220529T170531Z.tar.xz.asc
 
-0 directories, 20 files
+1 directory, 20 files
