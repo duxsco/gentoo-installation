@@ -225,7 +225,7 @@ After running through above installation steps, you should have the following fi
     ├── iso_delete
     └── iso_patch_and_script
     
-    15 directories, 13 files
+    16 directories, 13 files
     ```
 
 === "non-SSH setup"
@@ -250,7 +250,7 @@ After running through above installation steps, you should have the following fi
     ├── iso_delete
     └── iso_patch_and_script
     
-    12 directories, 5 files
+    13 directories, 5 files
     ```
 
 ## 4.5. ISO And Rescue Partition
