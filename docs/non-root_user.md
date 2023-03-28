@@ -26,7 +26,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Setup SSH client config:
 
 ```shell
-mkdir /home/david/.ssh && \
+mkdir -m 0700 /home/david/.ssh && \
 echo "AddKeysToAgent no
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
 HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
