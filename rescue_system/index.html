@@ -132,7 +132,7 @@ ssh-keygen<span class=w> </span>-A<span class=w> </span>-f<span class=w> </span>
 ├──<span class=w> </span>iso_delete
 └──<span class=w> </span>iso_patch_and_script
 
-<span class=m>15</span><span class=w> </span>directories,<span class=w> </span><span class=m>13</span><span class=w> </span>files
+<span class=m>16</span><span class=w> </span>directories,<span class=w> </span><span class=m>13</span><span class=w> </span>files
 </code></pre></div> </div> <div class=tabbed-block> <div class="no-copy highlight"><pre><span></span><code>❯<span class=w> </span>tree<span class=w> </span>-a<span class=w> </span>/mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe
 ├──<span class=w> </span>build_into_srm
@@ -153,7 +153,7 @@ ssh-keygen<span class=w> </span>-A<span class=w> </span>-f<span class=w> </span>
 ├──<span class=w> </span>iso_delete
 └──<span class=w> </span>iso_patch_and_script
 
-<span class=m>12</span><span class=w> </span>directories,<span class=w> </span><span class=m>5</span><span class=w> </span>files
+<span class=m>13</span><span class=w> </span>directories,<span class=w> </span><span class=m>5</span><span class=w> </span>files
 </code></pre></div> </div> </div> </div> <h2 id=45-iso-and-rescue-partition>4.5. ISO And Rescue Partition<a class=headerlink href=#45-iso-and-rescue-partition title="Permanent link">&para;</a></h2> <p><a href=https://www.system-rescue.org/scripts/sysrescue-customize/ >Create an installation medium</a> with above changes:</p> <div class=highlight><pre><span></span><code>sysrescue-customize<span class=w> </span><span class=se>\</span>
 <span class=w>    </span>--auto<span class=w> </span>--overwrite<span class=w> </span><span class=se>\</span>
 <span class=w>    </span>-s<span class=w> </span>/mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso<span class=w> </span><span class=se>\</span>
