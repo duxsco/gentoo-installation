@@ -54,7 +54,7 @@ GENTOO_MIRRORS="https://ftp-stud.hs-esslingen.de/pub/Mirrors/gentoo/ https://ftp
 # They are insufficient in my opinion.
 # Thus, I am enforcing TLSv1.2 or greater, secure TLSv1.2 cipher suites and https-only.
 # TLSv1.3 cipher suites are secure. Thus, I don't set "--tls13-ciphers".
-echo 'FETCHCOMMAND="curl --fail --silent --show-error --location --proto '\''=https'\'' --tlsv1.2 --ciphers '\''ECDHE+AESGCM+AES256:ECDHE+CHACHA20:ECDHE+AESGCM+AES128'\'' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
+echo 'FETCHCOMMAND="curl --fail --silent --show-error --location --proto '\''=https'\'' --tlsv1.2 --ciphers '\''ECDHE+AESGCM:ECDHE+CHACHA20'\'' --retry 2 --connect-timeout 60 -o \"\${DISTDIR}/\${FILE}\" \"\${URI}\""
 RESUMECOMMAND="${FETCHCOMMAND} --continue-at -"' >> /etc/portage/._cfg0000_make.conf
 
 # Some useflags I set for personal use.
