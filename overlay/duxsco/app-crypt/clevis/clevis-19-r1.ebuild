@@ -1,4 +1,4 @@
-# Copyright 2022 Gentoo Authors
+# Copyright 2022-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -14,16 +14,22 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="+luks +tpm"
 
-DEPEND="luks? ( app-misc/jq )
-	>=dev-libs/jose-8
-	luks? ( dev-libs/libpwquality )
-	luks? ( dev-libs/luksmeta )
+DEPEND="
+	dev-libs/jose
+	sys-fs/cryptsetup
+	luks? (
+		app-misc/jq
+		dev-libs/libpwquality
+		dev-libs/luksmeta
+	)
 	tpm? ( app-crypt/tpm2-tools )
-	sys-fs/cryptsetup"
+"
 RDEPEND="${DEPEND}"
-BDEPEND=""
 
 PATCHES=(
-	"${FILESDIR}/${PN}-dracut.patch"
-	"${FILESDIR}/${PN}-meson.patch"
+	# From https://github.com/latchset/clevis/pull/347
+	# Allows using dracut without systemd
+	"${FILESDIR}/clevis-dracut.patch"
+	# Fix for systemd on Gentoo
+	"${FILESDIR}/clevis-meson.patch"
 )
