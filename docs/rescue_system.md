@@ -121,7 +121,7 @@ unset crypt_pass
 Integrate additional packages required for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281) to work:
 
 ```shell
-pacman -Sy clevis libpwquality luksmeta sbctl sbsigntools tpm2-tools && \
+pacman -Sy clevis efitools libpwquality luksmeta sbctl sbsigntools tpm2-tools && \
 cowpacman2srm /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/iso_add/sysresccd/zz_additional_packages.srm && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
