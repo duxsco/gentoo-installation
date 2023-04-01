@@ -153,11 +153,11 @@ Reboot your system and use your fallback passphrase for LUKS unlock again this t
 !!! info
     The packages `app-crypt/clevis`, `dev-libs/jose` and `dev-libs/luksmeta` originate from [project GURU](https://wiki.gentoo.org/wiki/Project:GURU).
 
-If you don't have a DHCP server available to the new system, add [the following network settings](https://www.systutorials.com/docs/linux/man/7-dracut.cmdline/#lbAN) to the "CMDLINE" array variable in `/etc/dracut.conf`:
+!!! info "No DNS resolution!"
+    As of now (April 1st 2023), DNS resolution is not possible upon boot. Thus, you need to provide a static IP instead of "tang.local" as used in below codeblock.
 
-```
-ip=192.168.10.2::192.168.10.1:255.255.255.0:micro:enp1s0:off
-```
+    Further info:
+    [https://github.com/latchset/clevis/search?q=dns&type=issues](https://github.com/latchset/clevis/search?q=dns&type=issues)
 
 Install "dev-vcs/git":
 

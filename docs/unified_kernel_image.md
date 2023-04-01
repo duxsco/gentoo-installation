@@ -92,9 +92,17 @@ system_uuid="$(blkid -s UUID -o value /mapperSystem)"
 my_crypt_root="$(blkid -s UUID -o value /devSystem* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
 my_crypt_swap="$(blkid -s UUID -o value /devSwap* | sed 's/^/rd.luks.uuid=/' | paste -d " " -s -)"
 
-unset my_systemd_cryptenroll
+unset my_systemd_clevis my_systemd_cryptenroll
 
-# If you intend to use systemd-cryptenroll, define this variable:
+# If you intend to use Clevis, set this variable "my_systemd_clevis":
+# a) if DHCP is used:
+#    my_systemd_clevis="ip=dhcp"
+# b) if static IP is used:
+#    my_systemd_clevis="ip=<client-IP>::<gateway-IP>:<netmask>:<client_hostname>:<interface>:off[:[<mtu>][:<macaddr>]]"
+#
+# More information can be found in "man dracut.cmdline".
+
+# If you intend to use systemd-cryptenroll, set this variable:
 # my_systemd_cryptenroll=",tpm2-device=auto"
 
 echo "
@@ -129,6 +137,7 @@ CMDLINE=(
   rootfstype=btrfs
   rootflags=subvol=@root
   mitigations=auto,nosmt
+  ${my_systemd_clevis}
 )
 kernel_cmdline=\"\${CMDLINE[*]}\"
 unset CMDLINE" >> /etc/dracut.conf
