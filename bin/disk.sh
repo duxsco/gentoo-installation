@@ -123,7 +123,7 @@ while read -r partition; do
     fi
 
     # shellcheck disable=SC2086
-    echo -n "${luks_password}" | cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --use-random --pbkdf argon2id "${partition}"
+    echo -n "${luks_password}" | cryptsetup --batch-mode luksFormat --hash sha512 --cipher aes-xts-plain64 --key-size 512 --pbkdf argon2id "${partition}"
     echo -n "${luks_password}" | cryptsetup luksOpen "${partition}" "${partition##*\/}"
 
     index=$((index+1))
