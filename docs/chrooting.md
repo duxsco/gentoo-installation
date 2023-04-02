@@ -42,6 +42,9 @@ chroot /mnt/gentoo /bin/bash -c "source /etc/profile && locale-gen" && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
+!!! note
+    After executing the following codeblock, check the value set for `MAKEOPTS` in `/etc/portage/make.conf` for correctness. In the worst case, `MAKEOPTS="-j"` is set. You can find further info in the [Gentoo handbook](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#MAKEOPTS).
+
 Setup [MAKEOPTS](https://wiki.gentoo.org/wiki/MAKEOPTS):
 
 ```shell
