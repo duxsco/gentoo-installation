@@ -1,7 +1,7 @@
 !!! note
     If you haven't setup [SSH for the SystemRescue system](/rescue_system/#43-optional-ssh-server) you have to create "/home/david/.ssh/authorized_keys" manually instead of copying out of "/etc/gentoo-installation/systemrescuecd/" as suggested in the following codeblock.
 
-Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication):
+Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication_to_a_distant_SSH_server):
 
 ```shell
 rsync -av --chown=david:david /etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh/authorized_keys /home/david/.ssh/ && \
