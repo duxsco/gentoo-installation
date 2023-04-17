@@ -44,7 +44,7 @@ Open the SSH port:
 
 ```shell hl_lines="1"
 rsync -a /usr/local/sbin/firewall.nft /usr/local/sbin/._cfg0000_firewall.nft && \
-sed -i 's/^#\([[:space:]]*\)tcp dport 50022 accept$/\1tcp dport 50022 accept/' /usr/local/sbin/._cfg0000_firewall.nft && \
+sed -i 's/^#\([[:space:]]*\)tcp dport 50022 ct state new accept$/\1tcp dport 50022 ct state new accept/' /usr/local/sbin/._cfg0000_firewall.nft && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
