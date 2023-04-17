@@ -131,7 +131,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 !!! info
     This section is only required if you want to access the rescue system over SSH.
 
-Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication) (copy&paste one after the other):
+Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication_to_a_distant_SSH_server) (copy&paste one after the other):
 
 ``` { .shell .no-copy }
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh
