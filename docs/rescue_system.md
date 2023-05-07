@@ -30,7 +30,7 @@ Download the .iso and .asc files:
 ```shell
 rescue_system_version="$(su -l meh -c "curl -fsS --proto '=https' --tlsv1.3 https://gitlab.com/systemrescue/systemrescue-sources/-/raw/main/VERSION")" && \
 su -l meh -c "
-curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM:ECDHE+CHACHA20' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso/download?use_mirror=netcologne\" && \
+curl --continue-at - -L --proto '=https' --tlsv1.2 --ciphers 'ECDHE+AESGCM:ECDHE+CHACHA20' --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso \"https://fastly-cdn.system-rescue.org/releases/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso\" && \
 curl -fsSL --proto '=https' --tlsv1.3 --output /mnt/gentoo/etc/gentoo-installation/systemrescuecd/systemrescue.iso.asc \"https://www.system-rescue.org/releases/${rescue_system_version}/systemrescue-${rescue_system_version}-amd64.iso.asc\" && \
 echo -e '\e[1;32mSUCCESS\e[0m'
 "
