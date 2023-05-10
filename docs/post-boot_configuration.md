@@ -85,6 +85,9 @@ Use **either systemd-cryptenroll or clevis** in the following.
 
 ### 12.2.1.a) systemd-cryptenroll
 
+!!! note "TPM 2.0 dictionary lockout"
+    If you typed in the wrong TPM 2.0 pin a certain amount of time, you need to use your fallback password and execute `tpm2_dictionarylockout --clear-lockout` after bootup to lift the lockout. You can execute the command as non-root, if your non-root user is a member of group "tss".
+
 Install "app-crypt/tpm2-tools":
 
 ```shell
