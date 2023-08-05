@@ -2,7 +2,7 @@
 
 [disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh) expects the disks, where you want to install Gentoo Linux on, to be completely empty. If that's not the case continue reading. Otherwise, continue with [3.2. Partitioning And Formating](#32-partitioning-and-formating).
 
-If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk (copy&paste one after the other):
+If you use SSD(s) I recommend a [Secure Erase](https://wiki.archlinux.org/title/Solid_state_drive/Memory_cell_clearing). Alternatively, you can do a fast wipe the following way given that no LUKS, MDADM, SWAP etc. device is open on the disk (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 # Change disk name to the one you want to wipe
@@ -25,7 +25,7 @@ done < <(lsblk -npo kname "${disk}" | grep "^${disk}" | sort -r)
 !!! note
     You may want to execute the following codeblock outside `screen` and execute `clear` right after in order for confidential data not to show up when scrolling up.
 
-Prepare the disks (copy&paste one after the other):
+Prepare the disks (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 # list devices

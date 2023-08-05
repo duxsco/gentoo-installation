@@ -21,7 +21,7 @@ UUID=${SYSTEM_UUID} /var/tmp             btrfs noatime,subvol=@var_tmp   0 0
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Setup [/etc/hosts](https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#The_hosts_file) (copy&paste one after the other):
+Setup [/etc/hosts](https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#The_hosts_file) (copy&paste one command after the other):
 
 ``` { .shell hl_lines="4" .no-copy }
 # Set the hostname of your choice
@@ -92,7 +92,7 @@ Install "app-crypt/sbctl":
 emerge -at app-crypt/sbctl
 ```
 
-Create and enroll secure boot files ([link](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl)) (copy&paste one after the other):
+Create and enroll secure boot files ([link](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#sbctl)) (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 ❯ sbctl status

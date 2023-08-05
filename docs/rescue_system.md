@@ -81,7 +81,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 !!! note
     You may want to execute the following codeblock outside `screen` and execute `clear` right after in order for confidential data not to show up when scrolling up.
 
-Create the settings YAML (copy&paste one after the other):
+Create the settings YAML (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 # disable bash history
@@ -131,7 +131,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 !!! info
     This section is only required if you want to access the rescue system over SSH.
 
-Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication_to_a_distant_SSH_server) (copy&paste one after the other):
+Take care of [public key authentication](https://wiki.gentoo.org/wiki/SSH#Passwordless_authentication_to_a_distant_SSH_server) (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 mkdir -p /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/root/.ssh

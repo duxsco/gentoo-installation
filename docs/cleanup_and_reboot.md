@@ -4,7 +4,7 @@ Before rebooting, fetch "net-firewall/nftables" to be able to setup the firewall
 emerge --fetchonly net-firewall/nftables
 ```
 
-Configure the [network connection](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one after the other):
+Configure the [network connection](https://wiki.gentoo.org/wiki/Systemd#Network) (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 echo "\
@@ -22,7 +22,7 @@ IPv6AcceptRA=no\
 systemctl --no-reload enable systemd-networkd.service
 ```
 
-Setup [systemd-resolved](https://wiki.archlinux.org/title/systemd-resolved) for DNS (copy&paste one after the other):
+Setup [systemd-resolved](https://wiki.archlinux.org/title/systemd-resolved) for DNS (copy&paste one command after the other):
 
 ``` { .shell hl_lines="5" .no-copy }
 # https://wiki.gentoo.org/wiki/Resolv.conf
@@ -45,7 +45,7 @@ systemctl --no-reload enable systemd-resolved.service
 
 After the reboot, you can test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)) and check `resolvectl status` output.
 
-Exit, cleanup obsolete installation files as well as [symlinks to devices created by "disk.sh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L180-L199) and [reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one after the other):
+Exit, cleanup obsolete installation files as well as [symlinks to devices created by "disk.sh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L180-L199) and [reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 [[ -f /gentoo-latest.tar.xz ]] && exit

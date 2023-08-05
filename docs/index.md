@@ -3,7 +3,7 @@
 
     It's written with great care. Nevertheless, you are **expected not to blindly copy&paste commands!** Please, **understand** what you are going to do **and adjust commands if required!**
 
-    Even with the whole codeblock being a no-brainer, **some codeblocks need to be copied and pasted line-by-line**. In this case, **a [copy button :material-content-copy:](https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button) won't be offered** and you'll see a note saying "copy&paste one after the other". A **copy button also won't be shown for codeblocks containing sample output**. They start with "❯ ".
+    Even with the whole codeblock being a no-brainer, **some codeblocks need to be copied and pasted line-by-line**. In this case, **a [copy button :material-content-copy:](https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button) won't be offered** and you'll see a note saying "copy&paste one command after the other". A **copy button also won't be shown for codeblocks containing sample output**. They start with "❯ ".
 
 !!! info "GnuPG Public Key"
     You can find information on my GnuPG public key in my [GitHub profile README](https://github.com/duxsco/)!

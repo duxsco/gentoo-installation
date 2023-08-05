@@ -72,7 +72,7 @@ Boot into SystemRescue and [set the correct keyboard layout](https://man7.org/li
 loadkeys de-latin1-nodeadkeys
 ```
 
-(Optional) Start Xfce (copy&paste one after the other):
+(Optional) Start Xfce (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 startx
@@ -126,7 +126,7 @@ Print out fingerprints to be able to double check later on upon initial SSH conn
 find /etc/ssh/ -type f -name "ssh_host*\.pub" -exec ssh-keygen -vlf {} \;
 ```
 
-Execute following "rsync" and "ssh" commands **on your local machine from within the checked out ["gentoo-installation" repo](https://github.com/duxsco/gentoo-installation/)** (copy&paste one after the other):
+Execute following "rsync" and "ssh" commands **on your local machine from within the checked out ["gentoo-installation" repo](https://github.com/duxsco/gentoo-installation/)** (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 # Copy installation files to remote machine. Don't forget to set the correct IP.
@@ -142,7 +142,7 @@ Resume "screen":
 screen -d -r install
 ```
 
-(Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**) (copy&paste one after the other):
+(Optional) Lock the screen on the remote machine by typing the following command on its keyboard (**not over SSH**) (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 # Execute "vlock" without any flags first.

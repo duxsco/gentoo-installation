@@ -14,7 +14,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 6.1. Portage Configuration
 
-Configure [make.conf](https://wiki.gentoo.org/wiki//etc/portage/make.conf) (copy&paste one after the other):
+Configure [make.conf](https://wiki.gentoo.org/wiki//etc/portage/make.conf) (copy&paste one command after the other):
 
 ``` { .shell hl_lines="1" .no-copy }
 rsync -av /etc/portage/make.conf /etc/portage/._cfg0000_make.conf
@@ -81,7 +81,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 6.2. (Optional) Custom Mirrors
 
-If you don't live in Germany, you probably should change [GENTOO_MIRRORS](https://wiki.gentoo.org/wiki/GENTOO_MIRRORS) previously set in [6.1. Portage Configuration](#61-portage-configuration). You can pick the mirrors from the [mirror list](https://www.gentoo.org/downloads/mirrors/), use [mirrorselect](https://wiki.gentoo.org/wiki/Mirrorselect) or do as I do and select local/regional, IPv4/IPv6 dual-stack and TLSv1.3 supporting mirrors (copy&paste one after the other):
+If you don't live in Germany, you probably should change [GENTOO_MIRRORS](https://wiki.gentoo.org/wiki/GENTOO_MIRRORS) previously set in [6.1. Portage Configuration](#61-portage-configuration). You can pick the mirrors from the [mirror list](https://www.gentoo.org/downloads/mirrors/), use [mirrorselect](https://wiki.gentoo.org/wiki/Mirrorselect) or do as I do and select local/regional, IPv4/IPv6 dual-stack and TLSv1.3 supporting mirrors (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 # Install app-misc/yq

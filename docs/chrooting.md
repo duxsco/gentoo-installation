@@ -55,7 +55,7 @@ echo -e "\nMAKEOPTS=\"-j${jobs}\"" >> /mnt/gentoo/etc/portage/make.conf && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-[Chroot](https://wiki.gentoo.org/wiki/Chroot) (copy&paste one after the other):
+[Chroot](https://wiki.gentoo.org/wiki/Chroot) (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 chroot /mnt/gentoo /bin/bash

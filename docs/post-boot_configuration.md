@@ -2,7 +2,7 @@
 
 Some configuration needs to be done **after** Gentoo's systemd has been started. In the previous chapter, systemd was running, but only the instance belonging to SystemRescue.
 
-Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale) (copy&paste one after the other):
+Setup [localisation](https://wiki.gentoo.org/wiki/Systemd#Locale) (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 # set your language settings
@@ -17,7 +17,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 '
 ```
 
-Setup [systemd-timesyncd](https://wiki.archlinux.org/title/systemd-timesyncd) (copy&paste one after the other):
+Setup [systemd-timesyncd](https://wiki.archlinux.org/title/systemd-timesyncd) (copy&paste one command after the other):
 
 ``` { .shell hl_lines="15" .no-copy }
 # set your timezone
@@ -68,7 +68,7 @@ Setup Mode:	✓ Disabled
 Secure Boot:	✓ Enabled
 ```
 
-(Optional) To list the installed secure boot keys/certs (copy&paste one after the other):
+(Optional) To list the installed secure boot keys/certs (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 emerge -at app-crypt/efitools
@@ -223,7 +223,7 @@ $(qlist -eI sys-kernel/gentoo-kernel >/dev/null && echo sys-kernel/gentoo-kernel
 
 ## 12.3. Package Cleanup
 
-Update packages and remove extraneous ones (copy&paste one after the other):
+Update packages and remove extraneous ones (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 emerge -atuDN @world

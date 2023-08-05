@@ -83,7 +83,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 ## 9.4. Dracut
 
-Setup [sys-kernel/dracut](https://wiki.gentoo.org/wiki/Dracut). If you don't wear tin foil hats :wink:, you may want to change the [line "mitigations=auto,nosmt"](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html) below (copy&paste one after the other):
+Setup [sys-kernel/dracut](https://wiki.gentoo.org/wiki/Dracut). If you don't wear tin foil hats :wink:, you may want to change the [line "mitigations=auto,nosmt"](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html) below (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 emerge -at app-crypt/sbsigntools sys-kernel/dracut
