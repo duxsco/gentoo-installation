@@ -7,62 +7,62 @@ If you want to use a virtual machine for the upcoming setup either to test thing
 === "1."
     Open the Virtual Machine Manager:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_00.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_00.png)
 
 === "2."
     Create a new virtual machine:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_01.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_01.png)
 
 === "3."
     Install from a local medium:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_02.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_02.png)
 
 === "4."
     Select the SystemRescue ISO and OS variant "Gentoo Linux":
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_03.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_03.png)
 
 === "5."
     Select an appropiate amount of CPU cores and memory:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_04.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_04.png)
 
 === "6."
     Enable storage and select a sufficiently sized disk:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_05.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_05.png)
 
 === "7."
     Name your virtual machine, make sure to set the checkmark at "Customize configuration before install" and setup your network device:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_06.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_06.png)
 
 === "8."
     Select an UEFI x86_64 firmware with support for secure boot and click on "Add Hardware" for the next step:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_07.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_07.png)
 
 === "9."
     Select "TPM", configure as shown and click on "Finish":
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_08.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_08.png)
 
 === "10."
     A new "TPM v2.0" device should be listed. Click on "Begin Installation" for the next step:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_09.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_09.png)
 
 === "11."
     Select an appropiate "Boot SystemRescue [...]" boot option and press ++enter++ :
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_10.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_10.png)
 
 === "12."
     The virtual machine should have booted into SystemRescue:
 
-    ![screenshot of "Virtual Machine Manager"](/images/virtual_machine_manager_11.png)
+    ![screenshot of "Virtual Machine Manager"](images/virtual_machine_manager_11.png)
 
 ## 2.2. Live-CD Setup
 
