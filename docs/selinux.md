@@ -25,7 +25,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 For the switch to a SELinux profile, you have two options depending on the profile currently in use:
 
 === "duxsco:hardened-systemd-merged-usr"
-    If you have switched to [duxsco:hardened-systemd-merged-usr](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-merged-usr) in section [6.4. (Optional) Hardened Profiles](/portage_setup/#64-optional-hardened-profiles), you can easily "add" SELinux features with a simple switch to [duxsco:hardened-systemd-merged-usr-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-merged-usr-selinux):
+    If you have switched to [duxsco:hardened-systemd-merged-usr](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-merged-usr) in section [6.4. (Optional) Hardened Profiles](portage_setup.md#64-optional-hardened-profiles), you can easily "add" SELinux features with a simple switch to [duxsco:hardened-systemd-merged-usr-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-merged-usr-selinux):
 
     ```shell
     eselect profile set "duxsco:hardened-systemd-merged-usr-selinux"
@@ -136,7 +136,7 @@ allow init_t unlabeled_t:dir mounton;
 ❯ export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-In section [10. SSH Server (optional)](/ssh_server/), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
+In section [10. SSH Server (optional)](ssh_server.md), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
 
 ``` { .shell .no-copy }
 ❯ semanage port -l | grep -e ssh -e Port

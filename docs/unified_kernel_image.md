@@ -232,7 +232,7 @@ else
 fi
 ```
 
-For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](/portage_setup/#64-optional-hardened-profiles):
+For [kernel](https://wiki.gentoo.org/wiki/Kernel) installation, you have two reasonable choices depending on whether you use a [hardened profile or not](portage_setup.md#64-optional-hardened-profiles):
 
 === "hardened profile"
     ```shell

@@ -144,7 +144,7 @@ eselect news list
 ## 6.4. (Optional) Hardened Profiles
 
 !!! info "Desktop Profiles"
-    To make things simple, hardened desktop profiles are only considered for selection at the end of this guide in chapter [15. Desktop profiles (optional)](/desktop_profiles/).
+    To make things simple, hardened desktop profiles are only considered for selection at the end of this guide in chapter [15. Desktop profiles (optional)](desktop_profiles.md).
 
 Switch over to the custom [hardened](https://wiki.gentoo.org/wiki/Project:Hardened) profile. Additional ressources:
 

@@ -63,7 +63,7 @@ Do some [initial configuration](https://wiki.gentoo.org/wiki/Systemd#Configurati
 systemd-firstboot --prompt --setup-machine-id
 ```
 
-If you **don't** plan to keep your setup slim for the later [SELinux setup](/selinux/), the use of preset files may be s.th. to consider:
+If you **don't** plan to keep your setup slim for the later [SELinux setup](selinux.md), the use of preset files may be s.th. to consider:
 
 > Most services are disabled when systemd is first installed. A "preset" file is provided, and may be used to enable a reasonable set of default services. ([source](https://wiki.gentoo.org/wiki/Systemd#Preset_services))
 
