@@ -144,11 +144,10 @@ Install [nerd fonts](https://www.nerdfonts.com/):
 
 ```shell
 emerge media-libs/fontconfig && \
-su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/FiraCode.zip" && \
-b2sum -c <<<"35d5c556f24b9b2b7be91e59292ee8d058ca0f621ca662bb6a9f1da3be05aed88561f071eeb41260d993f022b30a15b9c89fa8bed9b181ec939f8a775cc37991  /tmp/FiraCode.zip" && \
+su -l david -c "curl --proto '=https' --tlsv1.3 -fsSL -o /tmp/FiraCode.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.tar.xz" && \
+b2sum -c <<<"e2df25cfe81c8f0b2d64f0bf199fa3ec856aad3293d583a1dc80cb3d6a47a5352c417e8f377984e788724f487e34f4b49bd8ab207fbb4fd68191b969886657e6  /tmp/FiraCode.tar.xz" && \
 mkdir /tmp/FiraCode && \
-unzip -d /tmp/FiraCode /tmp/FiraCode.zip && \
-rm -f /tmp/FiraCode/*Windows* /tmp/FiraCode/Fura* && \
+tar -C /tmp/FiraCode/ -xf /tmp/FiraCode.tar.xz && \
 mkdir /usr/share/fonts/nerd-firacode && \
 rsync -a --chown=0:0 --chmod=a=r /tmp/FiraCode/*.ttf /usr/share/fonts/nerd-firacode/ && \
 echo -e "\e[1;32mSUCCESS\e[0m"
