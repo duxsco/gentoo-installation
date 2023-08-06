@@ -35,6 +35,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 Disable "magic SysRq" for [security sake](https://wiki.gentoo.org/wiki/Vlock#Disable_SysRq_key):
 
 ```shell
+mkdir /etc/sysctl.d && \
 echo "kernel.sysrq = 0" > /etc/sysctl.d/99sysrq.conf
 ```
 
