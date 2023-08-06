@@ -2,7 +2,7 @@
 
 # Prevent tainting variables via environment
 # See: https://gist.github.com/duxsco/fad211d5828e09d0391f018834f955c9
-unset alphabet btrfs_raid disk disks fallback_password index luks_device luks_password partition pbkdf raid rescue_partition rescue_password short_uuid swap_partition swap_size system_size token_id token_type
+unset alphabet btrfs_raid disk disks fallback_password first_partition_start index integer_regex luks_device luks_password partition raid rescue_partition rescue_password short_uuid swap_partition swap_size system_size token_id token_type
 
 function help() {
 cat <<EOF
@@ -96,11 +96,32 @@ for disk in "${disks[@]}"; do
     parted --align optimal --script "${disk}" \
         "mklabel gpt" \
         "unit MiB" \
-        "mkpart esp31415part 1 $((1 + efi_system_partition_size))" \
-        "mkpart rescue31415part $((1 + efi_system_partition_size)) $((1 + efi_system_partition_size + rescue_partition_size))" \
-        "mkpart swap31415part $((1 + efi_system_partition_size + rescue_partition_size)) $((1 + efi_system_partition_size + rescue_partition_size + swap_size))" \
-        "mkpart system31415part $((1 + efi_system_partition_size + rescue_partition_size + swap_size)) ${system_size}" \
-        "set 1 esp on"
+        "mkpart test 0% 100%"
+
+    first_partition_start="$(
+        grep -Po "[0-9](?=\.00MiB)" < <(
+            jq -r '.disk.partitions[0].start' < <(
+                parted --json --script "${disk}" \
+                    "unit MiB" \
+                    "print"
+            )
+        )
+    )"
+
+    integer_regex='^[0-9]+$'
+    if [[ ${first_partition_start} =~ ${integer_regex} ]] ; then
+        parted --align optimal --script "${disk}" \
+            "mklabel gpt" \
+            "unit MiB" \
+            "mkpart esp31415part ${first_partition_start} $((first_partition_start + efi_system_partition_size))" \
+            "mkpart rescue31415part $((first_partition_start + efi_system_partition_size)) $((first_partition_start + efi_system_partition_size + rescue_partition_size))" \
+            "mkpart swap31415part $((first_partition_start + efi_system_partition_size + rescue_partition_size)) $((first_partition_start + efi_system_partition_size + rescue_partition_size + swap_size))" \
+            "mkpart system31415part $((first_partition_start + efi_system_partition_size + rescue_partition_size + swap_size)) ${system_size}" \
+            "set 1 esp on"
+    else
+        echo "Error determining start of first partition! Aborting..."
+        exit 1
+    fi
 done
 
 # rescue partition
