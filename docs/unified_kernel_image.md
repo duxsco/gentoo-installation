@@ -149,7 +149,6 @@ unset CMDLINE" >> /etc/dracut.conf
 
 ```shell
 echo "\
->=sys-fs/btrfs-progs-6.2
 >=sys-kernel/gentoo-kernel-6.2
 >=sys-kernel/gentoo-kernel-bin-6.2
 >=sys-kernel/linux-headers-6.2
