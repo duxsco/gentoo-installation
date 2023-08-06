@@ -97,11 +97,8 @@ emerge app-shells/starship && \
 { [[ -d /root/.config ]] || mkdir --mode=0700 /root/.config; } && \
 touch /home/david/.config/starship.toml && \
 chown -R david:david /home/david/.config && \
-echo '[hostname]
-ssh_only = false
-format =  "[$hostname](bold red) "
-' | tee /root/.config/starship.toml > /home/david/.config/starship.toml && \
-starship preset nerd-font-symbols | tee -a /root/.config/starship.toml >> /home/david/.config/starship.toml && \
+starship preset nerd-font-symbols | tee /root/.config/starship.toml > /home/david/.config/starship.toml && \
+sed -i -e '/^\[hostname\]$/a format = "\[$hostname\](bold red) "' -e '/^\[hostname\]$/a ssh_only = false' /root/.config/starship.toml /home/david/.config/starship.toml && \
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
