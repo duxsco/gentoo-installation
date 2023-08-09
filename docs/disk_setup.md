@@ -45,11 +45,11 @@ set -o history
 ```
 
 !!! info
-    [disk.sh creates the user "meh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L174) which will be used later on to act as non-root.
+    [disk.sh creates the user "meh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L195) which will be used later on to act as non-root.
 
 ## 3.3. /mnt/gentoo Content
 
-After executing "disk.sh", the btrfs subvolume "@root" [mounted by "disk.sh" at "/mnt/gentoo/"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L172) should contain:
+After executing "disk.sh", the btrfs subvolume "@root" [mounted by "disk.sh" at "/mnt/gentoo/"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L193) should contain:
 
 === "four disks"
     ![four disks content](images/four_disks_content.png)
@@ -66,7 +66,7 @@ After executing "disk.sh", the btrfs subvolume "@root" [mounted by "disk.sh" at 
 ## 3.4. Tarball Extraction
 
 !!! info 
-    A recent [stage3-amd64-systemd-mergedusr-*.tar.xz](https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-systemd-mergedusr/) file was downloaded and verified by [fetch_files.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/fetch_files.sh) which itself was called by [disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L177). If you work on another architecture, download and verify the correct stage3 tarball (recommended: `stage3-<architecture>-systemd-mergedusr-<timestamp>.tar.xz` and `stage3-<architecture>-systemd-mergedusr-<timestamp>.tar.xz.asc`) manually and adjust below commands accordingly. Later on, an optional switch to the custom profile [hardened-systemd-merged-usr](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-merged-usr) and [hardened-systemd-merged-usr-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-merged-usr-selinux) both of which making use of [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) will be done, requiring [modifications of those custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles) if you use a stage3 tarball other than the ones previously recommended.
+    A recent [stage3-amd64-systemd-mergedusr-*.tar.xz](https://distfiles.gentoo.org/releases/amd64/autobuilds/current-stage3-amd64-systemd-mergedusr/) file was downloaded and verified by [fetch_files.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/fetch_files.sh) which itself was called by [disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L198). If you work on another architecture, download and verify the correct stage3 tarball (recommended: `stage3-<architecture>-systemd-mergedusr-<timestamp>.tar.xz` and `stage3-<architecture>-systemd-mergedusr-<timestamp>.tar.xz.asc`) manually and adjust below commands accordingly. Later on, an optional switch to the custom profile [hardened-systemd-merged-usr](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-merged-usr) and [hardened-systemd-merged-usr-selinux](https://github.com/duxsco/gentoo-installation/tree/main/overlay/duxsco/profiles/hardened-systemd-merged-usr-selinux) both of which making use of [merged-usr](https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/) will be done, requiring [modifications of those custom profiles](https://wiki.gentoo.org/wiki/Profile_(Portage)#Creating_custom_profiles) if you use a stage3 tarball other than the ones previously recommended.
 
 [Extract the stage3 tarball](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Unpacking_the_stage_tarball) and copy custom files:
 

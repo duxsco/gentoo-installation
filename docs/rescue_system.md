@@ -63,7 +63,7 @@ echo "kernel.sysrq = 0" > /mnt/gentoo/etc/gentoo-installation/systemrescuecd/rec
 echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
-Copy [chroot.sh created by disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281):
+Copy [chroot.sh created by disk.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L223-L302):
 
 ```shell
 rsync -av --numeric-ids --chown=0:0 --chmod=u=rwx,go=r /tmp/chroot.sh /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/usr/local/sbin/ && \
@@ -118,7 +118,7 @@ set -o history
 unset crypt_pass
 ```
 
-Integrate additional packages required for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L202-L281) to work:
+Integrate additional packages required for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L223-L302) to work:
 
 ```shell
 pacman -Sy clevis efitools libpwquality luksmeta sbctl sbsigntools tpm2-tools && \

@@ -42,7 +42,7 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 ## 7.3. ~/.bashrc and chroot
 
 Add the following to "/root/.bashrc"
-for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L281) to work:
+for [chroot.sh](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L302) to work:
 
 ```shell
 echo '

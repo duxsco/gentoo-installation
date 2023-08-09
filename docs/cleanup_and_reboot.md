@@ -45,7 +45,7 @@ systemctl --no-reload enable systemd-resolved.service
 
 After the reboot, you can test DNS resolving ([link](https://openwrt.org/docs/guide-user/services/dns/dot_unbound#testing)) and check `resolvectl status` output.
 
-Exit, cleanup obsolete installation files as well as [symlinks to devices created by "disk.sh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L180-L199) and [reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one command after the other):
+Exit, cleanup obsolete installation files as well as [symlinks to devices created by "disk.sh"](https://github.com/duxsco/gentoo-installation/blob/main/bin/disk.sh#L201-L220) and [reboot](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Rebooting_the_system) (copy&paste one command after the other):
 
 ``` { .shell .no-copy }
 [[ -f /gentoo-latest.tar.xz ]] && exit
