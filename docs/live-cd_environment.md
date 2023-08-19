@@ -160,6 +160,17 @@ vlock
 vlock -a
 ```
 
+Check whether the system is in setup mode (copy&paste one command after the other):
+
+``` { .shell .no-copy }
+❯ pacman -Sy sbctl
+❯ sbctl status
+Installed:      ✗ sbctl is not installed
+Setup Mode:     ✗ Enabled <=============== This must state that it's enabled.
+Secure Boot:    ✗ Disabled
+Vendor Keys:    none
+```
+
 On bare-metal, [set the date and time](https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Setting_the_date_and_time) if the current system time is not correct:
 
 ```shell
