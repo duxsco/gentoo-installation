@@ -154,10 +154,8 @@ rsync -a /etc/ssh/sshd_config /mnt/gentoo/etc/gentoo-installation/systemrescuecd
 # do some ssh server hardening
 sed -i \
 -e 's/^#Port 22$/Port 50023/' \
--e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
 -e 's/^#X11Forwarding no$/X11Forwarding no/' /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config && \
 
-grep -q "^KbdInteractiveAuthentication no$" /mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config  && \
 echo "
 AuthenticationMethods publickey
 
