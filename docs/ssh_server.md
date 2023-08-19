@@ -10,15 +10,10 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 Configure the SSH server:
 
-```shell hl_lines="1"
-rsync -a /etc/ssh/sshd_config /etc/ssh/._cfg0000_sshd_config && \
-sed -i \
--e 's/^#Port 22$/Port 50022/' \
--e 's/^#PermitRootLogin prohibit-password$/PermitRootLogin no/' \
--e 's/^#PasswordAuthentication yes/PasswordAuthentication no/' \
--e 's/^#KbdInteractiveAuthentication yes$/KbdInteractiveAuthentication no/' \
--e 's/^#X11Forwarding no$/X11Forwarding no/' /etc/ssh/._cfg0000_sshd_config && \
-echo "
+```shell
+echo "\
+Port 50022
+X11Forwarding no
 AuthenticationMethods publickey
 
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
@@ -26,7 +21,7 @@ HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 
-AllowUsers david" >> /etc/ssh/._cfg0000_sshd_config && \
+AllowUsers david" > /etc/ssh/sshd_config.d/9999999my-custom.conf && \
 ssh-keygen -A && \
 sshd -t && \
 systemctl --no-reload enable sshd.service && \
