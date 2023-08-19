@@ -29,6 +29,12 @@ vlock
 
 <span class=c1># If relogin succeeds execute vlock with flag &quot;-a&quot; to lock all TTY.</span>
 vlock<span class=w> </span>-a
+</code></pre></div> <p>Check whether the system is in setup mode (copy&amp;paste one command after the other):</p> <div class="no-copy highlight"><pre><span></span><code>❯<span class=w> </span>pacman<span class=w> </span>-Sy<span class=w> </span>sbctl
+❯<span class=w> </span>sbctl<span class=w> </span>status
+Installed:<span class=w>      </span>✗<span class=w> </span>sbctl<span class=w> </span>is<span class=w> </span>not<span class=w> </span>installed
+Setup<span class=w> </span>Mode:<span class=w>     </span>✗<span class=w> </span>Enabled<span class=w> </span>&lt;<span class=o>===============</span><span class=w> </span>This<span class=w> </span>must<span class=w> </span>state<span class=w> </span>that<span class=w> </span>it<span class=err>&#39;</span>s<span class=w> </span>enabled.
+Secure<span class=w> </span>Boot:<span class=w>    </span>✗<span class=w> </span>Disabled
+Vendor<span class=w> </span>Keys:<span class=w>    </span>none
 </code></pre></div> <p>On bare-metal, <a href=https://wiki.gentoo.org/wiki/Handbook:AMD64/Full/Installation#Setting_the_date_and_time>set the date and time</a> if the current system time is not correct:</p> <div class=highlight><pre><span></span><code>!<span class=w> </span>grep<span class=w> </span>-q<span class=w> </span>-w<span class=w> </span><span class=s2>&quot;hypervisor&quot;</span><span class=w> </span>&lt;<span class=o>(</span>grep<span class=w> </span><span class=s2>&quot;^flags[[:space:]]*:[[:space:]]*&quot;</span><span class=w> </span>/proc/cpuinfo<span class=o>)</span><span class=w> </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=se>\</span>
 <span class=c1># replace &quot;MMDDhhmmYYYY&quot; with UTC time</span>
 date<span class=w> </span>--utc<span class=w> </span>MMDDhhmmYYYY

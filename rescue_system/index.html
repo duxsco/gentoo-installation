@@ -79,10 +79,8 @@ rsync<span class=w> </span>-a<span class=w> </span>/etc/ssh/sshd_config<span cla
 <span class=c1># do some ssh server hardening</span>
 sed<span class=w> </span>-i<span class=w> </span><span class=se>\</span>
 -e<span class=w> </span><span class=s1>&#39;s/^#Port 22$/Port 50023/&#39;</span><span class=w> </span><span class=se>\</span>
--e<span class=w> </span><span class=s1>&#39;s/^#PasswordAuthentication yes/PasswordAuthentication no/&#39;</span><span class=w> </span><span class=se>\</span>
 -e<span class=w> </span><span class=s1>&#39;s/^#X11Forwarding no$/X11Forwarding no/&#39;</span><span class=w> </span>/mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config<span class=w> </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=se>\</span>
 
-grep<span class=w> </span>-q<span class=w> </span><span class=s2>&quot;^KbdInteractiveAuthentication no</span>$<span class=s2>&quot;</span><span class=w> </span>/mnt/gentoo/etc/gentoo-installation/systemrescuecd/recipe/build_into_srm/etc/ssh/sshd_config<span class=w>  </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=se>\</span>
 <span class=nb>echo</span><span class=w> </span><span class=s2>&quot;</span>
 <span class=s2>AuthenticationMethods publickey</span>
 
