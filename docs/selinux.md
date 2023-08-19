@@ -123,17 +123,11 @@ echo -e "\e[1;32mSUCCESS\e[0m"
 
 If "/proc" was listed by above codeblock you have to relabel to avoid a denial:
 
-``` { .shell .no-copy }
-❯ cat <<EOF | audit2allow
-[   19.902620] audit: type=1400 audit(1663630933.439:3): avc:  denied  { mounton } for  pid=1062 comm="(auditd)" path="/run/systemd/unit-root/proc" dev="dm-3" ino=67581 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=1
-EOF
-
-
-#============= init_t ==============
-allow init_t unlabeled_t:dir mounton;
+```shell
+# [   19.902620] audit: type=1400 audit(1663630933.439:3): avc:  denied  { mounton } for  pid=1062 comm="(auditd)" path="/run/systemd/unit-root/proc" dev="dm-3" ino=67581 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=1
 
 # Credits: grift :)
-❯ export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
+export tmpdir="$(mktemp -d)" && mount --bind / "$tmpdir" && chcon system_u:object_r:proc_t:s0 "$tmpdir"/proc && umount "$tmpdir" && echo -e "\e[1;32mSUCCESS\e[0m"
 ```
 
 In section [10. SSH Server (optional)](ssh_server.md), the SSH port has been changed to 50022. This needs to be considered for no SELinux denials to occur:
