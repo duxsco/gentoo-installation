@@ -5,6 +5,8 @@
 
     Even with the whole codeblock being a no-brainer, **some codeblocks need to be copied and pasted line-by-line**. In this case, **a [copy button :material-content-copy:](https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button) won't be offered** and you'll see a note saying "copy&paste one command after the other". A **copy button also won't be shown for codeblocks containing sample output**. They start with "❯ ".
 
+    Unless otherwise specified, **all commands are executed as root**.
+
 !!! info "GnuPG Public Key"
     You can find information on my GnuPG public key in my [GitHub profile README](https://github.com/duxsco/)!
 
