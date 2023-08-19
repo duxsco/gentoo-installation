@@ -94,6 +94,12 @@ Install "app-crypt/tpm2-tools":
 emerge -av tpm2-tools
 ```
 
+Add your non-root user to "tss" group:
+
+```shell
+gpasswd -a david tss
+```
+
 Add support for TPM 2.0 to dracut and systemd:
 
 ```shell hl_lines="1"
