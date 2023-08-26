@@ -1,6 +1,17 @@
 # Gentoo Linux Installation
 
-> ️⚠️ You can find information on my GnuPG public key in my [GitHub profile README](https://github.com/duxsco/)! ⚠️
+```
+  _______________________________________________
+/ This repo has been archived!                    \
+| Its successor is at:                            |
+\ https://codeberg.org/duxsco/gentoo-installation /
+  -----------------------------------------------
+         \   ^__^
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+```
 
 The documentation can be found in the "docs/" folder. To run the site locally do:
 
